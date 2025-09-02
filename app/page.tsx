@@ -25,6 +25,7 @@ export default function LogoGeneratorPage() {
   const [previewTab, setPreviewTab] = useState<'preview' | 'mockups'>('preview');
   const [visibleSections, setVisibleSections] = useState<number[]>([0]); // Start with hero section visible
   const [showPreviewPanel, setShowPreviewPanel] = useState(false); // Control preview panel visibility
+  const [showStartedText, setShowStartedText] = useState(false); // Control "Let's get started" text visibility
 
   const [state, dispatch] = useReducer(logoReducer, initialState);
   const { present: config, past, future } = state;
@@ -71,6 +72,10 @@ export default function LogoGeneratorPage() {
           setVisibleSections([...visibleSections, nextSection]);
         }
         scrollToSection(`section-${nextSection}`);
+        // Show the "Let's get started" text after scrolling
+        setTimeout(() => {
+          setShowStartedText(true);
+        }, 500);
       }, 1600);
     } else {
       const nextSection = currentSection + 1;
@@ -215,22 +220,36 @@ export default function LogoGeneratorPage() {
               {previewTab === 'preview' && (
                 <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   {isLogoConfigComplete ? <LogoPreview config={config} /> : 
-                    <div className="h-full flex items-center justify-center pb-32 pt-20">
-                      <div className="text-center">
-                        <motion.h2 
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.3, duration: 0.5 }}
-                          className="text-5xl md:text-7xl font-black leading-tight"
-                        >
-                          <span className="block text-white">Let's</span>
-                          <span 
-                            className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent my-4"
-                          >
-                            get
-                          </span>
-                          <span className="block text-white">started!</span>
-                        </motion.h2>
+                    <div className="h-full flex items-center justify-center pt-16">
+                      <div className="text-center overflow-hidden">
+                        {showStartedText && (
+                          <div className="text-5xl md:text-6xl lg:text-7xl font-black" style={{ lineHeight: 1.1 }}>
+                            <motion.span 
+                              initial={{ x: '100%', opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              transition={{ duration: 0.5, delay: 0 }}
+                              className="block text-white"
+                            >
+                              Let's
+                            </motion.span>
+                            <motion.span 
+                              initial={{ x: '100%', opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              transition={{ duration: 0.5, delay: 0.2 }}
+                              className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent my-6"
+                            >
+                              get
+                            </motion.span>
+                            <motion.span 
+                              initial={{ x: '100%', opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              transition={{ duration: 0.5, delay: 0.4 }}
+                              className="block text-white"
+                            >
+                              started!
+                            </motion.span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   }
