@@ -1,3 +1,4 @@
+import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut } from '@clerk/nextjs';
 import Link from 'next/link';
 
 export const Header = () => {
@@ -7,8 +8,7 @@ export const Header = () => {
         LogoGen Pro
       </Link>
       <div className="flex items-center gap-4">
-        {/* Clerk authentication temporarily disabled - uncomment when Clerk is configured */}
-        {/* <SignedIn>
+        <SignedIn>
           <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">
             Meine Logos
           </Link>
@@ -23,9 +23,7 @@ export const Header = () => {
               <button className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity">Registrieren</button>
             </SignUpButton>
           </div>
-        </SignedOut> */}
-        <button className="text-sm font-medium hover:text-primary transition-colors">Anmelden</button>
-        <button className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity">Registrieren</button>
+        </SignedOut>
       </div>
     </header>
   );
