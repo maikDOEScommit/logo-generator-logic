@@ -1,0 +1,69 @@
+import { FC } from 'react';
+
+// === KERN-TYPEN FÜR DIE DATEN-ENGINE ===
+
+export interface IconProps {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  color?: string;
+  [key: string]: any;
+}
+
+export interface IconData {
+  id: string;
+  component: FC<IconProps>;
+  tags: string[];
+}
+
+export interface FontData {
+  name: string;
+  family: string;
+  url: string;
+  weights: number[];
+  category: string;
+}
+
+export interface LayoutData {
+  id: string;
+  name: string;
+  type: 'standard' | 'enclosed';
+  shape?: 'circle' | 'shield';
+  arrangement: 'icon-top' | 'icon-left';
+}
+
+export interface PaletteData {
+  id: string;
+  name: string;
+  colors: [string, string, string]; // [background, primary, text]
+  tags: string[];
+}
+
+export interface PersonalityData {
+  id: string;
+  name: string;
+  tags: string[];
+}
+
+// === ZUSTANDS-TYPEN FÜR DIE ANWENDUNG & REDUCER ===
+
+export interface LogoConfig {
+  icon: IconData | null;
+  font: FontData | null;
+  layout: LayoutData | null;
+  palette: PaletteData | null;
+  text: string;
+  slogan: string;
+}
+
+export interface HistoryState {
+  past: LogoConfig[];
+  present: LogoConfig;
+  future: LogoConfig[];
+}
+
+export type Action =
+  | { type: 'SET_CONFIG'; payload: Partial<LogoConfig> }
+  | { type: 'UNDO' }
+  | { type: 'REDO' };
