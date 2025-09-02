@@ -214,7 +214,26 @@ export default function LogoGeneratorPage() {
             <AnimatePresence mode="wait">
               {previewTab === 'preview' && (
                 <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  {isLogoConfigComplete ? <LogoPreview config={config} /> : <div className="h-full flex items-center justify-center text-white/50"><p>Beginnen Sie den Prozess, um die Vorschau zu sehen.</p></div>}
+                  {isLogoConfigComplete ? <LogoPreview config={config} /> : 
+                    <div className="h-full flex items-center justify-center pb-32 pt-20">
+                      <div className="text-center">
+                        <motion.h2 
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.3, duration: 0.5 }}
+                          className="text-5xl md:text-7xl font-black leading-tight"
+                        >
+                          <span className="block text-white">Let's</span>
+                          <span 
+                            className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent my-4"
+                          >
+                            get
+                          </span>
+                          <span className="block text-white">started!</span>
+                        </motion.h2>
+                      </div>
+                    </div>
+                  }
                 </motion.div>
               )}
               {previewTab === 'mockups' && (
