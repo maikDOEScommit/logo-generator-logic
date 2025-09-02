@@ -23,6 +23,7 @@ export default function LogoGeneratorPage() {
   const [industry, setIndustry] = useState<string | null>(null);
   const [selectedPersonalities, setSelectedPersonalities] = useState<string[]>([]);
   const [previewTab, setPreviewTab] = useState<'preview' | 'mockups'>('preview');
+  const [visibleSections, setVisibleSections] = useState<number[]>([0]); // Start with hero section visible
 
   const [state, dispatch] = useReducer(logoReducer, initialState);
   const { present: config, past, future } = state;
@@ -46,50 +47,36 @@ export default function LogoGeneratorPage() {
     [industry, selectedPersonalities, config]
   );
 
-  const renderStep = () => {
-    switch (step) {
-      case 1:
-        return (
-          <Step1_Industry
-            industry={industry}
-            setIndustry={setIndustry}
-            onNext={() => setStep(2)}
-          />
-        );
-      case 2:
-        return (
-          <Step2_Branding
-            config={config}
-            updateConfig={updateConfig}
-            selectedPersonalities={selectedPersonalities}
-            onTogglePersonality={handlePersonalityToggle}
-            onNext={() => setStep(3)}
-          />
-        );
-      case 3:
-        return (
-          <motion.div key="step3" className="space-y-12 animate-fade-in">
-            <div className="flex items-center gap-2">
-              <button onClick={handleUndo} disabled={past.length === 0} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"><Undo2 size={16}/> Rückgängig</button>
-              <button onClick={handleRedo} disabled={future.length === 0} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"><Redo2 size={16}/> Wiederholen</button>
-            </div>
-            <Step3_Design
-              config={config}
-              updateConfig={updateConfig}
-              suggestions={suggestions}
-            />
-          </motion.div>
-        );
-      default: return <div>Ungültiger Schritt</div>;
-    }
-  };
 
   const progress = (step / 3) * 100;
   const isLogoConfigComplete = !!(config.icon && config.font && config.layout && config.palette && config.text);
 
-  // Helper function to scroll to the editor
-  const scrollToEditor = () => {
-    document.getElementById('editor-steps')?.scrollIntoView({ behavior: 'smooth' });
+  // Helper function to scroll to a specific section
+  const scrollToSection = (sectionId: string) => {
+    setTimeout(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  // Handle next button clicks - reveal next section and scroll to it
+  const handleSectionNext = (currentSection: number) => {
+    const nextSection = currentSection + 1;
+    if (!visibleSections.includes(nextSection)) {
+      setVisibleSections([...visibleSections, nextSection]);
+    }
+    scrollToSection(`section-${nextSection}`);
+  };
+
+  // Handle step navigation within the design process
+  const handleStepNavigation = (nextStep: number) => {
+    setStep(nextStep);
+    if (nextStep === 2 && !visibleSections.includes(2)) {
+      setVisibleSections([...visibleSections, 2]);
+      scrollToSection('section-2');
+    } else if (nextStep === 3 && !visibleSections.includes(3)) {
+      setVisibleSections([...visibleSections, 3]);
+      scrollToSection('section-3');
+    }
   };
 
   return (
@@ -98,8 +85,8 @@ export default function LogoGeneratorPage() {
       <main className="min-h-screen w-full grid md:grid-cols-2 pt-20">
         <div className="p-8 md:p-12 overflow-y-auto max-h-[calc(100vh-5rem)]">
 
-          {/* === NEW HERO SECTION === */}
-          <div className="text-center min-h-[calc(100vh-10rem)] flex flex-col justify-center items-center">
+          {/* === HERO SECTION === */}
+          <div id="section-0" className="text-center min-h-[calc(100vh-10rem)] flex flex-col justify-center items-center">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 overflow-visible" style={{ lineHeight: "1.4" }}>
               <Typewriter
                 phrases={[
@@ -120,22 +107,84 @@ export default function LogoGeneratorPage() {
               Unser intelligenter Assistent führt Sie durch die goldenen Regeln des Designs, um ein perfektes, zeitloses Logo für Ihre Marke zu erstellen.
             </p>
             <button
-              onClick={scrollToEditor}
+              onClick={() => handleSectionNext(0)}
               className="bg-primary text-primary-foreground px-8 py-4 rounded-lg text-lg font-bold hover:opacity-90 transition-all transform hover:scale-105"
             >
               Jetzt starten
             </button>
           </div>
 
-          {/* === EDITOR STEPS CONTAINER === */}
-          <div id="editor-steps" className="pt-20">
-            <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
-          </div>
+          {/* === PROGRESSIVE SECTIONS === */}
+          
+          {/* Section 1: Industry Selection */}
+          {visibleSections.includes(1) && (
+            <motion.div
+              id="section-1"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="min-h-screen flex items-center justify-center py-20"
+            >
+              <div className="w-full max-w-2xl">
+                <Step1_Industry
+                  industry={industry}
+                  setIndustry={setIndustry}
+                  onNext={() => handleSectionNext(1)}
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {/* Section 2: Branding */}
+          {visibleSections.includes(2) && (
+            <motion.div
+              id="section-2"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="min-h-screen flex items-center justify-center py-20"
+            >
+              <div className="w-full max-w-2xl">
+                <Step2_Branding
+                  config={config}
+                  updateConfig={updateConfig}
+                  selectedPersonalities={selectedPersonalities}
+                  onTogglePersonality={handlePersonalityToggle}
+                  onNext={() => handleSectionNext(2)}
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {/* Section 3: Design */}
+          {visibleSections.includes(3) && (
+            <motion.div
+              id="section-3"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="min-h-screen flex items-center justify-center py-20"
+            >
+              <div className="w-full max-w-2xl">
+                <div className="space-y-12">
+                  <div className="flex items-center gap-2">
+                    <button onClick={handleUndo} disabled={past.length === 0} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"><Undo2 size={16}/> Rückgängig</button>
+                    <button onClick={handleRedo} disabled={future.length === 0} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"><Redo2 size={16}/> Wiederholen</button>
+                  </div>
+                  <Step3_Design
+                    config={config}
+                    updateConfig={updateConfig}
+                    suggestions={suggestions}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
 
         </div>
         <div className="bg-black/50 p-8 md:p-12 h-screen sticky top-0 flex flex-col">
           <div className="w-full h-2 bg-white/10 rounded-full mb-4">
-            <motion.div className="h-2 bg-primary rounded-full" animate={{ width: `${isLogoConfigComplete ? 100 : (step -1) * 33.33}%` }} />
+            <motion.div className="h-2 bg-primary rounded-full" animate={{ width: `${isLogoConfigComplete ? 100 : (visibleSections.length - 1) * 33.33}%` }} />
           </div>
 
           <div className="flex border-b border-white/20 mb-6">
