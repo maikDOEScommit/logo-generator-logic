@@ -115,13 +115,13 @@ export function Typewriter({
   };
 
   return (
-    <span className={`inline-flex items-center relative ${className}`}>
+    <span className={`inline-block relative ${className}`}>
       {/* Invisible placeholder for consistent width */}
-      <span className="opacity-0 pointer-events-none whitespace-pre" aria-hidden="true">
+      <span className="opacity-0 pointer-events-none whitespace-pre inline-block" aria-hidden="true">
         {longestPhrase}
       </span>
       {/* Actual visible text */}
-      <span className="absolute left-0 whitespace-pre inline-flex items-center">
+      <span className="absolute left-0 top-0 whitespace-pre inline-flex items-baseline">
         {renderTextWithGradient(displayText)}
         {cursor && <Caret />}
       </span>
@@ -133,10 +133,11 @@ function Caret() {
   return (
     <span
       aria-hidden
-      className="typewriter-cursor ml-0.5 inline-block w-[2px] h-[1.1em] align-baseline"
+      className="typewriter-cursor ml-0.5 inline-block w-[2px] h-[1em]"
       style={{ 
         background: "currentColor",
-        opacity: 1
+        opacity: 1,
+        verticalAlign: "baseline"
       }}
     />
   );
