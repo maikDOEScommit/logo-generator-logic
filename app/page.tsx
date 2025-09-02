@@ -93,7 +93,7 @@ export default function LogoGeneratorPage() {
                   "Create Brands",
                   "Create Logos", 
                   "Create Vibes",
-                  "in seconds!"
+                  "..in seconds!"
                 ]}
                 typingSpeed={30000}
                 deletingSpeed={20000}
