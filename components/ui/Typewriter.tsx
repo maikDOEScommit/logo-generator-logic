@@ -133,8 +133,11 @@ function Caret() {
   return (
     <span
       aria-hidden
-      className="ml-1 inline-block w-[1ch] h-[1.2em] bg-gray-100 opacity-80 animate-pulse align-baseline"
-      style={{ maskImage: "linear-gradient(transparent 0, black 0)" }}
+      className="typewriter-cursor ml-0.5 inline-block w-[2px] h-[1.1em] align-baseline"
+      style={{ 
+        background: "currentColor",
+        opacity: 1
+      }}
     />
   );
 }

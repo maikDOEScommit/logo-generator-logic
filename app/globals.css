@@ -9,3 +9,20 @@ body {
 body::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
+
+/* Typewriter cursor animation */
+@keyframes typewriter-cursor {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.typewriter-cursor {
+  animation: typewriter-cursor 1s infinite;
+}

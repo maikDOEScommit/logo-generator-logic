@@ -100,7 +100,7 @@ export default function LogoGeneratorPage() {
 
           {/* === NEW HERO SECTION === */}
           <div className="text-center min-h-[calc(100vh-10rem)] flex flex-col justify-center items-center">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-relaxed min-h-[1.5em]">
               <Typewriter
                 phrases={[
                   "Create Brands",
