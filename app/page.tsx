@@ -61,15 +61,23 @@ export default function LogoGeneratorPage() {
 
   // Handle next button clicks - reveal next section and scroll to it
   const handleSectionNext = (currentSection: number) => {
-    const nextSection = currentSection + 1;
-    if (!visibleSections.includes(nextSection)) {
-      setVisibleSections([...visibleSections, nextSection]);
-    }
-    scrollToSection(`section-${nextSection}`);
-    
     // Show preview panel when starting the process
     if (currentSection === 0 && !showPreviewPanel) {
       setShowPreviewPanel(true);
+      // Wait for animation to be visible before scrolling
+      setTimeout(() => {
+        const nextSection = currentSection + 1;
+        if (!visibleSections.includes(nextSection)) {
+          setVisibleSections([...visibleSections, nextSection]);
+        }
+        scrollToSection(`section-${nextSection}`);
+      }, 1600);
+    } else {
+      const nextSection = currentSection + 1;
+      if (!visibleSections.includes(nextSection)) {
+        setVisibleSections([...visibleSections, nextSection]);
+      }
+      scrollToSection(`section-${nextSection}`);
     }
   };
 
