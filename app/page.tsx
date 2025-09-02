@@ -24,6 +24,7 @@ export default function LogoGeneratorPage() {
   const [selectedPersonalities, setSelectedPersonalities] = useState<string[]>([]);
   const [previewTab, setPreviewTab] = useState<'preview' | 'mockups'>('preview');
   const [visibleSections, setVisibleSections] = useState<number[]>([0]); // Start with hero section visible
+  const [showPreviewPanel, setShowPreviewPanel] = useState(false); // Control preview panel visibility
 
   const [state, dispatch] = useReducer(logoReducer, initialState);
   const { present: config, past, future } = state;
@@ -65,6 +66,11 @@ export default function LogoGeneratorPage() {
       setVisibleSections([...visibleSections, nextSection]);
     }
     scrollToSection(`section-${nextSection}`);
+    
+    // Show preview panel when starting the process
+    if (currentSection === 0 && !showPreviewPanel) {
+      setShowPreviewPanel(true);
+    }
   };
 
   // Handle step navigation within the design process
@@ -82,8 +88,8 @@ export default function LogoGeneratorPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen w-full grid md:grid-cols-2 pt-20">
-        <div className="p-8 md:p-12 overflow-y-auto max-h-[calc(100vh-5rem)]">
+      <main className={`min-h-screen w-full grid ${showPreviewPanel ? 'md:grid-cols-2' : 'md:grid-cols-1'} pt-20 transition-all duration-500`}>
+        <div className={`p-8 md:p-12 overflow-y-auto max-h-[calc(100vh-5rem)] ${showPreviewPanel ? '' : 'md:col-span-1'} transition-all duration-500`}>
 
           {/* === HERO SECTION === */}
           <div id="section-0" className="text-center min-h-[calc(100vh-10rem)] flex flex-col justify-center items-center">
@@ -182,7 +188,11 @@ export default function LogoGeneratorPage() {
           )}
 
         </div>
-        <div className="bg-black/50 p-8 md:p-12 h-screen sticky top-0 flex flex-col">
+        <motion.div 
+          initial={{ x: '100%' }}
+          animate={{ x: showPreviewPanel ? 0 : '100%' }}
+          transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+          className="bg-black/50 p-8 md:p-12 h-screen sticky top-0 flex flex-col md:block hidden">
           <div className="w-full h-2 bg-white/10 rounded-full mb-4">
             <motion.div className="h-2 bg-primary rounded-full" animate={{ width: `${isLogoConfigComplete ? 100 : (visibleSections.length - 1) * 33.33}%` }} />
           </div>
@@ -206,7 +216,7 @@ export default function LogoGeneratorPage() {
               )}
             </AnimatePresence>
           </div>
-        </div>
+        </motion.div>
       </main>
     </>
   );
