@@ -86,6 +86,28 @@ export function Typewriter({
     current.length > longest.length ? current : longest, ""
   );
 
+  // Render text with gradients for specific words
+  const renderTextWithGradient = (text: string) => {
+    const gradientWords = ['Brands', 'Logos', 'Vibes', 'seconds!'];
+    
+    // Check if text ends with any gradient word
+    const gradientWord = gradientWords.find(word => text.endsWith(word));
+    
+    if (gradientWord) {
+      const beforeGradient = text.slice(0, -gradientWord.length);
+      return (
+        <>
+          {beforeGradient}
+          <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent">
+            {gradientWord}
+          </span>
+        </>
+      );
+    }
+    
+    return text;
+  };
+
   return (
     <span className={`inline-flex items-center relative ${className}`}>
       {/* Invisible placeholder for consistent width */}
@@ -94,7 +116,7 @@ export function Typewriter({
       </span>
       {/* Actual visible text */}
       <span className="absolute left-0 whitespace-pre inline-flex items-center">
-        {displayText}
+        {renderTextWithGradient(displayText)}
         {cursor && <Caret />}
       </span>
     </span>
