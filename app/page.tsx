@@ -87,13 +87,20 @@ export default function LogoGeneratorPage() {
   const progress = (step / 3) * 100;
   const isLogoConfigComplete = !!(config.icon && config.font && config.layout && config.palette && config.text);
 
+  // Helper function to scroll to the editor
+  const scrollToEditor = () => {
+    document.getElementById('editor-steps')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <>
       <Header />
       <main className="min-h-screen w-full grid md:grid-cols-2 pt-20">
         <div className="p-8 md:p-12 overflow-y-auto max-h-[calc(100vh-5rem)]">
-          <div className="mb-8 text-center">
-            <h1 className="text-2xl md:text-4xl font-bold tracking-tight mb-4 min-w-[20ch]">
+
+          {/* === NEW HERO SECTION === */}
+          <div className="text-center min-h-[calc(100vh-10rem)] flex flex-col justify-center items-center">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
               <Typewriter
                 phrases={[
                   "Create Brands",
@@ -109,13 +116,26 @@ export default function LogoGeneratorPage() {
                 loop={true}
               />
             </h1>
-            <p className="text-sm text-white/70">Intelligenter Logo-Generator mit integrierten Designregeln</p>
+            <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8">
+              Unser intelligenter Assistent führt Sie durch die goldenen Regeln des Designs, um ein perfektes, zeitloses Logo für Ihre Marke zu erstellen.
+            </p>
+            <button
+              onClick={scrollToEditor}
+              className="bg-primary text-primary-foreground px-8 py-4 rounded-lg text-lg font-bold hover:opacity-90 transition-all transform hover:scale-105"
+            >
+              Jetzt starten
+            </button>
           </div>
-          <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
+
+          {/* === EDITOR STEPS CONTAINER === */}
+          <div id="editor-steps" className="pt-20">
+            <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
+          </div>
+
         </div>
         <div className="bg-black/50 p-8 md:p-12 h-screen sticky top-0 flex flex-col">
           <div className="w-full h-2 bg-white/10 rounded-full mb-4">
-            <motion.div className="h-2 bg-primary rounded-full" animate={{ width: `${progress}%` }} />
+            <motion.div className="h-2 bg-primary rounded-full" animate={{ width: `${isLogoConfigComplete ? 100 : (step -1) * 33.33}%` }} />
           </div>
 
           <div className="flex border-b border-white/20 mb-6">
@@ -127,7 +147,7 @@ export default function LogoGeneratorPage() {
             <AnimatePresence mode="wait">
               {previewTab === 'preview' && (
                 <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  {isLogoConfigComplete ? <LogoPreview config={config} /> : <div className="h-full flex items-center justify-center text-white/50"><p>Treffen Sie eine Auswahl, um die Vorschau zu sehen.</p></div>}
+                  {isLogoConfigComplete ? <LogoPreview config={config} /> : <div className="h-full flex items-center justify-center text-white/50"><p>Beginnen Sie den Prozess, um die Vorschau zu sehen.</p></div>}
                 </motion.div>
               )}
               {previewTab === 'mockups' && (

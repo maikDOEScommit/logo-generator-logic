@@ -7,9 +7,25 @@ export const Header = () => {
         LogoGen Pro
       </Link>
       <div className="flex items-center gap-4">
-        <div className="text-sm text-white/60">
-          Intelligenter Logo-Generator basierend auf den 10 goldenen Regeln des Designs
-        </div>
+        {/* Clerk authentication temporarily disabled - uncomment when Clerk is configured */}
+        {/* <SignedIn>
+          <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">
+            Meine Logos
+          </Link>
+          <UserButton afterSignOutUrl="/" />
+        </SignedIn>
+        <SignedOut>
+          <div className="flex items-center gap-2">
+            <SignInButton mode="modal">
+              <button className="text-sm font-medium hover:text-primary transition-colors">Anmelden</button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity">Registrieren</button>
+            </SignUpButton>
+          </div>
+        </SignedOut> */}
+        <button className="text-sm font-medium hover:text-primary transition-colors">Anmelden</button>
+        <button className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity">Registrieren</button>
       </div>
     </header>
   );

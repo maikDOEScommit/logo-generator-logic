@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { LogoConfig, PaletteData } from '@/lib/types';
 import { evaluateLogoDesign, suggestImprovements } from '@/lib/designRules';
-import { Download } from 'lucide-react';
+import { Download, Save } from 'lucide-react';
 import LogoCanvas from './LogoCanvas';
 
 const LogoPreview = ({ config }: { config: LogoConfig }) => {
@@ -26,6 +26,12 @@ const LogoPreview = ({ config }: { config: LogoConfig }) => {
 
   const evaluation = useMemo(() => evaluateLogoDesign(config), [config]);
   const suggestions = useMemo(() => suggestImprovements(config), [config]);
+
+  const handleSave = () => {
+    // Placeholder for database save logic
+    alert('Save functionality coming soon!');
+    console.log('Saving logo config:', config);
+  };
 
   return (
     <div className="space-y-6">
@@ -65,9 +71,30 @@ const LogoPreview = ({ config }: { config: LogoConfig }) => {
         <h3 className="font-bold mb-2 text-primary">Monochrome Version</h3>
         <div className="bg-black border border-white/20 rounded-lg p-4"><LogoCanvas config={monochromeConfig} idSuffix="-mono" /></div>
       </div>
-      <button onClick={handleDownload} disabled={!config.text} className="w-full mt-4 bg-primary text-primary-foreground font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">
-        <Download size={18} />SVG Herunterladen
-      </button>
+      {/* === SAVE/DOWNLOAD ACTION AREA === */}
+      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+        {/* Clerk authentication temporarily disabled - uncomment when Clerk is configured */}
+        {/* <SignedIn>
+          <button onClick={handleSave} disabled={!config.text} className="w-full bg-white/10 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <Save size={18} /> Speichern
+          </button>
+        </SignedIn>
+        <SignedOut>
+          <SignInButton mode="modal">
+            <button className="w-full bg-white/10 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-white/20 transition-colors">
+              <Save size={18} /> Anmelden zum Speichern
+            </button>
+          </SignInButton>
+        </SignedOut> */}
+        
+        <button onClick={handleSave} disabled={!config.text} className="w-full bg-white/10 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          <Save size={18} /> Speichern
+        </button>
+
+        <button onClick={handleDownload} disabled={!config.text} className="w-full bg-primary text-primary-foreground font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">
+          <Download size={18} /> Download SVG
+        </button>
+      </div>
     </div>
   );
 };
