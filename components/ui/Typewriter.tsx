@@ -90,19 +90,25 @@ export function Typewriter({
   const renderTextWithGradient = (text: string) => {
     const gradientWords = ['Brands', 'Logos', 'Vibes', 'seconds!'];
     
-    // Check if text ends with any gradient word
-    const gradientWord = gradientWords.find(word => text.endsWith(word));
-    
-    if (gradientWord) {
-      const beforeGradient = text.slice(0, -gradientWord.length);
-      return (
-        <>
-          {beforeGradient}
-          <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent">
-            {gradientWord}
-          </span>
-        </>
-      );
+    // Check if text contains any gradient word (partial or complete)
+    for (const word of gradientWords) {
+      const wordIndex = text.indexOf(word.charAt(0));
+      if (wordIndex !== -1) {
+        const beforeGradient = text.slice(0, wordIndex);
+        const potentialGradientPart = text.slice(wordIndex);
+        
+        // Check if the potential gradient part is the beginning of our target word
+        if (word.startsWith(potentialGradientPart)) {
+          return (
+            <>
+              {beforeGradient}
+              <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent">
+                {potentialGradientPart}
+              </span>
+            </>
+          );
+        }
+      }
     }
     
     return text;
