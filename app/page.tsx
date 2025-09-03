@@ -364,10 +364,10 @@ export default function LogoGeneratorPage() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-8 p-4 md:p-8 lg:p-12"
+              className="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-8 p-4 md:p-8 lg:p-12 items-start"
             >
               {/* Left Column: Info & Design Quality */}
-              <div className="flex flex-col justify-center space-y-8">
+              <div className="flex flex-col space-y-8 pt-8">
                 <div>
                   <h2 className="text-4xl font-bold text-white mb-4">Your Logo is Ready!</h2>
                   <p className="text-xl text-white/70 mb-6">Here are your generated logo variations</p>
@@ -412,7 +412,7 @@ export default function LogoGeneratorPage() {
               </div>
 
               {/* Right Column: Logo Variations */}
-              <div className="md:col-span-2 flex flex-col justify-center">
+              <div className="md:col-span-2 flex flex-col pt-8">
                 <motion.div 
                   initial={{ opacity: 0, x: 50 }} 
                   animate={{ opacity: 1, x: 0 }} 
