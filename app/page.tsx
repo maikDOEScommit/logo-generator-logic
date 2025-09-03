@@ -39,6 +39,7 @@ export default function LogoGeneratorPage() {
   const [exitSecondText, setExitSecondText] = useState(false); // Control exit animation for second text
   const [showThirdText, setShowThirdText] = useState(false); // Control "hold on, we're right there!" text
   const [exitThirdText, setExitThirdText] = useState(false); // Control exit animation for third text
+  const [exitHeroSection, setExitHeroSection] = useState(false); // Control hero section exit animation
 
   const [state, dispatch] = useReducer(logoReducer, initialState);
   const { present: config, past, future } = state;
@@ -77,30 +78,35 @@ export default function LogoGeneratorPage() {
   const handleSectionNext = (currentSection: number) => {
     // Show preview panel when starting the process
     if (currentSection === 0 && !showPreviewPanel) {
-      setShowPreviewPanel(true);
+      // Start hero exit animation first
+      setExitHeroSection(true);
       
-      // Start horizontal border-top animation after panel slides in
       setTimeout(() => {
-        setShowTopBorder(true);
-      }, 800); // Wait for panel slide-in
-      
-      // Start vertical border-left animation after horizontal border completes
-      setTimeout(() => {
-        setShowLeftBorder(true);
-      }, 1925); // Wait for horizontal border to complete (25% faster)
-      
-      // Wait for animation to be visible before scrolling
-      setTimeout(() => {
-        const nextSection = currentSection + 1;
-        if (!visibleSections.includes(nextSection)) {
-          setVisibleSections([...visibleSections, nextSection]);
-        }
-        scrollToSection(`section-${nextSection}`);
-        // Show the "Let's get started" text after scrolling
+        setShowPreviewPanel(true);
+        
+        // Start horizontal border-top animation after panel slides in
         setTimeout(() => {
-          setShowStartedText(true);
-        }, 500);
-      }, 3050); // Extended delay for all animations (25% faster)
+          setShowTopBorder(true);
+        }, 800); // Wait for panel slide-in
+        
+        // Start vertical border-left animation after horizontal border completes
+        setTimeout(() => {
+          setShowLeftBorder(true);
+        }, 1700); // Wait for horizontal border to complete (25% faster: 800ms + 900ms)
+        
+        // Wait for animation to be visible before scrolling
+        setTimeout(() => {
+          const nextSection = currentSection + 1;
+          if (!visibleSections.includes(nextSection)) {
+            setVisibleSections([...visibleSections, nextSection]);
+          }
+          scrollToSection(`section-${nextSection}`);
+          // Show the "Let's get started" text after scrolling
+          setTimeout(() => {
+            setShowStartedText(true);
+          }, 500);
+        }, 2825); // Extended delay for all animations (25% faster: 1700ms + 900ms + 225ms)
+      }, 800); // Wait for hero exit animation
     } else if (currentSection === 1) {
       // First continue click: animate out "Let's get started" text
       setExitStartedText(true);
@@ -169,36 +175,47 @@ export default function LogoGeneratorPage() {
         <div className={`p-8 md:p-12 overflow-y-auto max-h-[calc(100vh-5rem)] ${showPreviewPanel ? '' : 'md:col-span-1'} transition-all duration-500`}>
 
           {/* === HERO SECTION === */}
-          <div id="section-0" className="text-center min-h-[calc(100vh-10rem)] flex flex-col justify-center items-center">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 overflow-visible" style={{ lineHeight: "1.4" }}>
-              <Typewriter
-                phrases={[
-                  "Create Brands",
-                  "Create Logos", 
-                  "Create Vibes",
-                  "..in seconds!"
-                ]}
-                typingSpeed={30000}
-                deletingSpeed={20000}
-                holdBeforeDelete={1100}
-                holdBeforeType={220}
-                cursor
-                loop={true}
-              />
-            </h1>
-            <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto mb-4 font-medium">
-              Your vision. Your logo. Designed to fit you perfectly.
-            </p>
-            <p className="text-base md:text-lg text-white/60 max-w-2xl mx-auto mb-8">
-              We turn your ideas into a logo that speaks your brand's language.
-            </p>
-            <button
-              onClick={() => handleSectionNext(0)}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-lg text-lg font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95"
-            >
-              Create!
-            </button>
-          </div>
+          <AnimatePresence mode="wait">
+            {!exitHeroSection && (
+              <motion.div 
+                key="hero-section"
+                id="section-0" 
+                initial={{ x: 0, opacity: 1 }}
+                exit={{ x: '-100%', opacity: 0 }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
+                className="text-center min-h-[calc(100vh-10rem)] flex flex-col justify-center items-center"
+              >
+                <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 overflow-visible" style={{ lineHeight: "1.4" }}>
+                  <Typewriter
+                    phrases={[
+                      "Create Brands",
+                      "Create Logos", 
+                      "Create Vibes",
+                      "..in seconds!"
+                    ]}
+                    typingSpeed={30000}
+                    deletingSpeed={20000}
+                    holdBeforeDelete={1100}
+                    holdBeforeType={220}
+                    cursor
+                    loop={true}
+                  />
+                </h1>
+                <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto mb-4 font-medium">
+                  Your vision. Your logo. Designed to fit you perfectly.
+                </p>
+                <p className="text-base md:text-lg text-white/60 max-w-2xl mx-auto mb-8">
+                  We turn your ideas into a logo that speaks your brand's language.
+                </p>
+                <button
+                  onClick={() => handleSectionNext(0)}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-lg text-lg font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95"
+                >
+                  Create!
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* === PROGRESSIVE SECTIONS === */}
           
@@ -277,7 +294,7 @@ export default function LogoGeneratorPage() {
           transition={{ type: 'spring', damping: 20, stiffness: 100 }}
           className="p-8 md:p-12 min-h-screen sticky top-0 flex flex-col md:block hidden relative"
           style={{
-            background: `radial-gradient(circle at top left, #111827 0%, #111827 60%, #0F0F0F 90%, #000000 100%)`
+            background: `radial-gradient(circle at top left, #111827 0%, #111827 70%, #0F0F0F 85%, #000000 95%)`
           }}
         >
           {/* Horizontal Border-Top Animation - starts after panel slides in, fills right to left */}
@@ -285,7 +302,7 @@ export default function LogoGeneratorPage() {
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
-              transition={{ duration: 1.125, ease: "easeOut" }}
+              transition={{ duration: 0.9, ease: "easeOut" }}
               className="absolute top-0 right-0 h-2 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500 overflow-hidden rounded-[14px]"
             />
           )}
@@ -295,7 +312,7 @@ export default function LogoGeneratorPage() {
             <motion.div
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
-              transition={{ duration: 1.125, ease: "easeOut" }}
+              transition={{ duration: 0.9, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-[14px]"
             />
           )}
@@ -304,7 +321,7 @@ export default function LogoGeneratorPage() {
             <motion.div
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
-              transition={{ duration: 1.125, delay: 0.45, ease: "easeOut" }}
+              transition={{ duration: 0.9, delay: 0.45, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-[14px]"
             />
           )}
