@@ -32,6 +32,7 @@ export default function LogoGeneratorPage() {
   // New states for enhanced UX animations
   const [showTopBorder, setShowTopBorder] = useState(false); // Control horizontal border-top animation
   const [showLeftBorder, setShowLeftBorder] = useState(false); // Control vertical border-left animation
+  const [showFinalBorder, setShowFinalBorder] = useState(false); // Control final border animation after Create Logo
   
   // New states for text animations
   const [exitStartedText, setExitStartedText] = useState(false); // Control exit animation for "Let's get started"
@@ -179,68 +180,55 @@ export default function LogoGeneratorPage() {
     }
   };
   
-  // Handle final logo creation - animate out third text, scroll, expand panel, then show logos
+  // Handle fullscreen expansion animation
+  const handleFullscreenExpansion = () => {
+    // Step 1: Scroll to bottom of the page
+    window.scrollTo({ 
+      top: document.documentElement.scrollHeight, 
+      behavior: 'smooth' 
+    });
+    
+    // Step 2: Calculate current position after scroll and start morph
+    setTimeout(() => {
+      // Calculate the current visible position of the right panel after scroll
+      const currentScrollY = window.scrollY;
+      const viewportHeight = window.innerHeight;
+      const headerHeight = 80;
+      
+      // The right panel is sticky, so it's always at the top of the viewport
+      const currentTop = headerHeight;
+      const currentHeight = viewportHeight - headerHeight;
+      
+      setMorphFromPosition({
+        top: currentTop,
+        right: 0,
+        width: '50vw',
+        height: `${currentHeight}px`
+      });
+      
+      // Start the morph animation
+      setExpandPreviewPanel(true);
+    }, 1000); // Wait for scroll to complete
+  };
+
+  // Handle final logo creation - animate out third text and create new results section
   const handleLogoCreation = () => {
     setExitThirdText(true);
     
-    // Check if we're on mobile (screen width < 768px)
-    const isMobile = window.innerWidth < 768;
-    
-    if (isMobile) {
-      // On mobile: Show logos and scroll to them
-      setTimeout(() => {
-        setShowLogoPreview(true);
-        setHideStartedText(true);
-        
-        // Scroll to the mobile logo section after it appears
-        setTimeout(() => {
-          const mobileLogoSection = document.querySelector('.mobile-logo-section');
-          if (mobileLogoSection) {
-            mobileLogoSection.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start' 
-            });
-          }
-        }, 300); // Small delay to let the section render
-      }, 500);
-    } else {
-      // On desktop: Full animation sequence
-      // Step 1: Scroll to bottom of the page
-      setTimeout(() => {
-        window.scrollTo({ 
-          top: document.documentElement.scrollHeight, 
-          behavior: 'smooth' 
-        });
-        
-        // Step 2: Calculate current position after scroll and start morph
-        setTimeout(() => {
-          // Calculate the current visible position of the right panel after scroll
-          const currentScrollY = window.scrollY;
-          const viewportHeight = window.innerHeight;
-          const headerHeight = 80;
-          
-          // The right panel is sticky, so it's always at the top of the viewport
-          const currentTop = headerHeight;
-          const currentHeight = viewportHeight - headerHeight;
-          
-          setMorphFromPosition({
-            top: currentTop,
-            right: 0,
-            width: '50vw',
-            height: `${currentHeight}px`
-          });
-          
-          // Start the morph animation
-          setExpandPreviewPanel(true);
-          
-          // Step 3: Show logo preview after panel morph animation completes
-          setTimeout(() => {
-            setShowLogoPreview(true);
-            setHideStartedText(true);
-          }, 1200); // Wait for complete morph animation (1.2s + buffer)
-        }, 1000); // Wait for scroll to complete
-      }, 500); // Wait for text exit animation to start
-    }
+    setTimeout(() => {
+      // Create the new results section (section 4)
+      const nextSection = 4;
+      if (!visibleSections.includes(nextSection)) {
+        setVisibleSections([...visibleSections, nextSection]);
+      }
+      
+      // Show logo preview
+      setShowLogoPreview(true);
+      setHideStartedText(true);
+      
+      // Scroll to the new results section
+      scrollToSection(`section-${nextSection}`);
+    }, 1000); // Wait for text exit animation
   };
 
   return (
@@ -253,8 +241,8 @@ export default function LogoGeneratorPage() {
         }
       `}</style>
       <Header />
-      <main className={`min-h-screen w-full grid grid-cols-1 ${expandPreviewPanel ? 'md:grid-cols-1' : showPreviewPanel ? 'md:grid-cols-2' : 'md:grid-cols-1'} pt-20 transition-all duration-500`}>
-        <div className={`p-4 md:p-8 lg:p-12 overflow-y-auto max-h-[calc(100vh-5rem)] ${expandPreviewPanel ? 'hidden' : showPreviewPanel ? '' : 'md:col-span-1'} transition-all duration-500`}>
+      <main className={`min-h-screen w-full grid grid-cols-1 ${expandPreviewPanel ? 'md:grid-cols-1' : (showPreviewPanel && !visibleSections.includes(4)) ? 'md:grid-cols-2' : 'md:grid-cols-1'} pt-20 transition-all duration-500`}>
+        <div className={`p-4 md:p-8 lg:p-12 overflow-y-auto max-h-[calc(100vh-5rem)] ${expandPreviewPanel ? 'hidden' : (showPreviewPanel && !visibleSections.includes(4)) ? '' : 'md:col-span-1'} transition-all duration-500`}>
 
           {/* === HERO SECTION === */}
           <AnimatePresence mode="wait">
@@ -369,6 +357,73 @@ export default function LogoGeneratorPage() {
             </motion.div>
           )}
 
+          {/* Section 4: Logo Results */}
+          {visibleSections.includes(4) && (
+            <motion.div
+              id="section-4"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-8 p-4 md:p-8 lg:p-12"
+            >
+              {/* Left Column: Info & Design Quality */}
+              <div className="flex flex-col justify-center space-y-8">
+                <div>
+                  <h2 className="text-4xl font-bold text-white mb-4">Your Logo is Ready!</h2>
+                  <p className="text-xl text-white/70 mb-6">Here are your generated logo variations</p>
+                </div>
+
+                {/* Design Quality */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <div className="bg-white/5 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-bold text-primary">Design Quality</h3>
+                      <span className="text-2xl font-bold text-white">82/100</span>
+                    </div>
+                    <div className="w-full h-2 bg-white/10 rounded-full mb-3">
+                      <div
+                        className="h-2 rounded-full bg-white transition-all duration-500"
+                        style={{ width: "82%" }}
+                      />
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-white/10">
+                      <h4 className="text-sm font-semibold text-primary mb-2">Improvement suggestions:</h4>
+                      <ul className="text-xs text-white/70 space-y-1">
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-0.5">•</span>
+                          Wählen Sie eine klassische Schriftart und professionelle Farben für mehr Zeitlosigkeit
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-0.5">•</span>
+                          Vervollständigen Sie alle Elemente für ein starkes Gesamtkonzept
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-0.5">•</span>
+                          Wählen Sie Farben, die zu Ihrer Branche passen (z.B. Blau für Tech, Grün für Nachhaltigkeit)
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Right Column: Logo Variations */}
+              <div className="md:col-span-2 flex flex-col justify-center">
+                <motion.div 
+                  initial={{ opacity: 0, x: 50 }} 
+                  animate={{ opacity: 1, x: 0 }} 
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                >
+                  <LogoPreview config={config} selectedFontCategory={selectedFontCategory} />
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Mobile Logo Preview Section */}
           {isLogoConfigComplete && showLogoPreview && (
             <motion.div
@@ -432,7 +487,7 @@ export default function LogoGeneratorPage() {
             damping: 20, 
             stiffness: 100
           }}
-          className={`p-8 md:p-12 min-h-screen sticky top-0 flex flex-col md:block hidden relative ${expandPreviewPanel ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
+          className={`p-8 md:p-12 min-h-screen sticky top-0 flex flex-col ${visibleSections.includes(4) ? 'hidden' : 'md:block hidden'} relative ${expandPreviewPanel ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
           style={{
             background: `radial-gradient(circle at top left, #111827 0%, #111827 70%, #0F0F0F 85%, #000000 95%)`
           }}
@@ -454,6 +509,16 @@ export default function LogoGeneratorPage() {
               animate={{ height: '100vh' }}
               transition={{ duration: 0.9, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-[14px]"
+            />
+          )}
+          
+          {/* Final Border-Left Animation - triggered after Create Logo click */}
+          {showFinalBorder && (
+            <motion.div
+              initial={{ height: 0 }}
+              animate={{ height: '100vh' }}
+              transition={{ duration: 0.9, ease: "easeOut" }}
+              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-cyan-400 via-purple-600 to-blue-500 overflow-hidden rounded-[14px]"
             />
           )}
           {/* Original Animated Border - only show after first scroll trigger (replaces the new border) */}
@@ -486,6 +551,13 @@ export default function LogoGeneratorPage() {
           >
             <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'}`}>Preview</button>
             <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
+            <button 
+              onClick={handleFullscreenExpansion}
+              disabled={!(isLogoConfigComplete && showLogoPreview)} 
+              className="ml-auto px-4 py-2 font-bold bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+            >
+              Fullsize
+            </button>
           </motion.div>
 
           <div className="flex-grow overflow-y-auto overflow-x-visible pb-20">

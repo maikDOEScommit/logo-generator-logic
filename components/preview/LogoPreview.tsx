@@ -40,33 +40,6 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
 
   return (
     <div className="space-y-6">
-      <div className="bg-white/5 rounded-lg p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-bold text-primary">Design Quality</h3>
-          <span className={`text-2xl font-bold ${evaluation.overallScore >= 80 ? 'text-white' : evaluation.overallScore >= 60 ? 'text-white' : 'text-red-400'}`}>
-            {evaluation.overallScore}/100
-          </span>
-        </div>
-        <div className="w-full h-2 bg-white/10 rounded-full mb-3">
-          <div
-            className={`h-2 rounded-full transition-all duration-500 ${evaluation.overallScore >= 80 ? 'bg-white' : evaluation.overallScore >= 60 ? 'bg-white' : 'bg-red-400'}`}
-            style={{ width: `${evaluation.overallScore}%` }}
-          />
-        </div>
-        {suggestions.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-white/10">
-            <h4 className="text-sm font-semibold text-primary mb-2">Improvement suggestions:</h4>
-            <ul className="text-xs text-white/70 space-y-1">
-              {suggestions.slice(0, 3).map((suggestion, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">•</span>
-                  {suggestion}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
 
       {fontsInSelectedCategory ? (
         <div className="space-y-6">
