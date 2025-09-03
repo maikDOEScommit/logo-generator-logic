@@ -43,13 +43,13 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
       <div className="bg-white/5 rounded-lg p-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-bold text-primary">Design Quality</h3>
-          <span className={`text-2xl font-bold ${evaluation.overallScore >= 80 ? 'text-green-400' : evaluation.overallScore >= 60 ? 'text-white' : 'text-red-400'}`}>
+          <span className={`text-2xl font-bold ${evaluation.overallScore >= 80 ? 'text-white' : evaluation.overallScore >= 60 ? 'text-white' : 'text-red-400'}`}>
             {evaluation.overallScore}/100
           </span>
         </div>
         <div className="w-full h-2 bg-white/10 rounded-full mb-3">
           <div
-            className={`h-2 rounded-full transition-all duration-500 ${evaluation.overallScore >= 80 ? 'bg-green-400' : evaluation.overallScore >= 60 ? 'bg-white' : 'bg-red-400'}`}
+            className={`h-2 rounded-full transition-all duration-500 ${evaluation.overallScore >= 80 ? 'bg-white' : evaluation.overallScore >= 60 ? 'bg-white' : 'bg-red-400'}`}
             style={{ width: `${evaluation.overallScore}%` }}
           />
         </div>

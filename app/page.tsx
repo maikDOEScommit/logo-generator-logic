@@ -76,37 +76,52 @@ export default function LogoGeneratorPage() {
 
   // Handle next button clicks - reveal next section and scroll to it
   const handleSectionNext = (currentSection: number) => {
+    // Check if we're on mobile (screen width < 768px)
+    const isMobile = window.innerWidth < 768;
+    
     // Show preview panel when starting the process
     if (currentSection === 0 && !showPreviewPanel) {
       // Start hero exit animation first
       setExitHeroSection(true);
       
-      setTimeout(() => {
-        setShowPreviewPanel(true);
-        
-        // Start horizontal border-top animation after panel slides in
-        setTimeout(() => {
-          setShowTopBorder(true);
-        }, 800); // Wait for panel slide-in
-        
-        // Start vertical border-left animation after horizontal border completes
-        setTimeout(() => {
-          setShowLeftBorder(true);
-        }, 1700); // Wait for horizontal border to complete (25% faster: 800ms + 900ms)
-        
-        // Wait for animation to be visible before scrolling
+      if (isMobile) {
+        // On mobile: Skip preview panel animations, go directly to next section
         setTimeout(() => {
           const nextSection = currentSection + 1;
           if (!visibleSections.includes(nextSection)) {
             setVisibleSections([...visibleSections, nextSection]);
           }
           scrollToSection(`section-${nextSection}`);
-          // Show the "Let's get started" text after scrolling
+        }, 800); // Wait only for hero exit animation
+      } else {
+        // On desktop: Full animation sequence
+        setTimeout(() => {
+          setShowPreviewPanel(true);
+          
+          // Start horizontal border-top animation after panel slides in
           setTimeout(() => {
-            setShowStartedText(true);
-          }, 500);
-        }, 2825); // Extended delay for all animations (25% faster: 1700ms + 900ms + 225ms)
-      }, 800); // Wait for hero exit animation
+            setShowTopBorder(true);
+          }, 800); // Wait for panel slide-in
+          
+          // Start vertical border-left animation after horizontal border completes
+          setTimeout(() => {
+            setShowLeftBorder(true);
+          }, 1700); // Wait for horizontal border to complete (25% faster: 800ms + 900ms)
+          
+          // Wait for animation to be visible before scrolling
+          setTimeout(() => {
+            const nextSection = currentSection + 1;
+            if (!visibleSections.includes(nextSection)) {
+              setVisibleSections([...visibleSections, nextSection]);
+            }
+            scrollToSection(`section-${nextSection}`);
+            // Show the "Let's get started" text after scrolling
+            setTimeout(() => {
+              setShowStartedText(true);
+            }, 500);
+          }, 2825); // Extended delay for all animations (25% faster: 1700ms + 900ms + 225ms)
+        }, 800); // Wait for hero exit animation
+      }
     } else if (currentSection === 1) {
       // First continue click: animate out "Let's get started" text
       setExitStartedText(true);
@@ -171,8 +186,8 @@ export default function LogoGeneratorPage() {
   return (
     <>
       <Header />
-      <main className={`min-h-screen w-full grid ${showPreviewPanel ? 'md:grid-cols-2' : 'md:grid-cols-1'} pt-20 transition-all duration-500`}>
-        <div className={`p-8 md:p-12 overflow-y-auto max-h-[calc(100vh-5rem)] ${showPreviewPanel ? '' : 'md:col-span-1'} transition-all duration-500`}>
+      <main className={`min-h-screen w-full grid grid-cols-1 ${showPreviewPanel ? 'md:grid-cols-2' : 'md:grid-cols-1'} pt-20 transition-all duration-500`}>
+        <div className={`p-4 md:p-8 lg:p-12 overflow-y-auto max-h-[calc(100vh-5rem)] ${showPreviewPanel ? '' : 'md:col-span-1'} transition-all duration-500`}>
 
           {/* === HERO SECTION === */}
           <AnimatePresence mode="wait">
@@ -209,7 +224,7 @@ export default function LogoGeneratorPage() {
                 </p>
                 <button
                   onClick={() => handleSectionNext(0)}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-lg text-lg font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95"
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 md:px-8 md:py-4 rounded-lg text-base md:text-lg font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95"
                 >
                   Create!
                 </button>
