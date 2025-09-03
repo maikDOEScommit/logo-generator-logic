@@ -32,6 +32,13 @@ export default function LogoGeneratorPage() {
   // New states for enhanced UX animations
   const [showTopBorder, setShowTopBorder] = useState(false); // Control horizontal border-top animation
   const [showLeftBorder, setShowLeftBorder] = useState(false); // Control vertical border-left animation
+  
+  // New states for text animations
+  const [exitStartedText, setExitStartedText] = useState(false); // Control exit animation for "Let's get started"
+  const [showSecondText, setShowSecondText] = useState(false); // Control "just 50 seconds away" text
+  const [exitSecondText, setExitSecondText] = useState(false); // Control exit animation for second text
+  const [showThirdText, setShowThirdText] = useState(false); // Control "hold on, we're right there!" text
+  const [exitThirdText, setExitThirdText] = useState(false); // Control exit animation for third text
 
   const [state, dispatch] = useReducer(logoReducer, initialState);
   const { present: config, past, future } = state;
@@ -94,6 +101,38 @@ export default function LogoGeneratorPage() {
           setShowStartedText(true);
         }, 500);
       }, 3050); // Extended delay for all animations (25% faster)
+    } else if (currentSection === 1) {
+      // First continue click: animate out "Let's get started" text
+      setExitStartedText(true);
+      
+      setTimeout(() => {
+        const nextSection = currentSection + 1;
+        if (!visibleSections.includes(nextSection)) {
+          setVisibleSections([...visibleSections, nextSection]);
+        }
+        scrollToSection(`section-${nextSection}`);
+        
+        // Show second text after scroll
+        setTimeout(() => {
+          setShowSecondText(true);
+        }, 800);
+      }, 1000); // Wait for exit animation
+    } else if (currentSection === 2) {
+      // Second continue click: animate out second text
+      setExitSecondText(true);
+      
+      setTimeout(() => {
+        const nextSection = currentSection + 1;
+        if (!visibleSections.includes(nextSection)) {
+          setVisibleSections([...visibleSections, nextSection]);
+        }
+        scrollToSection(`section-${nextSection}`);
+        
+        // Show third text after scroll
+        setTimeout(() => {
+          setShowThirdText(true);
+        }, 800);
+      }, 1000); // Wait for exit animation
     } else {
       const nextSection = currentSection + 1;
       if (!visibleSections.includes(nextSection)) {
@@ -112,11 +151,15 @@ export default function LogoGeneratorPage() {
     } else if (nextStep === 3 && !visibleSections.includes(3)) {
       setVisibleSections([...visibleSections, 3]);
       scrollToSection('section-3');
-      // Hide "Let's get started" text when reaching the last section
-      setTimeout(() => {
-        setHideStartedText(true);
-      }, 500);
     }
+  };
+  
+  // Handle final logo creation - animate out third text
+  const handleLogoCreation = () => {
+    setExitThirdText(true);
+    setTimeout(() => {
+      setHideStartedText(true);
+    }, 1000); // Wait for exit animation
   };
 
   return (
@@ -220,6 +263,7 @@ export default function LogoGeneratorPage() {
                     suggestions={suggestions}
                     selectedFontCategory={selectedFontCategory}
                     setSelectedFontCategory={setSelectedFontCategory}
+                    onLogoCreate={handleLogoCreation}
                   />
                 </div>
               </div>
@@ -294,40 +338,130 @@ export default function LogoGeneratorPage() {
                   {isLogoConfigComplete ? <LogoPreview config={config} selectedFontCategory={selectedFontCategory} /> : 
                     <div className="h-full flex items-center justify-center pt-32">
                       <div className="text-center overflow-hidden">
-                        {showStartedText && !hideStartedText && (
-                          <motion.div 
-                            initial={{ opacity: 1 }}
-                            animate={{ opacity: hideStartedText ? 0 : 1 }}
-                            transition={{ duration: 0.5 }}
-                            className="text-5xl md:text-6xl lg:text-7xl font-black" 
-                            style={{ lineHeight: 1.1 }}
-                          >
-                            <motion.span 
+                        <AnimatePresence mode="wait">
+                          {/* First Text: "Let's get started!" */}
+                          {showStartedText && !exitStartedText && (
+                            <motion.div
+                              key="started-text"
                               initial={{ x: '100%', opacity: 0 }}
-                              animate={{ x: 0, opacity: hideStartedText ? 0 : 1 }}
-                              transition={{ duration: 0.5, delay: 0 }}
-                              className="block text-white"
+                              animate={{ x: 0, opacity: 1 }}
+                              exit={{ x: '100%', opacity: 0 }}
+                              transition={{ duration: 0.8, ease: "easeInOut" }}
+                              className="text-5xl md:text-6xl lg:text-7xl font-black"
+                              style={{ lineHeight: 1.1 }}
                             >
-                              Let's
-                            </motion.span>
-                            <motion.span 
+                              <motion.span 
+                                initial={{ x: '100%', opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: '100%', opacity: 0 }}
+                                transition={{ duration: 0.5, delay: 0 }}
+                                className="block text-white"
+                              >
+                                Let's
+                              </motion.span>
+                              <motion.span 
+                                initial={{ x: '100%', opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: '100%', opacity: 0 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                                className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent my-6"
+                              >
+                                get
+                              </motion.span>
+                              <motion.span 
+                                initial={{ x: '100%', opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: '100%', opacity: 0 }}
+                                transition={{ duration: 0.5, delay: 0.4 }}
+                                className="block text-white"
+                              >
+                                started!
+                              </motion.span>
+                            </motion.div>
+                          )}
+
+                          {/* Second Text: "just 50 seconds away.." */}
+                          {showSecondText && !exitSecondText && (
+                            <motion.div
+                              key="seconds-text"
                               initial={{ x: '100%', opacity: 0 }}
-                              animate={{ x: 0, opacity: hideStartedText ? 0 : 1 }}
-                              transition={{ duration: 0.5, delay: 0.2 }}
-                              className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent my-6"
+                              animate={{ x: 0, opacity: 1 }}
+                              exit={{ x: '100%', opacity: 0 }}
+                              transition={{ duration: 0.8, ease: "easeInOut" }}
+                              className="text-4xl md:text-5xl lg:text-6xl font-black"
+                              style={{ lineHeight: 1.1 }}
                             >
-                              get
-                            </motion.span>
-                            <motion.span 
+                              <motion.span 
+                                initial={{ x: '100%', opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: '100%', opacity: 0 }}
+                                transition={{ duration: 0.5, delay: 0 }}
+                                className="block text-white"
+                              >
+                                just
+                              </motion.span>
+                              <motion.span 
+                                initial={{ x: '100%', opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: '100%', opacity: 0 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                                className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent my-4"
+                              >
+                                50 seconds
+                              </motion.span>
+                              <motion.span 
+                                initial={{ x: '100%', opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: '100%', opacity: 0 }}
+                                transition={{ duration: 0.5, delay: 0.4 }}
+                                className="block text-white"
+                              >
+                                away..
+                              </motion.span>
+                            </motion.div>
+                          )}
+
+                          {/* Third Text: "hold on, we're right there!" */}
+                          {showThirdText && !exitThirdText && (
+                            <motion.div
+                              key="third-text"
                               initial={{ x: '100%', opacity: 0 }}
-                              animate={{ x: 0, opacity: hideStartedText ? 0 : 1 }}
-                              transition={{ duration: 0.5, delay: 0.4 }}
-                              className="block text-white"
+                              animate={{ x: 0, opacity: 1 }}
+                              exit={{ x: '100%', opacity: 0 }}
+                              transition={{ duration: 0.8, ease: "easeInOut" }}
+                              className="text-4xl md:text-5xl lg:text-6xl font-black"
+                              style={{ lineHeight: 1.1 }}
                             >
-                              started!
-                            </motion.span>
-                          </motion.div>
-                        )}
+                              <motion.span 
+                                initial={{ x: '100%', opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: '100%', opacity: 0 }}
+                                transition={{ duration: 0.5, delay: 0 }}
+                                className="block text-white"
+                              >
+                                hold on,
+                              </motion.span>
+                              <motion.span 
+                                initial={{ x: '100%', opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: '100%', opacity: 0 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                                className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent my-4"
+                              >
+                                we're right
+                              </motion.span>
+                              <motion.span 
+                                initial={{ x: '100%', opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: '100%', opacity: 0 }}
+                                transition={{ duration: 0.5, delay: 0.4 }}
+                                className="block text-white"
+                              >
+                                there!
+                              </motion.span>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </div>
                   }

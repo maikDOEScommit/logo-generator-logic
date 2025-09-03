@@ -367,6 +367,41 @@ export const DESIGN_RULES: DesignRule[] = [
     }
   },
   {
+    id: 'twoColorRule',
+    name: 'Zwei-Farben-Regel',
+    description: 'Logos sollten aus 2 Farben bestehen (max. 3). Logo und Brand müssen unterschiedliche Farben haben.',
+    validator: (config) => {
+      if (!config.palette) return false;
+      // Paletten sollten 2-3 Farben haben
+      return config.palette.colors.length >= 2 && config.palette.colors.length <= 3;
+    },
+    scorer: (config) => {
+      if (!config.palette) return 0;
+      let score = 50;
+      const colorCount = config.palette.colors.length;
+      if (colorCount === 2) score += 50; // Optimal
+      if (colorCount === 3) score += 35; // Gut
+      if (colorCount === 1) score -= 30; // Zu wenig
+      if (colorCount > 3) score -= 40; // Zu viel
+      return Math.max(0, Math.min(100, score));
+    }
+  },
+  {
+    id: 'contrastingColors',
+    name: 'Kontrastierende Logo/Brand-Farben',
+    description: 'Logo-Symbol und Brandname müssen unterschiedliche, kontrastierende Farben haben.',
+    validator: (config) => {
+      if (!config.palette) return false;
+      // Wird in LogoCanvas durch unterschiedliche Farbzuweisung gewährleistet
+      return config.palette.colors.length >= 2;
+    },
+    scorer: (config) => {
+      if (!config.palette || config.palette.colors.length < 2) return 0;
+      // Hoher Score, da dies in der Rendering-Logik implementiert wird
+      return 95;
+    }
+  },
+  {
     id: 'concept',
     name: 'Konzeptstärke (Strong Concept)',
     description: 'Starke, strategische Idee basierend auf Markenidentität.',

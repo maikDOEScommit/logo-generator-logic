@@ -34,22 +34,29 @@ const LogoCanvas = ({ config, idSuffix = '' }: { config: LogoConfig, idSuffix?: 
     const sloganFontSize = fontSize * 0.5;
 
     if (layout.arrangement === 'icon-top') {
+      // Zentriere das gesamte Logo vertikal im 200x200 Container
+      const totalHeight = 50 + 20 + fontSize + (slogan ? sloganFontSize + 10 : 0); // Icon + Gap + Text + Slogan
+      const startY = (200 - totalHeight) / 2;
+      
       return (
         <g>
-          <IconComponent x={75} y={30} width={50} height={50} color={primaryColor} />
-          <text x="100" y={110} fontSize={fontSize} fontWeight="bold" textAnchor="middle" fill={brandNameColor}>{text || "Markenname"}</text>
-          {slogan && <text x="100" y={110 + sloganFontSize + 5} fontSize={sloganFontSize} textAnchor="middle" fill={textColor}>{slogan}</text>}
+          <IconComponent x={75} y={startY} width={50} height={50} color={primaryColor} />
+          <text x="100" y={startY + 50 + 25} fontSize={fontSize} fontWeight="bold" textAnchor="middle" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
+          {slogan && <text x="100" y={startY + 50 + 25 + fontSize * 0.6 + 10} fontSize={sloganFontSize} textAnchor="middle" dominantBaseline="middle" fill={textColor}>{slogan}</text>}
         </g>
       );
     }
     if (layout.arrangement === 'icon-left') {
       const iconSize = 40;
-      const iconCenterY = 55 + iconSize / 2; // Icon-Mitte bei Y=75
+      // Zentriere das gesamte Logo vertikal im Container
+      const logoStartY = (200 - iconSize) / 2;
+      const iconCenterY = logoStartY + iconSize / 2;
+      
       return(
         <g transform="translate(20, 0)">
-          <IconComponent x={0} y={55} width={iconSize} height={iconSize} color={primaryColor} />
-          <text x={iconSize + 15} y={iconCenterY + (fontSize * 0.8 * 0.35)} fontSize={fontSize * 0.8} fontWeight="bold" textAnchor="start" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
-          {slogan && <text x={iconSize + 15} y={iconCenterY + (fontSize * 0.8 * 0.35) + sloganFontSize} fontSize={sloganFontSize * 0.9} textAnchor="start" fill={textColor}>{slogan}</text>}
+          <IconComponent x={0} y={logoStartY} width={iconSize} height={iconSize} color={primaryColor} />
+          <text x={iconSize + 15} y={iconCenterY} fontSize={fontSize * 0.8} fontWeight="bold" textAnchor="start" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
+          {slogan && <text x={iconSize + 15} y={iconCenterY + fontSize * 0.6} fontSize={sloganFontSize * 0.9} textAnchor="start" dominantBaseline="middle" fill={textColor}>{slogan}</text>}
         </g>
       );
     }

@@ -1,10 +1,10 @@
 # All Logo Generation Rules, Fonts, Icons & Color Palettes
 
-## Die 10 Goldenen Regeln des Logodesigns
+## Die 10 Goldenen Regeln des Logodesigns + Neue Farb-Regeln
 
 ### 1. Einfachheit (Simplicity)
 - **Beschreibung**: Ein Logo muss auf den ersten Blick verständlich und wiedererkennbar sein
-- **Regel**: Text max. 15 Zeichen, Slogan max. 30 Zeichen, ein einziges Icon
+- **Regel**: Text max. 24 Zeichen, Slogan max. 30 Zeichen, ein einziges Icon
 - **Bewertung**: Score reduziert sich bei längeren Texten
 
 ### 2. Einprägsamkeit (Memorability)
@@ -51,6 +51,28 @@
 - **Beschreibung**: Starke, strategische Idee basierend auf Markenidentität
 - **Regel**: Vollständige Konfiguration erforderlich
 - **Bewertung**: Bonus für kohärente Tag-Übereinstimmungen
+
+## Neue Farb-Regeln (2025)
+
+### 11. Zwei-Farben-Regel
+- **Beschreibung**: Logos sollten aus 2 Farben bestehen (maximal 3). Logo und Brand müssen unterschiedliche Farben haben
+- **Regel**: 2-3 Farben pro Palette, Logo-Symbol und Brandname verschiedenfarbig
+- **Bewertung**: 2 Farben = optimal (100), 3 Farben = gut (85), mehr/weniger = Abzug
+
+### 12. Kontrastierende Logo/Brand-Farben  
+- **Beschreibung**: Logo-Symbol und Brandname müssen unterschiedliche, kontrastierende Farben haben
+- **Regel**: Icon und Text nutzen verschiedene Farben aus der Palette
+- **Bewertung**: Hoher Score durch automatische Implementierung in der Rendering-Engine
+
+### 13. Brandname-Farbpriorität (Erweitert)
+- **Beschreibung**: Brandname bekommt die prominenteste Farbe, außer bei schwarz/weiß → dann Icon
+- **Regel**: Bei schwarz/weiß Brand → Icon bekommt gesättigtste Farbe
+- **Bewertung**: Automatische Zuweisung basierend auf Farbsättigung und Helligkeit
+
+### 14. Linear-Gradient Integration
+- **Beschreibung**: Linear-Gradients in passenden Farben können eingesetzt werden
+- **Regel**: Gradients nur mit Palette-Farben, maximal 2-3 Farb-Stops
+- **Bewertung**: Bonus für harmonische Gradient-Nutzung
 
 ## Verfügbare Icons
 

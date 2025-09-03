@@ -26,9 +26,10 @@ interface Props {
   };
   selectedFontCategory: string | null;
   setSelectedFontCategory: (category: string | null) => void;
+  onLogoCreate?: () => void;
 }
 
-const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory, setSelectedFontCategory }: Props) => {
+const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory, setSelectedFontCategory, onLogoCreate }: Props) => {
   const { suggestedIcons, suggestedPalettes } = suggestions;
 
   return (
@@ -84,6 +85,8 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           onClick={() => {
             // This will trigger the preview to show properly
             updateConfig({});
+            // Trigger text animation if callback provided
+            if (onLogoCreate) onLogoCreate();
           }}
           disabled={!config.icon || !selectedFontCategory || !config.layout || !config.palette || !config.text}
           className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-4 rounded-lg text-xl font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
