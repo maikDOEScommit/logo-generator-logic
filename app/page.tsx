@@ -122,8 +122,11 @@ export default function LogoGeneratorPage() {
                 loop={true}
               />
             </h1>
-            <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8">
-              Unser intelligenter Assistent führt Sie durch die goldenen Regeln des Designs, um ein perfektes, zeitloses Logo für Ihre Marke zu erstellen.
+            <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto mb-4 font-medium">
+              Your vision. Your logo. Designed to fit you perfectly.
+            </p>
+            <p className="text-base md:text-lg text-white/60 max-w-2xl mx-auto mb-8">
+              We turn your ideas into a logo that speaks your brand's language.
             </p>
             <button
               onClick={() => handleSectionNext(0)}
@@ -205,15 +208,26 @@ export default function LogoGeneratorPage() {
           initial={{ x: '100%' }}
           animate={{ x: showPreviewPanel ? 0 : '100%' }}
           transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-          className="bg-black/50 p-8 md:p-12 h-screen sticky top-0 flex flex-col md:block hidden">
-          <div className="w-full h-2 bg-white/10 rounded-full mb-4">
+          className="bg-black/50 p-8 md:p-12 h-screen sticky top-0 flex flex-col md:block hidden border-l-[0.5rem]"
+          style={{ borderImage: 'linear-gradient(to bottom, #3b82f6, #8b5cf6, #06b6d4) 1' }}>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: showStartedText ? 1 : 0 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+            className="w-full h-2 bg-white/10 rounded-full mb-4"
+          >
             <motion.div className="h-2 bg-primary rounded-full" animate={{ width: `${isLogoConfigComplete ? 100 : (visibleSections.length - 1) * 33.33}%` }} />
-          </div>
+          </motion.div>
 
-          <div className="flex border-b border-white/20 mb-6">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: showStartedText ? 1 : 0 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+            className="flex border-b border-white/20 mb-6"
+          >
             <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'}`}>Vorschau</button>
             <button onClick={() => setPreviewTab('mockups')} disabled={!isLogoConfigComplete} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
-          </div>
+          </motion.div>
 
           <div className="flex-grow overflow-y-auto">
             <AnimatePresence mode="wait">
