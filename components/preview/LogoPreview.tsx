@@ -42,20 +42,20 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
     <div className="space-y-6">
       <div className="bg-white/5 rounded-lg p-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-bold text-primary">Design-Qualität</h3>
-          <span className={`text-2xl font-bold ${evaluation.overallScore >= 80 ? 'text-green-400' : evaluation.overallScore >= 60 ? 'text-yellow-400' : 'text-red-400'}`}>
+          <h3 className="font-bold text-primary">Design Quality</h3>
+          <span className={`text-2xl font-bold ${evaluation.overallScore >= 80 ? 'text-green-400' : evaluation.overallScore >= 60 ? 'text-white' : 'text-red-400'}`}>
             {evaluation.overallScore}/100
           </span>
         </div>
         <div className="w-full h-2 bg-white/10 rounded-full mb-3">
           <div
-            className={`h-2 rounded-full transition-all duration-500 ${evaluation.overallScore >= 80 ? 'bg-green-400' : evaluation.overallScore >= 60 ? 'bg-yellow-400' : 'bg-red-400'}`}
+            className={`h-2 rounded-full transition-all duration-500 ${evaluation.overallScore >= 80 ? 'bg-green-400' : evaluation.overallScore >= 60 ? 'bg-white' : 'bg-red-400'}`}
             style={{ width: `${evaluation.overallScore}%` }}
           />
         </div>
         {suggestions.length > 0 && (
           <div className="mt-4 pt-4 border-t border-white/10">
-            <h4 className="text-sm font-semibold text-primary mb-2">Verbesserungsvorschläge:</h4>
+            <h4 className="text-sm font-semibold text-primary mb-2">Improvement suggestions:</h4>
             <ul className="text-xs text-white/70 space-y-1">
               {suggestions.slice(0, 3).map((suggestion, index) => (
                 <li key={index} className="flex items-start gap-2">
@@ -70,7 +70,7 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
 
       {fontsInSelectedCategory ? (
         <div className="space-y-6">
-          <h3 className="font-bold mb-4 text-primary">Logo-Variationen: {fontsInSelectedCategory[0].category}</h3>
+          <h3 className="font-bold mb-4 text-primary">Logo Variations: {fontsInSelectedCategory[0].category}</h3>
           {fontsInSelectedCategory.map((font, index) => {
             const variationConfig = { ...config, font: font };
             const monochromeVariationConfig = { ...variationConfig, palette: monochromePalette };
@@ -80,13 +80,13 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
                 <h4 className="text-lg font-semibold text-white">{font.name}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <h5 className="font-medium mb-2 text-primary text-sm">Farbversion</h5>
+                    <h5 className="font-medium mb-2 text-primary text-sm">Color Version</h5>
                     <div className="bg-white/10 rounded-lg p-4">
                       <LogoCanvas config={variationConfig} idSuffix={`-color-${index}`} />
                     </div>
                   </div>
                   <div>
-                    <h5 className="font-medium mb-2 text-primary text-sm">Monochrom</h5>
+                    <h5 className="font-medium mb-2 text-primary text-sm">Monochrome</h5>
                     <div className="bg-black border border-white/20 rounded-lg p-4">
                       <LogoCanvas config={monochromeVariationConfig} idSuffix={`-mono-${index}`} />
                     </div>
@@ -98,20 +98,20 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
         </div>
       ) : (
         <div className="text-center py-8 text-white/50">
-          <p>Wählen Sie einen Typografie-Stil aus, um Logo-Variationen zu sehen.</p>
+          <p>Choose a typography style to see logo variations.</p>
         </div>
       )}
       {/* === SAVE/DOWNLOAD ACTION AREA === */}
       <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
         <SignedIn>
           <button onClick={handleSave} disabled={!config.text} className="w-full bg-white/10 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            <Save size={18} /> Speichern
+            <Save size={18} /> Save
           </button>
         </SignedIn>
         <SignedOut>
           <SignInButton mode="modal">
             <button className="w-full bg-white/10 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-white/20 transition-colors">
-              <Save size={18} /> Anmelden zum Speichern
+              <Save size={18} /> Sign in to Save
             </button>
           </SignInButton>
         </SignedOut>

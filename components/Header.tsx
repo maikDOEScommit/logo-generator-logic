@@ -17,10 +17,10 @@ export const Header = () => {
         <SignedOut>
           <div className="flex items-center gap-2">
             <SignInButton mode="modal">
-              <button className="text-sm font-medium hover:text-primary transition-colors">Anmelden</button>
+              <button className="text-sm font-medium hover:text-primary transition-colors">Sign In</button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="bg-gradient-to-r from-blue-500 via-purple-600 to-cyan-400 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95">Registrieren</button>
+              <button className="bg-gradient-to-r from-blue-500 via-purple-600 to-cyan-400 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95">Sign Up</button>
             </SignUpButton>
           </div>
         </SignedOut>

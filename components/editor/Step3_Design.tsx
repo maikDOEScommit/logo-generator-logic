@@ -33,7 +33,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
 
   return (
     <motion.div key="step3" className="space-y-12 animate-fade-in">
-      <Section title="Wählen Sie ein Symbol" helpText="Regel 2: Einprägsamkeit - Einfache Symbole bleiben besser im Gedächtnis">
+      <Section title="Choose a Symbol" helpText="Rule 2: Memorability - Simple symbols are remembered better">
         {suggestedIcons.map(icon => (
           <SelectionCard key={icon.id} isSelected={config.icon?.id === icon.id} onClick={() => updateConfig({ icon })}>
             <icon.component className="w-12 h-12 mx-auto" color={config.palette ? config.palette.colors[1] : 'white'} />
@@ -41,18 +41,18 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
         ))}
       </Section>
 
-      <Section title="Wählen Sie einen Typografie-Stil" helpText="Regel 3: Zeitlosigkeit - Klassische Schriften überdauern Trends">
+      <Section title="Choose your Typography Style" helpText="Rule 3: Timelessness - Classic fonts outlast trends">
         {Object.entries(fontCategories).map(([categoryKey, fonts]) => (
           <SelectionCard 
             key={categoryKey} 
             isSelected={selectedFontCategory === categoryKey} 
             onClick={() => setSelectedFontCategory(categoryKey)}
           >
-            <div className="text-center">
-              <p className="text-lg font-semibold mb-2">{fonts[0].category}</p>
-              <div className="text-sm text-white/70 space-y-1">
+            <div className="text-center p-4 h-full flex flex-col justify-center">
+              <p className="text-base font-semibold mb-3 text-white">{fonts[0].category}</p>
+              <div className="text-xs text-white/60 space-y-1 overflow-hidden">
                 {fonts.map(font => (
-                  <div key={font.name} style={{ fontFamily: font.name }}>
+                  <div key={font.name} className="truncate" style={{ fontFamily: font.name }}>
                     {font.name}
                   </div>
                 ))}
@@ -62,13 +62,13 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
         ))}
       </Section>
 
-      <Section title="Wählen Sie ein Layout" helpText="Regel 4: Skalierbarkeit - Standard-Layouts funktionieren in jeder Größe">
+      <Section title="Choose a Layout" helpText="Rule 4: Scalability - Standard layouts work at any size">
         {layouts.map(layout => (
           <LayoutSelectionCard key={layout.id} layout={layout} isSelected={config.layout?.id === layout.id} onClick={() => updateConfig({ layout })} />
         ))}
       </Section>
 
-      <Section title="Wählen Sie eine Farbpalette" helpText="Regel 9: Intelligente Farbwahl - Farben transportieren Emotionen und Markenwerte">
+      <Section title="Choose a Color Palette" helpText="Rule 9: Smart Color Choice - Colors convey emotions and brand values">
         {suggestedPalettes.map(palette => (
           <SelectionCard key={palette.id} isSelected={config.palette?.id === palette.id} onClick={() => updateConfig({ palette })}>
             <div className="flex gap-2 w-full h-full">

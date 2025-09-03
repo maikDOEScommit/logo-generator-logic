@@ -3,8 +3,8 @@ import { Check } from 'lucide-react';
 const SelectionCard = ({ children, isSelected, onClick }: { children: React.ReactNode, isSelected: boolean, onClick: () => void }) => (
   <div
     onClick={onClick}
-    className={`relative p-4 border rounded-lg cursor-pointer transition-all duration-200 h-24 flex items-center justify-center text-center ${
-      isSelected ? 'border-primary ring-2 ring-primary bg-primary/10' : 'border-white/20 hover:border-white/50 bg-white/5'
+    className={`relative p-4 border rounded-lg cursor-pointer transition-all duration-200 transform h-24 flex items-center justify-center text-center ${
+      isSelected ? 'border-primary ring-2 ring-primary bg-primary/10 scale-105 shadow-xl shadow-purple-500/20 translate-y-[-2px]' : 'border-white/20 hover:border-white/50 bg-white/5 hover:shadow-lg hover:shadow-white/10 hover:translate-y-[-1px]'
     }`}
   >
     {children}
