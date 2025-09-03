@@ -7,6 +7,23 @@ const LogoCanvas = ({ config, idSuffix = '' }: { config: LogoConfig, idSuffix?: 
 
   const IconComponent = icon.component;
   const [bgColor, primaryColor, textColor] = palette.colors;
+  
+  // NEUE REGEL 11: Brandname bekommt die prominenteste Farbe (außer bei Schwarz/Weiß)
+  const getMostProminentColor = () => {
+    // Wenn primaryColor schwarz oder weiß ist, verwende textColor für den Brandname
+    const isBlackOrWhite = (color: string) => {
+      const hex = color.toLowerCase();
+      return hex === '#ffffff' || hex === '#000000' || hex === '#fff' || hex === '#000' ||
+             hex === '#f8fafc' || hex === '#1e293b' || hex === '#1f2937'; // Sehr helle/dunkle Grautöne
+    };
+    
+    if (isBlackOrWhite(primaryColor)) {
+      return textColor; // Verwende textColor als prominente Farbe
+    }
+    return primaryColor; // Verwende die Hauptfarbe der Palette
+  };
+  
+  const brandNameColor = getMostProminentColor();
 
   const fontUrl = `https://fonts.googleapis.com/css2?family=${font.url.replace(/ /g, '+')}:wght@${font.weights.join(';')}&display=swap`;
 
@@ -20,8 +37,8 @@ const LogoCanvas = ({ config, idSuffix = '' }: { config: LogoConfig, idSuffix?: 
       return (
         <g>
           <IconComponent x={75} y={30} width={50} height={50} color={primaryColor} />
-          <text x="100" y={110} fontSize={fontSize} fontWeight="bold" textAnchor="middle" fill={textColor}>{text || "Markenname"}</text>
-          {slogan && <text x="100" y={110 + sloganFontSize + 5} fontSize={sloganFontSize} textAnchor="middle" fill={primaryColor}>{slogan}</text>}
+          <text x="100" y={110} fontSize={fontSize} fontWeight="bold" textAnchor="middle" fill={brandNameColor}>{text || "Markenname"}</text>
+          {slogan && <text x="100" y={110 + sloganFontSize + 5} fontSize={sloganFontSize} textAnchor="middle" fill={textColor}>{slogan}</text>}
         </g>
       );
     }
@@ -30,8 +47,8 @@ const LogoCanvas = ({ config, idSuffix = '' }: { config: LogoConfig, idSuffix?: 
       return(
         <g transform="translate(20, 0)">
           <IconComponent x={0} y={55} width={iconSize} height={iconSize} color={primaryColor} />
-          <text x={iconSize + 15} y={75} fontSize={fontSize * 0.8} fontWeight="bold" textAnchor="start" fill={textColor}>{text || "Markenname"}</text>
-          {slogan && <text x={iconSize + 15} y={75 + sloganFontSize} fontSize={sloganFontSize * 0.9} textAnchor="start" fill={primaryColor}>{slogan}</text>}
+          <text x={iconSize + 15} y={75} fontSize={fontSize * 0.8} fontWeight="bold" textAnchor="start" fill={brandNameColor}>{text || "Markenname"}</text>
+          {slogan && <text x={iconSize + 15} y={75 + sloganFontSize} fontSize={sloganFontSize * 0.9} textAnchor="start" fill={textColor}>{slogan}</text>}
         </g>
       );
     }

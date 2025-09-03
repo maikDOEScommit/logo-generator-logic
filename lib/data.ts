@@ -49,14 +49,31 @@ export const layouts: LayoutData[] = [
   { id: 'enclosed-shield-top', name: 'Im Schild (Oben)', type: 'enclosed', shape: 'shield', arrangement: 'icon-top' },
 ];
 
-// --- 4. Professional Color Palettes ---
+// --- 4. Professional Color Palettes (Optimiert für 11 goldene Farb-Regeln) ---
 export const palettes: PaletteData[] = [
-  { id: 'trust-blue', name: 'Vertrauen & Stabilität', colors: ['#E0EFFF', '#6AACFF', '#0A2A4E'], tags: ['corporate', 'tech', 'finance', 'serious', 'timeless', 'professional'] },
-  { id: 'eco-green', name: 'Natur & Wachstum', colors: ['#E6F5E3', '#77C66B', '#1E4620'], tags: ['eco', 'wellness', 'organic', 'nature', 'timeless', 'harmonious'] },
-  { id: 'modern-tech', name: 'Innovation & Tech', colors: ['#E8E5FF', '#9378FF', '#2D2063'], tags: ['tech', 'modern', 'vibrant', 'creative', 'innovative', 'unique'] },
-  { id: 'finance-gold', name: 'Seriosität & Finanzen', colors: ['#F5F5F5', '#C0C0C0', '#333333'], tags: ['finance', 'serious', 'corporate', 'luxury', 'timeless', 'classic'] },
-  { id: 'vibrant-creative', name: 'Kreativität & Energie', colors: ['#FFF0E5', '#FF8C42', '#D94A00'], tags: ['creative', 'playful', 'energy', 'modern', 'vibrant', 'unique', 'memorable'] },
-  { id: 'luxury-black', name: 'Eleganz & Luxus', colors: ['#EAEAEA', '#A8A8A8', '#1A1A1A'], tags: ['luxury', 'elegant', 'serious', 'modern', 'timeless', 'sophisticated'] },
+  // Regel 1: Begrenzte Farbpalette (max 3 Farben) ✓
+  // Regel 2: Schwarz/Weiß Kompatibilität ✓
+  // Regel 3: Hoher Kontrast ✓
+  { id: 'trust-blue', name: 'Vertrauen & Stabilität', colors: ['#FFFFFF', '#2563EB', '#1E3A8A'], tags: ['corporate', 'tech', 'finance', 'serious', 'timeless', 'professional', 'trust'] },
+  
+  { id: 'eco-green', name: 'Natur & Wachstum', colors: ['#F7FEF7', '#22C55E', '#15803D'], tags: ['eco', 'wellness', 'organic', 'nature', 'timeless', 'professional', 'growth'] },
+  
+  { id: 'modern-tech', name: 'Innovation & Tech', colors: ['#F8FAFC', '#8B5CF6', '#5B21B6'], tags: ['tech', 'modern', 'creative', 'innovative', 'professional', 'energy'] },
+  
+  // Regel 6: Luxus = Schwarz/Gold Kombination
+  { id: 'luxury-gold', name: 'Luxus & Exklusivität', colors: ['#FFFBEB', '#F59E0B', '#1F2937'], tags: ['luxury', 'elegant', 'corporate', 'timeless', 'classic', 'professional'] },
+  
+  // Regel 6: Kreativität = Gelb/Orange Optimismus  
+  { id: 'creative-energy', name: 'Kreativität & Optimismus', colors: ['#FFFBEB', '#F97316', '#C2410C'], tags: ['creative', 'playful', 'energy', 'modern', 'memorable', 'optimism'] },
+  
+  // Professionelle Monochrom-Option
+  { id: 'professional-mono', name: 'Professionell & Zeitlos', colors: ['#F8FAFC', '#64748B', '#1E293B'], tags: ['corporate', 'serious', 'timeless', 'classic', 'professional', 'versatile'] },
+  
+  // Wellness/Gesundheit in beruhigendem Blau-Grün
+  { id: 'health-calm', name: 'Gesundheit & Vertrauen', colors: ['#F0FDFA', '#14B8A6', '#0F766E'], tags: ['wellness', 'tech', 'corporate', 'trust', 'professional', 'harmonious'] },
+  
+  // Warme, einladende Palette für Dienstleistungen
+  { id: 'warm-service', name: 'Herzlich & Einladend', colors: ['#FEF7FF', '#C084FC', '#7C3AED'], tags: ['creative', 'elegant', 'modern', 'memorable', 'professional', 'approachable'] },
 ];
 
 // --- 5. Definitions for the "AI" Logic ---

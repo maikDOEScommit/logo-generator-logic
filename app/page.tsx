@@ -28,6 +28,10 @@ export default function LogoGeneratorPage() {
   const [showStartedText, setShowStartedText] = useState(false); // Control "Let's get started" text visibility
   const [hideStartedText, setHideStartedText] = useState(false); // Control hiding "Let's get started" text
   const [selectedFontCategory, setSelectedFontCategory] = useState<string | null>(null);
+  
+  // New states for enhanced UX animations
+  const [showTopBorder, setShowTopBorder] = useState(false); // Control horizontal border-top animation
+  const [showLeftBorder, setShowLeftBorder] = useState(false); // Control vertical border-left animation
 
   const [state, dispatch] = useReducer(logoReducer, initialState);
   const { present: config, past, future } = state;
@@ -67,6 +71,17 @@ export default function LogoGeneratorPage() {
     // Show preview panel when starting the process
     if (currentSection === 0 && !showPreviewPanel) {
       setShowPreviewPanel(true);
+      
+      // Start horizontal border-top animation after panel slides in
+      setTimeout(() => {
+        setShowTopBorder(true);
+      }, 800); // Wait for panel slide-in
+      
+      // Start vertical border-left animation after horizontal border completes
+      setTimeout(() => {
+        setShowLeftBorder(true);
+      }, 2300); // Wait for horizontal border to complete
+      
       // Wait for animation to be visible before scrolling
       setTimeout(() => {
         const nextSection = currentSection + 1;
@@ -78,7 +93,7 @@ export default function LogoGeneratorPage() {
         setTimeout(() => {
           setShowStartedText(true);
         }, 500);
-      }, 1600);
+      }, 3500); // Extended delay for all animations
     } else {
       const nextSection = currentSection + 1;
       if (!visibleSections.includes(nextSection)) {
@@ -218,8 +233,27 @@ export default function LogoGeneratorPage() {
           transition={{ type: 'spring', damping: 20, stiffness: 100 }}
           className="bg-black/50 p-8 md:p-12 min-h-screen sticky top-0 flex flex-col md:block hidden relative"
         >
-          {/* Animated Border - only show after first scroll trigger and "Let's get started" text */}
-          {visibleSections.includes(1) && showStartedText && (
+          {/* Horizontal Border-Top Animation - starts after panel slides in, fills right to left */}
+          {showTopBorder && (
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: '100%' }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="absolute top-0 right-0 h-2 bg-gradient-to-l from-blue-500 via-purple-600 to-cyan-400 overflow-hidden"
+            />
+          )}
+          
+          {/* Vertical Border-Left Animation - starts after horizontal border completes */}
+          {showLeftBorder && (
+            <motion.div
+              initial={{ height: 0 }}
+              animate={{ height: '100vh' }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden"
+            />
+          )}
+          {/* Original Animated Border - only show after first scroll trigger (replaces the new border) */}
+          {visibleSections.includes(1) && showStartedText && !showLeftBorder && (
             <motion.div
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
