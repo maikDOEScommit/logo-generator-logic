@@ -286,7 +286,7 @@ export default function LogoGeneratorPage() {
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
               transition={{ duration: 1.125, ease: "easeOut" }}
-              className="absolute top-0 right-0 h-2 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500 overflow-hidden"
+              className="absolute top-0 right-0 h-2 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500 overflow-hidden rounded-[14px]"
             />
           )}
           
@@ -296,7 +296,7 @@ export default function LogoGeneratorPage() {
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
               transition={{ duration: 1.125, ease: "easeOut" }}
-              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden"
+              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-[14px]"
             />
           )}
           {/* Original Animated Border - only show after first scroll trigger (replaces the new border) */}
@@ -305,7 +305,7 @@ export default function LogoGeneratorPage() {
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
               transition={{ duration: 1.125, delay: 0.45, ease: "easeOut" }}
-              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden"
+              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-[14px]"
             />
           )}
           <motion.div 
@@ -331,13 +331,13 @@ export default function LogoGeneratorPage() {
             <button onClick={() => setPreviewTab('mockups')} disabled={!isLogoConfigComplete} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
           </motion.div>
 
-          <div className="flex-grow overflow-y-auto pb-20">
+          <div className="flex-grow overflow-y-auto overflow-x-visible pb-20">
             <AnimatePresence mode="wait">
               {previewTab === 'preview' && (
                 <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   {isLogoConfigComplete ? <LogoPreview config={config} selectedFontCategory={selectedFontCategory} /> : 
-                    <div className="h-full flex items-center justify-center pt-32">
-                      <div className="text-center overflow-hidden">
+                    <div className="h-full flex items-center justify-center pt-32 overflow-x-visible">
+                      <div className="text-center w-full">
                         <AnimatePresence mode="wait">
                           {/* First Text: "Let's get started!" */}
                           {showStartedText && !exitStartedText && (

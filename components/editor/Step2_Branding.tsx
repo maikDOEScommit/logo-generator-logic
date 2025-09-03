@@ -25,7 +25,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
       />
       <div className="text-xs text-white/50 mt-1 flex justify-between">
         <span>Rule 1: Simplicity - Short names are more memorable</span>
-        <span className={config.text.length > 15 ? 'text-yellow-400' : 'text-green-400'}>
+        <span className="text-white/50">
           {config.text.length}/24
         </span>
       </div>
