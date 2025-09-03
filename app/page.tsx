@@ -42,6 +42,7 @@ export default function LogoGeneratorPage() {
   const [exitHeroSection, setExitHeroSection] = useState(false); // Control hero section exit animation
   const [showLogoPreview, setShowLogoPreview] = useState(false); // Control when to show logo preview after Create Logo click
   const [expandPreviewPanel, setExpandPreviewPanel] = useState(false); // Control full-width expansion of preview panel
+  const [morphFromPosition, setMorphFromPosition] = useState({ top: 80, right: 0, width: '50vw', height: 'calc(100vh - 80px)' }); // Store current position for morph
 
   const [state, dispatch] = useReducer(logoReducer, initialState);
   const { present: config, past, future } = state;
@@ -186,10 +187,21 @@ export default function LogoGeneratorPage() {
     const isMobile = window.innerWidth < 768;
     
     if (isMobile) {
-      // On mobile: Just show logos immediately (no panel to expand)
+      // On mobile: Show logos and scroll to them
       setTimeout(() => {
         setShowLogoPreview(true);
         setHideStartedText(true);
+        
+        // Scroll to the mobile logo section after it appears
+        setTimeout(() => {
+          const mobileLogoSection = document.querySelector('.mobile-logo-section');
+          if (mobileLogoSection) {
+            mobileLogoSection.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start' 
+            });
+          }
+        }, 300); // Small delay to let the section render
       }, 500);
     } else {
       // On desktop: Full animation sequence
@@ -200,15 +212,32 @@ export default function LogoGeneratorPage() {
           behavior: 'smooth' 
         });
         
-        // Step 2: Expand preview panel to full width after scroll
+        // Step 2: Calculate current position after scroll and start morph
         setTimeout(() => {
+          // Calculate the current visible position of the right panel after scroll
+          const currentScrollY = window.scrollY;
+          const viewportHeight = window.innerHeight;
+          const headerHeight = 80;
+          
+          // The right panel is sticky, so it's always at the top of the viewport
+          const currentTop = headerHeight;
+          const currentHeight = viewportHeight - headerHeight;
+          
+          setMorphFromPosition({
+            top: currentTop,
+            right: 0,
+            width: '50vw',
+            height: `${currentHeight}px`
+          });
+          
+          // Start the morph animation
           setExpandPreviewPanel(true);
           
-          // Step 3: Show logo preview after panel expansion
+          // Step 3: Show logo preview after panel morph animation completes
           setTimeout(() => {
             setShowLogoPreview(true);
             setHideStartedText(true);
-          }, 800); // Wait for panel expansion animation
+          }, 1200); // Wait for complete morph animation (1.2s + buffer)
         }, 1000); // Wait for scroll to complete
       }, 500); // Wait for text exit animation to start
     }
@@ -340,20 +369,70 @@ export default function LogoGeneratorPage() {
             </motion.div>
           )}
 
+          {/* Mobile Logo Preview Section */}
+          {isLogoConfigComplete && showLogoPreview && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="mobile-logo-section md:hidden min-h-screen flex flex-col justify-center py-20"
+            >
+              <div className="w-full max-w-2xl mx-auto px-4">
+                <div className="space-y-8">
+                  <div className="text-center mb-8">
+                    <h2 className="text-3xl font-bold text-white mb-2">Your Logo is Ready!</h2>
+                    <p className="text-white/70">Here are your generated logo variations</p>
+                  </div>
+                  
+                  {/* Mobile Tabs */}
+                  <div className="flex border-b border-white/20 mb-6">
+                    <button 
+                      onClick={() => setPreviewTab('preview')} 
+                      className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'}`}
+                    >
+                      Preview
+                    </button>
+                    <button 
+                      onClick={() => setPreviewTab('mockups')} 
+                      disabled={!(isLogoConfigComplete && showLogoPreview)} 
+                      className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}
+                    >
+                      Mockups
+                    </button>
+                  </div>
+
+                  {/* Mobile Content */}
+                  <div className="space-y-6">
+                    <AnimatePresence mode="wait">
+                      {previewTab === 'preview' && (
+                        <motion.div key="mobile-preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                          <LogoPreview config={config} selectedFontCategory={selectedFontCategory} />
+                        </motion.div>
+                      )}
+                      {previewTab === 'mockups' && (
+                        <motion.div key="mobile-mockups" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                          <MockupPreview config={config} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
         </div>
         <motion.div 
           initial={{ x: '100%' }}
           animate={{ 
-            x: showPreviewPanel ? 0 : '100%',
-            width: expandPreviewPanel ? '100vw' : 'auto'
+            x: showPreviewPanel ? 0 : '100%'
           }}
           transition={{ 
             type: 'spring', 
             damping: 20, 
-            stiffness: 100,
-            width: { duration: 0.8, ease: "easeInOut" }
+            stiffness: 100
           }}
-          className={`p-8 md:p-12 min-h-screen sticky top-0 flex flex-col md:block hidden relative ${expandPreviewPanel ? 'fixed inset-0 z-50' : ''}`}
+          className={`p-8 md:p-12 min-h-screen sticky top-0 flex flex-col md:block hidden relative ${expandPreviewPanel ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
           style={{
             background: `radial-gradient(circle at top left, #111827 0%, #111827 70%, #0F0F0F 85%, #000000 95%)`
           }}
@@ -556,6 +635,77 @@ export default function LogoGeneratorPage() {
             </AnimatePresence>
           </div>
         </motion.div>
+        
+        {/* Fullscreen Morph Overlay */}
+        <AnimatePresence>
+          {expandPreviewPanel && (
+            <motion.div
+              initial={{ 
+                position: 'fixed',
+                top: morphFromPosition.top,
+                right: morphFromPosition.right,
+                width: morphFromPosition.width,
+                height: morphFromPosition.height,
+                zIndex: 40,
+                borderRadius: '0px'
+              }}
+              animate={{ 
+                top: 0,
+                right: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                zIndex: 50,
+                borderRadius: '0px'
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.9,
+                transition: { duration: 0.6 }
+              }}
+              transition={{ 
+                duration: 1.2, 
+                ease: [0.23, 1, 0.32, 1], // Custom easing for smooth morph
+                layout: { duration: 1.2 },
+                borderRadius: { duration: 0.8, ease: "easeInOut" }
+              }}
+              className="fixed bg-gradient-to-br from-gray-900 via-gray-800 to-black p-8 md:p-12 overflow-y-auto"
+              style={{
+                background: `radial-gradient(circle at top left, #111827 0%, #111827 70%, #0F0F0F 85%, #000000 95%)`
+              }}
+            >
+              {/* Fullscreen Content */}
+              <div className="w-full h-full flex flex-col">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: showStartedText ? 1 : 0, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.8 }}
+                  className="flex border-b border-white/20 mb-6"
+                >
+                  <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'}`}>Preview</button>
+                  <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
+                </motion.div>
+
+                <div className="flex-grow overflow-y-auto">
+                  <AnimatePresence mode="wait">
+                    {previewTab === 'preview' && (
+                      <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        {isLogoConfigComplete && showLogoPreview ? <LogoPreview config={config} selectedFontCategory={selectedFontCategory} /> : 
+                          <div className="h-full flex items-center justify-center"><p className="text-white/50">Loading logos...</p></div>
+                        }
+                      </motion.div>
+                    )}
+                    {previewTab === 'mockups' && (
+                      <motion.div key="mockups" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        {isLogoConfigComplete && showLogoPreview ? <MockupPreview config={config} /> : <div className="h-full flex items-center justify-center text-white/50"><p>Complete your logo to see mockups.</p></div>}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </>
   );
