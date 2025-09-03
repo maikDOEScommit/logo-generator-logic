@@ -36,7 +36,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
         <button
           key={p.id}
           onClick={() => onTogglePersonality(p.id)}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedPersonalities.includes(p.id) ? 'bg-primary text-primary-foreground' : 'bg-white/10 hover:bg-white/20'}`} >
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-all transform ${selectedPersonalities.includes(p.id) ? 'bg-gradient-to-r from-blue-500 via-purple-600 to-cyan-400 text-white shadow-lg shadow-purple-500/25 scale-105' : 'bg-white/10 hover:bg-white/20 hover:scale-105'}`} >
           {p.name}
         </button>
       )}</div>
@@ -44,7 +44,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
         Regel 6: Relevanz - Diese Eigenschaften helfen bei der passenden Symbolauswahl
       </div>
     </div>
-    <button onClick={onNext} disabled={!config.text} className="w-full bg-primary text-primary-foreground font-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">
+    <button onClick={onNext} disabled={!config.text} className="w-full bg-gradient-to-r from-blue-500 via-purple-600 to-cyan-400 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
       Weiter zur Gestaltung
     </button>
   </motion.div>

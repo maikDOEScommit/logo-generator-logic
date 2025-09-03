@@ -17,15 +17,29 @@ export const icons: IconData[] = [
   { id: 'bolt', component: BoltIcon, tags: ['tech', 'energy', 'speed', 'modern', 'playful', 'unique', 'minimalist'] },
 ];
 
-// --- 2. Curated Fonts ---
-export const fonts: FontData[] = [
-  { name: 'Montserrat', family: 'sans-serif', url: 'Montserrat', weights: [400, 700], category: 'Sans-Serif - Modern' },
-  { name: 'Poppins', family: 'sans-serif', url: 'Poppins', weights: [400, 600], category: 'Sans-Serif - Modern' },
-  { name: 'Lato', family: 'sans-serif', url: 'Lato', weights: [400, 700], category: 'Sans-Serif - Modern' },
-  { name: 'Merriweather', family: 'serif', url: 'Merriweather', weights: [400, 700], category: 'Serif - Klassisch' },
-  { name: 'Playfair Display', family: 'serif', url: 'Playfair+Display', weights: [400, 700], category: 'Serif - Elegant' },
-  { name: 'Roboto Slab', family: 'serif', url: 'Roboto+Slab', weights: [400, 700], category: 'Serif - Modern' },
-];
+// --- 2. Curated Font Categories ---
+export const fontCategories = {
+  'modern-klar': [
+    { name: 'Poppins', family: 'sans-serif', url: 'Poppins', weights: [400, 600], category: 'Modern & Klar' },
+    { name: 'Montserrat', family: 'sans-serif', url: 'Montserrat', weights: [400, 700], category: 'Modern & Klar' },
+    { name: 'Lato', family: 'sans-serif', url: 'Lato', weights: [400, 700], category: 'Modern & Klar' }
+  ],
+  'elegant-klassisch': [
+    { name: 'Playfair Display', family: 'serif', url: 'Playfair+Display', weights: [400, 700], category: 'Elegant & Klassisch' },
+    { name: 'Lora', family: 'serif', url: 'Lora', weights: [400, 700], category: 'Elegant & Klassisch' },
+    { name: 'Cormorant Garamond', family: 'serif', url: 'Cormorant+Garamond', weights: [400, 700], category: 'Elegant & Klassisch' }
+  ],
+  'serioes-stark': [
+    { name: 'Merriweather', family: 'serif', url: 'Merriweather', weights: [400, 700], category: 'Seriös & Stark' },
+    { name: 'Libre Baskerville', family: 'serif', url: 'Libre+Baskerville', weights: [400, 700], category: 'Seriös & Stark' },
+    { name: 'PT Serif', family: 'serif', url: 'PT+Serif', weights: [400, 700], category: 'Seriös & Stark' }
+  ],
+  'technisch-strukturiert': [
+    { name: 'Roboto Mono', family: 'monospace', url: 'Roboto+Mono', weights: [400, 700], category: 'Technisch & Strukturiert' },
+    { name: 'Source Code Pro', family: 'monospace', url: 'Source+Code+Pro', weights: [400, 700], category: 'Technisch & Strukturiert' },
+    { name: 'Inconsolata', family: 'monospace', url: 'Inconsolata', weights: [400, 700], category: 'Technisch & Strukturiert' }
+  ]
+};
 
 // --- 3. Pre-defined, Balanced Layouts ---
 export const layouts: LayoutData[] = [

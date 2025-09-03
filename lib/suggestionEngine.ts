@@ -3,7 +3,7 @@
 // It proactively suggests the best options based on user input and design rules.
 
 import { LogoConfig, IconData, PaletteData, FontData } from './types';
-import { icons, fonts, palettes, industries, personalities } from './data';
+import { icons, fontCategories, palettes, industries, personalities } from './data';
 import { DESIGN_RULES } from './designRules';
 
 export function getSuggestions(
@@ -11,8 +11,11 @@ export function getSuggestions(
   selectedPersonalities: string[],
   currentConfig: LogoConfig
 ) {
+  // Get all fonts from all categories for suggestion engine
+  const allFonts = Object.values(fontCategories).flat();
+  
   if (!industry) {
-    return { suggestedIcons: icons, suggestedFonts: fonts, suggestedPalettes: palettes };
+    return { suggestedIcons: icons, suggestedFonts: allFonts, suggestedPalettes: palettes };
   }
 
   const industryTags = industries[industry as keyof typeof industries]?.tags || [];
@@ -49,7 +52,7 @@ export function getSuggestions(
   const suggestedPalettes = [...palettes].sort((a, b) => getScore(b) - getScore(a));
 
   // Fonts are sorted by pre-defined categories (a simpler, but effective rule)
-  const suggestedFonts = [...fonts].sort((a, b) => {
+  const suggestedFonts = [...allFonts].sort((a, b) => {
     const aScore = a.category.includes('Klassisch') ? 3 : a.category.includes('Modern') ? 2 : 1;
     const bScore = b.category.includes('Klassisch') ? 3 : b.category.includes('Modern') ? 2 : 1;
     return bScore - aScore;

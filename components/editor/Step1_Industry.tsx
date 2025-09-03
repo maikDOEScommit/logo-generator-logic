@@ -19,7 +19,7 @@ const Step1_Industry = ({ industry, setIndustry, onNext }: Props) => (
         </SelectionCard>
       ))}
     </Section>
-    <button onClick={onNext} disabled={!industry} className="w-full bg-primary text-primary-foreground font-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">
+    <button onClick={onNext} disabled={!industry} className="w-full bg-gradient-to-r from-blue-500 via-purple-600 to-cyan-400 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
       Weiter
     </button>
   </motion.div>

@@ -4,8 +4,9 @@ import { evaluateLogoDesign, suggestImprovements } from '@/lib/designRules';
 import { Download, Save } from 'lucide-react';
 import LogoCanvas from './LogoCanvas';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
+import { fontCategories } from '@/lib/data';
 
-const LogoPreview = ({ config }: { config: LogoConfig }) => {
+const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; selectedFontCategory: string | null }) => {
   const handleDownload = () => {
     const svgElement = document.getElementById(`logo-svg-${config.palette?.id}`);
     if (!svgElement) return;
@@ -33,6 +34,9 @@ const LogoPreview = ({ config }: { config: LogoConfig }) => {
     alert('Save functionality coming soon!');
     console.log('Saving logo config:', config);
   };
+
+  // Get the fonts for the selected category
+  const fontsInSelectedCategory = selectedFontCategory ? fontCategories[selectedFontCategory] : null;
 
   return (
     <div className="space-y-6">
@@ -64,14 +68,39 @@ const LogoPreview = ({ config }: { config: LogoConfig }) => {
         )}
       </div>
 
-      <div>
-        <h3 className="font-bold mb-2 text-primary">Farbversion</h3>
-        <div className="bg-white/10 rounded-lg p-4"><LogoCanvas config={config} /></div>
-      </div>
-      <div>
-        <h3 className="font-bold mb-2 text-primary">Monochrome Version</h3>
-        <div className="bg-black border border-white/20 rounded-lg p-4"><LogoCanvas config={monochromeConfig} idSuffix="-mono" /></div>
-      </div>
+      {fontsInSelectedCategory ? (
+        <div className="space-y-6">
+          <h3 className="font-bold mb-4 text-primary">Logo-Variationen: {fontsInSelectedCategory[0].category}</h3>
+          {fontsInSelectedCategory.map((font, index) => {
+            const variationConfig = { ...config, font: font };
+            const monochromeVariationConfig = { ...variationConfig, palette: monochromePalette };
+            
+            return (
+              <div key={font.name} className="space-y-4 pb-6 border-b border-white/10 last:border-b-0">
+                <h4 className="text-lg font-semibold text-white">{font.name}</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h5 className="font-medium mb-2 text-primary text-sm">Farbversion</h5>
+                    <div className="bg-white/10 rounded-lg p-4">
+                      <LogoCanvas config={variationConfig} idSuffix={`-color-${index}`} />
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="font-medium mb-2 text-primary text-sm">Monochrom</h5>
+                    <div className="bg-black border border-white/20 rounded-lg p-4">
+                      <LogoCanvas config={monochromeVariationConfig} idSuffix={`-mono-${index}`} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-white/50">
+          <p>Wählen Sie einen Typografie-Stil aus, um Logo-Variationen zu sehen.</p>
+        </div>
+      )}
       {/* === SAVE/DOWNLOAD ACTION AREA === */}
       <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
         <SignedIn>
@@ -87,7 +116,7 @@ const LogoPreview = ({ config }: { config: LogoConfig }) => {
           </SignInButton>
         </SignedOut>
 
-        <button onClick={handleDownload} disabled={!config.text} className="w-full bg-primary text-primary-foreground font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">
+        <button onClick={handleDownload} disabled={!config.text} className="w-full bg-gradient-to-r from-blue-500 via-purple-600 to-cyan-400 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
           <Download size={18} /> Download SVG
         </button>
       </div>

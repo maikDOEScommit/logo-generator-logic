@@ -26,6 +26,8 @@ export default function LogoGeneratorPage() {
   const [visibleSections, setVisibleSections] = useState<number[]>([0]); // Start with hero section visible
   const [showPreviewPanel, setShowPreviewPanel] = useState(false); // Control preview panel visibility
   const [showStartedText, setShowStartedText] = useState(false); // Control "Let's get started" text visibility
+  const [hideStartedText, setHideStartedText] = useState(false); // Control hiding "Let's get started" text
+  const [selectedFontCategory, setSelectedFontCategory] = useState<string | null>(null);
 
   const [state, dispatch] = useReducer(logoReducer, initialState);
   const { present: config, past, future } = state;
@@ -51,7 +53,7 @@ export default function LogoGeneratorPage() {
 
 
   const progress = (step / 3) * 100;
-  const isLogoConfigComplete = !!(config.icon && config.font && config.layout && config.palette && config.text);
+  const isLogoConfigComplete = !!(config.icon && selectedFontCategory && config.layout && config.palette && config.text);
 
   // Helper function to scroll to a specific section
   const scrollToSection = (sectionId: string) => {
@@ -95,6 +97,10 @@ export default function LogoGeneratorPage() {
     } else if (nextStep === 3 && !visibleSections.includes(3)) {
       setVisibleSections([...visibleSections, 3]);
       scrollToSection('section-3');
+      // Hide "Let's get started" text when reaching the last section
+      setTimeout(() => {
+        setHideStartedText(true);
+      }, 500);
     }
   };
 
@@ -130,9 +136,9 @@ export default function LogoGeneratorPage() {
             </p>
             <button
               onClick={() => handleSectionNext(0)}
-              className="bg-primary text-primary-foreground px-8 py-4 rounded-lg text-lg font-bold hover:opacity-90 transition-all transform hover:scale-105"
+              className="bg-gradient-to-r from-blue-500 via-purple-600 to-cyan-400 text-white px-8 py-4 rounded-lg text-lg font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95"
             >
-              Jetzt starten
+              Create!
             </button>
           </div>
 
@@ -197,6 +203,8 @@ export default function LogoGeneratorPage() {
                     config={config}
                     updateConfig={updateConfig}
                     suggestions={suggestions}
+                    selectedFontCategory={selectedFontCategory}
+                    setSelectedFontCategory={setSelectedFontCategory}
                   />
                 </div>
               </div>
@@ -208,8 +216,17 @@ export default function LogoGeneratorPage() {
           initial={{ x: '100%' }}
           animate={{ x: showPreviewPanel ? 0 : '100%' }}
           transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-          className="bg-black/50 p-8 md:p-12 h-screen sticky top-0 flex flex-col md:block hidden border-l-[0.5rem]"
-          style={{ borderImage: 'linear-gradient(to bottom, #3b82f6, #8b5cf6, #06b6d4) 1' }}>
+          className="bg-black/50 p-8 md:p-12 min-h-screen sticky top-0 flex flex-col md:block hidden relative"
+        >
+          {/* Animated Border - only show after first scroll trigger and "Let's get started" text */}
+          {visibleSections.includes(1) && showStartedText && (
+            <motion.div
+              initial={{ height: 0 }}
+              animate={{ height: '100vh' }}
+              transition={{ duration: 1.5, delay: 0.6, ease: "easeOut" }}
+              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden"
+            />
+          )}
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: showStartedText ? 1 : 0 }}
@@ -229,18 +246,24 @@ export default function LogoGeneratorPage() {
             <button onClick={() => setPreviewTab('mockups')} disabled={!isLogoConfigComplete} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
           </motion.div>
 
-          <div className="flex-grow overflow-y-auto">
+          <div className="flex-grow overflow-y-auto pb-20">
             <AnimatePresence mode="wait">
               {previewTab === 'preview' && (
                 <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  {isLogoConfigComplete ? <LogoPreview config={config} /> : 
+                  {isLogoConfigComplete ? <LogoPreview config={config} selectedFontCategory={selectedFontCategory} /> : 
                     <div className="h-full flex items-center justify-center pt-16">
                       <div className="text-center overflow-hidden">
-                        {showStartedText && (
-                          <div className="text-5xl md:text-6xl lg:text-7xl font-black" style={{ lineHeight: 1.1 }}>
+                        {showStartedText && !hideStartedText && (
+                          <motion.div 
+                            initial={{ opacity: 1 }}
+                            animate={{ opacity: hideStartedText ? 0 : 1 }}
+                            transition={{ duration: 0.5 }}
+                            className="text-5xl md:text-6xl lg:text-7xl font-black" 
+                            style={{ lineHeight: 1.1 }}
+                          >
                             <motion.span 
                               initial={{ x: '100%', opacity: 0 }}
-                              animate={{ x: 0, opacity: 1 }}
+                              animate={{ x: 0, opacity: hideStartedText ? 0 : 1 }}
                               transition={{ duration: 0.5, delay: 0 }}
                               className="block text-white"
                             >
@@ -248,7 +271,7 @@ export default function LogoGeneratorPage() {
                             </motion.span>
                             <motion.span 
                               initial={{ x: '100%', opacity: 0 }}
-                              animate={{ x: 0, opacity: 1 }}
+                              animate={{ x: 0, opacity: hideStartedText ? 0 : 1 }}
                               transition={{ duration: 0.5, delay: 0.2 }}
                               className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent my-6"
                             >
@@ -256,13 +279,13 @@ export default function LogoGeneratorPage() {
                             </motion.span>
                             <motion.span 
                               initial={{ x: '100%', opacity: 0 }}
-                              animate={{ x: 0, opacity: 1 }}
+                              animate={{ x: 0, opacity: hideStartedText ? 0 : 1 }}
                               transition={{ duration: 0.5, delay: 0.4 }}
                               className="block text-white"
                             >
                               started!
                             </motion.span>
-                          </div>
+                          </motion.div>
                         )}
                       </div>
                     </div>
