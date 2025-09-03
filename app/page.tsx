@@ -80,7 +80,7 @@ export default function LogoGeneratorPage() {
       // Start vertical border-left animation after horizontal border completes
       setTimeout(() => {
         setShowLeftBorder(true);
-      }, 2300); // Wait for horizontal border to complete
+      }, 1925); // Wait for horizontal border to complete (25% faster)
       
       // Wait for animation to be visible before scrolling
       setTimeout(() => {
@@ -93,7 +93,7 @@ export default function LogoGeneratorPage() {
         setTimeout(() => {
           setShowStartedText(true);
         }, 500);
-      }, 3500); // Extended delay for all animations
+      }, 3050); // Extended delay for all animations (25% faster)
     } else {
       const nextSection = currentSection + 1;
       if (!visibleSections.includes(nextSection)) {
@@ -231,14 +231,17 @@ export default function LogoGeneratorPage() {
           initial={{ x: '100%' }}
           animate={{ x: showPreviewPanel ? 0 : '100%' }}
           transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-          className="bg-black/50 p-8 md:p-12 min-h-screen sticky top-0 flex flex-col md:block hidden relative"
+          className="p-8 md:p-12 min-h-screen sticky top-0 flex flex-col md:block hidden relative"
+          style={{
+            background: `radial-gradient(circle at top left, #111827 0%, #111827 50%, #0A0A0A 80%, #000000 100%)`
+          }}
         >
           {/* Horizontal Border-Top Animation - starts after panel slides in, fills right to left */}
           {showTopBorder && (
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
+              transition={{ duration: 1.125, ease: "easeOut" }}
               className="absolute top-0 right-0 h-2 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500 overflow-hidden"
             />
           )}
@@ -248,7 +251,7 @@ export default function LogoGeneratorPage() {
             <motion.div
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
+              transition={{ duration: 1.125, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden"
             />
           )}
@@ -257,7 +260,7 @@ export default function LogoGeneratorPage() {
             <motion.div
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
-              transition={{ duration: 1.5, delay: 0.6, ease: "easeOut" }}
+              transition={{ duration: 1.125, delay: 0.45, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden"
             />
           )}
@@ -267,7 +270,11 @@ export default function LogoGeneratorPage() {
             transition={{ duration: 0.5, delay: 0.8 }}
             className="w-full h-2 bg-white/10 rounded-full mb-4"
           >
-            <motion.div className="h-2 bg-primary rounded-full" animate={{ width: `${isLogoConfigComplete ? 100 : (visibleSections.length - 1) * 33.33}%` }} />
+            <motion.div 
+              className="h-2 rounded-full" 
+              style={{ background: 'linear-gradient(to right, #22D3EE, #9333EA, #3B82F6)' }}
+              animate={{ width: `${isLogoConfigComplete ? 100 : (visibleSections.length - 1) * 33.33}%` }} 
+            />
           </motion.div>
 
           <motion.div 
@@ -285,7 +292,7 @@ export default function LogoGeneratorPage() {
               {previewTab === 'preview' && (
                 <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   {isLogoConfigComplete ? <LogoPreview config={config} selectedFontCategory={selectedFontCategory} /> : 
-                    <div className="h-full flex items-center justify-center pt-16">
+                    <div className="h-full flex items-center justify-center pt-32">
                       <div className="text-center overflow-hidden">
                         {showStartedText && !hideStartedText && (
                           <motion.div 
