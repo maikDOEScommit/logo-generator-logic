@@ -239,7 +239,7 @@ export default function LogoGeneratorPage() {
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
               transition={{ duration: 1.5, ease: "easeOut" }}
-              className="absolute top-0 right-0 h-2 bg-gradient-to-l from-blue-500 via-purple-600 to-cyan-400 overflow-hidden"
+              className="absolute top-0 right-0 h-2 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500 overflow-hidden"
             />
           )}
           
