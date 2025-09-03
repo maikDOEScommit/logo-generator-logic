@@ -86,7 +86,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             updateConfig({});
           }}
           disabled={!config.icon || !selectedFontCategory || !config.layout || !config.palette || !config.text}
-          className="bg-gradient-to-r from-blue-500 via-purple-600 to-cyan-400 text-white px-12 py-4 rounded-lg text-xl font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-4 rounded-lg text-xl font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
         >
           Create Logo
         </button>

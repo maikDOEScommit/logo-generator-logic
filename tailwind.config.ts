@@ -11,7 +11,7 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "hsl(262, 83%, 58%)",
+          DEFAULT: "hsl(252, 90%, 67%)", // Mehr violett-bläulich
           foreground: "hsl(0, 0%, 100%)",
         },
       },

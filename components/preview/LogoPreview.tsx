@@ -116,7 +116,7 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
           </SignInButton>
         </SignedOut>
 
-        <button onClick={handleDownload} disabled={!config.text} className="w-full bg-gradient-to-r from-blue-500 via-purple-600 to-cyan-400 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+        <button onClick={handleDownload} disabled={!config.text} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
           <Download size={18} /> Download SVG
         </button>
       </div>

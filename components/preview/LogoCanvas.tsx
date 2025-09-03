@@ -44,11 +44,12 @@ const LogoCanvas = ({ config, idSuffix = '' }: { config: LogoConfig, idSuffix?: 
     }
     if (layout.arrangement === 'icon-left') {
       const iconSize = 40;
+      const iconCenterY = 55 + iconSize / 2; // Icon-Mitte bei Y=75
       return(
         <g transform="translate(20, 0)">
           <IconComponent x={0} y={55} width={iconSize} height={iconSize} color={primaryColor} />
-          <text x={iconSize + 15} y={75} fontSize={fontSize * 0.8} fontWeight="bold" textAnchor="start" fill={brandNameColor}>{text || "Markenname"}</text>
-          {slogan && <text x={iconSize + 15} y={75 + sloganFontSize} fontSize={sloganFontSize * 0.9} textAnchor="start" fill={textColor}>{slogan}</text>}
+          <text x={iconSize + 15} y={iconCenterY + (fontSize * 0.8 * 0.35)} fontSize={fontSize * 0.8} fontWeight="bold" textAnchor="start" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
+          {slogan && <text x={iconSize + 15} y={iconCenterY + (fontSize * 0.8 * 0.35) + sloganFontSize} fontSize={sloganFontSize * 0.9} textAnchor="start" fill={textColor}>{slogan}</text>}
         </g>
       );
     }
