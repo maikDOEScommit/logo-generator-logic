@@ -21,15 +21,16 @@ export const DESIGN_RULES: DesignRule[] = [
     description: 'Ein Logo muss auf den ersten Blick verständlich und wiedererkennbar sein.',
     validator: (config) => {
       if (!config.text || !config.icon) return false;
-      // Regel: Text sollte kurz sein (max 15 Zeichen), ein einziges Icon
-      return config.text.length <= 15 && config.slogan.length <= 30;
+      // Regel: Text sollte kurz sein (max 24 Zeichen), ein einziges Icon
+      return config.text.length <= 24 && config.slogan.length <= 30;
     },
     scorer: (config) => {
       if (!config.text || !config.icon) return 0;
       let score = 100;
       // Längere Texte reduzieren den Score
-      if (config.text.length > 10) score -= 20;
-      if (config.text.length > 15) score -= 30;
+      if (config.text.length > 15) score -= 15;
+      if (config.text.length > 20) score -= 20;
+      if (config.text.length > 24) score -= 30;
       if (config.slogan.length > 20) score -= 15;
       return Math.max(0, score);
     }
@@ -442,7 +443,7 @@ export function suggestImprovements(config: LogoConfig): string[] {
 
   // Original Design Rules
   if (evaluation.failedRules.includes('simplicity')) {
-    suggestions.push('Vereinfachen Sie den Markennamen (max. 15 Zeichen) und den Slogan (max. 30 Zeichen)');
+    suggestions.push('Vereinfachen Sie den Markennamen (max. 24 Zeichen) und den Slogan (max. 30 Zeichen)');
   }
 
   if (evaluation.failedRules.includes('timelessness')) {

@@ -233,7 +233,7 @@ export default function LogoGeneratorPage() {
           transition={{ type: 'spring', damping: 20, stiffness: 100 }}
           className="p-8 md:p-12 min-h-screen sticky top-0 flex flex-col md:block hidden relative"
           style={{
-            background: `radial-gradient(circle at top left, #111827 0%, #111827 50%, #0A0A0A 80%, #000000 100%)`
+            background: `radial-gradient(circle at top left, #111827 0%, #111827 60%, #0F0F0F 90%, #000000 100%)`
           }}
         >
           {/* Horizontal Border-Top Animation - starts after panel slides in, fills right to left */}

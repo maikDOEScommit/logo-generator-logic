@@ -21,12 +21,12 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
         onChange={(e) => updateConfig({ text: e.target.value })}
         className="w-full bg-white/5 p-3 rounded-lg border border-white/20 focus:ring-2 focus:ring-primary focus:outline-none"
         placeholder="e.g. Quantum Leap"
-        maxLength={15}
+        maxLength={24}
       />
       <div className="text-xs text-white/50 mt-1 flex justify-between">
         <span>Rule 1: Simplicity - Short names are more memorable</span>
-        <span className={config.text.length > 10 ? 'text-yellow-400' : 'text-green-400'}>
-          {config.text.length}/15
+        <span className={config.text.length > 15 ? 'text-yellow-400' : 'text-green-400'}>
+          {config.text.length}/24
         </span>
       </div>
     </div>
