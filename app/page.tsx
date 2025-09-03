@@ -40,6 +40,8 @@ export default function LogoGeneratorPage() {
   const [showThirdText, setShowThirdText] = useState(false); // Control "hold on, we're right there!" text
   const [exitThirdText, setExitThirdText] = useState(false); // Control exit animation for third text
   const [exitHeroSection, setExitHeroSection] = useState(false); // Control hero section exit animation
+  const [showLogoPreview, setShowLogoPreview] = useState(false); // Control when to show logo preview after Create Logo click
+  const [expandPreviewPanel, setExpandPreviewPanel] = useState(false); // Control full-width expansion of preview panel
 
   const [state, dispatch] = useReducer(logoReducer, initialState);
   const { present: config, past, future } = state;
@@ -101,25 +103,26 @@ export default function LogoGeneratorPage() {
           // Start horizontal border-top animation after panel slides in
           setTimeout(() => {
             setShowTopBorder(true);
-          }, 800); // Wait for panel slide-in
-          
-          // Start vertical border-left animation after horizontal border completes
-          setTimeout(() => {
-            setShowLeftBorder(true);
-          }, 1700); // Wait for horizontal border to complete (25% faster: 800ms + 900ms)
-          
-          // Wait for animation to be visible before scrolling
-          setTimeout(() => {
-            const nextSection = currentSection + 1;
-            if (!visibleSections.includes(nextSection)) {
-              setVisibleSections([...visibleSections, nextSection]);
-            }
-            scrollToSection(`section-${nextSection}`);
-            // Show the "Let's get started" text after scrolling
+            
+            // Start vertical border-left animation after horizontal border completes
             setTimeout(() => {
-              setShowStartedText(true);
-            }, 500);
-          }, 2825); // Extended delay for all animations (25% faster: 1700ms + 900ms + 225ms)
+              setShowLeftBorder(true);
+              
+              // Scroll to next section after all border animations start
+              setTimeout(() => {
+                const nextSection = currentSection + 1;
+                if (!visibleSections.includes(nextSection)) {
+                  setVisibleSections([...visibleSections, nextSection]);
+                }
+                scrollToSection(`section-${nextSection}`);
+                
+                // Show the "Let's get started" text after scrolling + vertical border completes
+                setTimeout(() => {
+                  setShowStartedText(true);
+                }, 1400); // Wait for scroll (500ms) + vertical border animation (900ms)
+              }, 100); // Small delay after starting vertical border
+            }, 900); // Wait for horizontal border to complete (900ms duration)
+          }, 800); // Wait for panel slide-in
         }, 800); // Wait for hero exit animation
       }
     } else if (currentSection === 1) {
@@ -175,19 +178,54 @@ export default function LogoGeneratorPage() {
     }
   };
   
-  // Handle final logo creation - animate out third text
+  // Handle final logo creation - animate out third text, scroll, expand panel, then show logos
   const handleLogoCreation = () => {
     setExitThirdText(true);
-    setTimeout(() => {
-      setHideStartedText(true);
-    }, 1000); // Wait for exit animation
+    
+    // Check if we're on mobile (screen width < 768px)
+    const isMobile = window.innerWidth < 768;
+    
+    if (isMobile) {
+      // On mobile: Just show logos immediately (no panel to expand)
+      setTimeout(() => {
+        setShowLogoPreview(true);
+        setHideStartedText(true);
+      }, 500);
+    } else {
+      // On desktop: Full animation sequence
+      // Step 1: Scroll to bottom of the page
+      setTimeout(() => {
+        window.scrollTo({ 
+          top: document.documentElement.scrollHeight, 
+          behavior: 'smooth' 
+        });
+        
+        // Step 2: Expand preview panel to full width after scroll
+        setTimeout(() => {
+          setExpandPreviewPanel(true);
+          
+          // Step 3: Show logo preview after panel expansion
+          setTimeout(() => {
+            setShowLogoPreview(true);
+            setHideStartedText(true);
+          }, 800); // Wait for panel expansion animation
+        }, 1000); // Wait for scroll to complete
+      }, 500); // Wait for text exit animation to start
+    }
   };
 
   return (
     <>
+      <style jsx global>{`
+        @keyframes gradient-pulse {
+          0% { opacity: 0.7; }
+          50% { opacity: 1; }
+          100% { opacity: 0.8; }
+        }
+      `}</style>
       <Header />
-      <main className={`min-h-screen w-full grid grid-cols-1 ${showPreviewPanel ? 'md:grid-cols-2' : 'md:grid-cols-1'} pt-20 transition-all duration-500`}>
-        <div className={`p-4 md:p-8 lg:p-12 overflow-y-auto max-h-[calc(100vh-5rem)] ${showPreviewPanel ? '' : 'md:col-span-1'} transition-all duration-500`}>
+      <main className={`min-h-screen w-full grid grid-cols-1 ${expandPreviewPanel ? 'md:grid-cols-1' : showPreviewPanel ? 'md:grid-cols-2' : 'md:grid-cols-1'} pt-20 transition-all duration-500`}>
+        <div className={`p-4 md:p-8 lg:p-12 overflow-y-auto max-h-[calc(100vh-5rem)] ${expandPreviewPanel ? 'hidden' : showPreviewPanel ? '' : 'md:col-span-1'} transition-all duration-500`}>
 
           {/* === HERO SECTION === */}
           <AnimatePresence mode="wait">
@@ -305,9 +343,17 @@ export default function LogoGeneratorPage() {
         </div>
         <motion.div 
           initial={{ x: '100%' }}
-          animate={{ x: showPreviewPanel ? 0 : '100%' }}
-          transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-          className="p-8 md:p-12 min-h-screen sticky top-0 flex flex-col md:block hidden relative"
+          animate={{ 
+            x: showPreviewPanel ? 0 : '100%',
+            width: expandPreviewPanel ? '100vw' : 'auto'
+          }}
+          transition={{ 
+            type: 'spring', 
+            damping: 20, 
+            stiffness: 100,
+            width: { duration: 0.8, ease: "easeInOut" }
+          }}
+          className={`p-8 md:p-12 min-h-screen sticky top-0 flex flex-col md:block hidden relative ${expandPreviewPanel ? 'fixed inset-0 z-50' : ''}`}
           style={{
             background: `radial-gradient(circle at top left, #111827 0%, #111827 70%, #0F0F0F 85%, #000000 95%)`
           }}
@@ -360,14 +406,14 @@ export default function LogoGeneratorPage() {
             className="flex border-b border-white/20 mb-6"
           >
             <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'}`}>Preview</button>
-            <button onClick={() => setPreviewTab('mockups')} disabled={!isLogoConfigComplete} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
+            <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
           </motion.div>
 
           <div className="flex-grow overflow-y-auto overflow-x-visible pb-20">
             <AnimatePresence mode="wait">
               {previewTab === 'preview' && (
                 <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  {isLogoConfigComplete ? <LogoPreview config={config} selectedFontCategory={selectedFontCategory} /> : 
+                  {isLogoConfigComplete && showLogoPreview ? <LogoPreview config={config} selectedFontCategory={selectedFontCategory} /> : 
                     <div className="h-full flex items-center justify-center pt-32 overflow-x-visible">
                       <div className="text-center w-full">
                         <AnimatePresence mode="wait">
@@ -478,7 +524,7 @@ export default function LogoGeneratorPage() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: '100%', opacity: 0 }}
                                 transition={{ duration: 0.5, delay: 0.2 }}
-                                className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent my-4"
+                                className="block text-white/70 my-4"
                               >
                                 we're right
                               </motion.span>
@@ -487,7 +533,10 @@ export default function LogoGeneratorPage() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: '100%', opacity: 0 }}
                                 transition={{ duration: 0.5, delay: 0.4 }}
-                                className="block text-white"
+                                className="block bg-gradient-to-r from-cyan-400 via-purple-600 to-blue-500 bg-clip-text text-transparent animate-pulse"
+                                style={{
+                                  animation: 'gradient-pulse 2s ease-in-out infinite alternate'
+                                }}
                               >
                                 there!
                               </motion.span>
@@ -501,7 +550,7 @@ export default function LogoGeneratorPage() {
               )}
               {previewTab === 'mockups' && (
                 <motion.div key="mockups" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  {isLogoConfigComplete ? <MockupPreview config={config} /> : <div className="h-full flex items-center justify-center text-white/50"><p>Complete your logo to see mockups.</p></div>}
+                  {isLogoConfigComplete && showLogoPreview ? <MockupPreview config={config} /> : <div className="h-full flex items-center justify-center text-white/50"><p>Complete your logo to see mockups.</p></div>}
                 </motion.div>
               )}
             </AnimatePresence>

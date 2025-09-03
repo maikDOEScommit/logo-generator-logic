@@ -81,7 +81,7 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <h5 className="font-medium mb-2 text-primary text-sm">Light Version</h5>
-                    <div className="bg-white/10 rounded-lg p-4">
+                    <div className="bg-white/10 border border-white rounded-lg p-4">
                       <LogoCanvas config={variationConfig} idSuffix={`-light-${index}`} backgroundColor="white" />
                     </div>
                   </div>
@@ -95,13 +95,13 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                   <div>
                     <h5 className="font-medium mb-2 text-primary text-sm">Color Version (Black Text)</h5>
-                    <div className="bg-white/10 rounded-lg p-4">
+                    <div className="bg-white/10 border border-white rounded-lg p-4">
                       <LogoCanvas config={variationConfig} idSuffix={`-gradient-black-${index}`} backgroundColor="gradient-black-text" />
                     </div>
                   </div>
                   <div>
                     <h5 className="font-medium mb-2 text-primary text-sm">Color Version (White Text)</h5>
-                    <div className="bg-black border border-white/20 rounded-lg p-4">
+                    <div className="bg-black border border-white/10 rounded-lg p-4">
                       <LogoCanvas config={variationConfig} idSuffix={`-gradient-white-${index}`} backgroundColor="gradient-white-text" />
                     </div>
                   </div>
