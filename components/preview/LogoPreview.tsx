@@ -6,12 +6,18 @@ import { useLogoStore } from '@/lib/state';
 import { fontCategories } from '@/lib/data';
 
 const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; selectedFontCategory: string | null }) => {
-  // Get the current logo state from the new store
-  const { text, fontInfo, fontWeight, colorPalette } = useLogoStore();
+  // Use config from props instead of old store
+  const { text = 'Your Logo', slogan = '', icon, layout, palette } = config;
+  
+  // Debug logging
+  console.log('LogoPreview config:', { text, slogan, icon, layout, palette });
   
   // Get all fonts from the selected category
   const selectedCategoryFonts = selectedFontCategory ? 
     fontCategories.find(cat => cat.name === selectedFontCategory)?.fonts || [] : [];
+    
+  // If no fonts selected, use a default font
+  const fontsToDisplay = selectedCategoryFonts.length > 0 ? selectedCategoryFonts : fontCategories[0].fonts.slice(0, 2);
   
   const handleDownload = () => {
     const svgElement = document.getElementById(`logo-svg-generated-light`);
@@ -31,7 +37,7 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
 
   const handleSave = () => {
     alert('Save functionality coming soon!');
-    console.log('Saving logo config:', { text, fontInfo, fontWeight, colorPalette });
+    console.log('Saving logo config:', { text, icon, layout, palette });
   };
 
   return (
@@ -39,7 +45,7 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
       <h3 className="text-2xl font-bold text-primary">Generated Logos: {selectedFontCategory} Category</h3>
       
       {/* Show all fonts from the selected category */}
-      {selectedCategoryFonts.map((font, fontIndex) => (
+      {fontsToDisplay.map((font, fontIndex) => (
         <div key={font.name} className="space-y-4 pb-8 border-b border-white/10 last:border-b-0">
           <h4 className="text-xl font-semibold text-white">{font.name}</h4>
           
@@ -50,15 +56,28 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
               <div className="bg-white/10 border border-white rounded-lg p-4">
                 <div 
                   id={`logo-${font.name.replace(/\s+/g, '-')}-light-${fontIndex}`}
-                  className="text-4xl font-bold text-center p-6 rounded"
+                  className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4"
                   style={{ 
                     fontFamily: font.cssName,
                     fontWeight: font.generationWeights[0],
-                    color: colorPalette.colors[0],
-                    backgroundColor: colorPalette.colors[3]
+                    color: palette ? palette.colors[1] : '#0A3D62',
+                    backgroundColor: palette ? palette.colors[0] : '#FFFFFF'
                   }}
                 >
-                  {text}
+                  <div className="flex flex-col items-center">
+                    {/* Always show icon at top if icon exists */}
+                    {icon && (
+                      <icon.component size={48} color={palette ? palette.colors[1] : '#0A3D62'} className="mb-2" />
+                    )}
+                    <div className="flex flex-col items-center text-center">
+                      <span>{text}</span>
+                      {slogan && (
+                        <span className="text-base font-normal opacity-80 mt-1" style={{ fontWeight: 300 }}>
+                          {slogan}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -68,15 +87,28 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
               <h5 className="font-medium mb-2 text-primary text-sm">Dark Version</h5>
               <div className="bg-black border border-white/20 rounded-lg p-4">
                 <div 
-                  className="text-4xl font-bold text-center p-6 rounded"
+                  className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4"
                   style={{ 
                     fontFamily: font.cssName,
                     fontWeight: font.generationWeights[1] || font.generationWeights[0],
-                    color: colorPalette.colors[3],
-                    backgroundColor: colorPalette.colors[0]
+                    color: palette ? palette.colors[2] : '#FFFFFF',
+                    backgroundColor: palette ? palette.colors[1] : '#0A3D62'
                   }}
                 >
-                  {text}
+                  <div className="flex flex-col items-center">
+                    {/* Always show icon at top if icon exists */}
+                    {icon && (
+                      <icon.component size={48} color={palette ? palette.colors[2] : '#FFFFFF'} className="mb-2" />
+                    )}
+                    <div className="flex flex-col items-center text-center">
+                      <span>{text}</span>
+                      {slogan && (
+                        <span className="text-base font-normal opacity-80 mt-1" style={{ fontWeight: 300 }}>
+                          {slogan}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -86,15 +118,28 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
               <h5 className="font-medium mb-2 text-primary text-sm">Accent Version</h5>
               <div className="bg-white/10 border border-white rounded-lg p-4">
                 <div 
-                  className="text-4xl font-bold text-center p-6 rounded"
+                  className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4"
                   style={{ 
                     fontFamily: font.cssName,
                     fontWeight: font.generationWeights[0],
-                    color: colorPalette.colors[2],
-                    backgroundColor: colorPalette.colors[3]
+                    color: palette ? palette.colors[0] : '#0A3D62',
+                    backgroundColor: palette ? palette.colors[2] : '#CEDEEB'
                   }}
                 >
-                  {text}
+                  <div className="flex flex-col items-center">
+                    {/* Always show icon at top if icon exists */}
+                    {icon && (
+                      <icon.component size={48} color={palette ? palette.colors[0] : '#0A3D62'} className="mb-2" />
+                    )}
+                    <div className="flex flex-col items-center text-center">
+                      <span>{text}</span>
+                      {slogan && (
+                        <span className="text-base font-normal opacity-80 mt-1" style={{ fontWeight: 300 }}>
+                          {slogan}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -104,15 +149,28 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
               <h5 className="font-medium mb-2 text-primary text-sm">Secondary Version</h5>
               <div className="bg-white/10 border border-white rounded-lg p-4">
                 <div 
-                  className="text-4xl font-bold text-center p-6 rounded"
+                  className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4"
                   style={{ 
                     fontFamily: font.cssName,
                     fontWeight: font.generationWeights[1] || font.generationWeights[0],
-                    color: colorPalette.colors[1],
-                    backgroundColor: colorPalette.colors[3]
+                    color: palette ? palette.colors[2] : '#FFFFFF',
+                    backgroundColor: palette ? palette.colors[0] : '#0A3D62'
                   }}
                 >
-                  {text}
+                  <div className="flex flex-col items-center">
+                    {/* Always show icon at top if icon exists */}
+                    {icon && (
+                      <icon.component size={48} color={palette ? palette.colors[2] : '#FFFFFF'} className="mb-2" />
+                    )}
+                    <div className="flex flex-col items-center text-center">
+                      <span>{text}</span>
+                      {slogan && (
+                        <span className="text-base font-normal opacity-80 mt-1" style={{ fontWeight: 300 }}>
+                          {slogan}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

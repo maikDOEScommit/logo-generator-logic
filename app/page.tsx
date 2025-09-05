@@ -1,10 +1,10 @@
 // --- app/page.tsx ---
 'use client';
 
-import React, { useState, useMemo, useReducer } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { logoReducer, initialState } from '@/lib/state';
-import { getSuggestions } from '@/lib/suggestionEngine';
+import { useLogoStore } from '@/lib/state';
+import { getInitialSuggestions } from '@/lib/suggestionEngine';
 import { LogoConfig } from '@/lib/types';
 import { Undo2, Redo2 } from 'lucide-react';
 
@@ -45,15 +45,27 @@ export default function LogoGeneratorPage() {
   const [expandPreviewPanel, setExpandPreviewPanel] = useState(false); // Control full-width expansion of preview panel
   const [morphFromPosition, setMorphFromPosition] = useState({ top: 80, right: 0, width: '50vw', height: 'calc(100vh - 80px)' }); // Store current position for morph
 
-  const [state, dispatch] = useReducer(logoReducer, initialState);
-  const { present: config, past, future } = state;
+  // Logo configuration state
+  const [config, setConfig] = useState<LogoConfig>({ 
+    text: '', 
+    icon: null, 
+    font: null, 
+    layout: null, 
+    palette: null, 
+    slogan: '' 
+  });
 
   const updateConfig = (newConfig: Partial<LogoConfig>) => {
-    dispatch({ type: 'SET_CONFIG', payload: newConfig });
+    setConfig(prev => ({ ...prev, ...newConfig }));
   };
 
-  const handleUndo = () => dispatch({ type: 'UNDO' });
-  const handleRedo = () => dispatch({ type: 'REDO' });
+  const handleUndo = () => {
+    // Undo functionality can be added later to Zustand store
+  };
+
+  const handleRedo = () => {
+    // Redo functionality can be added later to Zustand store
+  };
 
   const handlePersonalityToggle = (id: string) => {
     const newSelection = selectedPersonalities.includes(id)
@@ -62,15 +74,16 @@ export default function LogoGeneratorPage() {
     setSelectedPersonalities(newSelection);
   };
 
-  const suggestions = useMemo(
-    () => getSuggestions(industry, selectedPersonalities, config),
-    [industry, selectedPersonalities, config]
-  );
+  // Get suggestions based on industry and personalities
+  const suggestions = useMemo(() => {
+    // Always provide suggestions, fallback to 'tech' if no industry selected
+    return getInitialSuggestions(industry || 'tech', selectedPersonalities);
+  }, [industry, selectedPersonalities]);
 
 
   const progress = (step / 3) * 100;
-  // Simplified condition: just need industry and some text for the new generation system
-  const isLogoConfigComplete = !!(industry && (config.text || 'DeinLogo'));
+  // Simplified condition: just need industry for the new generation system
+  const isLogoConfigComplete = !!industry;
 
   // Helper function to scroll to a specific section
   const scrollToSection = (sectionId: string) => {
@@ -214,19 +227,9 @@ export default function LogoGeneratorPage() {
 
   // Handle final logo creation - use new suggestion engine and generate logo
   const handleLogoCreation = () => {
-    // Import the new suggestion engine
-    const { getInitialSuggestions } = require('@/lib/suggestionEngine');
-    const { useLogoStore } = require('@/lib/state');
-    
-    // Generate suggestions based on industry and selected personalities  
-    const keywords = selectedPersonalities; // Convert personalities to keywords
-    const suggestions = getInitialSuggestions(industry || 'tech', keywords);
-    
-    // Update the new Zustand store with generated suggestions
-    const { setFont, setColorPalette, setText } = useLogoStore.getState();
-    setFont(suggestions.fontInfo, suggestions.fontWeight);
-    setColorPalette(suggestions.colorPalette);
-    setText(config.text || 'DeinLogo');
+    // Logo creation is now triggered when user has selected all required elements
+    // The config state already contains the selected icon, layout, and palette
+    console.log('Creating logo with config:', config);
     
     setExitThirdText(true);
     
@@ -356,8 +359,8 @@ export default function LogoGeneratorPage() {
               <div className="w-full max-w-2xl">
                 <div className="space-y-12">
                   <div className="flex items-center gap-2">
-                    <button onClick={handleUndo} disabled={past.length === 0} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"><Undo2 size={16}/> Undo</button>
-                    <button onClick={handleRedo} disabled={future.length === 0} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"><Redo2 size={16}/> Redo</button>
+                    <button onClick={handleUndo} disabled={true} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"><Undo2 size={16}/> Undo</button>
+                    <button onClick={handleRedo} disabled={true} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"><Redo2 size={16}/> Redo</button>
                   </div>
                   <Step3_Design
                     config={config}
@@ -365,6 +368,8 @@ export default function LogoGeneratorPage() {
                     suggestions={suggestions}
                     selectedFontCategory={selectedFontCategory}
                     setSelectedFontCategory={setSelectedFontCategory}
+                    selectedPersonalities={selectedPersonalities}
+                    onTogglePersonality={handlePersonalityToggle}
                     onLogoCreate={handleLogoCreation}
                   />
                 </div>

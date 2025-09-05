@@ -1,126 +1,127 @@
-Hello Claude. We are refining the core user experience of our logo generator. The goal is to make the typography selection process more powerful and intuitive.
+Der finale Prompt für Claude
+ROLE: You are an expert senior Next.js developer specializing in building clean, scalable, and data-driven applications with TypeScript and Zustand for state management.
 
-We will change the workflow: Instead of the user selecting a single font family, they will now select a "Font Style Category". The system will then automatically generate multiple logo variations, one for each font within that chosen category. This requires changes to our data structure, UI, and preview logic.
+CONTEXT: I am building an intelligent logo generator. The core data architecture is now complete and non-negotiable. I need you to build the central state management and suggestion logic that works perfectly with this existing data structure.
 
-Please implement the following changes precisely. The overall design and other steps of the generator should remain untouched.
-
-Step 1: Refactor the Font Data Structure
-Goal: Group our fonts into predefined style categories.
-
-Action: Modify the file lib/data.ts. The current fonts array is flat. You need to replace it with a new structure: an object or map where each key is a category name and the value is an array of three FontData objects.
-
-New Font Library:
-Please use the following 12 curated fonts, grouped into 4 distinct categories.
-
-Category 1: "Modern & Klar" (Modern & Clear)
-
-Poppins
-
-Montserrat
-
-Lato
-
-Category 2: "Elegant & Klassisch" (Elegant & Classic)
-
-Playfair Display
-
-Lora
-
-Cormorant Garamond
-
-Category 3: "Seriös & Stark" (Serious & Strong)
-
-Merriweather
-
-Libre Baskerville
-
-PT Serif
-
-Category 4: "Technisch & Strukturiert" (Technical & Structured)
-
-Roboto Mono
-
-Source Code Pro
-
-Inconsolata
-
-The new data structure in lib/data.ts should look like this:
+SOURCE OF TRUTH:
+The single, absolute, and final source of truth for all design options is the following code from lib/data.ts. You MUST use this exact data structure and these exact values. Do not infer anything from folder structures or filenames. This code is the ground truth.
 
 TypeScript
 
-// Example of the new structure in lib/data.ts
+// lib/data.ts - THIS IS THE GROUND TRUTH
 
-export const fontCategories = {
-'modern-klar': [
-{ name: 'Poppins', family: 'sans-serif', /* ...other properties */ },
-{ name: 'Montserrat', family: 'sans-serif', /* ...other properties */ },
-{ name: 'Lato', family: 'sans-serif', /* ...other properties */ }
-],
-'elegant-klassisch': [
-{ name: 'Playfair Display', family: 'serif', /* ...other properties */ },
-// ... two more fonts
-],
-// ... two more categories
+// 1. FARBPALETTEN
+export type ColorPalette = {
+name: string;
+colors: [string, string, string, string]; // [Haupt, Neben, Akzent, Neutral]
 };
-Remove the old, flat fonts array completely.
 
-Step 2: Update the UI for Category Selection
-Goal: The user should now select a category, not a single font.
+export const colorPalettes: ColorPalette[] = [
+{ name: "Seriös & Vertrauensvoll", colors: ["#0A3D62", "#CEDEEB", "#AAB8C2", "#FFFFFF"] },
+{ name: "Modern & Technisch", colors: ["#00D2D3", "#2C3A47", "#FF9F43", "#F5F8FA"] },
+{ name: "Natürlich & Nachhaltig", colors: ["#587448", "#E5D9B8", "#C86B52", "#FDFBF5"] },
+{ name: "Elegant & Luxuriös", colors: ["#1E2022", "#D4AF37", "#800020", "#FFFFF0"] },
+{ name: "Dynamisch & Energiegeladen", colors: ["#D92027", "#FFD93D", "#000000", "#FFFFFF"] },
+{ name: "Freundlich & Sanft", colors: ["#FAD3E7", "#BEE3F8", "#B2F5EA", "#FFFFFF"] },
+];
 
-Action: Modify the component components/editor/Step3_Design.tsx.
+// 2. SCHRIFTARTEN
+export type FontInfo = {
+name: string;
+cssName: string;
+isVariable: boolean;
+generationWeights: [number, number]; // Nur für die initiale Generierung
+editorWeights: number[]; // Alle Optionen für den Editor
+};
 
-Remove the existing font selection logic. The entire part that maps over the suggestedFonts array and renders SelectionCards for each font family should be deleted.
+export type FontCategory = {
+name: string;
+fonts: FontInfo[];
+};
 
-Create a new "Typografie-Stil" section. This section should map over the keys of our new fontCategories object from lib/data.ts.
+export const fontCategories: FontCategory[] = [
+{
+name: "Modern",
+fonts: [
+{ name: "Montserrat", cssName: "'Montserrat'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700] },
+{ name: "Nunito", cssName: "'Nunito'", isVariable: true, generationWeights: [400, 700], editorWeights: [300, 400, 600, 700, 800] },
+{ name: "Open Sans", cssName: "'Open Sans'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 600, 700] },
+{ name: "Plus Jakarta Sans", cssName: "'Plus Jakarta Sans'", isVariable: true, generationWeights: [400, 700], editorWeights: [300, 400, 500, 600, 700] },
+{ name: "Raleway", cssName: "'Raleway'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700, 800] },
+{ name: "Rubik", cssName: "'Rubik'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700] },
+]
+},
+{
+name: "Elegant",
+fonts: [
+{ name: "Alex Brush", cssName: "'Alex Brush'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+{ name: "Dancing Script", cssName: "'Dancing Script'", isVariable: true, generationWeights: [400, 700], editorWeights: [400, 500, 600, 700] },
+{ name: "Great Vibes", cssName: "'Great Vibes'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+{ name: "Kaushan Script", cssName: "'Kaushan Script'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+{ name: "Sacramento", cssName: "'Sacramento'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+{ name: "Satisfy", cssName: "'Satisfy'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+]
+},
+{
+name: "Bold",
+fonts: [
+{ name: "Anton", cssName: "'Anton'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+{ name: "Archivo Black", cssName: "'Archivo Black'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+{ name: "Bebas Neue", cssName: "'Bebas Neue'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+{ name: "Bungee", cssName: "'Bungee'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+{ name: "Fjalla One", cssName: "'Fjalla One'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+{ name: "Oswald", cssName: "'Oswald'", isVariable: true, generationWeights: [500, 700], editorWeights: [400, 500, 600, 700] },
+]
+},
+{
+name: "Heritage",
+fonts: [
+{ name: "Abril Fatface", cssName: "'Abril Fatface'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+{ name: "Alfa Slab One", cssName: "'Alfa Slab One'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+{ name: "Cinzel", cssName: "'Cinzel'", isVariable: true, generationWeights: [400, 700], editorWeights: [400, 500, 600, 700, 800, 900] },
+{ name: "Merriweather", cssName: "'Merriweather'", isVariable: true, generationWeights: [400, 700], editorWeights: [300, 400, 700, 900] },
+{ name: "Petrona", cssName: "'Petrona'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700] },
+{ name: "Playfair Display", cssName: "'Playfair Display'", isVariable: true, generationWeights: [400, 700], editorWeights: [400, 500, 600, 700, 800, 900] },
+]
+},
+];
+TASK: Based on the lib/data.ts file provided above, generate the complete, production-ready code for the two following logic files: lib/state.ts and lib/suggestionEngine.ts. Also, provide clear examples of how to integrate them into the React components.
 
-For each category, render a SelectionCard. The card should display the name of the category (e.g., "Modern & Klar").
+Step 1: Create the Central State Management File (lib/state.ts)
+Create the file lib/state.ts using the zustand library. This store will manage the entire state of the logo being designed.
 
-You will need a new state in app/page.tsx to manage the selection, for example: const [selectedFontCategory, setSelectedFontCategory] = useState<string | null>(null);. The onClick of the SelectionCard should update this state.
+Requirements:
 
-Step 3: Adapt the Preview and Generation Logic
-Goal: The preview panel must now display multiple logo variations based on the selected category.
+Import ColorPalette, FontInfo, colorPalettes, and fontCategories from ./data.
 
-Action: Modify the component components/preview/LogoPreview.tsx. This is the most critical change.
+Define the LogoState interface, which must include text, fontInfo: FontInfo, fontWeight: number, and colorPalette: ColorPalette.
 
-Change the component's logic: The component currently renders a single <LogoCanvas>. It should now render a list of logos.
+Define the LogoActions interface with functions to update the state (setText, setFont, setFontWeight, setColorPalette).
 
-Get the fonts: Inside the component, use the selectedFontCategory to get the corresponding array of three FontData objects from fontCategories.
+Initialize the store with safe default values taken from the data.ts file.
 
-Loop and render: Map over this array of three fonts. In each iteration of the loop:
+The setFont action must intelligently reset the fontWeight to a sensible default (the first value in editorWeights) when a new font is selected.
 
-Create a temporary LogoConfig object. This object should be a copy of the main config state, but with the font property set to the current font from the loop.
+Step 2: Create the Suggestion Engine File (lib/suggestionEngine.ts)
+Create the file lib/suggestionEngine.ts. This module will contain the logic for generating intelligent starting points for the user.
 
-Render one <LogoCanvas> component for each of these temporary configs.
+Requirements:
 
-Display the results: Wrap the generated logos in a flex container so they appear neatly arranged (e.g., in a single column with some spacing). You can add a small title above each logo variation with the name of the font family.
+Create a function getInitialSuggestions(industry: string, keywords: string[]): Suggestions.
 
-The logic inside LogoPreview.tsx will be roughly:
+The function must return an object containing a suggested fontInfo, fontWeight, and colorPalette.
 
-JavaScript
+Implement a simple rule-based system to select a font category and a color palette based on industry and keywords.
 
-// Pseudo-code for the new logic in LogoPreview.tsx
+The function must randomly select a font from the suggested category.
 
-// 1. Get the array of fonts for the selected category
-const fontsInSelectedCategory = fontCategories[selectedFontCategory];
+Crucially, it must randomly select one of the two generationWeights specified for that chosen font in data.ts.
 
-// 2. If a category is selected, map over the fonts
-if (fontsInSelectedCategory) {
-return (
-<div>
-{fontsInSelectedCategory.map(font => {
-// 3. Create a specific config for this font variation
-const variationConfig = { ...config, font: font };
+Step 3: Provide Component Integration Examples
+Finally, provide clear, concise code snippets demonstrating how to use these three files together in the React components.
 
-        return (
-          <div key={font.name} className="mb-4">
-            <h4 className="text-sm mb-2">{font.name}</h4>
-            <LogoCanvas config={variationConfig} />
-          </div>
-        );
-      })}
-      {/* ... Download button logic might need adjustment ... */}
-    </div>
+Suggestion Trigger (e.g., in a component for Step 2): Show a handleNextStep function that calls getInitialSuggestions and uses the store's actions to update the global state with the results.
 
-);
-}
-By following these three steps, you will successfully refactor the application to the new, more powerful category-based workflow while leaving the rest of the application's design and structure intact.
+Editor Component (e.g., in Step3_Design.tsx): Show how the component reads fontCategories from data.ts to render the selection UI, and how onClick handlers call the store's actions (setFont, setFontWeight). Show how the editorWeights from the currently selected fontInfo object are used to render the weight selection options.
+
+Preview Component (e.g., in LogoCanvas.tsx): Show how the component subscribes to the useLogoStore and uses the state (fontInfo.cssName, fontWeight, colorPalette.colors[0]) to apply dynamic inline styles to the logo text element.

@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { LogoConfig, IconData, FontData, LayoutData, PaletteData } from '@/lib/types';
 import Section from '@/components/ui/Section';
 import SelectionCard from '@/components/ui/SelectionCard';
-import { layouts, fontCategories } from '@/lib/data';
+import { layouts, fontCategories, personalities } from '@/lib/data';
 import { Circle, Shield } from 'lucide-react';
 
 const LayoutSelectionCard = ({ layout, isSelected, onClick }: { layout: LayoutData, isSelected: boolean, onClick: () => void }) => (
@@ -26,10 +26,12 @@ interface Props {
   };
   selectedFontCategory: string | null;
   setSelectedFontCategory: (category: string | null) => void;
+  selectedPersonalities: string[];
+  onTogglePersonality: (id: string) => void;
   onLogoCreate?: () => void;
 }
 
-const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory, setSelectedFontCategory, onLogoCreate }: Props) => {
+const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory, setSelectedFontCategory, selectedPersonalities, onTogglePersonality, onLogoCreate }: Props) => {
   const { suggestedIcons, suggestedPalettes } = suggestions;
 
   return (
@@ -70,10 +72,42 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
       </Section>
 
       <Section title="Choose a Color Palette" helpText="Rule 9: Smart Color Choice - Colors convey emotions and brand values">
+        {/* Brand Personality Selection */}
+        <div className="col-span-full mb-6 p-4 bg-white/5 rounded-lg border border-white/10">
+          <label className="block text-lg font-bold mb-3 text-primary">Brand Personality (max. 2)</label>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {personalities.map(p => (
+              <button
+                key={p.id}
+                onClick={() => onTogglePersonality(p.id)}
+                className={`px-3 py-2 rounded-full text-sm font-medium transition-all transform ${selectedPersonalities.includes(p.id) ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25 scale-105' : 'bg-white/10 hover:bg-white/20 hover:scale-105'}`}
+              >
+                {p.name}
+              </button>
+            ))}
+          </div>
+          <div className="text-xs text-white/50">
+            Rule 6: Relevance - These traits influence color palette suggestions
+          </div>
+        </div>
+        
+        {/* Color Palettes */}
         {suggestedPalettes.map(palette => (
           <SelectionCard key={palette.id} isSelected={config.palette?.id === palette.id} onClick={() => updateConfig({ palette })}>
-            <div className="flex gap-2 w-full h-full">
-              {palette.colors.map(c => <div key={c} style={{backgroundColor: c}} className="w-1/3 h-full rounded"></div>)}
+            <div className="flex flex-col items-center gap-2 h-full">
+              {palette.tags?.includes('intense') ? (
+                // Single color for intensive colors
+                <div 
+                  className="w-full h-16 rounded-lg border-2 border-white/10"
+                  style={{backgroundColor: palette.colors[0]}}
+                />
+              ) : (
+                // Three color palette
+                <div className="flex gap-1 w-full h-12">
+                  {palette.colors.map(c => <div key={c} style={{backgroundColor: c}} className="flex-1 h-full rounded"></div>)}
+                </div>
+              )}
+              <span className="text-xs text-center text-white/80 px-2">{palette.name}</span>
             </div>
           </SelectionCard>
         ))}
@@ -88,7 +122,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             // Trigger text animation if callback provided
             if (onLogoCreate) onLogoCreate();
           }}
-          disabled={!selectedFontCategory}
+          disabled={!config.icon || !config.layout || !config.palette}
           className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-4 rounded-lg text-xl font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
         >
           Create Logo

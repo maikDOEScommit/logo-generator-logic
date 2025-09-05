@@ -1,4 +1,5 @@
 // lib/data.ts
+import { LayoutData } from './types';
 
 // =================================================================
 // DATEN-ARCHITEKTUR
@@ -102,8 +103,10 @@ export const personalities = [
   { id: 'organic', name: 'Natürlich & Organisch', tags: ['organic', 'nature', 'eco'] },
 ];
 
-export const layouts = [
-  { id: 'text-only', name: 'Nur Text', type: 'standard' as const, arrangement: 'icon-top' as const },
-  { id: 'icon-text-horizontal', name: 'Icon + Text (horizontal)', type: 'standard' as const, arrangement: 'icon-left' as const },
-  { id: 'icon-text-vertical', name: 'Icon + Text (vertikal)', type: 'standard' as const, arrangement: 'icon-top' as const },
+export const layouts: LayoutData[] = [
+  { id: 'text-only', name: 'Nur Text', type: 'standard', arrangement: 'icon-top' },
+  { id: 'icon-text-horizontal', name: 'Icon + Text (horizontal)', type: 'standard', arrangement: 'icon-left' },
+  { id: 'icon-text-vertical', name: 'Icon + Text (vertikal)', type: 'standard', arrangement: 'icon-top' },
+  { id: 'circle-enclosed', name: 'Kreis', type: 'enclosed', shape: 'circle', arrangement: 'icon-top' },
+  { id: 'shield-enclosed', name: 'Schild', type: 'enclosed', shape: 'shield', arrangement: 'icon-top' },
 ];
