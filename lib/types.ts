@@ -3,11 +3,9 @@ import { FC } from 'react';
 // === KERN-TYPEN FÜR DIE DATEN-ENGINE ===
 
 export interface IconProps {
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
+  size?: number;
   color?: string;
+  className?: string;
   [key: string]: any;
 }
 
@@ -36,7 +34,7 @@ export interface LayoutData {
 export interface PaletteData {
   id: string;
   name: string;
-  colors: [string, string, string]; // [background, primary, text]
+  colors: [string, string, string] | [string, string, string, string]; // [background, primary, text] or [background, primary, secondary, accent]
   tags: string[];
 }
 

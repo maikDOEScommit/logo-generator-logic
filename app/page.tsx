@@ -11,6 +11,7 @@ import { Undo2, Redo2 } from 'lucide-react';
 // Import newly created components
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { LoadingScreen } from '@/components/LoadingScreen';
 import { Typewriter } from '@/components/ui/Typewriter';
 import Step1_Industry from '@/components/editor/Step1_Industry';
 import Step2_Branding from '@/components/editor/Step2_Branding';
@@ -41,6 +42,7 @@ export default function LogoGeneratorPage() {
   const [exitSecondText, setExitSecondText] = useState(false); // Control exit animation for second text
   const [showThirdText, setShowThirdText] = useState(false); // Control "hold on, we're right there!" text
   const [exitThirdText, setExitThirdText] = useState(false); // Control exit animation for third text
+  const [showLoadingScreen, setShowLoadingScreen] = useState(false); // Control loading screen visibility
   const [exitHeroSection, setExitHeroSection] = useState(false); // Control hero section exit animation
   const [showLogoPreview, setShowLogoPreview] = useState(false); // Control when to show logo preview after Create Logo click
   const [expandPreviewPanel, setExpandPreviewPanel] = useState(false); // Control full-width expansion of preview panel
@@ -236,18 +238,26 @@ export default function LogoGeneratorPage() {
     setExitThirdText(true);
     
     setTimeout(() => {
-      // Create the new results section (section 4)
-      const nextSection = 4;
-      if (!visibleSections.includes(nextSection)) {
-        setVisibleSections([...visibleSections, nextSection]);
-      }
+      // Show loading screen after third text exits
+      setShowLoadingScreen(true);
       
-      // Show logo preview
-      setShowLogoPreview(true);
-      setHideStartedText(true);
-      
-      // Scroll to the new results section
-      scrollToSection(`section-${nextSection}`);
+      setTimeout(() => {
+        // Hide loading screen and show results after 3 seconds
+        setShowLoadingScreen(false);
+        
+        // Create the new results section (section 4)
+        const nextSection = 4;
+        if (!visibleSections.includes(nextSection)) {
+          setVisibleSections([...visibleSections, nextSection]);
+        }
+        
+        // Show logo preview
+        setShowLogoPreview(true);
+        setHideStartedText(true);
+        
+        // Scroll to the new results section
+        scrollToSection(`section-${nextSection}`);
+      }, 3000); // 3 second loading screen
     }, 1000); // Wait for text exit animation
   };
 
@@ -812,6 +822,7 @@ export default function LogoGeneratorPage() {
         </AnimatePresence>
       </main>
       <Footer />
+      <LoadingScreen isVisible={showLoadingScreen} />
     </>
   );
 }
