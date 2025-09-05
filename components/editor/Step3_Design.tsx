@@ -91,26 +91,37 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           </div>
         </div>
         
-        {/* Color Palettes */}
-        {suggestedPalettes.map(palette => (
+        {/* Regular Color Palettes (non-intense) */}
+        {suggestedPalettes.filter(palette => !palette.tags?.includes('intense')).map(palette => (
           <SelectionCard key={palette.id} isSelected={config.palette?.id === palette.id} onClick={() => updateConfig({ palette })}>
             <div className="flex flex-col items-center gap-2 h-full">
-              {palette.tags?.includes('intense') ? (
-                // Single color for intensive colors
-                <div 
-                  className="w-full h-16 rounded-lg border-2 border-white/10"
-                  style={{backgroundColor: palette.colors[0]}}
-                />
-              ) : (
-                // Three color palette
-                <div className="flex gap-1 w-full h-12">
-                  {palette.colors.map(c => <div key={c} style={{backgroundColor: c}} className="flex-1 h-full rounded"></div>)}
-                </div>
-              )}
+              <div className="flex gap-1 w-full h-12">
+                {palette.colors.map(c => <div key={c} style={{backgroundColor: c}} className="flex-1 h-full rounded"></div>)}
+              </div>
               <span className="text-xs text-center text-white/80 px-2">{palette.name}</span>
             </div>
           </SelectionCard>
         ))}
+        
+        {/* Solid Color Bar - 14 intensive colors in horizontal layout */}
+        <div className="col-span-full mt-6">
+          <h3 className="text-lg font-bold mb-3 text-primary">Oder wähle eine Grundfarbe:</h3>
+          <div className="grid grid-cols-7 gap-2">
+            {suggestedPalettes.filter(palette => palette.tags?.includes('intense')).map(palette => (
+              <button
+                key={palette.id}
+                onClick={() => updateConfig({ palette })}
+                className={`h-12 rounded-lg border-2 transition-all transform hover:scale-105 ${
+                  config.palette?.id === palette.id 
+                    ? 'border-white shadow-lg shadow-white/25 scale-105' 
+                    : 'border-white/20 hover:border-white/40'
+                }`}
+                style={{backgroundColor: palette.colors[0]}}
+                title={palette.name}
+              />
+            ))}
+          </div>
+        </div>
       </Section>
 
       {/* Create Button */}
