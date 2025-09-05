@@ -439,7 +439,12 @@ export default function LogoGeneratorPage() {
                   animate={{ opacity: 1, x: 0 }} 
                   transition={{ duration: 0.6, delay: 0.3 }}
                 >
-                  <LogoPreview config={config} selectedFontCategory={selectedFontCategory} />
+                  <LogoPreview 
+                    config={config} 
+                    selectedFontCategory={selectedFontCategory}
+                    availableIcons={suggestions.suggestedIcons}
+                    availablePalettes={suggestions.suggestedPalettes}
+                  />
                 </motion.div>
               </div>
             </motion.div>
@@ -482,7 +487,12 @@ export default function LogoGeneratorPage() {
                     <AnimatePresence mode="wait">
                       {previewTab === 'preview' && (
                         <motion.div key="mobile-preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                          <LogoPreview config={config} selectedFontCategory={selectedFontCategory} />
+                          <LogoPreview 
+                    config={config} 
+                    selectedFontCategory={selectedFontCategory}
+                    availableIcons={suggestions.suggestedIcons}
+                    availablePalettes={suggestions.suggestedPalettes}
+                  />
                         </motion.div>
                       )}
                       {previewTab === 'mockups' && (
