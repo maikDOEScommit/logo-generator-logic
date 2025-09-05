@@ -1,93 +1,109 @@
-// --- lib/data.ts ---
-import { IconData, FontData, LayoutData, PaletteData, PersonalityData } from './types';
+// lib/data.ts
 
-// Import the icon components from their new, separate files
-import GrowthIcon from '@/components/icons/GrowthIcon';
-import SecurityIcon from '@/components/icons/SecurityIcon';
-import ConnectionIcon from '@/components/icons/ConnectionIcon';
-import LeafIcon from '@/components/icons/LeafIcon';
-import BoltIcon from '@/components/icons/BoltIcon';
+// =================================================================
+// DATEN-ARCHITEKTUR
+// Dies ist die "Single Source of Truth" für alle Design-Optionen.
+// =================================================================
 
-// --- 1. Curated Icon Library ---
-export const icons: IconData[] = [
-  { id: 'growth', component: GrowthIcon, tags: ['finance', 'eco', 'consulting', 'modern', 'growth', 'minimalist', 'iconic', 'timeless'] },
-  { id: 'security', component: SecurityIcon, tags: ['finance', 'tech', 'serious', 'security', 'corporate', 'minimalist', 'iconic', 'timeless'] },
-  { id: 'connection', component: ConnectionIcon, tags: ['tech', 'community', 'modern', 'consulting', 'connection', 'elegant', 'unique', 'minimalist'] },
-  { id: 'leaf', component: LeafIcon, tags: ['eco', 'wellness', 'nature', 'organic', 'minimalist', 'iconic', 'timeless', 'unique'] },
-  { id: 'bolt', component: BoltIcon, tags: ['tech', 'energy', 'speed', 'modern', 'playful', 'unique', 'minimalist'] },
-];
-
-// --- 2. Curated Font Categories ---
-export const fontCategories = {
-  'modern-klar': [
-    { name: 'Poppins', family: 'sans-serif', url: 'Poppins', weights: [400, 600], category: 'Modern & Klar' },
-    { name: 'Montserrat', family: 'sans-serif', url: 'Montserrat', weights: [400, 700], category: 'Modern & Klar' },
-    { name: 'Lato', family: 'sans-serif', url: 'Lato', weights: [400, 700], category: 'Modern & Klar' }
-  ],
-  'elegant-klassisch': [
-    { name: 'Playfair Display', family: 'serif', url: 'Playfair+Display', weights: [400, 700], category: 'Elegant & Klassisch' },
-    { name: 'Lora', family: 'serif', url: 'Lora', weights: [400, 700], category: 'Elegant & Klassisch' },
-    { name: 'Cormorant Garamond', family: 'serif', url: 'Cormorant+Garamond', weights: [400, 700], category: 'Elegant & Klassisch' }
-  ],
-  'serioes-stark': [
-    { name: 'Merriweather', family: 'serif', url: 'Merriweather', weights: [400, 700], category: 'Seriös & Stark' },
-    { name: 'Libre Baskerville', family: 'serif', url: 'Libre+Baskerville', weights: [400, 700], category: 'Seriös & Stark' },
-    { name: 'PT Serif', family: 'serif', url: 'PT+Serif', weights: [400, 700], category: 'Seriös & Stark' }
-  ],
-  'technisch-strukturiert': [
-    { name: 'Roboto Mono', family: 'monospace', url: 'Roboto+Mono', weights: [400, 700], category: 'Technisch & Strukturiert' },
-    { name: 'Source Code Pro', family: 'monospace', url: 'Source+Code+Pro', weights: [400, 700], category: 'Technisch & Strukturiert' },
-    { name: 'Inconsolata', family: 'monospace', url: 'Inconsolata', weights: [400, 700], category: 'Technisch & Strukturiert' }
-  ]
+// 1. FARBPALETTEN
+export type ColorPalette = {
+  name: string;
+  colors: [string, string, string, string]; // [Haupt, Neben, Akzent, Neutral]
 };
 
-// --- 3. Pre-defined, Balanced Layouts ---
-export const layouts: LayoutData[] = [
-  { id: 'standard-top', name: 'Standard (Oben)', type: 'standard', arrangement: 'icon-top' },
-  { id: 'standard-left', name: 'Standard (Links)', type: 'standard', arrangement: 'icon-left' },
-  { id: 'enclosed-circle-top', name: 'Im Kreis (Oben)', type: 'enclosed', shape: 'circle', arrangement: 'icon-top' },
-  { id: 'enclosed-shield-top', name: 'Im Schild (Oben)', type: 'enclosed', shape: 'shield', arrangement: 'icon-top' },
+export const colorPalettes: ColorPalette[] = [
+  { name: "Seriös & Vertrauensvoll", colors: ["#0A3D62", "#CEDEEB", "#AAB8C2", "#FFFFFF"] },
+  { name: "Modern & Technisch", colors: ["#00D2D3", "#2C3A47", "#FF9F43", "#F5F8FA"] },
+  { name: "Natürlich & Nachhaltig", colors: ["#587448", "#E5D9B8", "#C86B52", "#FDFBF5"] },
+  { name: "Elegant & Luxuriös", colors: ["#1E2022", "#D4AF37", "#800020", "#FFFFF0"] },
+  { name: "Dynamisch & Energiegeladen", colors: ["#D92027", "#FFD93D", "#000000", "#FFFFFF"] },
+  { name: "Freundlich & Sanft", colors: ["#FAD3E7", "#BEE3F8", "#B2F5EA", "#FFFFFF"] },
 ];
 
-// --- 4. Professional Color Palettes (Optimiert für 11 goldene Farb-Regeln) ---
-export const palettes: PaletteData[] = [
-  // Regel 1: Begrenzte Farbpalette (max 3 Farben) ✓
-  // Regel 2: Schwarz/Weiß Kompatibilität ✓
-  // Regel 3: Hoher Kontrast ✓
-  { id: 'trust-blue', name: 'Vertrauen & Stabilität', colors: ['#FFFFFF', '#2563EB', '#1E3A8A'], tags: ['corporate', 'tech', 'finance', 'serious', 'timeless', 'professional', 'trust'] },
-  
-  { id: 'eco-green', name: 'Natur & Wachstum', colors: ['#F7FEF7', '#22C55E', '#15803D'], tags: ['eco', 'wellness', 'organic', 'nature', 'timeless', 'professional', 'growth'] },
-  
-  { id: 'modern-tech', name: 'Innovation & Tech', colors: ['#F8FAFC', '#8B5CF6', '#5B21B6'], tags: ['tech', 'modern', 'creative', 'innovative', 'professional', 'energy'] },
-  
-  // Regel 6: Luxus = Schwarz/Gold Kombination
-  { id: 'luxury-gold', name: 'Luxus & Exklusivität', colors: ['#FFFBEB', '#F59E0B', '#1F2937'], tags: ['luxury', 'elegant', 'corporate', 'timeless', 'classic', 'professional'] },
-  
-  // Regel 6: Kreativität = Gelb/Orange Optimismus  
-  { id: 'creative-energy', name: 'Kreativität & Optimismus', colors: ['#FFFBEB', '#F97316', '#C2410C'], tags: ['creative', 'playful', 'energy', 'modern', 'memorable', 'optimism'] },
-  
-  // Professionelle Monochrom-Option
-  { id: 'professional-mono', name: 'Professionell & Zeitlos', colors: ['#F8FAFC', '#64748B', '#1E293B'], tags: ['corporate', 'serious', 'timeless', 'classic', 'professional', 'versatile'] },
-  
-  // Wellness/Gesundheit in beruhigendem Blau-Grün
-  { id: 'health-calm', name: 'Gesundheit & Vertrauen', colors: ['#F0FDFA', '#14B8A6', '#0F766E'], tags: ['wellness', 'tech', 'corporate', 'trust', 'professional', 'harmonious'] },
-  
-  // Warme, einladende Palette für Dienstleistungen
-  { id: 'warm-service', name: 'Herzlich & Einladend', colors: ['#FEF7FF', '#C084FC', '#7C3AED'], tags: ['creative', 'elegant', 'modern', 'memorable', 'professional', 'approachable'] },
+// 2. SCHRIFTARTEN
+export type FontInfo = {
+  name: string;
+  cssName: string;
+  isVariable: boolean;
+  generationWeights: [number, number]; // Nur für die initiale Generierung
+  editorWeights: number[]; // Alle Optionen für den Editor
+};
+
+export type FontCategory = {
+  name: string;
+  fonts: FontInfo[];
+};
+
+export const fontCategories: FontCategory[] = [
+  {
+    name: "Modern",
+    fonts: [
+      { name: "Montserrat", cssName: "'Montserrat'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700] },
+      { name: "Nunito", cssName: "'Nunito'", isVariable: true, generationWeights: [400, 700], editorWeights: [300, 400, 600, 700, 800] },
+      { name: "Open Sans", cssName: "'Open Sans'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 600, 700] },
+      { name: "Plus Jakarta Sans", cssName: "'Plus Jakarta Sans'", isVariable: true, generationWeights: [400, 700], editorWeights: [300, 400, 500, 600, 700] },
+      { name: "Raleway", cssName: "'Raleway'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700, 800] },
+      { name: "Rubik", cssName: "'Rubik'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700] },
+    ]
+  },
+  {
+    name: "Elegant",
+    fonts: [
+      { name: "Alex Brush", cssName: "'Alex Brush'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+      { name: "Dancing Script", cssName: "'Dancing Script'", isVariable: true, generationWeights: [400, 700], editorWeights: [400, 500, 600, 700] },
+      { name: "Great Vibes", cssName: "'Great Vibes'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+      { name: "Kaushan Script", cssName: "'Kaushan Script'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+      { name: "Sacramento", cssName: "'Sacramento'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+      { name: "Satisfy", cssName: "'Satisfy'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+    ]
+  },
+  {
+    name: "Bold",
+    fonts: [
+      { name: "Anton", cssName: "'Anton'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+      { name: "Archivo Black", cssName: "'Archivo Black'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+      { name: "Bebas Neue", cssName: "'Bebas Neue'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+      { name: "Bungee", cssName: "'Bungee'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+      { name: "Fjalla One", cssName: "'Fjalla One'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+      { name: "Oswald", cssName: "'Oswald'", isVariable: true, generationWeights: [500, 700], editorWeights: [400, 500, 600, 700] },
+    ]
+  },
+  {
+    name: "Heritage",
+    fonts: [
+      { name: "Abril Fatface", cssName: "'Abril Fatface'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+      { name: "Alfa Slab One", cssName: "'Alfa Slab One'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+      { name: "Cinzel", cssName: "'Cinzel'", isVariable: true, generationWeights: [400, 700], editorWeights: [400, 500, 600, 700, 800, 900] },
+      { name: "Merriweather", cssName: "'Merriweather'", isVariable: true, generationWeights: [400, 700], editorWeights: [300, 400, 700, 900] },
+      { name: "Petrona", cssName: "'Petrona'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700] },
+      { name: "Playfair Display", cssName: "'Playfair Display'", isVariable: true, generationWeights: [400, 700], editorWeights: [400, 500, 600, 700, 800, 900] },
+    ]
+  },
 ];
 
-// --- 5. Definitions for the "AI" Logic ---
+// =================================================================
+// COMPATIBILITY LAYER - Simple industry/personality definitions
+// =================================================================
+
 export const industries = {
   'tech': { tags: ['tech'], name: 'Technologie' },
   'finance': { tags: ['finance'], name: 'Finanzen' },
-  'eco': { tags: ['eco', 'wellness'], name: 'Ökologie & Wellness' },
-  'consulting': { tags: ['consulting', 'corporate'], name: 'Beratung' }
+  'health': { tags: ['health', 'wellness'], name: 'Gesundheit & Wellness' },
+  'sports': { tags: ['sports'], name: 'Sport & Fitness' },
+  'design': { tags: ['design'], name: 'Design & Kreativ' },
+  'food': { tags: ['food'], name: 'Food & Gastronomie' }
 };
 
-export const personalities: PersonalityData[] = [
+export const personalities = [
   { id: 'modern', name: 'Modern & Innovativ', tags: ['modern', 'tech', 'minimalist'] },
   { id: 'elegant', name: 'Elegant & Luxuriös', tags: ['elegant', 'luxury'] },
   { id: 'serious', name: 'Seriös & Vertrauenswürdig', tags: ['serious', 'corporate'] },
-  { id: 'playful', name: 'Verspielt & Kreativ', tags: ['playful', 'creative', 'vibrant'] },
+  { id: 'playful', name: 'Verspielt & Kreativ', tags: ['playful', 'creative'] },
   { id: 'organic', name: 'Natürlich & Organisch', tags: ['organic', 'nature', 'eco'] },
+];
+
+export const layouts = [
+  { id: 'text-only', name: 'Nur Text', type: 'standard' as const, arrangement: 'icon-top' as const },
+  { id: 'icon-text-horizontal', name: 'Icon + Text (horizontal)', type: 'standard' as const, arrangement: 'icon-left' as const },
+  { id: 'icon-text-vertical', name: 'Icon + Text (vertikal)', type: 'standard' as const, arrangement: 'icon-top' as const },
 ];

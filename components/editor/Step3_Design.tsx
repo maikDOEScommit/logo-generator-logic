@@ -43,17 +43,17 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
       </Section>
 
       <Section title="Choose your Typography Style" helpText="Rule 3: Timelessness - Classic fonts outlast trends">
-        {Object.entries(fontCategories).map(([categoryKey, fonts]) => (
+        {fontCategories.map((category) => (
           <SelectionCard 
-            key={categoryKey} 
-            isSelected={selectedFontCategory === categoryKey} 
-            onClick={() => setSelectedFontCategory(categoryKey)}
+            key={category.name} 
+            isSelected={selectedFontCategory === category.name} 
+            onClick={() => setSelectedFontCategory(category.name)}
           >
             <div className="text-center p-4 h-full flex flex-col justify-center">
-              <p className="text-base font-semibold mb-3 text-white">{fonts[0].category}</p>
+              <p className="text-base font-semibold mb-3 text-white">{category.name}</p>
               <div className="text-xs text-white/60 space-y-1 overflow-hidden">
-                {fonts.map(font => (
-                  <div key={font.name} className="truncate" style={{ fontFamily: font.name }}>
+                {category.fonts.map(font => (
+                  <div key={font.name} className="truncate" style={{ fontFamily: font.cssName }}>
                     {font.name}
                   </div>
                 ))}
@@ -88,7 +88,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             // Trigger text animation if callback provided
             if (onLogoCreate) onLogoCreate();
           }}
-          disabled={!config.icon || !selectedFontCategory || !config.layout || !config.palette || !config.text}
+          disabled={!selectedFontCategory}
           className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-4 rounded-lg text-xl font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
         >
           Create Logo

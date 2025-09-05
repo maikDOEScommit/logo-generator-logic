@@ -1,62 +1,88 @@
-// --- lib/suggestionEngine.ts ---
-// This is the new "brain" of our application.
-// It proactively suggests the best options based on user input and design rules.
+// lib/suggestionEngine.ts
+import { fontCategories, colorPalettes, FontCategory, ColorPalette, FontInfo } from './data';
 
-import { LogoConfig, IconData, PaletteData, FontData } from './types';
-import { icons, fontCategories, palettes, industries, personalities } from './data';
-import { DESIGN_RULES } from './designRules';
+// =================================================================
+// SUGGESTION ENGINE
+// Generiert intelligente Startvorschläge basierend auf Nutzer-Input.
+// =================================================================
 
-export function getSuggestions(
-  industry: string | null,
-  selectedPersonalities: string[],
-  currentConfig: LogoConfig
-) {
-  // Get all fonts from all categories for suggestion engine
-  const allFonts = Object.values(fontCategories).flat();
-  
-  if (!industry) {
-    return { suggestedIcons: icons, suggestedFonts: allFonts, suggestedPalettes: palettes };
+export interface Suggestions {
+  fontInfo: FontInfo;
+  fontWeight: number;
+  colorPalette: ColorPalette;
+}
+
+export function getInitialSuggestions(industry: string, keywords: string[]): Suggestions {
+  let suggestedFontCategory: FontCategory = fontCategories[0]; // Standard: Modern
+  let suggestedPalette: ColorPalette = colorPalettes[0]; // Standard: Seriös
+
+  // ----- Hier beginnt dein Expertensystem (Regelwerk) -----
+
+  // Regel 1: Kreativ-Branchen (Design, Kunst, Fotografie)
+  if (['design', 'art', 'photography', 'mode'].includes(industry) || keywords.includes('kreativ')) {
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Elegant')!;
+    suggestedPalette = colorPalettes.find(p => p.name.includes('Luxuriös'))!;
   }
 
-  const industryTags = industries[industry as keyof typeof industries]?.tags || [];
-  const personalityTags = personalities
-    .filter(p => selectedPersonalities.includes(p.id))
-    .flatMap(p => p.tags);
-  const activeTags = new Set([...industryTags, ...personalityTags]);
+  // Regel 2: Tech- & Finanz-Branchen
+  if (['tech', 'finance', 'consulting'].includes(industry) || keywords.includes('zukunft')) {
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Modern')!;
+    suggestedPalette = colorPalettes.find(p => p.name.includes('Technisch'))!;
+  }
 
-  // --- Intelligent Scoring Function ---
-  // This is the core improvement. We score items not just on tag matches,
-  // but on how well they adhere to our golden rules.
-  const getScore = (item: IconData | PaletteData) => {
-    let score = 0;
-    // 1. Context Score (Relevance & Appropriateness) - High weight
-    score += item.tags.reduce((s, tag) => activeTags.has(tag) ? s + 10 : s, 0);
+  // Regel 3: Natur- & Gesundheits-Branchen
+  if (['health', 'wellness', 'food'].includes(industry) || keywords.includes('natur')) {
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Heritage')!;
+    suggestedPalette = colorPalettes.find(p => p.name.includes('Natürlich'))!;
+  }
 
-    // 2. Design Rule Score (Timelessness, Memorability, etc.) - Medium weight
-    // We create a temporary config to pass to the rule scorers
-    const tempConfig = {
-      ...currentConfig,
-      icon: 'component' in item ? item : currentConfig.icon,
-      palette: 'colors' in item ? item : currentConfig.palette,
-    };
+  // Regel 4: Starke, laute Branchen (Sport, Events)
+  if (['sports', 'events', 'gaming'].includes(industry) || keywords.includes('energie')) {
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Bold')!;
+    suggestedPalette = colorPalettes.find(p => p.name.includes('Dynamisch'))!;
+  }
 
-    const timelessnessScore = DESIGN_RULES.find(r => r.id === 'timelessness')?.scorer(tempConfig) || 0;
-    const memorabilityScore = DESIGN_RULES.find(r => r.id === 'memorability')?.scorer(tempConfig) || 0;
-    const uniquenessScore = DESIGN_RULES.find(r => r.id === 'uniqueness')?.scorer(tempConfig) || 0;
+  // ----- Auswahl der spezifischen Assets -----
 
-    score += (timelessnessScore + memorabilityScore + uniquenessScore) / 15; // Weighted score from rules
-    return score;
+  // Wähle einen zufälligen Font aus der vorgeschlagenen Kategorie
+  const randomFont = suggestedFontCategory.fonts[Math.floor(Math.random() * suggestedFontCategory.fonts.length)];
+
+  // Wähle zufällig eine der beiden "Generation Weights" für diesen Font
+  const randomWeight = randomFont.generationWeights[Math.floor(Math.random() * randomFont.generationWeights.length)];
+
+  return {
+    fontInfo: randomFont,
+    fontWeight: randomWeight,
+    colorPalette: suggestedPalette,
   };
+}
 
-  const suggestedIcons = [...icons].sort((a, b) => getScore(b) - getScore(a));
-  const suggestedPalettes = [...palettes].sort((a, b) => getScore(b) - getScore(a));
+// =================================================================
+// COMPATIBILITY LAYER - Old getSuggestions function for existing components
+// =================================================================
+export function getSuggestions(industry: string | null, selectedPersonalities: string[], currentConfig: any) {
+  // Convert new FontInfo to old FontData format
+  const convertedFonts = fontCategories.flatMap(cat => 
+    cat.fonts.map(font => ({
+      name: font.name,
+      family: 'sans-serif', // Default fallback
+      url: font.name.replace(/\s+/g, '+'),
+      weights: font.editorWeights,
+      category: cat.name
+    }))
+  );
 
-  // Fonts are sorted by pre-defined categories (a simpler, but effective rule)
-  const suggestedFonts = [...allFonts].sort((a, b) => {
-    const aScore = a.category.includes('Klassisch') ? 3 : a.category.includes('Modern') ? 2 : 1;
-    const bScore = b.category.includes('Klassisch') ? 3 : b.category.includes('Modern') ? 2 : 1;
-    return bScore - aScore;
-  });
+  // Convert new ColorPalette to old PaletteData format  
+  const convertedPalettes = colorPalettes.map(palette => ({
+    id: palette.name.toLowerCase().replace(/\s+/g, '-'),
+    name: palette.name,
+    colors: [palette.colors[3], palette.colors[0], palette.colors[2]] as [string, string, string], // [background, primary, text]
+    tags: []
+  }));
 
-  return { suggestedIcons, suggestedFonts, suggestedPalettes };
+  return {
+    suggestedIcons: [],
+    suggestedFonts: convertedFonts,
+    suggestedPalettes: convertedPalettes,
+  };
 }

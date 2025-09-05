@@ -69,7 +69,8 @@ export default function LogoGeneratorPage() {
 
 
   const progress = (step / 3) * 100;
-  const isLogoConfigComplete = !!(config.icon && selectedFontCategory && config.layout && config.palette && config.text);
+  // Simplified condition: just need industry and some text for the new generation system
+  const isLogoConfigComplete = !!(industry && (config.text || 'DeinLogo'));
 
   // Helper function to scroll to a specific section
   const scrollToSection = (sectionId: string) => {
@@ -211,8 +212,22 @@ export default function LogoGeneratorPage() {
     }, 1000); // Wait for scroll to complete
   };
 
-  // Handle final logo creation - animate out third text and create new results section
+  // Handle final logo creation - use new suggestion engine and generate logo
   const handleLogoCreation = () => {
+    // Import the new suggestion engine
+    const { getInitialSuggestions } = require('@/lib/suggestionEngine');
+    const { useLogoStore } = require('@/lib/state');
+    
+    // Generate suggestions based on industry and selected personalities  
+    const keywords = selectedPersonalities; // Convert personalities to keywords
+    const suggestions = getInitialSuggestions(industry || 'tech', keywords);
+    
+    // Update the new Zustand store with generated suggestions
+    const { setFont, setColorPalette, setText } = useLogoStore.getState();
+    setFont(suggestions.fontInfo, suggestions.fontWeight);
+    setColorPalette(suggestions.colorPalette);
+    setText(config.text || 'DeinLogo');
+    
     setExitThirdText(true);
     
     setTimeout(() => {
@@ -275,7 +290,7 @@ export default function LogoGeneratorPage() {
                   Your vision. Your logo. Designed to fit you perfectly.
                 </p>
                 <p className="text-base md:text-lg text-white/60 max-w-2xl mx-auto mb-8">
-                  We turn your ideas into a logo that speaks your brand's language.
+                  We turn your ideas into a logo that speaks your brand&apos;s language.
                 </p>
                 <button
                   onClick={() => handleSectionNext(0)}
@@ -586,7 +601,7 @@ export default function LogoGeneratorPage() {
                                 transition={{ duration: 0.5, delay: 0 }}
                                 className="block text-white"
                               >
-                                Let's
+                                Let&apos;s
                               </motion.span>
                               <motion.span 
                                 initial={{ x: '100%', opacity: 0 }}
@@ -677,7 +692,7 @@ export default function LogoGeneratorPage() {
                                 transition={{ duration: 0.5, delay: 0.2 }}
                                 className="block text-white/70 my-4"
                               >
-                                we're right
+                                we&apos;re right
                               </motion.span>
                               <motion.span 
                                 initial={{ x: '100%', opacity: 0 }}
