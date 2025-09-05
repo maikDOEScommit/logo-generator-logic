@@ -231,7 +231,7 @@ export default function ExamplesPage() {
         transition={{ duration: 0.6 }}
       >
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-6">
+          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-6 leading-tight py-2">
             Logo Examples
           </h1>
           <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-4xl mx-auto">

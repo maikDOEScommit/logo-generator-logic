@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
-import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage } from 'lucide-react';
+import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
 
 interface LogoEditorProps {
@@ -14,6 +14,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
   const [showFullscreenEditor, setShowFullscreenEditor] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [flippedCards, setFlippedCards] = useState<{[key: string]: boolean}>({});
 
   // Helper function to calculate dynamic font size based on text length
   const getDynamicFontSize = (textLength: number, isCircleLayout: boolean = false) => {
@@ -189,26 +190,44 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
     // In real implementation, this would redirect to payment processor
   };
 
+  const toggleCardFlip = (cardId: string) => {
+    setFlippedCards(prev => ({
+      ...prev,
+      [cardId]: !prev[cardId]
+    }));
+  };
+
   return (
     <>
+      <style jsx>{`
+        .preserve-3d {
+          transform-style: preserve-3d;
+        }
+        .backface-hidden {
+          backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+      `}</style>
       {/* Menu Panel - slides up from bottom on hover */}
       <div className="absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-white/20 rounded-b-lg p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-200 z-10 shadow-xl">
         <div className="flex gap-2 justify-center">
           <button
             onClick={handleEdit}
-            className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors w-24"
           >
             <Edit size={14} /> Edit
           </button>
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium transition-colors w-24"
           >
             <Save size={14} /> Save
           </button>
           <button
             onClick={handlePurchase}
-            className="flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm font-medium transition-colors w-24"
           >
             <ShoppingCart size={14} /> Purchase
           </button>
@@ -445,150 +464,296 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
               </div>
             </div>
 
-            {/* Pricing Cards */}
+            {/* Flip Cards */}
             <div className="p-4 sm:p-6">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
                 
-                {/* Basic Package */}
-                <div className="border-2 border-white/20 rounded-lg p-4 sm:p-6 hover:border-blue-400 transition-colors bg-white/5 flex flex-col h-full">
-                  <div className="text-center flex-grow">
-                    <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Download className="text-blue-400" size={24} />
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Basic</h3>
-                    <div className="text-3xl font-bold text-white mb-1">$29</div>
-                    <p className="text-white/70 text-sm mb-6">Perfect for getting started</p>
+                {/* Basic Package - Flip Card */}
+                <div 
+                  className="relative w-full h-96 cursor-pointer group"
+                  onClick={() => toggleCardFlip('basic')}
+                >
+                  <div className={`relative w-full h-full transition-transform duration-700 preserve-3d ${
+                    flippedCards['basic'] ? 'rotate-y-180' : ''
+                  }`}>
                     
-                    <ul className="text-left space-y-3 mb-6">
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        High-resolution PNG (3000x3000px)
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Transparent background version
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        RGB color format
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Personal use license
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div className="mt-auto pt-4">
-                    <button
-                      onClick={() => handlePurchaseOption('basic')}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105"
-                    >
-                      Get Basic
-                    </button>
+                    {/* Front Side */}
+                    <div className="absolute inset-0 w-full h-full backface-hidden border-2 border-white/20 rounded-lg p-4 sm:p-6 hover:border-blue-400 transition-colors bg-white/5 flex flex-col">
+                      <div className="text-center flex-grow">
+                        <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                          <Download className="text-blue-400" size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">Basic</h3>
+                        <div className="text-3xl font-bold text-white mb-1">$29</div>
+                        <p className="text-white/70 text-sm mb-6">Perfect for getting started</p>
+                        
+                        <ul className="text-left space-y-3 mb-6">
+                          <li className="flex items-center text-sm text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                            High-resolution PNG (3000x3000px)
+                          </li>
+                          <li className="flex items-center text-sm text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                            Transparent background version
+                          </li>
+                          <li className="flex items-center text-sm text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                            RGB color format
+                          </li>
+                          <li className="flex items-center text-sm text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                            Personal use license
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="mt-auto pt-4 text-center">
+                        <p className="text-xs text-white/50 mb-2">Click to see more details</p>
+                      </div>
+                    </div>
+                    
+                    {/* Back Side */}
+                    <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 border-2 border-blue-400 rounded-lg p-4 sm:p-6 bg-gradient-to-br from-blue-500/20 to-blue-600/30 flex flex-col">
+                      <div className="text-center flex-grow">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+                          <Star className="text-white" size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-4">Why Choose Basic?</h3>
+                        
+                        <div className="space-y-4">
+                          <div className="bg-white/10 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                              <Users className="text-blue-400 mr-2" size={16} />
+                              <h4 className="font-semibold text-white text-sm">Perfect For</h4>
+                            </div>
+                            <p className="text-xs text-white/80">Startups, personal projects, small businesses just getting started</p>
+                          </div>
+                          
+                          <div className="bg-white/10 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                              <TrendingUp className="text-blue-400 mr-2" size={16} />
+                              <h4 className="font-semibold text-white text-sm">Key Benefit</h4>
+                            </div>
+                            <p className="text-xs text-white/80">High-quality logo files ready for digital use at an affordable price</p>
+                          </div>
+                          
+                          <div className="bg-white/10 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                              <Globe className="text-blue-400 mr-2" size={16} />
+                              <h4 className="font-semibold text-white text-sm">Use Cases</h4>
+                            </div>
+                            <p className="text-xs text-white/80">Websites, social media, digital marketing, email signatures</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-auto pt-4">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePurchaseOption('basic');
+                          }}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105"
+                        >
+                          Get Basic Package
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Professional Package - Most Popular */}
-                <div className="border-2 border-blue-500 rounded-lg p-4 sm:p-6 relative bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex flex-col h-full">
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-1 rounded-full text-xs font-medium">Most Popular</span>
-                  </div>
-                  <div className="text-center flex-grow">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Zap className="text-white" size={24} />
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Professional</h3>
-                    <div className="text-3xl font-bold text-white mb-1">$59</div>
-                    <p className="text-white/70 text-sm mb-6">Everything you need for business</p>
+                {/* Professional Package - Flip Card - Most Popular */}
+                <div 
+                  className="relative w-full h-96 cursor-pointer group"
+                  onClick={() => toggleCardFlip('professional')}
+                >
+                  <div className={`relative w-full h-full transition-transform duration-700 preserve-3d ${
+                    flippedCards['professional'] ? 'rotate-y-180' : ''
+                  }`}>
                     
-                    <ul className="text-left space-y-3 mb-6">
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Everything in Basic
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Vector SVG file (infinitely scalable)
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        CMYK version for printing
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Black & white version
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Commercial use license
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Social media kit (Facebook, Instagram, etc.)
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div className="mt-auto pt-4">
-                    <button
-                      onClick={() => handlePurchaseOption('professional')}
-                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105"
-                    >
-                      Get Professional
-                    </button>
+                    {/* Front Side */}
+                    <div className="absolute inset-0 w-full h-full backface-hidden border-2 border-blue-500 rounded-lg p-4 sm:p-6 relative bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex flex-col">
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                        <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-1 rounded-full text-xs font-medium">Most Popular</span>
+                      </div>
+                      <div className="text-center flex-grow">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                          <Zap className="text-white" size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">Professional</h3>
+                        <div className="text-3xl font-bold text-white mb-1">$59</div>
+                        <p className="text-white/70 text-sm mb-6">Everything you need for business</p>
+                        
+                        <ul className="text-left space-y-2 mb-6 text-sm">
+                          <li className="flex items-center text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={14} />
+                            Everything in Basic
+                          </li>
+                          <li className="flex items-center text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={14} />
+                            Vector SVG file (infinitely scalable)
+                          </li>
+                          <li className="flex items-center text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={14} />
+                            CMYK version for printing
+                          </li>
+                          <li className="flex items-center text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={14} />
+                            Commercial use license
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="mt-auto pt-4 text-center">
+                        <p className="text-xs text-white/50 mb-2">Click to see more details</p>
+                      </div>
+                    </div>
+                    
+                    {/* Back Side */}
+                    <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 border-2 border-purple-500 rounded-lg p-4 sm:p-6 bg-gradient-to-br from-purple-500/20 to-blue-600/30 flex flex-col">
+                      <div className="text-center flex-grow">
+                        <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                          <Award className="text-white" size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-4">Professional Excellence</h3>
+                        
+                        <div className="space-y-3">
+                          <div className="bg-white/10 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                              <Briefcase className="text-purple-400 mr-2" size={16} />
+                              <h4 className="font-semibold text-white text-sm">Perfect For</h4>
+                            </div>
+                            <p className="text-xs text-white/80">Growing businesses, agencies, professional services, e-commerce</p>
+                          </div>
+                          
+                          <div className="bg-white/10 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                              <Star className="text-purple-400 mr-2" size={16} />
+                              <h4 className="font-semibold text-white text-sm">Key Benefit</h4>
+                            </div>
+                            <p className="text-xs text-white/80">Complete logo package with vector files for unlimited scaling and professional printing</p>
+                          </div>
+                          
+                          <div className="bg-white/10 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                              <Globe className="text-purple-400 mr-2" size={16} />
+                              <h4 className="font-semibold text-white text-sm">Bonus</h4>
+                            </div>
+                            <p className="text-xs text-white/80">Social media kit included - optimized sizes for all platforms</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-auto pt-4">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePurchaseOption('professional');
+                          }}
+                          className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105"
+                        >
+                          Get Professional Package
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Premium Package */}
-                <div className="border-2 border-white/20 rounded-lg p-4 sm:p-6 hover:border-purple-400 transition-colors bg-white/5 flex flex-col h-full">
-                  <div className="text-center flex-grow">
-                    <div className="w-12 h-12 bg-purple-600/20 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Crown className="text-purple-400" size={24} />
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Premium</h3>
-                    <div className="text-3xl font-bold text-white mb-1">$99</div>
-                    <p className="text-white/70 text-sm mb-6">Complete branding solution</p>
+                {/* Premium Package - Flip Card */}
+                <div 
+                  className="relative w-full h-96 cursor-pointer group"
+                  onClick={() => toggleCardFlip('premium')}
+                >
+                  <div className={`relative w-full h-full transition-transform duration-700 preserve-3d ${
+                    flippedCards['premium'] ? 'rotate-y-180' : ''
+                  }`}>
                     
-                    <ul className="text-left space-y-3 mb-6">
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Everything in Professional
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Adobe Illustrator AI file
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Brand guidelines PDF
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Business card templates
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Letterhead template
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Favicon for website
-                      </li>
-                      <li className="flex items-center text-sm text-white/80">
-                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
-                        Extended commercial license
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div className="mt-auto pt-4">
-                    <button
-                      onClick={() => handlePurchaseOption('premium')}
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105"
-                    >
-                      Get Premium
-                    </button>
+                    {/* Front Side */}
+                    <div className="absolute inset-0 w-full h-full backface-hidden border-2 border-white/20 rounded-lg p-4 sm:p-6 hover:border-purple-400 transition-colors bg-white/5 flex flex-col">
+                      <div className="text-center flex-grow">
+                        <div className="w-12 h-12 bg-purple-600/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                          <Crown className="text-purple-400" size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">Premium</h3>
+                        <div className="text-3xl font-bold text-white mb-1">$99</div>
+                        <p className="text-white/70 text-sm mb-6">Complete branding solution</p>
+                        
+                        <ul className="text-left space-y-2 mb-6 text-sm">
+                          <li className="flex items-center text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={14} />
+                            Everything in Professional
+                          </li>
+                          <li className="flex items-center text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={14} />
+                            Adobe Illustrator AI file
+                          </li>
+                          <li className="flex items-center text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={14} />
+                            Brand guidelines PDF
+                          </li>
+                          <li className="flex items-center text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={14} />
+                            Business card templates
+                          </li>
+                          <li className="flex items-center text-white/80">
+                            <Check className="text-green-400 mr-2 flex-shrink-0" size={14} />
+                            Extended commercial license
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="mt-auto pt-4 text-center">
+                        <p className="text-xs text-white/50 mb-2">Click to see more details</p>
+                      </div>
+                    </div>
+                    
+                    {/* Back Side */}
+                    <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 border-2 border-purple-400 rounded-lg p-4 sm:p-6 bg-gradient-to-br from-purple-600/20 to-purple-800/30 flex flex-col">
+                      <div className="text-center flex-grow">
+                        <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-purple-800 rounded-lg flex items-center justify-center mx-auto mb-4">
+                          <Crown className="text-white" size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-4">Premium Excellence</h3>
+                        
+                        <div className="space-y-3">
+                          <div className="bg-white/10 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                              <Crown className="text-purple-400 mr-2" size={16} />
+                              <h4 className="font-semibold text-white text-sm">Perfect For</h4>
+                            </div>
+                            <p className="text-xs text-white/80">Established businesses, corporations, luxury brands, complete rebrand</p>
+                          </div>
+                          
+                          <div className="bg-white/10 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                              <Award className="text-purple-400 mr-2" size={16} />
+                              <h4 className="font-semibold text-white text-sm">Key Benefit</h4>
+                            </div>
+                            <p className="text-xs text-white/80">Complete brand identity system with professional guidelines and templates</p>
+                          </div>
+                          
+                          <div className="bg-white/10 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                              <Briefcase className="text-purple-400 mr-2" size={16} />
+                              <h4 className="font-semibold text-white text-sm">Exclusive</h4>
+                            </div>
+                            <p className="text-xs text-white/80">Business card designs, letterhead templates, and comprehensive brand guide</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-auto pt-4">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePurchaseOption('premium');
+                          }}
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105"
+                        >
+                          Get Premium Package
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

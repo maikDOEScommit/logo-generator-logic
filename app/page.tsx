@@ -18,6 +18,7 @@ import Step2_Branding from '@/components/editor/Step2_Branding';
 import Step3_Design from '@/components/editor/Step3_Design';
 import LogoPreview from '@/components/preview/LogoPreview';
 import MockupPreview from '@/components/preview/MockupPreview';
+import { fontCategories } from '@/lib/data';
 
 // === MAIN PAGE COMPONENT ===
 export default function LogoGeneratorPage() {
@@ -438,6 +439,40 @@ export default function LogoGeneratorPage() {
                           Wählen Sie Farben, die zu Ihrer Branche passen (z.B. Blau für Tech, Grün für Nachhaltigkeit)
                         </li>
                       </ul>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Typography Style Buttons */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                >
+                  <div className="bg-white/5 rounded-lg p-4">
+                    <h3 className="font-bold text-primary mb-4">Typography Style</h3>
+                    <div className="space-y-3">
+                      {fontCategories.map((category) => (
+                        <button
+                          key={category.name}
+                          onClick={() => setSelectedFontCategory(category.name)}
+                          className={`w-full p-3 rounded-lg border-2 transition-all duration-300 transform hover:scale-105 ${
+                            selectedFontCategory === category.name 
+                              ? 'border-primary bg-gradient-to-r from-blue-500/20 to-purple-600/20 text-white shadow-lg shadow-blue-500/25' 
+                              : 'border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10 text-white/80'
+                          }`}
+                        >
+                          <div className="text-left">
+                            <div className="font-semibold text-sm mb-1">{category.name}</div>
+                            <div className="text-xs text-white/60">
+                              {category.name === 'Modern' && 'Clean, minimalist fonts for tech companies'}
+                              {category.name === 'Elegant' && 'Sophisticated script fonts for luxury brands'}
+                              {category.name === 'Bold' && 'Strong, impactful fonts for dynamic companies'}
+                              {category.name === 'Heritage' && 'Classic serif fonts for traditional businesses'}
+                            </div>
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </motion.div>
