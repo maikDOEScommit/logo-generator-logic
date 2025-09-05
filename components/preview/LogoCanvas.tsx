@@ -102,15 +102,19 @@ const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { conf
     }
     if (layout.arrangement === 'text-left') {
       const iconSize = 40;
-      // Zentriere das gesamte Logo vertikal im Container
+      const textWidth = (text || "Markenname").length * fontSize * 0.4; // Estimate text width
+      const totalWidth = textWidth + 20 + iconSize; // text + gap + icon
+      const startX = (200 - totalWidth) / 2; // Center the entire logo horizontally
+      
+      // Center vertically considering both text and icon
       const logoStartY = (200 - iconSize) / 2;
-      const iconCenterY = logoStartY + iconSize / 2;
+      const textCenterY = logoStartY + iconSize / 2;
       
       return(
-        <g transform="translate(20, 0)">
-          <text x={0} y={iconCenterY} fontSize={fontSize * 0.8} fontWeight="bold" textAnchor="start" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
-          {slogan && <text x={0} y={iconCenterY + fontSize * 0.6} fontSize={sloganFontSize * 0.9} textAnchor="start" dominantBaseline="middle" fill={textColor}>{slogan}</text>}
-          {icon && IconComponent && <IconComponent x={120} y={logoStartY} width={iconSize} height={iconSize} color={iconColor} />}
+        <g>
+          <text x={startX} y={textCenterY} fontSize={fontSize * 0.8} fontWeight="bold" textAnchor="start" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
+          {slogan && <text x={startX} y={textCenterY + fontSize * 0.6} fontSize={sloganFontSize * 0.9} textAnchor="start" dominantBaseline="middle" fill={textColor}>{slogan}</text>}
+          {icon && IconComponent && <IconComponent x={startX + textWidth + 20} y={logoStartY} width={iconSize} height={iconSize} color={iconColor} />}
         </g>
       );
     }

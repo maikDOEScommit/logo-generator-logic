@@ -36,7 +36,7 @@ export const Footer = () => {
             <ul className="space-y-3">
               {[
                 { name: 'Home', href: '/' },
-                { name: 'How it Works', href: '#' },
+                { name: 'How it Works', href: '/how-it-works' },
                 { name: 'Pricing', href: '#' },
                 { name: 'Examples', href: '#' },
               ].map((link) => (

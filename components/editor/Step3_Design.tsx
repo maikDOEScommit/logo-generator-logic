@@ -29,6 +29,7 @@ interface Props {
   updateConfig: (newConfig: Partial<LogoConfig>) => void;
   suggestions: {
     suggestedIcons: IconData[];
+    suggestedEnclosingShapes: IconData[];
     suggestedFonts: FontData[];
     suggestedPalettes: PaletteData[];
   };
@@ -40,18 +41,17 @@ interface Props {
 }
 
 const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory, setSelectedFontCategory, selectedPersonalities, onTogglePersonality, onLogoCreate }: Props) => {
-  const { suggestedIcons, suggestedPalettes } = suggestions;
+  const { suggestedIcons, suggestedEnclosingShapes, suggestedPalettes } = suggestions;
   const [selectedLayoutType, setSelectedLayoutType] = useState<string | null>(null);
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
   
-  // Filter out only basic shape icons that are better suited as enclosing shapes
-  const shapeIds = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'pentagon', 'plus', 'minus', 'x'];
+  // Use enclosing shapes directly from suggestionEngine (Single Source of Truth)
+  // These are already the fixed 16 enclosing shapes defined in suggestionEngine.ts
+  const enclosingShapes = suggestedEnclosingShapes;
   
-  // Fixed set of 16 enclosing shapes for circle layouts
-  const fixedEnclosingShapeIds = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'pentagon', 'star', 'heart', 'shield', 'sun', 'moon', 'zap', 'leaf', 'flame', 'droplets', 'check-circle'];
-  const enclosingShapes = suggestedIcons.filter(icon => fixedEnclosingShapeIds.includes(icon.id)).slice(0, 16);
-  
-  const regularIcons = suggestedIcons.filter(icon => !shapeIds.includes(icon.id));
+  // Use icons directly from suggestionEngine (Single Source of Truth)
+  // These are already the fixed 24 icons defined in suggestionEngine.ts
+  const regularIcons = suggestedIcons;
 
   return (
     <motion.div key="step3" className="space-y-12 animate-fade-in">
@@ -170,33 +170,46 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 transition={{ delay: 0.1, duration: 0.4 }}
               >
                 <h2 className="text-xl font-bold mb-8 text-white">Choose your Typography Style</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+                <div className="space-y-4 mb-6">
                   {fontCategories.map((category) => (
-                    <SelectionCard 
-                      key={category.name} 
-                      isSelected={selectedFontCategory === category.name} 
-                      onClick={() => {
-                        setSelectedFontCategory(category.name);
-                        // Auto-scroll to layout section after selection
-                        setTimeout(() => {
-                          const element = document.querySelector('[data-section="layout"]');
-                          if (element) {
-                            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                          }
-                        }, 100);
-                      }}
-                    >
-                      <div className="text-center p-4 h-full flex flex-col justify-center">
-                        <p className="text-base font-semibold mb-3 text-white">{category.name}</p>
-                        <div className="text-xs text-white/60 space-y-1 overflow-hidden">
-                          {category.fonts.map(font => (
-                            <div key={font.name} className="truncate" style={{ fontFamily: font.cssName }}>
-                              {font.name}
-                            </div>
-                          ))}
+                    <div key={category.name} className="flex items-center gap-8">
+                      <div className="flex-shrink-0">
+                        <SelectionCard 
+                          isSelected={selectedFontCategory === category.name} 
+                          onClick={() => {
+                            setSelectedFontCategory(category.name);
+                            // Auto-scroll to layout section after selection
+                            setTimeout(() => {
+                              const element = document.querySelector('[data-section="layout"]');
+                              if (element) {
+                                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
+                          }}
+                        >
+                          <div className="text-center p-4 w-32">
+                            <p className="text-base font-semibold text-white">{category.name}</p>
+                          </div>
+                        </SelectionCard>
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-white/80">
+                          <div className="text-sm leading-relaxed mb-2">
+                            {category.name === 'Modern' && 'Clean, minimalist fonts perfect for tech companies and contemporary brands. Highly readable across all devices.'}
+                            {category.name === 'Elegant' && 'Sophisticated script fonts that convey luxury and refinement. Ideal for premium brands and creative agencies.'}
+                            {category.name === 'Bold' && 'Strong, impactful fonts that demand attention. Perfect for sports brands, events, and dynamic companies.'}
+                            {category.name === 'Heritage' && 'Classic serif fonts with timeless appeal. Excellent for traditional businesses, education, and established brands.'}
+                          </div>
+                          <div className="text-xs text-white/50 space-y-1">
+                            {category.fonts.slice(0, 3).map(font => (
+                              <span key={font.name} className="inline-block mr-3" style={{ fontFamily: font.cssName }}>
+                                {font.name}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </SelectionCard>
+                    </div>
                   ))}
                 </div>
                 <div className="text-xs text-white/60">Rule 3: Timelessness - Classic fonts outlast trends</div>

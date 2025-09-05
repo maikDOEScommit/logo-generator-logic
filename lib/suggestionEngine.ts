@@ -178,6 +178,7 @@ export const suggestionPalettes: PaletteData[] = [
 
 export interface Suggestions {
   suggestedIcons: IconData[];
+  suggestedEnclosingShapes: IconData[];
   suggestedFonts: FontData[];
   suggestedPalettes: PaletteData[];
 }
@@ -230,8 +231,27 @@ export function getInitialSuggestions(industry: string, keywords: string[]): Sug
     suggestedPalette = colorPalettes.find(p => p.name.includes('Seriös'))!;
   }
 
-  // Show exactly 28 icons - fixed selection
-  const suggestedIcons = availableIcons.slice(0, 28);
+  // FIXED SET OF EXACTLY 24 REGULAR ICONS - SINGLE SOURCE OF TRUTH
+  const fixed24RegularIconIds = [
+    'star', 'heart', 'shield', 'zap', 'leaf', 'coffee', 'camera', 'music', 
+    'gamepad-2', 'palette', 'code', 'briefcase', 'lightbulb', 'rocket', 
+    'sun', 'moon', 'cloud', 'flame', 'droplets', 'mountain', 
+    'tree', 'flower', 'building', 'handshake', 'phone'
+  ];
+  
+  // Always return exactly these 24 icons in this exact order
+  const suggestedIcons = availableIcons.filter(icon => 
+    fixed24RegularIconIds.includes(icon.id)
+  ).sort((a, b) => 
+    fixed24RegularIconIds.indexOf(a.id) - fixed24RegularIconIds.indexOf(b.id)
+  );
+
+  // SAFETY CHECK: Ensure we always have exactly 24 icons
+  if (suggestedIcons.length !== 24) {
+    console.error(`ERROR: Expected 24 icons but got ${suggestedIcons.length}. Missing icons:`, 
+      fixed24RegularIconIds.filter(id => !suggestedIcons.some(icon => icon.id === id))
+    );
+  }
 
   // Convert font categories to FontData format
   const suggestedFonts: FontData[] = [];
@@ -247,8 +267,22 @@ export function getInitialSuggestions(industry: string, keywords: string[]): Sug
     });
   });
 
+  // FIXED SET OF 16 ENCLOSING SHAPES - SINGLE SOURCE OF TRUTH
+  const fixed16EnclosingShapeIds = [
+    'circle', 'square', 'triangle', 'diamond', 'hexagon', 'pentagon', 
+    'star', 'heart', 'shield', 'sun', 'moon', 'zap', 'leaf', 'flame', 
+    'droplets', 'check-circle'
+  ];
+  
+  const suggestedEnclosingShapes = availableIcons.filter(icon => 
+    fixed16EnclosingShapeIds.includes(icon.id)
+  ).sort((a, b) => 
+    fixed16EnclosingShapeIds.indexOf(a.id) - fixed16EnclosingShapeIds.indexOf(b.id)
+  );
+
   return {
     suggestedIcons,
+    suggestedEnclosingShapes,
     suggestedFonts: suggestedFonts.slice(0, 8),
     suggestedPalettes: suggestionPalettes.slice(0, 20) // Include all color options
   };
