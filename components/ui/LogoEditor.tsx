@@ -408,8 +408,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
                 
                 {/* Basic Package */}
-                <div className="border-2 border-white/20 rounded-lg p-4 sm:p-6 hover:border-blue-400 transition-colors bg-white/5">
-                  <div className="text-center">
+                <div className="border-2 border-white/20 rounded-lg p-4 sm:p-6 hover:border-blue-400 transition-colors bg-white/5 flex flex-col h-full">
+                  <div className="text-center flex-grow">
                     <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                       <Download className="text-blue-400" size={24} />
                     </div>
@@ -435,7 +435,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                         Personal use license
                       </li>
                     </ul>
-                    
+                  </div>
+                  
+                  <div className="mt-auto pt-4">
                     <button
                       onClick={() => handlePurchaseOption('basic')}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105"
@@ -446,11 +448,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                 </div>
 
                 {/* Professional Package - Most Popular */}
-                <div className="border-2 border-blue-500 rounded-lg p-4 sm:p-6 relative bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+                <div className="border-2 border-blue-500 rounded-lg p-4 sm:p-6 relative bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex flex-col h-full">
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-1 rounded-full text-xs font-medium">Most Popular</span>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center flex-grow">
                     <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
                       <Zap className="text-white" size={24} />
                     </div>
@@ -484,7 +486,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                         Social media kit (Facebook, Instagram, etc.)
                       </li>
                     </ul>
-                    
+                  </div>
+                  
+                  <div className="mt-auto pt-4">
                     <button
                       onClick={() => handlePurchaseOption('professional')}
                       className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105"
@@ -495,8 +499,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                 </div>
 
                 {/* Premium Package */}
-                <div className="border-2 border-white/20 rounded-lg p-4 sm:p-6 hover:border-purple-400 transition-colors bg-white/5">
-                  <div className="text-center">
+                <div className="border-2 border-white/20 rounded-lg p-4 sm:p-6 hover:border-purple-400 transition-colors bg-white/5 flex flex-col h-full">
+                  <div className="text-center flex-grow">
                     <div className="w-12 h-12 bg-purple-600/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                       <Crown className="text-purple-400" size={24} />
                     </div>
@@ -534,7 +538,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                         Extended commercial license
                       </li>
                     </ul>
-                    
+                  </div>
+                  
+                  <div className="mt-auto pt-4">
                     <button
                       onClick={() => handlePurchaseOption('premium')}
                       className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105"
