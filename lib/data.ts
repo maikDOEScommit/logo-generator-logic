@@ -87,12 +87,12 @@ export const fontCategories: FontCategory[] = [
 // =================================================================
 
 export const industries = {
-  'tech': { tags: ['tech'], name: 'Technologie' },
-  'finance': { tags: ['finance'], name: 'Finanzen' },
-  'health': { tags: ['health', 'wellness'], name: 'Gesundheit & Wellness' },
-  'sports': { tags: ['sports'], name: 'Sport & Fitness' },
-  'design': { tags: ['design'], name: 'Design & Kreativ' },
-  'food': { tags: ['food'], name: 'Food & Gastronomie' }
+  'tech': { tags: ['tech'], name: 'Technology' },
+  'finance': { tags: ['finance'], name: 'Finance' },
+  'health': { tags: ['health', 'wellness'], name: 'Health & Wellness' },
+  'sports': { tags: ['sports'], name: 'Sports & Fitness' },
+  'design': { tags: ['design'], name: 'Design & Creative' },
+  'food': { tags: ['food'], name: 'Food & Gastronomy' }
 };
 
 export const personalities = [

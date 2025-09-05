@@ -45,38 +45,43 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
     <motion.div key="step3" className="space-y-12 animate-fade-in">
       {/* Icon Decision Section - Always visible first */}
       {wantsIcon === null && (
-        <div className="min-h-screen flex items-center justify-center py-20">
-          <div className="w-full max-w-2xl">
-            <Section title="Do you want an icon for your logo?" helpText="Rule 2: Memorability - Simple symbols are remembered better">
-              <div className="col-span-full flex gap-4 justify-center w-full">
-                <div className="flex w-full max-w-md justify-between gap-4">
-                  <button 
-                    onClick={() => {
-                      setWantsIcon(true);
-                    }}
-                    className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95"
-                  >
-                    Yes, show me icons
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setWantsIcon(false);
-                      updateConfig({ icon: null });
-                      // Scroll to typography section after decision
-                      setTimeout(() => {
-                        const element = document.querySelector('[data-section="typography"]');
-                        if (element) {
-                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                      }, 100);
-                    }}
-                    className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 active:scale-95"
-                  >
-                    No, text only
-                  </button>
-                </div>
+        <div className="h-screen flex items-center justify-center -mt-36">
+          <div className="w-full max-w-2xl text-center">
+            <motion.div
+              className="w-full"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+            >
+              <h2 className="text-xl font-bold mb-8 text-white">Do you want an icon for your logo?</h2>
+              <div className="flex w-full justify-between gap-4 mb-6">
+                <button 
+                  onClick={() => {
+                    setWantsIcon(true);
+                  }}
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95"
+                >
+                  Yes, show me icons
+                </button>
+                <button 
+                  onClick={() => {
+                    setWantsIcon(false);
+                    updateConfig({ icon: null });
+                    // Scroll to typography section after decision
+                    setTimeout(() => {
+                      const element = document.querySelector('[data-section="typography"]');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }, 100);
+                  }}
+                  className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 active:scale-95"
+                >
+                  No, text only
+                </button>
               </div>
-            </Section>
+              <div className="text-xs text-white/60">Rule 2: Memorability - Simple symbols are remembered better</div>
+            </motion.div>
           </div>
         </div>
       )}

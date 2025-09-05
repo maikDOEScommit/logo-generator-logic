@@ -137,7 +137,7 @@ export default function LogoGeneratorPage() {
               // Show the "Let's get started" text after scrolling + vertical border completes
               setTimeout(() => {
                 setShowStartedText(true);
-              }, 1400); // Wait for scroll (500ms) + vertical border animation (900ms)
+              }, 800); // Faster: Wait for scroll (500ms) + reduced delay for border animation
             }, 100); // Small delay after starting vertical border
           }, 700); // Reduced wait time since border-top starts earlier
         }, 800); // Wait for hero exit animation
