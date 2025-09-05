@@ -187,7 +187,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
 
   return (
     <div className="space-y-8">
-      <h3 className="text-2xl font-bold text-primary">Generated Logos: {selectedFontCategory} Category</h3>
+      <h3 className="text-2xl font-bold text-white">Generated Logos: {selectedFontCategory} Category</h3>
       
       {/* Show all fonts from the selected category */}
       {fontsToDisplay.map((font, fontIndex) => (
@@ -197,7 +197,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Light Version */}
             <div>
-              <h5 className="font-medium mb-2 text-primary text-sm">Light Version</h5>
+              <h5 className="font-medium mb-2 text-white text-sm">Light Version</h5>
               <div className="bg-white/10 border border-white rounded-lg p-4 max-w-full overflow-hidden group relative">
                 <div 
                   id={`logo-${font.name.replace(/\s+/g, '-')}-light-${fontIndex}`}
@@ -227,7 +227,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
 
             {/* Dark Version */}
             <div>
-              <h5 className="font-medium mb-2 text-primary text-sm">Dark Version</h5>
+              <h5 className="font-medium mb-2 text-white text-sm">Dark Version</h5>
               <div className="bg-black border border-white/20 rounded-lg p-4 max-w-full overflow-hidden group relative">
                 <div 
                   className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
@@ -256,7 +256,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
 
             {/* Accent Version */}
             <div>
-              <h5 className="font-medium mb-2 text-primary text-sm">Accent Version</h5>
+              <h5 className="font-medium mb-2 text-white text-sm">Accent Version</h5>
               <div className="bg-white/10 border border-white rounded-lg p-4 max-w-full overflow-hidden group relative">
                 <div 
                   className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
@@ -285,7 +285,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
 
             {/* Secondary Version */}
             <div>
-              <h5 className="font-medium mb-2 text-primary text-sm">Secondary Version</h5>
+              <h5 className="font-medium mb-2 text-white text-sm">Secondary Version</h5>
               <div className="bg-white/10 border border-white rounded-lg p-4 max-w-full overflow-hidden group relative">
                 <div 
                   className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"

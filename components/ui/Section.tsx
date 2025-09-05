@@ -7,7 +7,7 @@ const Section = ({ title, children, helpText }: { title: string, children: React
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: 0.1, duration: 0.4 }}
   >
-    <h2 className="text-xl font-bold mb-4 text-primary">{title}</h2>
+    <h2 className="text-xl font-bold mb-4 text-white">{title}</h2>
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {children}
     </div>

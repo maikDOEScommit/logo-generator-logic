@@ -34,6 +34,7 @@ interface Props {
 const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory, setSelectedFontCategory, selectedPersonalities, onTogglePersonality, onLogoCreate }: Props) => {
   const { suggestedIcons, suggestedPalettes } = suggestions;
   const [selectedLayoutType, setSelectedLayoutType] = useState<string | null>(null);
+  const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
   
   // Filter out shape icons that are better suited as enclosing shapes
   const shapeIds = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'pentagon', 'shield'];
@@ -42,36 +43,135 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
 
   return (
     <motion.div key="step3" className="space-y-12 animate-fade-in">
-      <Section title="Choose a Symbol" helpText="Rule 2: Memorability - Simple symbols are remembered better">
-        {regularIcons.map(icon => (
-          <SelectionCard key={icon.id} isSelected={config.icon?.id === icon.id} onClick={() => updateConfig({ icon })}>
-            <icon.component className="w-12 h-12 mx-auto" color={config.palette ? config.palette.colors[1] : 'white'} />
-          </SelectionCard>
-        ))}
-      </Section>
-
-      <Section title="Choose your Typography Style" helpText="Rule 3: Timelessness - Classic fonts outlast trends">
-        {fontCategories.map((category) => (
-          <SelectionCard 
-            key={category.name} 
-            isSelected={selectedFontCategory === category.name} 
-            onClick={() => setSelectedFontCategory(category.name)}
-          >
-            <div className="text-center p-4 h-full flex flex-col justify-center">
-              <p className="text-base font-semibold mb-3 text-white">{category.name}</p>
-              <div className="text-xs text-white/60 space-y-1 overflow-hidden">
-                {category.fonts.map(font => (
-                  <div key={font.name} className="truncate" style={{ fontFamily: font.cssName }}>
-                    {font.name}
-                  </div>
-                ))}
+      {/* Icon Decision Section - Always visible first */}
+      {wantsIcon === null && (
+        <div className="min-h-screen flex items-center justify-center py-20">
+          <div className="w-full max-w-2xl">
+            <Section title="Do you want an icon for your logo?" helpText="Rule 2: Memorability - Simple symbols are remembered better">
+              <div className="col-span-full flex gap-4 justify-center w-full">
+                <div className="flex w-full max-w-md justify-between gap-4">
+                  <button 
+                    onClick={() => {
+                      setWantsIcon(true);
+                    }}
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95"
+                  >
+                    Yes, show me icons
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setWantsIcon(false);
+                      updateConfig({ icon: null });
+                      // Scroll to typography section after decision
+                      setTimeout(() => {
+                        const element = document.querySelector('[data-section="typography"]');
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }, 100);
+                    }}
+                    className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 active:scale-95"
+                  >
+                    No, text only
+                  </button>
+                </div>
               </div>
-            </div>
-          </SelectionCard>
-        ))}
-      </Section>
+            </Section>
+          </div>
+        </div>
+      )}
+      
+      {/* Icon Selection Section - Only shown when user wants icons */}
+      {wantsIcon === true && (
+        <div className="min-h-screen flex items-center justify-center py-20">
+          <div className="w-full max-w-2xl">
+            <Section title="Choose a Symbol" helpText="Rule 2: Memorability - Simple symbols are remembered better">
+              <div className="col-span-full space-y-4">
+                <div className="flex justify-between items-center">
+                  <button 
+                    onClick={() => {
+                      setWantsIcon(null);
+                      // Scroll back to top
+                      setTimeout(() => {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }, 100);
+                    }}
+                    className="text-white/60 hover:text-white text-sm flex items-center gap-2"
+                  >
+                    ← Back to decision
+                  </button>
+                  <button 
+                    onClick={() => {
+                      // Continue without selecting an icon
+                      setTimeout(() => {
+                        const element = document.querySelector('[data-section="typography"]');
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }, 100);
+                    }}
+                    className="text-white/60 hover:text-white text-sm"
+                  >
+                    Continue without icon →
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                  {regularIcons.map(icon => (
+                    <SelectionCard 
+                      key={icon.id} 
+                      isSelected={config.icon?.id === icon.id} 
+                      onClick={() => {
+                        updateConfig({ icon });
+                        // Auto-scroll to typography after selecting an icon
+                        setTimeout(() => {
+                          const element = document.querySelector('[data-section="typography"]');
+                          if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }
+                        }, 100);
+                      }}
+                    >
+                      <icon.component className="w-12 h-12 mx-auto" color={config.palette ? config.palette.colors[1] : 'white'} />
+                    </SelectionCard>
+                  ))}
+                </div>
+              </div>
+            </Section>
+          </div>
+        </div>
+      )}
 
-      <Section title="Choose a Layout" helpText="Rule 4: Scalability - Standard layouts work at any size">
+      {/* All remaining sections - Only shown after icon decision is made */}
+      {wantsIcon !== null && (
+        <>
+          <div data-section="typography" className="min-h-screen flex items-center justify-center py-20">
+            <div className="w-full max-w-2xl">
+              <Section title="Choose your Typography Style" helpText="Rule 3: Timelessness - Classic fonts outlast trends">
+                {fontCategories.map((category) => (
+                  <SelectionCard 
+                    key={category.name} 
+                    isSelected={selectedFontCategory === category.name} 
+                    onClick={() => setSelectedFontCategory(category.name)}
+                  >
+                    <div className="text-center p-4 h-full flex flex-col justify-center">
+                      <p className="text-base font-semibold mb-3 text-white">{category.name}</p>
+                      <div className="text-xs text-white/60 space-y-1 overflow-hidden">
+                        {category.fonts.map(font => (
+                          <div key={font.name} className="truncate" style={{ fontFamily: font.cssName }}>
+                            {font.name}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </SelectionCard>
+                ))}
+              </Section>
+            </div>
+          </div>
+
+          <div className="min-h-screen flex items-center justify-center py-20">
+            <div className="w-full max-w-2xl">
+              <Section title="Choose a Layout" helpText="Rule 4: Scalability - Standard layouts work at any size">
         {layouts.map(layout => (
           <LayoutSelectionCard 
             key={layout.id} 
@@ -87,35 +187,39 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           />
         ))}
         
-        {/* Show enclosing shapes when circle layout is selected */}
-        {selectedLayoutType === 'circle-enclosed' && (
-          <div className="col-span-full mt-6">
-            <h3 className="text-lg font-bold mb-3 text-primary">Wähle die Form für die Umrandung:</h3>
-            <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-              {enclosingShapes.map(shape => (
-                <SelectionCard 
-                  key={shape.id} 
-                  isSelected={config.enclosingShape?.id === shape.id} 
-                  onClick={() => {
-                    const circleLayout = layouts.find(l => l.id === 'circle-enclosed');
-                    updateConfig({ enclosingShape: shape, layout: circleLayout });
-                  }}
-                >
-                  <div className="flex flex-col items-center gap-2 p-2">
-                    <shape.component size={24} color="white" />
-                    <span className="text-xs text-center">{shape.id}</span>
+                {/* Show enclosing shapes when circle layout is selected */}
+                {selectedLayoutType === 'circle-enclosed' && (
+                  <div className="col-span-full mt-6">
+                    <h3 className="text-lg font-bold mb-3 text-white">Wähle die Form für die Umrandung:</h3>
+                    <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                      {enclosingShapes.map(shape => (
+                        <SelectionCard 
+                          key={shape.id} 
+                          isSelected={config.enclosingShape?.id === shape.id} 
+                          onClick={() => {
+                            const circleLayout = layouts.find(l => l.id === 'circle-enclosed');
+                            updateConfig({ enclosingShape: shape, layout: circleLayout });
+                          }}
+                        >
+                          <div className="flex flex-col items-center gap-2 p-2">
+                            <shape.component size={24} color="white" />
+                            <span className="text-xs text-center">{shape.id}</span>
+                          </div>
+                        </SelectionCard>
+                      ))}
+                    </div>
                   </div>
-                </SelectionCard>
-              ))}
+                )}
+              </Section>
             </div>
           </div>
-        )}
-      </Section>
 
-      <Section title="Choose a Color Palette" helpText="Rule 9: Smart Color Choice - Colors convey emotions and brand values">
+          <div className="min-h-screen flex items-center justify-center py-20">
+            <div className="w-full max-w-2xl">
+              <Section title="Choose a Color Palette" helpText="Rule 9: Smart Color Choice - Colors convey emotions and brand values">
         {/* Brand Personality Selection */}
         <div className="col-span-full mb-6 p-4 bg-white/5 rounded-lg border border-white/10">
-          <label className="block text-lg font-bold mb-3 text-primary">Brand Personality (max. 2)</label>
+          <label className="block text-lg font-bold mb-3 text-white">Brand Personality (max. 2)</label>
           <div className="flex flex-wrap gap-2 mb-3">
             {personalities.map(p => (
               <button
@@ -146,7 +250,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
         
         {/* Solid Color Bar - 14 intensive colors in horizontal layout */}
         <div className="col-span-full mt-6">
-          <h3 className="text-lg font-bold mb-3 text-primary">Oder wähle eine Grundfarbe:</h3>
+          <h3 className="text-lg font-bold mb-3 text-white">Oder wähle eine Grundfarbe:</h3>
           <div className="grid grid-cols-7 gap-2">
             {suggestedPalettes.filter(palette => palette.tags?.includes('intense')).map(palette => (
               <button
@@ -162,24 +266,28 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
               />
             ))}
           </div>
-        </div>
-      </Section>
+                </div>
+              </Section>
+            </div>
+          </div>
 
-      {/* Create Button */}
-      <div className="flex justify-center pt-8">
-        <button
-          onClick={() => {
-            // This will trigger the preview to show properly
-            updateConfig({});
-            // Trigger text animation if callback provided
-            if (onLogoCreate) onLogoCreate();
-          }}
-          disabled={!config.layout || !config.palette || (config.layout?.id === 'circle-enclosed' && !config.enclosingShape)}
-          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-4 rounded-lg text-xl font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
-        >
-          Create Logo
-        </button>
-      </div>
+          {/* Create Button */}
+          <div className="flex justify-center pt-8">
+            <button
+              onClick={() => {
+                // This will trigger the preview to show properly
+                updateConfig({});
+                // Trigger text animation if callback provided
+                if (onLogoCreate) onLogoCreate();
+              }}
+              disabled={!config.layout || !config.palette || (config.layout?.id === 'circle-enclosed' && !config.enclosingShape)}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-4 rounded-lg text-xl font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+            >
+              Create Logo
+            </button>
+          </div>
+        </>
+      )}
     </motion.div>
   );
 };

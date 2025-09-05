@@ -5,7 +5,7 @@ export const Header = () => {
   return (
     <header className="absolute top-0 left-0 w-full p-4 flex justify-between items-center z-10">
       <Link href="/" className="font-bold text-xl">
-        LogoGen Pro
+        Lola Gen 2.0
       </Link>
       <div className="flex items-center gap-4">
         <SignedIn>

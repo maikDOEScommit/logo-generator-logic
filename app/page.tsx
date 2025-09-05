@@ -300,7 +300,7 @@ export default function LogoGeneratorPage() {
                   onClick={() => handleSectionNext(0)}
                   className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 md:px-8 md:py-4 rounded-lg text-base md:text-lg font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95"
                 >
-                  Create!
+                  Create Brand!
                 </button>
               </motion.div>
             )}
