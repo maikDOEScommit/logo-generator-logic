@@ -3,7 +3,8 @@ import Link from 'next/link';
 
 export const Header = () => {
   return (
-    <header className="absolute top-0 left-0 w-full p-4 flex justify-between items-center z-10">
+    <header className="absolute top-0 left-0 w-full p-4 z-10">
+      <div className="max-w-7xl mx-auto bg-white/5 backdrop-blur-md rounded-xl shadow-lg shadow-black/20 border border-white/10 px-6 py-3 flex justify-between items-center">
       <Link href="/" className="font-bold text-xl">
         Lola Gen 2.0
       </Link>
@@ -24,6 +25,7 @@ export const Header = () => {
             </SignUpButton>
           </div>
         </SignedOut>
+      </div>
       </div>
     </header>
   );

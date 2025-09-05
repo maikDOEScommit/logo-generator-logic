@@ -44,6 +44,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const { suggestedIcons, suggestedEnclosingShapes, suggestedPalettes } = suggestions;
   const [selectedLayoutType, setSelectedLayoutType] = useState<string | null>(null);
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
+  const [neonMode, setNeonMode] = useState<boolean>(false);
   
   // Use enclosing shapes directly from suggestionEngine (Single Source of Truth)
   // These are already the fixed 16 enclosing shapes defined in suggestionEngine.ts
@@ -52,6 +53,17 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   // Use icons directly from suggestionEngine (Single Source of Truth)
   // These are already the fixed 24 icons defined in suggestionEngine.ts
   const regularIcons = suggestedIcons;
+
+  // Filter colors based on neon mode
+  const getDisplayedColors = () => {
+    if (neonMode) {
+      // Show only neon colors (14 bright neon versions)
+      return suggestedPalettes.filter(palette => palette.tags?.includes('neon'));
+    } else {
+      // Show only intensive colors (original 14 base colors)
+      return suggestedPalettes.filter(palette => palette.tags?.includes('intense') && !palette.tags?.includes('neon'));
+    }
+  };
 
   return (
     <motion.div key="step3" className="space-y-12 animate-fade-in">
@@ -321,18 +333,33 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
         
         {/* Solid Color Bar - 14 intensive colors in horizontal layout */}
         <div className="col-span-full mt-6">
-          <h3 className="text-lg font-bold mb-3 text-white">Oder wähle eine Grundfarbe:</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-bold text-white">Oder wähle eine Grundfarbe:</h3>
+            <button
+              onClick={() => setNeonMode(!neonMode)}
+              className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 ${
+                neonMode 
+                  ? 'bg-gradient-to-r from-pink-500 to-cyan-500 text-black shadow-lg shadow-pink-500/50 animate-pulse' 
+                  : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:shadow-lg hover:shadow-purple-500/25'
+              }`}
+            >
+              {neonMode ? '✨ NEON!' : 'Neon!'}
+            </button>
+          </div>
           <div className="grid grid-cols-7 gap-2">
-            {suggestedPalettes.filter(palette => palette.tags?.includes('intense')).map(palette => (
+            {getDisplayedColors().map(palette => (
               <button
                 key={palette.id}
                 onClick={() => updateConfig({ palette })}
                 className={`h-12 rounded-lg border-2 transition-all transform hover:scale-105 ${
                   config.palette?.id === palette.id 
-                    ? 'border-white shadow-lg shadow-white/25 scale-105' 
+                    ? `border-white shadow-lg scale-105 ${neonMode ? 'shadow-white/50 animate-pulse' : 'shadow-white/25'}` 
                     : 'border-white/20 hover:border-white/40'
-                }`}
-                style={{backgroundColor: palette.colors[0]}}
+                } ${neonMode ? 'hover:shadow-glow' : ''}`}
+                style={{
+                  backgroundColor: palette.colors[0],
+                  boxShadow: neonMode ? `0 0 20px ${palette.colors[0]}40` : undefined
+                }}
                 title={palette.name}
               />
             ))}

@@ -158,6 +158,24 @@ const intensiveColors: PaletteData[] = [
   { id: 'lime', name: 'Intensiv Limette', colors: ['#84CC16', '#A3E635', '#000000'], tags: ['lime', 'intense'] }
 ];
 
+// Knallige Neon-Versionen der 14 Grundfarben
+const neonColors: PaletteData[] = [
+  { id: 'neon-red', name: 'Neon Rot', colors: ['#FF0040', '#FF4081', '#000000'], tags: ['red', 'neon', 'intense'] },
+  { id: 'neon-orange', name: 'Neon Orange', colors: ['#FF4500', '#FF6B35', '#000000'], tags: ['orange', 'neon', 'intense'] },
+  { id: 'neon-yellow', name: 'Neon Gelb', colors: ['#FFFF00', '#FFF700', '#000000'], tags: ['yellow', 'neon', 'intense'] },
+  { id: 'neon-green', name: 'Neon Grün', colors: ['#00FF41', '#39FF14', '#000000'], tags: ['green', 'neon', 'intense'] },
+  { id: 'neon-teal', name: 'Neon Türkis', colors: ['#00FFFF', '#1DE9B6', '#000000'], tags: ['teal', 'neon', 'intense'] },
+  { id: 'neon-blue', name: 'Neon Blau', colors: ['#0080FF', '#00D4FF', '#000000'], tags: ['blue', 'neon', 'intense'] },
+  { id: 'neon-cyan', name: 'Neon Cyan', colors: ['#00E5FF', '#18FFFF', '#000000'], tags: ['cyan', 'neon', 'intense'] },
+  { id: 'neon-purple', name: 'Neon Lila', colors: ['#8A2BE2', '#BF40BF', '#000000'], tags: ['purple', 'neon', 'intense'] },
+  { id: 'neon-pink', name: 'Neon Pink', colors: ['#FF10F0', '#FF1493', '#000000'], tags: ['pink', 'neon', 'intense'] },
+  { id: 'neon-indigo', name: 'Neon Indigo', colors: ['#4B0082', '#6A0DAD', '#FFFFFF'], tags: ['indigo', 'neon', 'intense'] },
+  { id: 'neon-gray', name: 'Neon Grau', colors: ['#C0C0C0', '#E5E5E5', '#000000'], tags: ['gray', 'neon', 'intense'] },
+  { id: 'neon-black', name: 'Neon Schwarz', colors: ['#000000', '#333333', '#00FF00'], tags: ['black', 'neon', 'intense'] },
+  { id: 'neon-brown', name: 'Neon Braun', colors: ['#D2691E', '#FF8C00', '#000000'], tags: ['brown', 'neon', 'intense'] },
+  { id: 'neon-lime', name: 'Neon Limette', colors: ['#32CD32', '#7FFF00', '#000000'], tags: ['lime', 'neon', 'intense'] }
+];
+
 // Convert original colorPalettes to PaletteData format
 export const suggestionPalettes: PaletteData[] = [
   // Original rule-based palettes
@@ -173,7 +191,9 @@ export const suggestionPalettes: PaletteData[] = [
           ['friendly', 'soft']
   })),
   // Add intensive colors
-  ...intensiveColors
+  ...intensiveColors,
+  // Add neon colors
+  ...neonColors
 ];
 
 export interface Suggestions {
@@ -284,7 +304,7 @@ export function getInitialSuggestions(industry: string, keywords: string[]): Sug
     suggestedIcons,
     suggestedEnclosingShapes,
     suggestedFonts: suggestedFonts.slice(0, 8),
-    suggestedPalettes: suggestionPalettes.slice(0, 20) // Include all color options
+    suggestedPalettes: suggestionPalettes // Include ALL color options (regular + intensive + neon)
   };
 }
 

@@ -26,3 +26,19 @@ body::-webkit-scrollbar {
 .typewriter-cursor {
   animation: typewriter-cursor 1s infinite;
 }
+
+/* Neon glow effects */
+.hover\:shadow-glow:hover {
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+@keyframes neon-pulse {
+  0%, 100% { 
+    filter: drop-shadow(0 0 5px currentColor);
+    transform: scale(1);
+  }
+  50% { 
+    filter: drop-shadow(0 0 20px currentColor) drop-shadow(0 0 30px currentColor);
+    transform: scale(1.02);
+  }
+}
