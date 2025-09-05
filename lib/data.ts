@@ -108,5 +108,4 @@ export const layouts: LayoutData[] = [
   { id: 'icon-text-horizontal', name: 'Icon + Text (horizontal)', type: 'standard', arrangement: 'icon-left' },
   { id: 'icon-text-vertical', name: 'Icon + Text (vertikal)', type: 'standard', arrangement: 'icon-top' },
   { id: 'circle-enclosed', name: 'Kreis', type: 'enclosed', shape: 'circle', arrangement: 'icon-top' },
-  { id: 'shield-enclosed', name: 'Schild', type: 'enclosed', shape: 'shield', arrangement: 'icon-top' },
 ];

@@ -1,15 +1,15 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { LogoConfig, IconData, FontData, LayoutData, PaletteData } from '@/lib/types';
 import Section from '@/components/ui/Section';
 import SelectionCard from '@/components/ui/SelectionCard';
 import { layouts, fontCategories, personalities } from '@/lib/data';
-import { Circle, Shield } from 'lucide-react';
+import { Circle } from 'lucide-react';
 
 const LayoutSelectionCard = ({ layout, isSelected, onClick }: { layout: LayoutData, isSelected: boolean, onClick: () => void }) => (
   <SelectionCard isSelected={isSelected} onClick={onClick}>
     <div className="flex flex-col items-center justify-center gap-2 text-xs">
       {layout.shape === 'circle' && <Circle size={24}/>}
-      {layout.shape === 'shield' && <Shield size={24}/>}
       {!layout.shape && (layout.arrangement === 'icon-top' ? <div className="space-y-1"><div className="w-4 h-4 bg-white/50 rounded-sm mx-auto"></div><div className="w-8 h-2 bg-white/50 rounded-sm"></div></div> : <div className="flex gap-1 items-center"><div className="w-4 h-4 bg-white/50 rounded-sm"></div><div className="w-8 h-2 bg-white/50 rounded-sm"></div></div>)}
       <p className="mt-1">{layout.name}</p>
     </div>
@@ -33,6 +33,7 @@ interface Props {
 
 const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory, setSelectedFontCategory, selectedPersonalities, onTogglePersonality, onLogoCreate }: Props) => {
   const { suggestedIcons, suggestedPalettes } = suggestions;
+  const [selectedLayoutType, setSelectedLayoutType] = useState<string | null>(null);
 
   return (
     <motion.div key="step3" className="space-y-12 animate-fade-in">
@@ -67,8 +68,44 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
 
       <Section title="Choose a Layout" helpText="Rule 4: Scalability - Standard layouts work at any size">
         {layouts.map(layout => (
-          <LayoutSelectionCard key={layout.id} layout={layout} isSelected={config.layout?.id === layout.id} onClick={() => updateConfig({ layout })} />
+          <LayoutSelectionCard 
+            key={layout.id} 
+            layout={layout} 
+            isSelected={selectedLayoutType === layout.id} 
+            onClick={() => {
+              setSelectedLayoutType(layout.id);
+              if (layout.id !== 'circle-enclosed') {
+                // For non-circle layouts, set immediately
+                updateConfig({ layout });
+              }
+            }} 
+          />
         ))}
+        
+        {/* Show icons when circle layout is selected */}
+        {selectedLayoutType === 'circle-enclosed' && (
+          <div className="col-span-full mt-6">
+            <h3 className="text-lg font-bold mb-3 text-primary">Wähle dein Icon für den Kreis:</h3>
+            <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+              {suggestedIcons.map(icon => (
+                <SelectionCard 
+                  key={icon.id} 
+                  isSelected={config.icon?.id === icon.id && config.layout?.id === 'circle-enclosed'} 
+                  onClick={() => {
+                    const circleLayout = layouts.find(l => l.id === 'circle-enclosed');
+                    updateConfig({ icon, layout: circleLayout });
+                  }}
+                >
+                  <div className="flex flex-col items-center gap-2 p-2">
+                    <div className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center">
+                      <icon.component size={16} color="white" />
+                    </div>
+                  </div>
+                </SelectionCard>
+              ))}
+            </div>
+          </div>
+        )}
       </Section>
 
       <Section title="Choose a Color Palette" helpText="Rule 9: Smart Color Choice - Colors convey emotions and brand values">
