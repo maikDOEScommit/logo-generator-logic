@@ -4,11 +4,21 @@ import Link from 'next/link';
 export const Header = () => {
   return (
     <header className="absolute top-0 left-0 w-full p-4 z-10">
-      <div className="max-w-7xl mx-auto bg-white/5 backdrop-blur-md rounded-xl shadow-lg shadow-black/20 border border-white/10 px-6 py-3 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto bg-white/2 backdrop-blur-sm rounded-xl shadow-lg shadow-black/10 border border-white/5 px-6 py-3 flex justify-between items-center">
       <Link href="/" className="font-bold text-xl">
         Lola Gen 2.0
       </Link>
       <div className="flex items-center gap-4">
+        {/* Navigation Links */}
+        <div className="hidden md:flex items-center gap-4">
+          <Link href="/examples" className="text-sm font-medium hover:text-primary transition-colors">
+            Examples
+          </Link>
+          <Link href="/pricing" className="text-sm font-medium hover:text-primary transition-colors">
+            Pricing
+          </Link>
+        </div>
+        
         <SignedIn>
           <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">
             Meine Logos
