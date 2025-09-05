@@ -92,7 +92,7 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
                     fontFamily: font.cssName,
                     fontWeight: font.generationWeights[1] || font.generationWeights[0],
                     color: palette ? palette.colors[2] : '#FFFFFF',
-                    backgroundColor: palette ? palette.colors[1] : '#0A3D62'
+                    backgroundColor: '#000000'
                   }}
                 >
                   <div className="flex flex-col items-center">
