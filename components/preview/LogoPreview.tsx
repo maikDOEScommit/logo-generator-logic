@@ -315,25 +315,6 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
         </div>
       ))}
 
-      {/* Action buttons */}
-      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
-        <SignedIn>
-          <button onClick={handleSave} disabled={!text} className="w-full bg-white/10 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            <Save size={18} /> Save
-          </button>
-        </SignedIn>
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button className="w-full bg-white/10 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-white/20 transition-colors">
-              <Save size={18} /> Sign in to Save
-            </button>
-          </SignInButton>
-        </SignedOut>
-
-        <button onClick={handleDownload} disabled={!text} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
-          <Download size={18} /> Download SVG
-        </button>
-      </div>
     </div>
   );
 };

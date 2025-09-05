@@ -10,6 +10,7 @@ import { Undo2, Redo2 } from 'lucide-react';
 
 // Import newly created components
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { Typewriter } from '@/components/ui/Typewriter';
 import Step1_Industry from '@/components/editor/Step1_Industry';
 import Step2_Branding from '@/components/editor/Step2_Branding';
@@ -810,6 +811,7 @@ export default function LogoGeneratorPage() {
           )}
         </AnimatePresence>
       </main>
+      <Footer />
     </>
   );
 }
