@@ -149,52 +149,84 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
       {/* All remaining sections - Only shown after icon decision is made */}
       {wantsIcon !== null && (
         <>
-          <div data-section="typography" className="min-h-screen flex items-center justify-center py-20">
-            <div className="w-full max-w-2xl">
-              <Section title="Choose your Typography Style" helpText="Rule 3: Timelessness - Classic fonts outlast trends">
-                {fontCategories.map((category) => (
-                  <SelectionCard 
-                    key={category.name} 
-                    isSelected={selectedFontCategory === category.name} 
-                    onClick={() => setSelectedFontCategory(category.name)}
-                  >
-                    <div className="text-center p-4 h-full flex flex-col justify-center">
-                      <p className="text-base font-semibold mb-3 text-white">{category.name}</p>
-                      <div className="text-xs text-white/60 space-y-1 overflow-hidden">
-                        {category.fonts.map(font => (
-                          <div key={font.name} className="truncate" style={{ fontFamily: font.cssName }}>
-                            {font.name}
-                          </div>
-                        ))}
+          <div data-section="typography" className="h-screen flex items-center justify-center -mt-36">
+            <div className="w-full max-w-2xl text-center">
+              <motion.div
+                className="w-full"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+              >
+                <h2 className="text-xl font-bold mb-8 text-white">Choose your Typography Style</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+                  {fontCategories.map((category) => (
+                    <SelectionCard 
+                      key={category.name} 
+                      isSelected={selectedFontCategory === category.name} 
+                      onClick={() => {
+                        setSelectedFontCategory(category.name);
+                        // Auto-scroll to layout section after selection
+                        setTimeout(() => {
+                          const element = document.querySelector('[data-section="layout"]');
+                          if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }
+                        }, 100);
+                      }}
+                    >
+                      <div className="text-center p-4 h-full flex flex-col justify-center">
+                        <p className="text-base font-semibold mb-3 text-white">{category.name}</p>
+                        <div className="text-xs text-white/60 space-y-1 overflow-hidden">
+                          {category.fonts.map(font => (
+                            <div key={font.name} className="truncate" style={{ fontFamily: font.cssName }}>
+                              {font.name}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </SelectionCard>
-                ))}
-              </Section>
+                    </SelectionCard>
+                  ))}
+                </div>
+                <div className="text-xs text-white/60">Rule 3: Timelessness - Classic fonts outlast trends</div>
+              </motion.div>
             </div>
           </div>
 
-          <div className="min-h-screen flex items-center justify-center py-20">
-            <div className="w-full max-w-2xl">
-              <Section title="Choose a Layout" helpText="Rule 4: Scalability - Standard layouts work at any size">
-        {layouts.map(layout => (
-          <LayoutSelectionCard 
-            key={layout.id} 
-            layout={layout} 
-            isSelected={selectedLayoutType === layout.id} 
-            onClick={() => {
-              setSelectedLayoutType(layout.id);
-              if (layout.id !== 'circle-enclosed') {
-                // For non-circle layouts, set immediately
-                updateConfig({ layout });
-              }
-            }} 
-          />
-        ))}
-        
+          <div data-section="layout" className="h-screen flex items-center justify-center -mt-36">
+            <div className="w-full max-w-2xl text-center">
+              <motion.div
+                className="w-full"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+              >
+                <h2 className="text-xl font-bold mb-8 text-white">Choose a Layout</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+                  {layouts.map(layout => (
+                    <LayoutSelectionCard 
+                      key={layout.id} 
+                      layout={layout} 
+                      isSelected={selectedLayoutType === layout.id} 
+                      onClick={() => {
+                        setSelectedLayoutType(layout.id);
+                        if (layout.id !== 'circle-enclosed') {
+                          // For non-circle layouts, set immediately and scroll to color section
+                          updateConfig({ layout });
+                          setTimeout(() => {
+                            const element = document.querySelector('[data-section="color"]');
+                            if (element) {
+                              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                          }, 100);
+                        }
+                      }} 
+                    />
+                  ))}
+                </div>
+                
                 {/* Show enclosing shapes when circle layout is selected */}
                 {selectedLayoutType === 'circle-enclosed' && (
-                  <div className="col-span-full mt-6">
+                  <div className="mt-6 mb-6">
                     <h3 className="text-lg font-bold mb-3 text-white">Wähle die Form für die Umrandung:</h3>
                     <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
                       {enclosingShapes.map(shape => (
@@ -204,6 +236,13 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                           onClick={() => {
                             const circleLayout = layouts.find(l => l.id === 'circle-enclosed');
                             updateConfig({ enclosingShape: shape, layout: circleLayout });
+                            // Auto-scroll to color section after shape selection
+                            setTimeout(() => {
+                              const element = document.querySelector('[data-section="color"]');
+                              if (element) {
+                                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
                           }}
                         >
                           <div className="flex flex-col items-center gap-2 p-2">
@@ -215,11 +254,13 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                     </div>
                   </div>
                 )}
-              </Section>
+                
+                <div className="text-xs text-white/60">Rule 4: Scalability - Standard layouts work at any size</div>
+              </motion.div>
             </div>
           </div>
 
-          <div className="min-h-screen flex items-center justify-center py-20">
+          <div data-section="color" className="min-h-screen flex items-center justify-center py-20">
             <div className="w-full max-w-2xl">
               <Section title="Choose a Color Palette" helpText="Rule 9: Smart Color Choice - Colors convey emotions and brand values">
         {/* Brand Personality Selection */}

@@ -113,7 +113,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
             {logoConfig.icon && (
               <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" />
             )}
-            <div className={`flex flex-col ${logoConfig.slogan ? 'items-start text-left' : 'items-center text-center justify-center'}`}>
+            <div className="flex flex-col items-center text-center justify-center">
               <span className="whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
                 fontSize: dynamicFontSize,
                 fontFamily: font.cssName,
