@@ -7,17 +7,86 @@ import { fontCategories } from '@/lib/data';
 
 const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; selectedFontCategory: string | null }) => {
   // Use config from props instead of old store
-  const { text = 'Your Logo', slogan = '', icon, layout, palette } = config;
+  const { text = 'Your Logo', slogan = '', icon, layout, palette, enclosingShape } = config;
   
   // Debug logging
-  console.log('LogoPreview config:', { text, slogan, icon, layout, palette });
+  console.log('LogoPreview config:', { 
+    text, 
+    slogan, 
+    icon: icon ? icon.id : 'NO ICON', 
+    layout: layout ? layout.id : 'NO LAYOUT', 
+    palette: palette ? palette.name : 'NO PALETTE',
+    enclosingShape: enclosingShape ? enclosingShape.id : 'NO ENCLOSING_SHAPE'
+  });
   
   // Get all fonts from the selected category
   const selectedCategoryFonts = selectedFontCategory ? 
     fontCategories.find(cat => cat.name === selectedFontCategory)?.fonts || [] : [];
     
-  // If no fonts selected, use a default font
-  const fontsToDisplay = selectedCategoryFonts.length > 0 ? selectedCategoryFonts : fontCategories[0].fonts.slice(0, 2);
+  // If no fonts selected, use all fonts from the first category
+  const fontsToDisplay = selectedCategoryFonts.length > 0 ? selectedCategoryFonts : fontCategories[0].fonts;
+  
+  // Helper function to render logo content based on layout type
+  const renderLogoContent = (textColor: string, backgroundColor: string, font: any) => {
+    const isCircleLayout = layout?.id === 'circle-enclosed';
+    
+    if (isCircleLayout && enclosingShape) {
+      // For circle layouts: show enclosing shape as background with content inside
+      return (
+        <div className="relative flex items-center justify-center w-full h-full">
+          {/* Enclosing shape as background */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-20">
+            <enclosingShape.component 
+              size={120} 
+              color={textColor}
+              className="w-full h-full" 
+              style={{ fill: textColor }}
+            />
+          </div>
+          {/* Content in center */}
+          <div className="relative z-10 flex flex-col items-center">
+            {icon && (
+              <icon.component size={32} color={textColor} className="mb-2" />
+            )}
+            <div className="flex flex-col items-center text-center">
+              <span className="break-words max-w-full px-2" style={{ 
+                wordBreak: 'break-word', 
+                overflowWrap: 'break-word'
+              }}>
+                {text}
+              </span>
+              {slogan && (
+                <span className="text-base font-normal opacity-80 mt-1 break-words max-w-full px-2" style={{ 
+                  fontWeight: 300, 
+                  wordBreak: 'break-word', 
+                  overflowWrap: 'break-word'
+                }}>
+                  {slogan}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      // Standard layout: show icon at top, text below
+      return (
+        <div className="flex flex-col items-center">
+          {icon && (
+            <icon.component size={48} color={textColor} className="mb-2" />
+          )}
+          <div className="flex flex-col items-center text-center w-full max-w-full">
+            <span className="break-words max-w-full px-2" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>{text}</span>
+            {slogan && (
+              <span className="text-base font-normal opacity-80 mt-1 break-words max-w-full px-2" style={{ fontWeight: 300, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                {slogan}
+              </span>
+            )}
+          </div>
+        </div>
+      );
+    }
+  };
   
   const handleDownload = () => {
     const svgElement = document.getElementById(`logo-svg-generated-light`);
@@ -53,10 +122,10 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
             {/* Light Version */}
             <div>
               <h5 className="font-medium mb-2 text-primary text-sm">Light Version</h5>
-              <div className="bg-white/10 border border-white rounded-lg p-4">
+              <div className="bg-white/10 border border-white rounded-lg p-4 max-w-full overflow-hidden">
                 <div 
                   id={`logo-${font.name.replace(/\s+/g, '-')}-light-${fontIndex}`}
-                  className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4"
+                  className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
                   style={{ 
                     fontFamily: font.cssName,
                     fontWeight: font.generationWeights[0],
@@ -64,20 +133,11 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
                     backgroundColor: palette ? palette.colors[0] : '#FFFFFF'
                   }}
                 >
-                  <div className="flex flex-col items-center">
-                    {/* Always show icon at top if icon exists */}
-                    {icon && (
-                      <icon.component size={48} color={palette ? palette.colors[1] : '#0A3D62'} className="mb-2" />
-                    )}
-                    <div className="flex flex-col items-center text-center">
-                      <span>{text}</span>
-                      {slogan && (
-                        <span className="text-base font-normal opacity-80 mt-1" style={{ fontWeight: 300 }}>
-                          {slogan}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                  {renderLogoContent(
+                    palette ? palette.colors[1] : '#0A3D62',
+                    palette ? palette.colors[0] : '#FFFFFF',
+                    font
+                  )}
                 </div>
               </div>
             </div>
@@ -85,9 +145,9 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
             {/* Dark Version */}
             <div>
               <h5 className="font-medium mb-2 text-primary text-sm">Dark Version</h5>
-              <div className="bg-black border border-white/20 rounded-lg p-4">
+              <div className="bg-black border border-white/20 rounded-lg p-4 max-w-full overflow-hidden">
                 <div 
-                  className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4"
+                  className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
                   style={{ 
                     fontFamily: font.cssName,
                     fontWeight: font.generationWeights[1] || font.generationWeights[0],
@@ -95,20 +155,11 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
                     backgroundColor: '#000000'
                   }}
                 >
-                  <div className="flex flex-col items-center">
-                    {/* Always show icon at top if icon exists */}
-                    {icon && (
-                      <icon.component size={48} color={palette ? palette.colors[2] : '#FFFFFF'} className="mb-2" />
-                    )}
-                    <div className="flex flex-col items-center text-center">
-                      <span>{text}</span>
-                      {slogan && (
-                        <span className="text-base font-normal opacity-80 mt-1" style={{ fontWeight: 300 }}>
-                          {slogan}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                  {renderLogoContent(
+                    palette ? palette.colors[2] : '#FFFFFF',
+                    '#000000',
+                    font
+                  )}
                 </div>
               </div>
             </div>
@@ -116,9 +167,9 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
             {/* Accent Version */}
             <div>
               <h5 className="font-medium mb-2 text-primary text-sm">Accent Version</h5>
-              <div className="bg-white/10 border border-white rounded-lg p-4">
+              <div className="bg-white/10 border border-white rounded-lg p-4 max-w-full overflow-hidden">
                 <div 
-                  className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4"
+                  className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
                   style={{ 
                     fontFamily: font.cssName,
                     fontWeight: font.generationWeights[0],
@@ -126,20 +177,11 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
                     backgroundColor: palette ? palette.colors[2] : '#CEDEEB'
                   }}
                 >
-                  <div className="flex flex-col items-center">
-                    {/* Always show icon at top if icon exists */}
-                    {icon && (
-                      <icon.component size={48} color={palette ? palette.colors[0] : '#0A3D62'} className="mb-2" />
-                    )}
-                    <div className="flex flex-col items-center text-center">
-                      <span>{text}</span>
-                      {slogan && (
-                        <span className="text-base font-normal opacity-80 mt-1" style={{ fontWeight: 300 }}>
-                          {slogan}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                  {renderLogoContent(
+                    palette ? palette.colors[0] : '#0A3D62',
+                    palette ? palette.colors[2] : '#CEDEEB',
+                    font
+                  )}
                 </div>
               </div>
             </div>
@@ -147,9 +189,9 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
             {/* Secondary Version */}
             <div>
               <h5 className="font-medium mb-2 text-primary text-sm">Secondary Version</h5>
-              <div className="bg-white/10 border border-white rounded-lg p-4">
+              <div className="bg-white/10 border border-white rounded-lg p-4 max-w-full overflow-hidden">
                 <div 
-                  className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4"
+                  className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
                   style={{ 
                     fontFamily: font.cssName,
                     fontWeight: font.generationWeights[1] || font.generationWeights[0],
@@ -157,20 +199,11 @@ const LogoPreview = ({ config, selectedFontCategory }: { config: LogoConfig; sel
                     backgroundColor: palette ? palette.colors[0] : '#0A3D62'
                   }}
                 >
-                  <div className="flex flex-col items-center">
-                    {/* Always show icon at top if icon exists */}
-                    {icon && (
-                      <icon.component size={48} color={palette ? palette.colors[2] : '#FFFFFF'} className="mb-2" />
-                    )}
-                    <div className="flex flex-col items-center text-center">
-                      <span>{text}</span>
-                      {slogan && (
-                        <span className="text-base font-normal opacity-80 mt-1" style={{ fontWeight: 300 }}>
-                          {slogan}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                  {renderLogoContent(
+                    palette ? palette.colors[2] : '#FFFFFF',
+                    palette ? palette.colors[0] : '#0A3D62',
+                    font
+                  )}
                 </div>
               </div>
             </div>

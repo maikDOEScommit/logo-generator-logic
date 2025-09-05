@@ -55,6 +55,7 @@ export interface LogoConfig {
   palette: PaletteData | null;
   text: string;
   slogan: string;
+  enclosingShape: IconData | null; // Shape that encloses the entire logo (circle, shield, etc.)
 }
 
 export interface HistoryState {

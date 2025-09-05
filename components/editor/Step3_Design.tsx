@@ -34,11 +34,16 @@ interface Props {
 const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory, setSelectedFontCategory, selectedPersonalities, onTogglePersonality, onLogoCreate }: Props) => {
   const { suggestedIcons, suggestedPalettes } = suggestions;
   const [selectedLayoutType, setSelectedLayoutType] = useState<string | null>(null);
+  
+  // Filter out shape icons that are better suited as enclosing shapes
+  const shapeIds = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'pentagon', 'shield'];
+  const enclosingShapes = suggestedIcons.filter(icon => shapeIds.includes(icon.id));
+  const regularIcons = suggestedIcons.filter(icon => !shapeIds.includes(icon.id));
 
   return (
     <motion.div key="step3" className="space-y-12 animate-fade-in">
       <Section title="Choose a Symbol" helpText="Rule 2: Memorability - Simple symbols are remembered better">
-        {suggestedIcons.map(icon => (
+        {regularIcons.map(icon => (
           <SelectionCard key={icon.id} isSelected={config.icon?.id === icon.id} onClick={() => updateConfig({ icon })}>
             <icon.component className="w-12 h-12 mx-auto" color={config.palette ? config.palette.colors[1] : 'white'} />
           </SelectionCard>
@@ -82,24 +87,23 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           />
         ))}
         
-        {/* Show icons when circle layout is selected */}
+        {/* Show enclosing shapes when circle layout is selected */}
         {selectedLayoutType === 'circle-enclosed' && (
           <div className="col-span-full mt-6">
-            <h3 className="text-lg font-bold mb-3 text-primary">Wähle dein Icon für den Kreis:</h3>
+            <h3 className="text-lg font-bold mb-3 text-primary">Wähle die Form für die Umrandung:</h3>
             <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-              {suggestedIcons.map(icon => (
+              {enclosingShapes.map(shape => (
                 <SelectionCard 
-                  key={icon.id} 
-                  isSelected={config.icon?.id === icon.id && config.layout?.id === 'circle-enclosed'} 
+                  key={shape.id} 
+                  isSelected={config.enclosingShape?.id === shape.id} 
                   onClick={() => {
                     const circleLayout = layouts.find(l => l.id === 'circle-enclosed');
-                    updateConfig({ icon, layout: circleLayout });
+                    updateConfig({ enclosingShape: shape, layout: circleLayout });
                   }}
                 >
                   <div className="flex flex-col items-center gap-2 p-2">
-                    <div className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center">
-                      <icon.component size={16} color="white" />
-                    </div>
+                    <shape.component size={24} color="white" />
+                    <span className="text-xs text-center">{shape.id}</span>
                   </div>
                 </SelectionCard>
               ))}
@@ -170,7 +174,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             // Trigger text animation if callback provided
             if (onLogoCreate) onLogoCreate();
           }}
-          disabled={!config.icon || !config.layout || !config.palette}
+          disabled={!config.layout || !config.palette || (config.layout?.id === 'circle-enclosed' && !config.enclosingShape)}
           className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-4 rounded-lg text-xl font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
         >
           Create Logo

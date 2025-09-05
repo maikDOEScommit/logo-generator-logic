@@ -52,7 +52,8 @@ export default function LogoGeneratorPage() {
     font: null, 
     layout: null, 
     palette: null, 
-    slogan: '' 
+    slogan: '', 
+    enclosingShape: null 
   });
 
   const updateConfig = (newConfig: Partial<LogoConfig>) => {
@@ -113,32 +114,32 @@ export default function LogoGeneratorPage() {
         }, 800); // Wait only for hero exit animation
       } else {
         // On desktop: Full animation sequence
+        // Start horizontal border-top animation immediately with hero exit
+        setTimeout(() => {
+          setShowTopBorder(true);
+        }, 200); // Start early, almost with hero exit
+        
         setTimeout(() => {
           setShowPreviewPanel(true);
           
-          // Start horizontal border-top animation after panel slides in
+          // Start vertical border-left animation after horizontal border completes
           setTimeout(() => {
-            setShowTopBorder(true);
+            setShowLeftBorder(true);
             
-            // Start vertical border-left animation after horizontal border completes
+            // Scroll to next section after all border animations start
             setTimeout(() => {
-              setShowLeftBorder(true);
+              const nextSection = currentSection + 1;
+              if (!visibleSections.includes(nextSection)) {
+                setVisibleSections([...visibleSections, nextSection]);
+              }
+              scrollToSection(`section-${nextSection}`);
               
-              // Scroll to next section after all border animations start
+              // Show the "Let's get started" text after scrolling + vertical border completes
               setTimeout(() => {
-                const nextSection = currentSection + 1;
-                if (!visibleSections.includes(nextSection)) {
-                  setVisibleSections([...visibleSections, nextSection]);
-                }
-                scrollToSection(`section-${nextSection}`);
-                
-                // Show the "Let's get started" text after scrolling + vertical border completes
-                setTimeout(() => {
-                  setShowStartedText(true);
-                }, 1400); // Wait for scroll (500ms) + vertical border animation (900ms)
-              }, 100); // Small delay after starting vertical border
-            }, 900); // Wait for horizontal border to complete (900ms duration)
-          }, 800); // Wait for panel slide-in
+                setShowStartedText(true);
+              }, 1400); // Wait for scroll (500ms) + vertical border animation (900ms)
+            }, 100); // Small delay after starting vertical border
+          }, 700); // Reduced wait time since border-top starts earlier
         }, 800); // Wait for hero exit animation
       }
     } else if (currentSection === 1) {
