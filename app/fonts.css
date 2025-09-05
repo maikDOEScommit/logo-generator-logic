@@ -1,0 +1,262 @@
+/*
+================================================================
+ FONT FACE DEFINITIONS (FINALE VERSION - Pfade korrigiert)
+================================================================
+*/
+
+/* ---------------------------------
+1. MODERN FONTS
+--------------------------------- 
+*/
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("/assets/fonts/modern/Montserrat/montserrat-variablefont_wght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/modern/Montserrat/montserrat-variablefont_wght.woff")
+      format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Nunito";
+  src: url("/assets/fonts/modern/Nunito/nunito-variablefont_wght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/modern/Nunito/nunito-variablefont_wght.woff")
+      format("woff-variations");
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Open Sans";
+  src: url("/assets/fonts/modern/Open_Sans/opensans-variablefont_wdthwght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/modern/Open_Sans/opensans-variablefont_wdthwght.woff")
+      format("woff-variations");
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/assets/fonts/modern/Plus_Jakarta_Sans/plusjakartasans-variablefont_wght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/modern/Plus_Jakarta_Sans/plusjakartasans-variablefont_wght.woff")
+      format("woff-variations");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Raleway";
+  src: url("/assets/fonts/modern/Raleway/raleway-variablefont_wght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/modern/Raleway/raleway-variablefont_wght.woff")
+      format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rubik";
+  src: url("/assets/fonts/modern/Rubik/rubik-variablefont_wght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/modern/Rubik/rubik-variablefont_wght.woff")
+      format("woff-variations");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------------------------------
+2. ELEGANT FONTS
+--------------------------------- 
+*/
+
+@font-face {
+  font-family: "Alex Brush";
+  src: url("/assets/fonts/elegant/Alex_Brush/alexbrush-regular.woff2")
+      format("woff2"),
+    url("/assets/fonts/elegant/Alex_Brush/alexbrush-regular.woff")
+      format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Dancing Script";
+  src: url("/assets/fonts/elegant/Dancing_Script/dancingscript-variablefont_wght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/elegant/Dancing_Script/dancingscript-variablefont_wght.woff")
+      format("woff-variations");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Great Vibes";
+  src: url("/assets/fonts/elegant/Great_Vibes/greatvibes-regular.woff2")
+      format("woff2"),
+    url("/assets/fonts/elegant/Great_Vibes/greatvibes-regular.woff")
+      format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Kaushan Script";
+  src: url("/assets/fonts/elegant/Kaushan_Script/kaushanscript-regular.woff2")
+      format("woff2"),
+    url("/assets/fonts/elegant/Kaushan_Script/kaushanscript-regular.woff")
+      format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Sacramento";
+  src: url("/assets/fonts/elegant/Sacramento/sacramento-regular.woff2")
+      format("woff2"),
+    url("/assets/fonts/elegant/Sacramento/sacramento-regular.woff")
+      format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satisfy";
+  src: url("/assets/fonts/elegant/Satisfy/satisfy-regular.woff2")
+      format("woff2"),
+    url("/assets/fonts/elegant/Satisfy/satisfy-regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------------------------------
+3. BOLD FONTS
+--------------------------------- 
+*/
+
+@font-face {
+  font-family: "Anton";
+  src: url("/assets/fonts/bold/Anton/anton-regular.woff2") format("woff2"),
+    url("/assets/fonts/bold/Anton/anton-regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo Black";
+  src: url("/assets/fonts/bold/Archivo_Black/archivoblack-regular.woff2")
+      format("woff2"),
+    url("/assets/fonts/bold/Archivo_Black/archivoblack-regular.woff")
+      format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bebas Neue";
+  src: url("/assets/fonts/bold/Bebas_Neue/bebasneue-regular.woff2")
+      format("woff2"),
+    url("/assets/fonts/bold/Bebas_Neue/bebasneue-regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bungee";
+  src: url("/assets/fonts/bold/Bungee/bungee-regular.woff2") format("woff2"),
+    url("/assets/fonts/bold/Bungee/bungee-regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fjalla One";
+  src: url("/assets/fonts/bold/Fjalla_One/fjallaone-regular.woff2")
+      format("woff2"),
+    url("/assets/fonts/bold/Fjalla_One/fjallaone-regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Oswald";
+  src: url("/assets/fonts/bold/Oswald/oswald-variablefont_wght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/bold/Oswald/oswald-variablefont_wght.woff")
+      format("woff-variations");
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------------------------------
+4. HERITAGE FONTS
+--------------------------------- 
+*/
+
+@font-face {
+  font-family: "Abril Fatface";
+  src: url("/assets/fonts/heritage/Abril_Fatface/abrilfatface-regular.woff2")
+      format("woff2"),
+    url("/assets/fonts/heritage/Abril_Fatface/abrilfatface-regular.woff")
+      format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alfa Slab One";
+  src: url("/assets/fonts/heritage/Alfa_Slab_One/alfaslabone-regular.woff2")
+      format("woff2"),
+    url("/assets/fonts/heritage/Alfa_Slab_One/alfaslabone-regular.woff")
+      format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Cinzel";
+  src: url("/assets/fonts/heritage/Cinzel/cinzel-variablefont_wght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/heritage/Cinzel/cinzel-variablefont_wght.woff")
+      format("woff-variations");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Merriweather";
+  src: url("/assets/fonts/heritage/Merriweather/merriweather-variablefont_opszwdthwght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/heritage/Merriweather/merriweather-variablefont_opszwdthwght.woff")
+      format("woff-variations");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Petrona";
+  src: url("/assets/fonts/heritage/Petrona/petrona-variablefont_wght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/heritage/Petrona/petrona-variablefont_wght.woff")
+      format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Playfair Display";
+  src: url("/assets/fonts/heritage/Playfair_Display/playfairdisplay-variablefont_wght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/heritage/Playfair_Display/playfairdisplay-variablefont_wght.woff")
+      format("woff-variations");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}

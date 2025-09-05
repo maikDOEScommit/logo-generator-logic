@@ -1,7 +1,7 @@
+import './fonts.css';
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { deDE } from "@clerk/localizations";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider localization={deDE}>
+    <ClerkProvider>
       <html lang="de">
         <body className={`${inter.className} bg-gray-900 text-white`}>{children}</body>
       </html>
