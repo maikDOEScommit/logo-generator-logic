@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
-import { Edit, Save, ShoppingCart } from 'lucide-react';
+import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap } from 'lucide-react';
+import { fontCategories } from '@/lib/data';
 
 interface LogoEditorProps {
   config: LogoConfig;
@@ -11,6 +12,123 @@ interface LogoEditorProps {
 
 const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes }: LogoEditorProps) => {
   const [showFullscreenEditor, setShowFullscreenEditor] = useState(false);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+
+  // Helper function to calculate dynamic font size based on text length
+  const getDynamicFontSize = (textLength: number, isCircleLayout: boolean = false) => {
+    const baseSize = isCircleLayout ? 1.5 : 2.25; // rem units
+    if (textLength <= 8) return `${baseSize}rem`;
+    if (textLength <= 12) return `${baseSize * 0.85}rem`;
+    if (textLength <= 16) return `${baseSize * 0.7}rem`;
+    if (textLength <= 20) return `${baseSize * 0.6}rem`;
+    return `${baseSize * 0.5}rem`;
+  };
+
+  // Helper function to render logo content based on layout type
+  const renderLogoContent = (textColor: string, backgroundColor: string, font: any, logoConfig: LogoConfig) => {
+    const isCircleLayout = logoConfig.layout?.id === 'circle-enclosed';
+    const dynamicFontSize = getDynamicFontSize(logoConfig.text.length, isCircleLayout);
+    
+    if (isCircleLayout && logoConfig.enclosingShape) {
+      // For circle layouts: show enclosing shape as background with content inside
+      return (
+        <div className="relative flex items-center justify-center w-full h-full">
+          {/* Enclosing shape as background */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-20">
+            <logoConfig.enclosingShape.component 
+              size={120} 
+              color={textColor}
+              className="w-full h-full" 
+              style={{ fill: textColor }}
+            />
+          </div>
+          {/* Content in center */}
+          <div className="relative z-10 flex flex-col items-center">
+            {logoConfig.icon && (
+              <logoConfig.icon.component size={32} color={textColor} className="mb-2" />
+            )}
+            <div className="flex flex-col items-center text-center max-w-full px-4">
+              <span className="whitespace-nowrap overflow-hidden text-ellipsis max-w-full font-bold" style={{ 
+                fontSize: dynamicFontSize,
+                fontFamily: font.cssName,
+                fontWeight: font.generationWeights?.[0] || 700,
+                color: textColor
+              }}>
+                {logoConfig.text || 'Your Logo'}
+              </span>
+              {logoConfig.slogan && (
+                <span className="text-sm font-normal opacity-80 mt-1 max-w-full truncate" style={{ 
+                  fontWeight: 300,
+                  color: textColor
+                }}>
+                  {logoConfig.slogan}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      // Standard layout: check arrangement type
+      const isHorizontalLayout = logoConfig.layout?.arrangement === 'icon-left';
+      
+      if (isHorizontalLayout) {
+        // Horizontal layout: icon left, text right
+        return (
+          <div className="flex items-center justify-center gap-4">
+            {logoConfig.icon && (
+              <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" />
+            )}
+            <div className="flex flex-col items-center text-center justify-center">
+              <span className="whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
+                fontSize: dynamicFontSize,
+                fontFamily: font.cssName,
+                fontWeight: font.generationWeights?.[0] || 700,
+                color: textColor
+              }}>
+                {logoConfig.text || 'Your Logo'}
+              </span>
+              {logoConfig.slogan && (
+                <span className="text-base font-normal opacity-80 mt-1 truncate" style={{ 
+                  fontWeight: 300,
+                  color: textColor
+                }}>
+                  {logoConfig.slogan}
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      } else {
+        // Vertical layout: icon top, text below
+        return (
+          <div className="flex flex-col items-center">
+            {logoConfig.icon && (
+              <logoConfig.icon.component size={48} color={textColor} className="mb-2" />
+            )}
+            <div className="flex flex-col items-center text-center w-full max-w-full px-4">
+              <span className="whitespace-nowrap overflow-hidden text-ellipsis max-w-full font-bold" style={{ 
+                fontSize: dynamicFontSize,
+                fontFamily: font.cssName,
+                fontWeight: font.generationWeights?.[0] || 700,
+                color: textColor
+              }}>
+                {logoConfig.text || 'Your Logo'}
+              </span>
+              {logoConfig.slogan && (
+                <span className="text-base font-normal opacity-80 mt-1 max-w-full truncate" style={{ 
+                  fontWeight: 300,
+                  color: textColor
+                }}>
+                  {logoConfig.slogan}
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      }
+    }
+  };
 
   const handleEdit = () => {
     setShowFullscreenEditor(true);
@@ -22,8 +140,14 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
   };
 
   const handlePurchase = () => {
-    // TODO: Implement purchase functionality
-    console.log('Purchasing logo...', config);
+    setShowPurchaseModal(true);
+  };
+
+  const handlePurchaseOption = (option: string) => {
+    // TODO: Implement actual purchase flow
+    console.log('Selected purchase option:', option, 'for logo:', config);
+    setShowPurchaseModal(false);
+    // In real implementation, this would redirect to payment processor
   };
 
   return (
@@ -59,13 +183,12 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
             {/* Logo Preview Side */}
             <div className="flex-1 p-8 flex items-center justify-center border-r border-white/20">
               <div className="bg-white rounded-lg p-12 max-w-md w-full aspect-square flex items-center justify-center">
-                {/* TODO: Render large logo preview here */}
-                <div className="text-center">
-                  <h2 className="text-2xl font-bold text-black">{config.text || 'Your Logo'}</h2>
-                  {config.slogan && (
-                    <p className="text-gray-600 mt-2">{config.slogan}</p>
-                  )}
-                </div>
+                {renderLogoContent(
+                  config.palette?.colors[1] || '#000000',
+                  config.palette?.colors[0] || '#FFFFFF',
+                  fontCategories[0].fonts[0], // Default font
+                  config
+                )}
               </div>
             </div>
 
@@ -138,23 +261,104 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                 {/* Colors Section */}
                 <div>
                   <h4 className="text-white font-semibold mb-3">Colors</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    {availablePalettes.slice(0, 12).map(palette => (
-                      <button
-                        key={palette.id}
-                        onClick={() => onConfigUpdate({ palette })}
-                        className={`p-2 rounded border transition-colors ${
-                          config.palette?.id === palette.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
-                        }`}
-                      >
-                        <div className="flex gap-1 h-4 mb-1">
-                          {palette.colors.map((color, i) => (
-                            <div key={i} className="flex-1 rounded-sm" style={{ backgroundColor: color }}></div>
-                          ))}
-                        </div>
-                        <span className="text-white/80 text-xs truncate block">{palette.name}</span>
-                      </button>
-                    ))}
+                  
+                  {/* Color Palettes */}
+                  <div className="mb-4">
+                    <h5 className="text-white/80 text-sm mb-2">Predefined Palettes</h5>
+                    <div className="grid grid-cols-3 gap-2">
+                      {availablePalettes.slice(0, 12).map(palette => (
+                        <button
+                          key={palette.id}
+                          onClick={() => onConfigUpdate({ palette })}
+                          className={`p-2 rounded border transition-colors ${
+                            config.palette?.id === palette.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+                          }`}
+                        >
+                          <div className="flex gap-1 h-4 mb-1">
+                            {palette.colors.map((color, i) => (
+                              <div key={i} className="flex-1 rounded-sm" style={{ backgroundColor: color }}></div>
+                            ))}
+                          </div>
+                          <span className="text-white/80 text-xs truncate block">{palette.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Color Picker */}
+                  <div>
+                    <h5 className="text-white/80 text-sm mb-2">Custom Base Color</h5>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={config.customColor || '#3B82F6'}
+                          onChange={(e) => {
+                            const baseColor = e.target.value;
+                            const customPalette = {
+                              id: 'custom',
+                              name: 'Custom Color',
+                              colors: [baseColor, '#FFFFFF', '#000000', baseColor] as [string, string, string, string]
+                            };
+                            onConfigUpdate({ 
+                              palette: customPalette,
+                              customColor: baseColor 
+                            });
+                          }}
+                          className="w-12 h-10 rounded border border-white/20 bg-transparent cursor-pointer"
+                        />
+                        <span className="text-white/60 text-sm">Pick any color</span>
+                      </div>
+                      
+                      {/* Black/White Options */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            const blackPalette = {
+                              id: 'custom-black',
+                              name: 'Black & White',
+                              colors: ['#000000', '#FFFFFF', '#808080', '#F5F5F5'] as [string, string, string, string]
+                            };
+                            onConfigUpdate({ 
+                              palette: blackPalette,
+                              customColor: '#000000'
+                            });
+                          }}
+                          className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${
+                            config.palette?.id === 'custom-black' ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+                          }`}
+                        >
+                          <div className="flex gap-1">
+                            <div className="w-4 h-4 bg-black rounded-sm border border-white/20"></div>
+                            <div className="w-4 h-4 bg-white rounded-sm border border-white/20"></div>
+                          </div>
+                          <span className="text-white/80 text-xs">Black & White</span>
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            const whitePalette = {
+                              id: 'custom-white',
+                              name: 'White & Black',
+                              colors: ['#FFFFFF', '#000000', '#808080', '#F5F5F5'] as [string, string, string, string]
+                            };
+                            onConfigUpdate({ 
+                              palette: whitePalette,
+                              customColor: '#FFFFFF'
+                            });
+                          }}
+                          className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${
+                            config.palette?.id === 'custom-white' ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+                          }`}
+                        >
+                          <div className="flex gap-1">
+                            <div className="w-4 h-4 bg-white rounded-sm border border-white/20"></div>
+                            <div className="w-4 h-4 bg-black rounded-sm border border-white/20"></div>
+                          </div>
+                          <span className="text-white/80 text-xs">White & Black</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -173,6 +377,190 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                 >
                   Purchase
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Purchase Modal */}
+      {showPurchaseModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-gray-900 rounded-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto border border-white/20">
+            {/* Header */}
+            <div className="p-4 sm:p-6 border-b border-white/20">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-white">Choose Your Package</h2>
+                  <p className="text-white/70 mt-1">Get your logo in the format you need</p>
+                </div>
+                <button
+                  onClick={() => setShowPurchaseModal(false)}
+                  className="text-white/60 hover:text-white text-xl font-bold w-8 h-8 flex items-center justify-center"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Pricing Cards */}
+            <div className="p-4 sm:p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+                
+                {/* Basic Package */}
+                <div className="border-2 border-white/20 rounded-lg p-4 sm:p-6 hover:border-blue-400 transition-colors bg-white/5">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                      <Download className="text-blue-400" size={24} />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Basic</h3>
+                    <div className="text-3xl font-bold text-white mb-1">$29</div>
+                    <p className="text-white/70 text-sm mb-6">Perfect for getting started</p>
+                    
+                    <ul className="text-left space-y-3 mb-6">
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        High-resolution PNG (3000x3000px)
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Transparent background version
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        RGB color format
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Personal use license
+                      </li>
+                    </ul>
+                    
+                    <button
+                      onClick={() => handlePurchaseOption('basic')}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105"
+                    >
+                      Get Basic
+                    </button>
+                  </div>
+                </div>
+
+                {/* Professional Package - Most Popular */}
+                <div className="border-2 border-blue-500 rounded-lg p-4 sm:p-6 relative bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-1 rounded-full text-xs font-medium">Most Popular</span>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                      <Zap className="text-white" size={24} />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Professional</h3>
+                    <div className="text-3xl font-bold text-white mb-1">$59</div>
+                    <p className="text-white/70 text-sm mb-6">Everything you need for business</p>
+                    
+                    <ul className="text-left space-y-3 mb-6">
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Everything in Basic
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Vector SVG file (infinitely scalable)
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        CMYK version for printing
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Black & white version
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Commercial use license
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Social media kit (Facebook, Instagram, etc.)
+                      </li>
+                    </ul>
+                    
+                    <button
+                      onClick={() => handlePurchaseOption('professional')}
+                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105"
+                    >
+                      Get Professional
+                    </button>
+                  </div>
+                </div>
+
+                {/* Premium Package */}
+                <div className="border-2 border-white/20 rounded-lg p-4 sm:p-6 hover:border-purple-400 transition-colors bg-white/5">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-purple-600/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                      <Crown className="text-purple-400" size={24} />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Premium</h3>
+                    <div className="text-3xl font-bold text-white mb-1">$99</div>
+                    <p className="text-white/70 text-sm mb-6">Complete branding solution</p>
+                    
+                    <ul className="text-left space-y-3 mb-6">
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Everything in Professional
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Adobe Illustrator AI file
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Brand guidelines PDF
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Business card templates
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Letterhead template
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Favicon for website
+                      </li>
+                      <li className="flex items-center text-sm text-white/80">
+                        <Check className="text-green-400 mr-2 flex-shrink-0" size={16} />
+                        Extended commercial license
+                      </li>
+                    </ul>
+                    
+                    <button
+                      onClick={() => handlePurchaseOption('premium')}
+                      className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105"
+                    >
+                      Get Premium
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Trust Indicators */}
+              <div className="mt-6 pt-4 border-t border-white/20">
+                <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 text-sm text-white/70">
+                  <div className="flex items-center">
+                    <Check className="text-green-400 mr-2" size={16} />
+                    Instant download
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="text-green-400 mr-2" size={16} />
+                    Money-back guarantee
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="text-green-400 mr-2" size={16} />
+                    Secure payment
+                  </div>
+                </div>
               </div>
             </div>
           </div>

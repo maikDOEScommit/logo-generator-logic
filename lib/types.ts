@@ -56,6 +56,7 @@ export interface LogoConfig {
   text: string;
   slogan: string;
   enclosingShape: IconData | null; // Shape that encloses the entire logo (circle, shield, etc.)
+  customColor?: string;
 }
 
 export interface HistoryState {
