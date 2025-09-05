@@ -337,7 +337,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                             const customPalette = {
                               id: 'custom',
                               name: 'Custom Color',
-                              colors: [baseColor, '#FFFFFF', '#000000', baseColor] as [string, string, string, string],
+                              colors: ['#FFFFFF', baseColor, '#000000'] as [string, string, string],
                               tags: ['custom', 'personalized']
                             };
                             onConfigUpdate({ 
@@ -357,7 +357,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                             const blackPalette = {
                               id: 'custom-black',
                               name: 'Black & White',
-                              colors: ['#000000', '#FFFFFF', '#808080', '#F5F5F5'] as [string, string, string, string],
+                              colors: ['#FFFFFF', '#000000', '#808080'] as [string, string, string],
                               tags: ['monochrome', 'classic']
                             };
                             onConfigUpdate({ 
@@ -381,7 +381,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                             const whitePalette = {
                               id: 'custom-white',
                               name: 'White & Black',
-                              colors: ['#FFFFFF', '#000000', '#808080', '#F5F5F5'] as [string, string, string, string],
+                              colors: ['#000000', '#FFFFFF', '#808080'] as [string, string, string],
                               tags: ['monochrome', 'clean']
                             };
                             onConfigUpdate({ 

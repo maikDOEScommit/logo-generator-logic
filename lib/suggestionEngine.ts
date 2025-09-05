@@ -287,17 +287,17 @@ export function getInitialSuggestions(industry: string, keywords: string[]): Sug
     });
   });
 
-  // FIXED SET OF 16 ENCLOSING SHAPES - SINGLE SOURCE OF TRUTH
-  const fixed16EnclosingShapeIds = [
+  // FIXED SET OF 17 ENCLOSING SHAPES - SINGLE SOURCE OF TRUTH
+  const fixed17EnclosingShapeIds = [
     'circle', 'square', 'triangle', 'diamond', 'hexagon', 'pentagon', 
     'star', 'heart', 'shield', 'sun', 'moon', 'zap', 'leaf', 'flame', 
-    'droplets', 'check-circle'
+    'droplets', 'check-circle', 'lightbulb'
   ];
   
   const suggestedEnclosingShapes = availableIcons.filter(icon => 
-    fixed16EnclosingShapeIds.includes(icon.id)
+    fixed17EnclosingShapeIds.includes(icon.id)
   ).sort((a, b) => 
-    fixed16EnclosingShapeIds.indexOf(a.id) - fixed16EnclosingShapeIds.indexOf(b.id)
+    fixed17EnclosingShapeIds.indexOf(a.id) - fixed17EnclosingShapeIds.indexOf(b.id)
   );
 
   return {

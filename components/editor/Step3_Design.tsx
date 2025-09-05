@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LogoConfig, IconData, FontData, LayoutData, PaletteData } from '@/lib/types';
 import Section from '@/components/ui/Section';
 import SelectionCard from '@/components/ui/SelectionCard';
@@ -45,6 +45,14 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const [selectedLayoutType, setSelectedLayoutType] = useState<string | null>(null);
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
   const [neonMode, setNeonMode] = useState<boolean>(false);
+  const [selectedColorCombo, setSelectedColorCombo] = useState<string | null>(null);
+  
+  // Reset color combination selection when palette changes to a base color
+  useEffect(() => {
+    if (config.palette && (config.palette.tags?.includes('intense') || config.palette.tags?.includes('neon')) && !config.palette.tags?.includes('combo')) {
+      setSelectedColorCombo(null);
+    }
+  }, [config.palette?.id]);
   
   // Use enclosing shapes directly from suggestionEngine (Single Source of Truth)
   // These are already the fixed 16 enclosing shapes defined in suggestionEngine.ts
@@ -364,6 +372,87 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
               />
             ))}
           </div>
+          
+          {/* Color Combination Options - Only show when a single color is selected from the base colors */}
+          {config.palette && (config.palette.tags?.includes('intense') || config.palette.tags?.includes('neon')) && (
+            <div className="mt-4 p-4 bg-white/5 rounded-lg border border-white/10">
+              <h4 className="text-sm font-bold text-white mb-3">Farbkombination wählen:</h4>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => {
+                    const baseColor = config.palette!.colors[0];
+                    const basePalette = suggestedPalettes.find(p => p.colors[0] === baseColor && (p.tags?.includes('intense') || p.tags?.includes('neon')));
+                    if (basePalette) {
+                      setSelectedColorCombo('white');
+                      updateConfig({ 
+                        palette: {
+                          id: `${basePalette.id}-white`,
+                          colors: [baseColor, '#FFFFFF', '#000000'] as [string, string, string],
+                          name: `${basePalette.name.replace('Intensiv ', '').replace('Neon ', '')} + Weiß`,
+                          tags: [...(basePalette.tags || []), 'combo']
+                        }
+                      });
+                    }
+                  }}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
+                    selectedColorCombo === 'white' 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
+                      : 'bg-white/10 hover:bg-white/20 text-white'
+                  }`}
+                >
+                  + Weiß
+                </button>
+                <button
+                  onClick={() => {
+                    const baseColor = config.palette!.colors[0];
+                    const basePalette = suggestedPalettes.find(p => p.colors[0] === baseColor && (p.tags?.includes('intense') || p.tags?.includes('neon')));
+                    if (basePalette) {
+                      setSelectedColorCombo('black');
+                      updateConfig({ 
+                        palette: {
+                          id: `${basePalette.id}-black`,
+                          colors: [baseColor, '#000000', '#FFFFFF'] as [string, string, string],
+                          name: `${basePalette.name.replace('Intensiv ', '').replace('Neon ', '')} + Schwarz`,
+                          tags: [...(basePalette.tags || []), 'combo']
+                        }
+                      });
+                    }
+                  }}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
+                    selectedColorCombo === 'black' 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
+                      : 'bg-white/10 hover:bg-white/20 text-white'
+                  }`}
+                >
+                  + Schwarz
+                </button>
+                <button
+                  onClick={() => {
+                    const baseColor = config.palette!.colors[0];
+                    const basePalette = suggestedPalettes.find(p => p.colors[0] === baseColor && (p.tags?.includes('intense') || p.tags?.includes('neon')));
+                    if (basePalette) {
+                      setSelectedColorCombo('both');
+                      updateConfig({ 
+                        palette: {
+                          id: `${basePalette.id}-both`,
+                          colors: [baseColor, '#000000', '#FFFFFF'] as [string, string, string],
+                          name: `${basePalette.name.replace('Intensiv ', '').replace('Neon ', '')} + Schwarz & Weiß`,
+                          tags: [...(basePalette.tags || []), 'combo']
+                        }
+                      });
+                    }
+                  }}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
+                    selectedColorCombo === 'both' 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
+                      : 'bg-white/10 hover:bg-white/20 text-white'
+                  }`}
+                >
+                  + Schwarz & Weiß
+                </button>
+              </div>
+            </div>
+          )}
                 </div>
               </Section>
             </div>

@@ -15,15 +15,15 @@ const fixed24RegularIconIds = [
 
 **ORDER MATTERS** - Icons are displayed in this exact order.
 
-## 16 FIXED ENCLOSING SHAPES (For Circle Layouts)
+## 17 FIXED ENCLOSING SHAPES (For Circle Layouts)
 
-These are the **EXACT 16 shapes** for circle layout enclosures:
+These are the **EXACT 17 shapes** for circle layout enclosures:
 
 ```typescript
-const fixed16EnclosingShapeIds = [
+const fixed17EnclosingShapeIds = [
   'circle', 'square', 'triangle', 'diamond', 'hexagon', 'pentagon', 
   'star', 'heart', 'shield', 'sun', 'moon', 'zap', 'leaf', 'flame', 
-  'droplets', 'check-circle'
+  'droplets', 'check-circle', 'lightbulb'
 ];
 ```
 
@@ -43,7 +43,7 @@ const fixed16EnclosingShapeIds = [
 2. **ALWAYS use the suggestionEngine as Single Source of Truth**  
 3. **NO filtering in components** - use icons as-provided
 4. **Icons must appear in the specified order**
-5. **Count must always be exactly 24 regular + 16 enclosing**
+5. **Count must always be exactly 24 regular + 17 enclosing**
 
 ## WHY THIS MATTERS
 
