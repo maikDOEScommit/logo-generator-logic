@@ -37,7 +37,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
   
   // Filter out shape icons that are better suited as enclosing shapes
-  const shapeIds = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'pentagon', 'shield'];
+  const shapeIds = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'pentagon', 'shield', 'star', 'heart', 'plus', 'minus', 'sun', 'moon', 'zap', 'x', 'check-circle'];
   const enclosingShapes = suggestedIcons.filter(icon => shapeIds.includes(icon.id));
   const regularIcons = suggestedIcons.filter(icon => !shapeIds.includes(icon.id));
 
