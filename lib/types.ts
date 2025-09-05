@@ -3,7 +3,7 @@ import { FC } from 'react';
 // === KERN-TYPEN FÜR DIE DATEN-ENGINE ===
 
 export interface IconProps {
-  size?: number;
+  size?: number | string;
   color?: string;
   className?: string;
   [key: string]: any;
@@ -28,7 +28,7 @@ export interface LayoutData {
   name: string;
   type: 'standard' | 'enclosed';
   shape?: 'circle' | 'shield';
-  arrangement: 'icon-top' | 'icon-left';
+  arrangement: 'icon-top' | 'icon-left' | 'text-left';
 }
 
 export interface PaletteData {

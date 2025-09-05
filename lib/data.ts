@@ -92,7 +92,13 @@ export const industries = {
   'health': { tags: ['health', 'wellness'], name: 'Health & Wellness' },
   'sports': { tags: ['sports'], name: 'Sports & Fitness' },
   'design': { tags: ['design'], name: 'Design & Creative' },
-  'food': { tags: ['food'], name: 'Food & Gastronomy' }
+  'food': { tags: ['food'], name: 'Food & Gastronomy' },
+  'education': { tags: ['education', 'learning'], name: 'Education & Learning' },
+  'retail': { tags: ['retail', 'commerce'], name: 'Retail & Commerce' },
+  'construction': { tags: ['construction', 'building'], name: 'Construction & Real Estate' },
+  'automotive': { tags: ['automotive', 'transport'], name: 'Automotive & Transport' },
+  'consulting': { tags: ['consulting', 'business'], name: 'Consulting & Services' },
+  'entertainment': { tags: ['entertainment', 'media'], name: 'Entertainment & Media' }
 };
 
 export const personalities = [
@@ -104,7 +110,7 @@ export const personalities = [
 ];
 
 export const layouts: LayoutData[] = [
-  { id: 'text-only', name: 'Nur Text', type: 'standard', arrangement: 'icon-top' },
+  { id: 'text-icon-horizontal', name: 'Text + Icon (horizontal)', type: 'standard', arrangement: 'text-left' },
   { id: 'icon-text-horizontal', name: 'Icon + Text (horizontal)', type: 'standard', arrangement: 'icon-left' },
   { id: 'icon-text-vertical', name: 'Icon + Text (vertikal)', type: 'standard', arrangement: 'icon-top' },
   { id: 'circle-enclosed', name: 'Kreis', type: 'enclosed', shape: 'circle', arrangement: 'icon-top' },

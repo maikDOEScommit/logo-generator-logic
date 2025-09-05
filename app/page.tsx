@@ -593,13 +593,6 @@ export default function LogoGeneratorPage() {
           >
             <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'}`}>Preview</button>
             <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
-            <button 
-              onClick={handleFullscreenExpansion}
-              disabled={!(isLogoConfigComplete && showLogoPreview)} 
-              className="ml-auto px-4 py-2 font-bold bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
-            >
-              Fullsize
-            </button>
           </motion.div>
 
           <div className="flex-grow overflow-y-auto overflow-x-visible pb-20">

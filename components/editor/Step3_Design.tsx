@@ -10,7 +10,15 @@ const LayoutSelectionCard = ({ layout, isSelected, onClick }: { layout: LayoutDa
   <SelectionCard isSelected={isSelected} onClick={onClick}>
     <div className="flex flex-col items-center justify-center gap-2 text-xs">
       {layout.shape === 'circle' && <Circle size={24}/>}
-      {!layout.shape && (layout.arrangement === 'icon-top' ? <div className="space-y-1"><div className="w-4 h-4 bg-white/50 rounded-sm mx-auto"></div><div className="w-8 h-2 bg-white/50 rounded-sm"></div></div> : <div className="flex gap-1 items-center"><div className="w-4 h-4 bg-white/50 rounded-sm"></div><div className="w-8 h-2 bg-white/50 rounded-sm"></div></div>)}
+      {!layout.shape && (
+        layout.arrangement === 'icon-top' ? 
+          <div className="space-y-1"><div className="w-4 h-4 bg-white/50 rounded-sm mx-auto"></div><div className="w-8 h-2 bg-white/50 rounded-sm"></div></div> : 
+        layout.arrangement === 'icon-left' ?
+          <div className="flex gap-1 items-center"><div className="w-4 h-4 bg-white/50 rounded-sm"></div><div className="w-8 h-2 bg-white/50 rounded-sm"></div></div> :
+        layout.arrangement === 'text-left' ?
+          <div className="flex gap-1 items-center"><div className="w-8 h-2 bg-white/50 rounded-sm"></div><div className="w-4 h-4 bg-white/50 rounded-sm"></div></div> :
+          <div className="flex gap-1 items-center"><div className="w-4 h-4 bg-white/50 rounded-sm"></div><div className="w-8 h-2 bg-white/50 rounded-sm"></div></div>
+      )}
       <p className="mt-1">{layout.name}</p>
     </div>
   </SelectionCard>
@@ -36,9 +44,13 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const [selectedLayoutType, setSelectedLayoutType] = useState<string | null>(null);
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
   
-  // Filter out shape icons that are better suited as enclosing shapes
-  const shapeIds = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'pentagon', 'shield', 'star', 'heart', 'plus', 'minus', 'sun', 'moon', 'zap', 'x', 'check-circle'];
-  const enclosingShapes = suggestedIcons.filter(icon => shapeIds.includes(icon.id));
+  // Filter out only basic shape icons that are better suited as enclosing shapes
+  const shapeIds = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'pentagon', 'plus', 'minus', 'x'];
+  
+  // Fixed set of 16 enclosing shapes for circle layouts
+  const fixedEnclosingShapeIds = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'pentagon', 'star', 'heart', 'shield', 'sun', 'moon', 'zap', 'leaf', 'flame', 'droplets', 'check-circle'];
+  const enclosingShapes = suggestedIcons.filter(icon => fixedEnclosingShapeIds.includes(icon.id)).slice(0, 16);
+  
   const regularIcons = suggestedIcons.filter(icon => !shapeIds.includes(icon.id));
 
   return (

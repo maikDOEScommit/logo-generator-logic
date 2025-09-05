@@ -188,8 +188,8 @@ export function getInitialSuggestions(industry: string, keywords: string[]): Sug
 
   // ----- Hier beginnt dein Expertensystem (Regelwerk) -----
 
-  // Regel 1: Kreativ-Branchen (Design, Kunst, Fotografie)
-  if (['design', 'art', 'photography', 'mode'].includes(industry) || keywords.includes('kreativ')) {
+  // Regel 1: Kreativ-Branchen (Design, Kunst, Entertainment)
+  if (['design', 'art', 'photography', 'mode', 'entertainment'].includes(industry) || keywords.includes('kreativ')) {
     suggestedFontCategory = fontCategories.find(c => c.name === 'Elegant')!;
     suggestedPalette = colorPalettes.find(p => p.name.includes('Luxuriös'))!;
   }
@@ -206,10 +206,28 @@ export function getInitialSuggestions(industry: string, keywords: string[]): Sug
     suggestedPalette = colorPalettes.find(p => p.name.includes('Natürlich'))!;
   }
 
-  // Regel 4: Starke, laute Branchen (Sport, Events)
-  if (['sports', 'events', 'gaming'].includes(industry) || keywords.includes('energie')) {
+  // Regel 4: Starke, laute Branchen (Sport, Events, Automotive)
+  if (['sports', 'events', 'gaming', 'automotive'].includes(industry) || keywords.includes('energie')) {
     suggestedFontCategory = fontCategories.find(c => c.name === 'Bold')!;
     suggestedPalette = colorPalettes.find(p => p.name.includes('Dynamisch'))!;
+  }
+
+  // Regel 5: Bildung & Beratung (Vertrauenswürdig)
+  if (['education', 'consulting'].includes(industry) || keywords.includes('vertrauen')) {
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Heritage')!;
+    suggestedPalette = colorPalettes.find(p => p.name.includes('Seriös'))!;
+  }
+
+  // Regel 6: Handel & Einzelhandel (Freundlich & Einladend)
+  if (['retail', 'commerce'].includes(industry) || keywords.includes('freundlich')) {
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Modern')!;
+    suggestedPalette = colorPalettes.find(p => p.name.includes('Freundlich'))!;
+  }
+
+  // Regel 7: Bau & Immobilien (Stabil & Vertrauenswürdig)
+  if (['construction', 'building'].includes(industry) || keywords.includes('stabil')) {
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Bold')!;
+    suggestedPalette = colorPalettes.find(p => p.name.includes('Seriös'))!;
   }
 
   // Show exactly 28 icons - fixed selection

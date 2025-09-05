@@ -3,9 +3,9 @@ import Head from 'next/head';
 
 const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { config: LogoConfig, idSuffix?: string, backgroundColor?: 'white' | 'black' | 'gradient-black-text' | 'gradient-white-text' }) => {
   const { icon, font, layout, palette, text, slogan } = config;
-  if (!icon || !font || !layout || !palette) return null;
+  if (!layout || !palette) return null;
 
-  const IconComponent = icon.component;
+  const IconComponent = icon?.component;
   const [bgColor, primaryColor, textColor] = palette.colors;
   
   // Set background based on version type (not part of the logo colors)
@@ -65,7 +65,7 @@ const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { conf
   const iconColor = getIconColor();
   const brandNameColor = getBrandColor();
 
-  const fontUrl = `https://fonts.googleapis.com/css2?family=${font.url.replace(/ /g, '+')}:wght@${font.weights.join(';')}&display=swap`;
+  const fontUrl = font ? `https://fonts.googleapis.com/css2?family=${font.url.replace(/ /g, '+')}:wght@${font.weights.join(';')}&display=swap` : '';
 
   const renderContent = () => {
     const textLength = text.length || 10;
@@ -80,7 +80,7 @@ const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { conf
       
       return (
         <g>
-          <IconComponent x={75} y={startY} width={50} height={50} color={iconColor} />
+          {IconComponent && <IconComponent x={75} y={startY} width={50} height={50} color={iconColor} />}
           <text x="100" y={startY + 50 + 25} fontSize={fontSize} fontWeight="bold" textAnchor="middle" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
           {slogan && <text x="100" y={startY + 50 + 25 + fontSize * 0.6 + 10} fontSize={sloganFontSize} textAnchor="middle" dominantBaseline="middle" fill={textColor}>{slogan}</text>}
         </g>
@@ -94,9 +94,23 @@ const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { conf
       
       return(
         <g transform="translate(20, 0)">
-          <IconComponent x={0} y={logoStartY} width={iconSize} height={iconSize} color={iconColor} />
+          {IconComponent && <IconComponent x={0} y={logoStartY} width={iconSize} height={iconSize} color={iconColor} />}
           <text x={iconSize + 15} y={iconCenterY} fontSize={fontSize * 0.8} fontWeight="bold" textAnchor="start" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
           {slogan && <text x={iconSize + 15} y={iconCenterY + fontSize * 0.6} fontSize={sloganFontSize * 0.9} textAnchor="start" dominantBaseline="middle" fill={textColor}>{slogan}</text>}
+        </g>
+      );
+    }
+    if (layout.arrangement === 'text-left') {
+      const iconSize = 40;
+      // Zentriere das gesamte Logo vertikal im Container
+      const logoStartY = (200 - iconSize) / 2;
+      const iconCenterY = logoStartY + iconSize / 2;
+      
+      return(
+        <g transform="translate(20, 0)">
+          <text x={0} y={iconCenterY} fontSize={fontSize * 0.8} fontWeight="bold" textAnchor="start" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
+          {slogan && <text x={0} y={iconCenterY + fontSize * 0.6} fontSize={sloganFontSize * 0.9} textAnchor="start" dominantBaseline="middle" fill={textColor}>{slogan}</text>}
+          {icon && IconComponent && <IconComponent x={120} y={logoStartY} width={iconSize} height={iconSize} color={iconColor} />}
         </g>
       );
     }
@@ -145,9 +159,9 @@ const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { conf
 
   return (
     <>
-      <Head><link rel="stylesheet" href={fontUrl} /></Head>
+      {font && <Head><link rel="stylesheet" href={fontUrl} /></Head>}
       <svg id={svgId} width="100%" height="auto" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <style>{`#${svgId} text { font-family: '${font.name}', ${font.family}; }`}</style>
+        {font && <style>{`#${svgId} text { font-family: '${font.name}', ${font.family}; }`}</style>}
         {renderBackground()}
         {layout.type === 'enclosed' && <rect x="0" y="0" width="200" height="200" fill="none" stroke={primaryColor} strokeWidth="4" rx={layout.shape === 'circle' ? 100 : 20}/>}
         {renderShape()}
