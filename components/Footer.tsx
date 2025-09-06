@@ -58,7 +58,7 @@ export const Footer = () => {
             <h4 className="text-white font-semibold mb-4 text-lg">Support</h4>
             <ul className="space-y-3">
               {[
-                { name: 'Help Center', href: '#' },
+                { name: 'Help Center', href: '/help' },
                 { name: 'Contact Us', href: '#' },
                 { name: 'Privacy Policy', href: '#' },
                 { name: 'Terms of Service', href: '#' },

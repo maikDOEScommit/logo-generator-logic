@@ -46,6 +46,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
   const [neonMode, setNeonMode] = useState<boolean>(false);
   const [selectedColorCombo, setSelectedColorCombo] = useState<string | null>(null);
+  const [showAllIcons, setShowAllIcons] = useState<boolean>(false);
   
   // Reset color combination selection when palette changes to a base color
   useEffect(() => {
@@ -153,7 +154,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   </button>
                 </div>
                 <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                  {regularIcons.map(icon => (
+                  {(showAllIcons ? regularIcons.slice(0, 48) : regularIcons.slice(0, 24)).map(icon => (
                     <SelectionCard 
                       key={icon.id} 
                       isSelected={config.icon?.id === icon.id} 
@@ -171,6 +172,30 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                       <icon.component className="w-12 h-12 mx-auto" color={config.palette ? config.palette.colors[1] : 'white'} />
                     </SelectionCard>
                   ))}
+                </div>
+                
+                {/* Show More/Less Button */}
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => setShowAllIcons(!showAllIcons)}
+                    className="text-white/60 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 mx-auto"
+                  >
+                    {showAllIcons ? (
+                      <>
+                        Show Less Icons (24 fewer)
+                        <svg className="w-4 h-4 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </>
+                    ) : (
+                      <>
+                        Show More Icons (+24 more)
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             </Section>

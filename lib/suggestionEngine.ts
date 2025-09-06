@@ -14,10 +14,14 @@ import {
   ArrowLeft, ArrowDown, ChevronUp, ChevronDown, ChevronLeft, ChevronRight,
   Archive, Folder, File, Image,
   Power, Plug, Smartphone, Laptop, Monitor, Expand, Minimize2,
-  Square as StopIcon
+  Square as StopIcon,
+  // NEW ICONS (24 additional)
+  Crown, Award, Trophy, Gift, Cake, Pizza, Home, School, Hospital, Store,
+  Lock, Unlock, Key, Eye, EyeOff, Clock, Calendar, Timer, Watch,
+  Wrench, Hammer, Scissors, PaintBucket, Headphones
 } from 'lucide-react';
 
-// 100 Best Icons Collection - Choose your favorites!
+// 124 Best Icons Collection - Choose your favorites!
 export const availableIcons: IconData[] = [
   // === BASIC SHAPES & SYMBOLS (10) ===
   { id: 'circle', component: Circle, tags: ['shape', 'universal', 'simple', 'clean', 'geometric'] },
@@ -137,7 +141,46 @@ export const availableIcons: IconData[] = [
   { id: 'folder', component: Folder, tags: ['organization', 'storage', 'files', 'directory', 'structure'] },
   { id: 'file', component: File, tags: ['document', 'data', 'storage', 'information', 'content'] },
   { id: 'bookmark', component: Bookmark, tags: ['save', 'favorite', 'mark', 'remember', 'important'] },
-  { id: 'archive', component: Archive, tags: ['storage', 'backup', 'preserve', 'organize', 'history'] }
+  { id: 'archive', component: Archive, tags: ['storage', 'backup', 'preserve', 'organize', 'history'] },
+
+  // === PREMIUM & ACHIEVEMENT (4) ===
+  { id: 'crown', component: Crown, tags: ['premium', 'luxury', 'royal', 'elite', 'exclusive'] },
+  { id: 'award', component: Award, tags: ['achievement', 'recognition', 'success', 'excellence', 'honor'] },
+  { id: 'trophy', component: Trophy, tags: ['victory', 'achievement', 'winner', 'champion', 'success'] },
+  { id: 'gift', component: Gift, tags: ['present', 'celebration', 'bonus', 'reward', 'surprise'] },
+
+  // === FOOD & LIFESTYLE (6) ===
+  { id: 'cake', component: Cake, tags: ['food', 'celebration', 'bakery', 'sweet', 'party'] },
+  { id: 'pizza', component: Pizza, tags: ['food', 'restaurant', 'italian', 'casual', 'delivery'] },
+  { id: 'home', component: Home, tags: ['house', 'residential', 'family', 'comfort', 'domestic'] },
+  { id: 'school', component: School, tags: ['education', 'learning', 'academic', 'knowledge', 'teaching'] },
+  { id: 'hospital', component: Hospital, tags: ['healthcare', 'medical', 'health', 'treatment', 'care'] },
+  { id: 'store', component: Store, tags: ['retail', 'shop', 'commerce', 'business', 'marketplace'] },
+
+  // === SECURITY & ACCESS (4) ===
+  { id: 'lock', component: Lock, tags: ['security', 'protection', 'private', 'safe', 'secure'] },
+  { id: 'unlock', component: Unlock, tags: ['access', 'open', 'available', 'unlocked', 'free'] },
+  { id: 'key', component: Key, tags: ['access', 'security', 'unlock', 'password', 'entry'] },
+  { id: 'shield', component: Shield, tags: ['protection', 'security', 'defense', 'safe', 'guard'] },
+
+  // === VISIBILITY & AWARENESS (2) ===
+  { id: 'eye', component: Eye, tags: ['vision', 'see', 'watch', 'observe', 'visible'] },
+  { id: 'eye-off', component: EyeOff, tags: ['hidden', 'invisible', 'private', 'unseen', 'blind'] },
+
+  // === TIME & SCHEDULING (4) ===
+  { id: 'clock', component: Clock, tags: ['time', 'schedule', 'timing', 'appointment', 'punctual'] },
+  { id: 'calendar', component: Calendar, tags: ['schedule', 'date', 'event', 'planning', 'organization'] },
+  { id: 'timer', component: Timer, tags: ['countdown', 'time', 'deadline', 'duration', 'stopwatch'] },
+  { id: 'watch', component: Watch, tags: ['time', 'timepiece', 'schedule', 'punctual', 'fashion'] },
+
+  // === TOOLS & CRAFTSMANSHIP (4) ===
+  { id: 'wrench', component: Wrench, tags: ['tools', 'repair', 'maintenance', 'mechanic', 'fix'] },
+  { id: 'hammer', component: Hammer, tags: ['tools', 'construction', 'build', 'craft', 'repair'] },
+  { id: 'scissors', component: Scissors, tags: ['tools', 'cut', 'trim', 'craft', 'precise'] },
+  { id: 'paint-bucket', component: PaintBucket, tags: ['design', 'color', 'paint', 'creative', 'fill'] },
+
+  // === AUDIO & ENTERTAINMENT (1) ===
+  { id: 'headphones', component: Headphones, tags: ['audio', 'music', 'sound', 'entertainment', 'listening'] }
 ];
 
 // Convert original color palettes + intensive colors to PaletteData format
