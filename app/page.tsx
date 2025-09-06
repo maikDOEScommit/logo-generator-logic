@@ -359,7 +359,7 @@ export default function LogoGeneratorPage() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="min-h-screen flex items-center justify-center py-20"
+              className="min-h-screen flex items-start justify-center py-20 pt-32"
             >
               <div className="w-full max-w-2xl">
                 <Step2_Branding

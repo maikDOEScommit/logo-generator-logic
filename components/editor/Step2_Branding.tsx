@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { personalities } from '@/lib/data';
 import { LogoConfig } from '@/lib/types';
 import { useLogoStore } from '@/lib/state';
@@ -13,16 +14,28 @@ interface Props {
 }
 
 const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onTogglePersonality, onNext }: Props) => {
+  const [showRestOfForm, setShowRestOfForm] = useState(false);
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newText = e.target.value;
+    updateConfig({ text: newText });
+    
+    // Show rest of form when user starts typing
+    if (newText.length > 0 && !showRestOfForm) {
+      setShowRestOfForm(true);
+    }
+  };
+
   return (
-    <motion.div key="step2" className="space-y-8 animate-fade-in mt-16">
+    <motion.div key="step2" className="animate-fade-in mt-4">
       {/* Brand Name Input */}
-      <div className="text-center">
+      <div className="text-left">
         <label htmlFor="text" className="block text-xl font-bold mb-2 text-white">What&apos;s your brand called?</label>
         <input
           type="text"
           id="text"
           value={config.text || ''}
-          onChange={(e) => updateConfig({ text: e.target.value })}
+          onChange={handleTextChange}
           className="w-full bg-white/5 p-3 rounded-lg border border-white/20 focus:ring-2 focus:ring-primary focus:outline-none"
           placeholder="e.g. Quantum Leap"
           maxLength={24}
@@ -35,43 +48,63 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
         </div>
       </div>
 
-      {/* Animated Waves Divider */}
-      <div className="flex items-center justify-center py-4">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="w-screen -mx-4 md:-mx-8 lg:-mx-12"
-        >
-          <AnimatedWaves />
-        </motion.div>
-      </div>
+      {/* Rest of form - appears with slide animation when user starts typing */}
+      {showRestOfForm && (
+        <>
+          {/* Animated Waves Divider */}
+          <motion.div 
+            initial={{ opacity: 0, x: -300 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 2.1, ease: "easeOut", type: "spring", stiffness: 50 }}
+            className="flex items-center justify-center py-8 mt-4"
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="w-screen -mx-4 md:-mx-8 lg:-mx-12"
+            >
+              <AnimatedWaves />
+            </motion.div>
+          </motion.div>
 
-      {/* Slogan Input */}
-      <div className="text-center">
-        <label htmlFor="slogan" className="block text-xl font-bold mb-2 text-white">Need a slogan?</label>
-        <input
-          type="text"
-          id="slogan"
-          value={config.slogan || ''}
-          onChange={(e) => updateConfig({ slogan: e.target.value })}
-          className="w-full bg-white/5 p-3 rounded-lg border border-white/20 focus:ring-2 focus:ring-primary focus:outline-none"
-          placeholder="e.g. Innovation at its finest"
-          maxLength={50}
-        />
-        <div className="text-xs text-white/50 mt-1 flex justify-between">
-          <span>Displayed centered under your brand name</span>
-          <span className="text-white/50">
-            {(config.slogan || '').length}/50
-          </span>
-        </div>
-      </div>
+          {/* Slogan Input */}
+          <motion.div 
+            initial={{ opacity: 0, x: -300 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 2.1, ease: "easeOut", type: "spring", stiffness: 50, delay: 0.25 }}
+            className="text-center mt-8"
+          >
+            <label htmlFor="slogan" className="block text-xl font-bold mb-2 text-white">Need a slogan?</label>
+            <input
+              type="text"
+              id="slogan"
+              value={config.slogan || ''}
+              onChange={(e) => updateConfig({ slogan: e.target.value })}
+              className="w-full bg-white/5 p-3 rounded-lg border border-white/20 focus:ring-2 focus:ring-primary focus:outline-none"
+              placeholder="e.g. Innovation at its finest"
+              maxLength={50}
+            />
+            <div className="text-xs text-white/50 mt-1 flex justify-between">
+              <span>Displayed centered under your brand name</span>
+              <span className="text-white/50">
+                {(config.slogan || '').length}/50
+              </span>
+            </div>
+          </motion.div>
 
-      <div className="mt-2 mb-8">
-        <button onClick={onNext} disabled={!config.text} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
-          Continue to Design
-        </button>
-      </div>
+          <motion.div 
+            initial={{ opacity: 0, x: -300 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 2.1, ease: "easeOut", type: "spring", stiffness: 50, delay: 0.5 }}
+            className="mt-8 mb-8"
+          >
+            <button onClick={onNext} disabled={!config.text} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+              Continue to Design
+            </button>
+          </motion.div>
+        </>
+      )}
     </motion.div>
   );
 };
