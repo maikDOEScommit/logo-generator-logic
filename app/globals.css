@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark/Light Mode Styles */
+@layer base {
+  /* Dark Mode (Default) */
+  .dark {
+    --bg-primary: theme('colors.gray.900');
+    --bg-secondary: theme('colors.gray.800');
+    --text-primary: theme('colors.white');
+    --text-secondary: theme('colors.gray.300');
+    --border-color: theme('colors.white' / 0.2);
+  }
+  
+  /* Light Mode */
+  html:not(.dark) {
+    --bg-primary: theme('colors.white');
+    --bg-secondary: theme('colors.gray.100');
+    --text-primary: theme('colors.gray.900');
+    --text-secondary: theme('colors.gray.600');
+    --border-color: theme('colors.gray.200');
+  }
+  
+  /* Base transitions for smooth theme switching */
+  * {
+    transition-property: background-color, border-color, color;
+    transition-duration: 200ms;
+    transition-timing-function: ease-in-out;
+  }
+}
+
 body {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */

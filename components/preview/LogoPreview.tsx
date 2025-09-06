@@ -119,7 +119,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   <span className="whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
                     fontSize: dynamicFontSize,
                     fontFamily: font.cssName,
-                    fontWeight: font.generationWeights[0],
+                    fontWeight: config.fontWeight || font.generationWeights[0],
                     color: textColor
                   }}>
                     {logoConfig.text}
@@ -146,7 +146,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   <span className="whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
                     fontSize: dynamicFontSize,
                     fontFamily: font.cssName,
-                    fontWeight: font.generationWeights[0],
+                    fontWeight: config.fontWeight || font.generationWeights[0],
                     color: textColor
                   }}>
                     {logoConfig.text}
@@ -235,7 +235,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
                   style={{ 
                     fontFamily: font.cssName,
-                    fontWeight: font.generationWeights[0],
+                    fontWeight: config.fontWeight || font.generationWeights[0],
                     color: getLogoConfig(`${font.name}-light`).palette?.colors[1] || (palette ? palette.colors[1] : '#0A3D62'),
                     backgroundColor: getLogoConfig(`${font.name}-light`).palette?.colors[0] || (palette ? palette.colors[0] : '#FFFFFF')
                   }}
@@ -293,7 +293,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
                   style={{ 
                     fontFamily: font.cssName,
-                    fontWeight: font.generationWeights[0],
+                    fontWeight: config.fontWeight || font.generationWeights[0],
                     color: getLogoConfig(`${font.name}-accent`).palette?.colors[0] || (palette ? palette.colors[0] : '#0A3D62'),
                     backgroundColor: getLogoConfig(`${font.name}-accent`).palette?.colors[2] || (palette ? palette.colors[2] : '#CEDEEB')
                   }}

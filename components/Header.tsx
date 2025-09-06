@@ -1,7 +1,22 @@
 import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut } from '@clerk/nextjs';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { Moon, Sun } from 'lucide-react';
 
 export const Header = () => {
+  const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode
+  
+  useEffect(() => {
+    // Apply theme to document
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      document.body.className = 'bg-gray-900 text-white';
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.className = 'bg-white text-gray-900';
+    }
+  }, [isDarkMode]);
+
   return (
     <>
       <style jsx>{`
@@ -28,6 +43,19 @@ export const Header = () => {
             Pricing
           </Link>
         </div>
+        
+        {/* Dark/Light Mode Toggle */}
+        <button
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+          title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+        >
+          {isDarkMode ? (
+            <Sun size={16} className="text-white" />
+          ) : (
+            <Moon size={16} className="text-gray-900" />
+          )}
+        </button>
         
         <SignedIn>
           <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">

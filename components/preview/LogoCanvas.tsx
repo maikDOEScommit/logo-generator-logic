@@ -81,7 +81,7 @@ const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { conf
       return (
         <g>
           {IconComponent && <IconComponent x={75} y={startY} width={50} height={50} color={iconColor} />}
-          <text x="100" y={startY + 50 + 25} fontSize={fontSize} fontWeight="bold" textAnchor="middle" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
+          <text x="100" y={startY + 50 + 25} fontSize={fontSize} fontWeight={config.fontWeight || 700} textAnchor="middle" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
           {slogan && <text x="100" y={startY + 50 + 25 + fontSize * 0.6 + 10} fontSize={sloganFontSize} textAnchor="middle" dominantBaseline="middle" fill={textColor}>{slogan}</text>}
         </g>
       );
@@ -95,7 +95,7 @@ const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { conf
       return(
         <g transform="translate(20, 0)">
           {IconComponent && <IconComponent x={0} y={logoStartY} width={iconSize} height={iconSize} color={iconColor} />}
-          <text x={iconSize + 15} y={iconCenterY} fontSize={fontSize * 0.8} fontWeight="bold" textAnchor="start" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
+          <text x={iconSize + 15} y={iconCenterY} fontSize={fontSize * 0.8} fontWeight={config.fontWeight || 700} textAnchor="start" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
           {slogan && <text x={iconSize + 15} y={iconCenterY + fontSize * 0.6} fontSize={sloganFontSize * 0.9} textAnchor="start" dominantBaseline="middle" fill={textColor}>{slogan}</text>}
         </g>
       );
@@ -112,7 +112,7 @@ const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { conf
       
       return(
         <g>
-          <text x={startX} y={textCenterY} fontSize={fontSize * 0.8} fontWeight="bold" textAnchor="start" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
+          <text x={startX} y={textCenterY} fontSize={fontSize * 0.8} fontWeight={config.fontWeight || 700} textAnchor="start" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
           {slogan && <text x={startX} y={textCenterY + fontSize * 0.6} fontSize={sloganFontSize * 0.9} textAnchor="start" dominantBaseline="middle" fill={textColor}>{slogan}</text>}
           {icon && IconComponent && <IconComponent x={startX + textWidth + 20} y={logoStartY} width={iconSize} height={iconSize} color={iconColor} />}
         </g>

@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
 import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
 
 interface LogoEditorProps {
   config: LogoConfig;
-  onConfigUpdate: (newConfig: Partial<LogoConfig>) => void;
+  updateLocalConfig: (newConfig: Partial<LogoConfig>) => void;
   availableIcons: IconData[];
   availablePalettes: PaletteData[];
 }
@@ -15,6 +15,19 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [flippedCards, setFlippedCards] = useState<{[key: string]: boolean}>({});
+  const [localConfig, setLocalConfig] = useState<LogoConfig>(config);
+  
+  // Sync local config with props
+  useEffect(() => {
+    setLocalConfig(config);
+  }, [config]);
+  
+  // Update function that updates both local state and calls parent
+  const updateLocalConfig = (updates: Partial<LogoConfig>) => {
+    const newConfig = { ...localConfig, ...updates };
+    setLocalConfig(newConfig);
+    onConfigUpdate(updates);
+  };
 
   // Helper function to calculate dynamic font size based on text length
   const getDynamicFontSize = (textLength: number, isCircleLayout: boolean = false) => {
@@ -30,6 +43,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
   const renderLogoContent = (textColor: string, backgroundColor: string, font: any, logoConfig: LogoConfig) => {
     const isCircleLayout = logoConfig.layout?.id === 'circle-enclosed';
     const dynamicFontSize = getDynamicFontSize(logoConfig.text.length, isCircleLayout);
+    
+    console.log('renderLogoContent called with fontWeight:', logoConfig.fontWeight);
     
     if (isCircleLayout && logoConfig.enclosingShape) {
       // For circle layouts: show enclosing shape as background with content inside
@@ -50,12 +65,21 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
               <logoConfig.icon.component size={32} color={textColor} className="mb-2" />
             )}
             <div className="flex flex-col items-center text-center max-w-full px-4">
-              <span className="whitespace-nowrap overflow-hidden text-ellipsis max-w-full font-bold" style={{ 
-                fontSize: dynamicFontSize,
-                fontFamily: font.cssName,
-                fontWeight: font.generationWeights?.[0] || 700,
-                color: textColor
-              }}>
+              <span 
+                className="logo-text-preview"
+                style={{ 
+                  fontSize: dynamicFontSize,
+                  fontFamily: '"Montserrat", Arial, sans-serif',
+                  fontWeight: logoConfig.fontWeight || 400,
+                  color: textColor,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: '100%',
+                  display: 'block'
+                }}
+                title={`FontWeight: ${logoConfig.fontWeight || 400}`}
+              >
                 {logoConfig.text || 'Your Logo'}
               </span>
               {logoConfig.slogan && (
@@ -84,10 +108,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
             {isTextFirst ? (
               <>
                 <div className="flex flex-col items-center text-center justify-center">
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
+                  <span className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
                     fontSize: dynamicFontSize,
                     fontFamily: font.cssName,
-                    fontWeight: font.generationWeights?.[0] || 700,
+                    fontWeight: logoConfig.fontWeight || 400,
                     color: textColor
                   }}>
                     {logoConfig.text || 'Your Logo'}
@@ -111,10 +135,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                   <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" />
                 )}
                 <div className="flex flex-col items-center text-center justify-center">
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
+                  <span className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
                     fontSize: dynamicFontSize,
                     fontFamily: font.cssName,
-                    fontWeight: font.generationWeights?.[0] || 700,
+                    fontWeight: logoConfig.fontWeight || 400,
                     color: textColor
                   }}>
                     {logoConfig.text || 'Your Logo'}
@@ -140,10 +164,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
               <logoConfig.icon.component size={48} color={textColor} className="mb-2" />
             )}
             <div className="flex flex-col items-center text-center w-full max-w-full px-4">
-              <span className="whitespace-nowrap overflow-hidden text-ellipsis max-w-full font-bold" style={{ 
+              <span className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis max-w-full font-bold" style={{ 
                 fontSize: dynamicFontSize,
                 fontFamily: font.cssName,
-                fontWeight: font.generationWeights?.[0] || 700,
+                fontWeight: logoConfig.fontWeight || 400,
                 color: textColor
               }}>
                 {logoConfig.text || 'Your Logo'}
@@ -178,7 +202,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
     if (option === 'svg') {
       // TODO: Implement SVG download
       const svgString = generateSVG(config);
-      downloadFile(svgString, `${config.text || 'logo'}.svg`, 'image/svg+xml');
+      downloadFile(svgString, `${localConfig.text || 'logo'}.svg`, 'image/svg+xml');
     } else if (option === 'png') {
       // TODO: Implement PNG download
       console.log('Downloading PNG...');
@@ -191,10 +215,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
   const generateSVG = (config: LogoConfig) => {
     // Simple SVG generation - in real app, this would be more sophisticated
     return `<svg width="300" height="100" xmlns="http://www.w3.org/2000/svg">
-      <text x="150" y="50" text-anchor="middle" fill="${config.palette?.colors[1] || '#000'}" font-size="24" font-weight="bold">
-        ${config.text || 'Your Logo'}
+      <text x="150" y="50" text-anchor="middle" fill="${localConfig.palette?.colors[1] || '#000'}" font-size="24" font-weight="bold">
+        ${localConfig.text || 'Your Logo'}
       </text>
-      ${config.slogan ? `<text x="150" y="75" text-anchor="middle" fill="${config.palette?.colors[1] || '#000'}" font-size="12">${config.slogan}</text>` : ''}
+      ${localConfig.slogan ? `<text x="150" y="75" text-anchor="middle" fill="${localConfig.palette?.colors[1] || '#000'}" font-size="12">${localConfig.slogan}</text>` : ''}
     </svg>`;
   };
 
@@ -240,6 +264,25 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
         .rotate-y-180 {
           transform: rotateY(180deg);
         }
+        .slider::-webkit-slider-thumb {
+          appearance: none;
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: #3B82F6;
+          cursor: pointer;
+          border: 2px solid #ffffff;
+          box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        .slider::-moz-range-thumb {
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: #3B82F6;
+          cursor: pointer;
+          border: 2px solid #ffffff;
+          box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
       `}</style>
       {/* Menu Panel - slides up from bottom on hover */}
       <div className="absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-white/20 rounded-b-lg p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-200 z-10 shadow-xl">
@@ -271,13 +314,16 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
           <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-full max-h-[90vh] flex">
             {/* Logo Preview Side */}
             <div className="flex-1 p-8 flex items-center justify-center border-r border-white/20">
-              <div className="bg-white rounded-lg p-12 max-w-md w-full aspect-square flex items-center justify-center">
-                {renderLogoContent(
-                  config.palette?.colors[1] || '#000000',
-                  config.palette?.colors[0] || '#FFFFFF',
-                  fontCategories[0].fonts[0], // Default font
-                  config
-                )}
+              <div className="bg-white rounded-lg p-12 max-w-md w-full aspect-square flex items-center justify-center" key={localConfig.fontWeight}>
+                {(() => {
+                  console.log('Preview render with localConfig.fontWeight:', localConfig.fontWeight);
+                  return renderLogoContent(
+                    localConfig.palette?.colors[1] || '#000000',
+                    localConfig.palette?.colors[0] || '#FFFFFF',
+                    localConfig.font || fontCategories[0].fonts[0], // Use selected font or default
+                    localConfig
+                  );
+                })()}
               </div>
             </div>
 
@@ -302,8 +348,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                       <label className="block text-white/80 text-sm mb-1">Brand Name</label>
                       <input
                         type="text"
-                        value={config.text}
-                        onChange={(e) => onConfigUpdate({ text: e.target.value })}
+                        value={localConfig.text}
+                        onChange={(e) => updateLocalConfig({ text: e.target.value })}
                         className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white"
                         placeholder="Enter brand name"
                       />
@@ -312,11 +358,42 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                       <label className="block text-white/80 text-sm mb-1">Slogan</label>
                       <input
                         type="text"
-                        value={config.slogan}
-                        onChange={(e) => onConfigUpdate({ slogan: e.target.value })}
+                        value={localConfig.slogan}
+                        onChange={(e) => updateLocalConfig({ slogan: e.target.value })}
                         className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white"
                         placeholder="Enter slogan"
                       />
+                    </div>
+                    <div>
+                      <label className="block text-white/80 text-sm mb-1">Font Weight</label>
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-3 gap-2">
+                          {[300, 400, 500, 600, 700, 800].map(weight => (
+                            <button
+                              key={weight}
+                              onClick={() => {
+                                updateLocalConfig({ fontWeight: weight });
+                                // Force CSS update on ALL logo text elements
+                                const logoSpans = document.querySelectorAll('.logo-text-preview');
+                                logoSpans.forEach(span => {
+                                  (span as HTMLElement).style.fontWeight = weight.toString();
+                                });
+                              }}
+                              className={`px-3 py-2 rounded border text-xs transition-colors ${
+                                (localConfig.fontWeight || 400) === weight 
+                                  ? 'border-blue-500 bg-blue-500/20 text-white' 
+                                  : 'border-white/20 hover:border-white/40 text-white/80'
+                              }`}
+                            >
+                              {weight === 300 ? 'Light' : 
+                               weight === 400 ? 'Regular' :
+                               weight === 500 ? 'Medium' :
+                               weight === 600 ? 'SemiBold' :
+                               weight === 700 ? 'Bold' : 'ExtraBold'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -326,9 +403,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                   <h4 className="text-white font-semibold mb-3">Icon</h4>
                   <div className="grid grid-cols-6 gap-2">
                     <button
-                      onClick={() => onConfigUpdate({ icon: null })}
+                      onClick={() => updateLocalConfig({ icon: null })}
                       className={`p-2 rounded border transition-colors ${
-                        !config.icon ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+                        !localConfig.icon ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
                       }`}
                     >
                       <span className="text-white/60 text-xs">None</span>
@@ -336,9 +413,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                     {availableIcons.slice(0, 17).map(icon => (
                       <button
                         key={icon.id}
-                        onClick={() => onConfigUpdate({ icon })}
+                        onClick={() => updateLocalConfig({ icon })}
                         className={`p-2 rounded border transition-colors ${
-                          config.icon?.id === icon.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+                          localConfig.icon?.id === icon.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
                         }`}
                       >
                         <icon.component size={20} color="white" className="mx-auto" />
@@ -358,9 +435,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                       {availablePalettes.slice(0, 12).map(palette => (
                         <button
                           key={palette.id}
-                          onClick={() => onConfigUpdate({ palette })}
+                          onClick={() => updateLocalConfig({ palette })}
                           className={`p-2 rounded border transition-colors ${
-                            config.palette?.id === palette.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+                            localConfig.palette?.id === palette.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
                           }`}
                         >
                           <div className="flex gap-1 h-4 mb-1">
@@ -381,7 +458,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                       <div className="flex items-center gap-2">
                         <input
                           type="color"
-                          value={config.customColor || '#3B82F6'}
+                          value={localConfig.customColor || '#3B82F6'}
                           onChange={(e) => {
                             const baseColor = e.target.value;
                             const customPalette = {
@@ -390,7 +467,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                               colors: ['#FFFFFF', baseColor, '#000000'] as [string, string, string],
                               tags: ['custom', 'personalized']
                             };
-                            onConfigUpdate({ 
+                            updateLocalConfig({ 
                               palette: customPalette,
                               customColor: baseColor 
                             });
@@ -412,13 +489,13 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                               colors: ['#FFFFFF', '#000000', '#808080'] as [string, string, string],
                               tags: ['monochrome', 'classic']
                             };
-                            onConfigUpdate({ 
+                            updateLocalConfig({ 
                               palette: blackPalette,
                               customColor: '#000000'
                             });
                           }}
                           className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${
-                            config.palette?.id === 'custom-black' ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+                            localConfig.palette?.id === 'custom-black' ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
                           }`}
                         >
                           <div className="flex gap-1">
@@ -438,13 +515,13 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                               colors: ['#000000', '#FFFFFF', '#808080'] as [string, string, string],
                               tags: ['monochrome', 'clean']
                             };
-                            onConfigUpdate({ 
+                            updateLocalConfig({ 
                               palette: whitePalette,
                               customColor: '#FFFFFF'
                             });
                           }}
                           className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${
-                            config.palette?.id === 'custom-white' ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+                            localConfig.palette?.id === 'custom-white' ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
                           }`}
                         >
                           <div className="flex gap-1">
