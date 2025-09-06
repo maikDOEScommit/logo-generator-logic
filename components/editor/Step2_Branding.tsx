@@ -14,7 +14,7 @@ interface Props {
 
 const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onTogglePersonality, onNext }: Props) => {
   return (
-    <motion.div key="step2" className="space-y-8 animate-fade-in">
+    <motion.div key="step2" className="space-y-8 animate-fade-in mt-16">
       {/* Brand Name Input */}
       <div className="text-center">
         <label htmlFor="text" className="block text-xl font-bold mb-2 text-white">What&apos;s your brand called?</label>

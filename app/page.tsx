@@ -86,7 +86,20 @@ export default function LogoGeneratorPage() {
   }, [industry, selectedPersonalities]);
 
 
-  const progress = (step / 3) * 100;
+  // Calculate progress based on visible sections (scroll triggers)
+  const getProgress = () => {
+    // visibleSections starts with [0] (hero), then adds 1, 2, 3, 4 as user scrolls
+    // We want: 0% -> 25% -> 50% -> 75% -> 100%
+    const sectionCount = visibleSections.length;
+    if (sectionCount <= 1) return 0; // Just hero section
+    if (sectionCount === 2) return 25; // Hero + Step 1 (Industry)
+    if (sectionCount === 3) return 50; // Hero + Step 1 + Step 2 (Branding)  
+    if (sectionCount === 4) return 75; // Hero + Step 1 + Step 2 + Step 3 (Design)
+    if (sectionCount >= 5) return 100; // All sections including results
+    return (sectionCount / 5) * 100;
+  };
+
+  const progress = getProgress();
   // Simplified condition: just need industry for the new generation system
   const isLogoConfigComplete = !!industry;
 
@@ -616,7 +629,7 @@ export default function LogoGeneratorPage() {
             <motion.div 
               className="h-2 rounded-full" 
               style={{ background: 'linear-gradient(to right, #22D3EE, #9333EA, #3B82F6)' }}
-              animate={{ width: `${isLogoConfigComplete ? 100 : (visibleSections.length - 1) * 33.33}%` }} 
+              animate={{ width: `${progress}%` }} 
             />
           </motion.div>
 
