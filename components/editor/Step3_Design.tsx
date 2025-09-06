@@ -359,7 +359,16 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
         
         {/* Regular Color Palettes (non-intense) */}
         {suggestedPalettes.filter(palette => !palette.tags?.includes('intense')).map(palette => (
-          <SelectionCard key={palette.id} isSelected={config.palette?.id === palette.id} onClick={() => updateConfig({ palette })}>
+          <SelectionCard key={palette.id} isSelected={config.palette?.id === palette.id} onClick={() => {
+            updateConfig({ palette });
+            // Auto-scroll to Create Logo button
+            setTimeout(() => {
+              const createButton = document.querySelector('[data-create-logo]');
+              if (createButton) {
+                createButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }, 300);
+          }}>
             <div className="flex flex-col items-center gap-2 h-full">
               <div className="flex gap-1 w-full h-12">
                 {palette.colors.map(c => <div key={c} style={{backgroundColor: c}} className="flex-1 h-full rounded"></div>)}
@@ -388,7 +397,16 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             {getDisplayedColors().map(palette => (
               <button
                 key={palette.id}
-                onClick={() => updateConfig({ palette })}
+                onClick={() => {
+                  updateConfig({ palette });
+                  // Auto-scroll to Create Logo button
+                  setTimeout(() => {
+                    const createButton = document.querySelector('[data-create-logo]');
+                    if (createButton) {
+                      createButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }, 300);
+                }}
                 className={`h-12 rounded-lg border-2 transition-all transform hover:scale-105 ${
                   config.palette?.id === palette.id 
                     ? `border-white shadow-lg scale-105 ${neonMode ? 'shadow-white/50 animate-pulse' : 'shadow-white/25'}` 
@@ -491,6 +509,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           {/* Create Button */}
           <div className="flex justify-center pt-8">
             <button
+              data-create-logo
               onClick={() => {
                 // This will trigger the preview to show properly
                 updateConfig({});
