@@ -5,7 +5,7 @@ import { fontCategories } from '@/lib/data';
 
 interface LogoEditorProps {
   config: LogoConfig;
-  updateLocalConfig: (newConfig: Partial<LogoConfig>) => void;
+  onConfigUpdate: (newConfig: Partial<LogoConfig>) => void;
   availableIcons: IconData[];
   availablePalettes: PaletteData[];
 }
@@ -69,7 +69,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                 className="logo-text-preview"
                 style={{ 
                   fontSize: dynamicFontSize,
-                  fontFamily: '"Montserrat", Arial, sans-serif',
+                  fontFamily: font.cssName,
                   fontWeight: logoConfig.fontWeight || 400,
                   color: textColor,
                   whiteSpace: 'nowrap',
@@ -314,7 +314,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
           <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-full max-h-[90vh] flex">
             {/* Logo Preview Side */}
             <div className="flex-1 p-8 flex items-center justify-center border-r border-white/20">
-              <div className="bg-white rounded-lg p-12 max-w-md w-full aspect-square flex items-center justify-center" key={localConfig.fontWeight}>
+              <div className="bg-white rounded-lg p-12 max-w-md w-full aspect-square flex items-center justify-center" key={`${localConfig.fontWeight}-${localConfig.text}-${localConfig.font?.name}-${localConfig.palette?.id}`}>
                 {(() => {
                   console.log('Preview render with localConfig.fontWeight:', localConfig.fontWeight);
                   return renderLogoContent(
@@ -372,12 +372,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                             <button
                               key={weight}
                               onClick={() => {
+                                console.log('Setting fontWeight to:', weight);
                                 updateLocalConfig({ fontWeight: weight });
-                                // Force CSS update on ALL logo text elements
-                                const logoSpans = document.querySelectorAll('.logo-text-preview');
-                                logoSpans.forEach(span => {
-                                  (span as HTMLElement).style.fontWeight = weight.toString();
-                                });
                               }}
                               className={`px-3 py-2 rounded border text-xs transition-colors ${
                                 (localConfig.fontWeight || 400) === weight 

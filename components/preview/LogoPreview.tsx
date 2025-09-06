@@ -85,7 +85,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
               <span className="whitespace-nowrap overflow-hidden text-ellipsis max-w-full font-bold" style={{ 
                 fontSize: dynamicFontSize,
                 fontFamily: font.cssName,
-                fontWeight: font.generationWeights[0],
+                fontWeight: logoConfig.fontWeight || font.generationWeights[0],
                 color: textColor
               }}>
                 {logoConfig.text}
@@ -175,7 +175,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
               <span className="whitespace-nowrap overflow-hidden text-ellipsis max-w-full font-bold" style={{ 
                 fontSize: dynamicFontSize,
                 fontFamily: font.cssName,
-                fontWeight: font.generationWeights[0],
+                fontWeight: logoConfig.fontWeight || font.generationWeights[0],
                 color: textColor
               }}>
                 {logoConfig.text}
@@ -231,11 +231,12 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
               <h5 className="font-medium mb-2 text-white text-sm">Light Version</h5>
               <div className="bg-white/10 border border-white rounded-lg p-4 max-w-full overflow-hidden group relative">
                 <div 
+                  key={`${font.name}-light-${getLogoConfig(`${font.name}-light`).fontWeight || 400}-${getLogoConfig(`${font.name}-light`).text || 'default'}`}
                   id={`logo-${font.name.replace(/\s+/g, '-')}-light-${fontIndex}`}
                   className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
                   style={{ 
                     fontFamily: font.cssName,
-                    fontWeight: config.fontWeight || font.generationWeights[0],
+                    fontWeight: getLogoConfig(`${font.name}-light`).fontWeight || font.generationWeights[0],
                     color: getLogoConfig(`${font.name}-light`).palette?.colors[1] || (palette ? palette.colors[1] : '#0A3D62'),
                     backgroundColor: getLogoConfig(`${font.name}-light`).palette?.colors[0] || (palette ? palette.colors[0] : '#FFFFFF')
                   }}
@@ -261,6 +262,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
               <h5 className="font-medium mb-2 text-white text-sm">Dark Version</h5>
               <div className="bg-black border border-white/20 rounded-lg p-4 max-w-full overflow-hidden group relative">
                 <div 
+                  key={`${font.name}-dark-${getLogoConfig(`${font.name}-dark`).fontWeight || 400}-${getLogoConfig(`${font.name}-dark`).text || 'default'}`}
                   className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
                   style={{ 
                     fontFamily: font.cssName,
@@ -290,10 +292,11 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
               <h5 className="font-medium mb-2 text-white text-sm">Accent Version</h5>
               <div className="bg-white/10 border border-white rounded-lg p-4 max-w-full overflow-hidden group relative">
                 <div 
+                  key={`${font.name}-accent-${getLogoConfig(`${font.name}-accent`).fontWeight || 400}-${getLogoConfig(`${font.name}-accent`).text || 'default'}`}
                   className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
                   style={{ 
                     fontFamily: font.cssName,
-                    fontWeight: config.fontWeight || font.generationWeights[0],
+                    fontWeight: getLogoConfig(`${font.name}-accent`).fontWeight || font.generationWeights[0],
                     color: getLogoConfig(`${font.name}-accent`).palette?.colors[0] || (palette ? palette.colors[0] : '#0A3D62'),
                     backgroundColor: getLogoConfig(`${font.name}-accent`).palette?.colors[2] || (palette ? palette.colors[2] : '#CEDEEB')
                   }}
@@ -319,10 +322,11 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
               <h5 className="font-medium mb-2 text-white text-sm">Secondary Version</h5>
               <div className="bg-white/10 border border-white rounded-lg p-4 max-w-full overflow-hidden group relative">
                 <div 
+                  key={`${font.name}-secondary-${getLogoConfig(`${font.name}-secondary`).fontWeight || 400}-${getLogoConfig(`${font.name}-secondary`).text || 'default'}`}
                   className="text-4xl font-bold text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
                   style={{ 
                     fontFamily: font.cssName,
-                    fontWeight: font.generationWeights[1] || font.generationWeights[0],
+                    fontWeight: getLogoConfig(`${font.name}-secondary`).fontWeight || font.generationWeights[0],
                     color: getLogoConfig(`${font.name}-secondary`).palette?.colors[2] || (palette ? palette.colors[2] : '#FFFFFF'),
                     backgroundColor: getLogoConfig(`${font.name}-secondary`).palette?.colors[0] || (palette ? palette.colors[0] : '#0A3D62')
                   }}
