@@ -36,17 +36,19 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
       </div>
 
       {/* Animated Waves Divider */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="w-screen -mx-4 md:-mx-8 lg:-mx-12"
-      >
-        <AnimatedWaves />
-      </motion.div>
+      <div className="flex items-center justify-center py-4">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="w-screen -mx-4 md:-mx-8 lg:-mx-12"
+        >
+          <AnimatedWaves />
+        </motion.div>
+      </div>
 
       {/* Slogan Input */}
-      <div className="text-center mt-4">
+      <div className="text-center">
         <label htmlFor="slogan" className="block text-xl font-bold mb-2 text-white">Need a slogan?</label>
         <input
           type="text"
@@ -65,9 +67,11 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
         </div>
       </div>
 
-      <button onClick={onNext} disabled={!config.text} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
-        Continue to Design
-      </button>
+      <div className="mt-2 mb-8">
+        <button onClick={onNext} disabled={!config.text} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+          Continue to Design
+        </button>
+      </div>
     </motion.div>
   );
 };

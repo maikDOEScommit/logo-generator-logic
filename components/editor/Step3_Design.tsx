@@ -121,7 +121,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
       
       {/* Icon Selection Section - Only shown when user wants icons */}
       {wantsIcon === true && (
-        <div className="min-h-screen flex items-center justify-center py-20">
+        <div className="min-h-screen flex items-start justify-center py-20 pt-16">
           <div className="w-full max-w-2xl">
             <Section title="Choose a Symbol" helpText="Rule 2: Memorability - Simple symbols are remembered better">
               <div className="col-span-full space-y-4">
