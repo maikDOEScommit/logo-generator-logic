@@ -115,3 +115,179 @@ export const layouts: LayoutData[] = [
   { id: 'icon-text-vertical', name: 'Icon + Text (vertikal)', type: 'standard', arrangement: 'icon-top' },
   { id: 'circle-enclosed', name: 'Kreis', type: 'enclosed', shape: 'circle', arrangement: 'icon-top' },
 ];
+
+// =================================================================
+// FARB-GENERATIONS-REGELN
+// Definiert wie aus Grundfarben + Zusatzoptionen Logos generiert werden
+// =================================================================
+
+export type ColorGenerationRule = {
+  id: string;
+  name: string;
+  description: string;
+  generates: number; // Anzahl der generierten Variationen
+  variants: {
+    name: string;
+    brandNameColor: (baseColor: string) => string;
+    iconColor: (baseColor: string) => string;
+    backgroundColor: (baseColor: string) => string;
+    sloganColor: (baseColor: string) => string;
+  }[];
+};
+
+export const colorGenerationRules: ColorGenerationRule[] = [
+  {
+    id: 'base-only',
+    name: 'Nur Grundfarbe',
+    description: 'Verwendet nur die ausgewählte Grundfarbe',
+    generates: 1,
+    variants: [
+      {
+        name: 'Monochrom',
+        brandNameColor: (baseColor) => baseColor,
+        iconColor: (baseColor) => baseColor,
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: (baseColor) => baseColor
+      }
+    ]
+  },
+  {
+    id: 'add-white',
+    name: 'Grundfarbe + Weiß',
+    description: 'Generiert 2 Variationen: eine mit weißem Brand-Namen, eine mit weißem Icon',
+    generates: 2,
+    variants: [
+      {
+        name: 'Weißer Brand-Name',
+        brandNameColor: () => '#FFFFFF',
+        iconColor: (baseColor) => baseColor,
+        backgroundColor: (baseColor) => baseColor,
+        sloganColor: () => '#FFFFFF'
+      },
+      {
+        name: 'Weißes Icon',
+        brandNameColor: (baseColor) => baseColor,
+        iconColor: () => '#FFFFFF',
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: (baseColor) => baseColor
+      }
+    ]
+  },
+  {
+    id: 'add-black',
+    name: 'Grundfarbe + Schwarz',
+    description: 'Generiert 2 Variationen: eine mit schwarzem Brand-Namen, eine mit schwarzem Icon',
+    generates: 2,
+    variants: [
+      {
+        name: 'Schwarzer Brand-Name',
+        brandNameColor: () => '#000000',
+        iconColor: (baseColor) => baseColor,
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: () => '#000000'
+      },
+      {
+        name: 'Schwarzes Icon',
+        brandNameColor: (baseColor) => baseColor,
+        iconColor: () => '#000000',
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: (baseColor) => baseColor
+      }
+    ]
+  },
+  {
+    id: 'add-black-white',
+    name: 'Grundfarbe + Schwarz & Weiß',
+    description: 'Generiert 4 Variationen mit verschiedenen Schwarz-Weiß-Grundfarbe-Kombinationen',
+    generates: 4,
+    variants: [
+      {
+        name: 'Grundfarbe dominiert',
+        brandNameColor: (baseColor) => baseColor,
+        iconColor: () => '#FFFFFF',
+        backgroundColor: () => '#000000',
+        sloganColor: () => '#FFFFFF'
+      },
+      {
+        name: 'Schwarz dominiert',
+        brandNameColor: () => '#FFFFFF',
+        iconColor: (baseColor) => baseColor,
+        backgroundColor: () => '#000000',
+        sloganColor: () => '#FFFFFF'
+      },
+      {
+        name: 'Weiß dominiert',
+        brandNameColor: () => '#000000',
+        iconColor: (baseColor) => baseColor,
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: () => '#000000'
+      },
+      {
+        name: 'Kontrastreich',
+        brandNameColor: (baseColor) => baseColor,
+        iconColor: () => '#000000',
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: (baseColor) => baseColor
+      }
+    ]
+  }
+];
+
+// =================================================================
+// FARB-AUSWAHL-OPTIONEN
+// Definiert die verfügbaren Zusatzoptionen für Grundfarben
+// =================================================================
+
+export type ColorOption = {
+  id: string;
+  name: string;
+  description: string;
+  applies_rule: string; // Referenz auf ColorGenerationRule.id
+  visual_indicator: {
+    colors: string[];
+    layout: 'horizontal' | 'grid';
+  };
+};
+
+export const colorOptions: ColorOption[] = [
+  {
+    id: 'base-only',
+    name: 'Nur diese Farbe',
+    description: 'Verwendet nur die ausgewählte Grundfarbe für alle Logo-Elemente',
+    applies_rule: 'base-only',
+    visual_indicator: {
+      colors: ['baseColor'], // wird dynamisch ersetzt
+      layout: 'horizontal'
+    }
+  },
+  {
+    id: 'add-white',
+    name: '+ Weiß',
+    description: 'Erstellt zusätzliche Variationen mit Weiß',
+    applies_rule: 'add-white',
+    visual_indicator: {
+      colors: ['baseColor', '#FFFFFF'],
+      layout: 'horizontal'
+    }
+  },
+  {
+    id: 'add-black',
+    name: '+ Schwarz',
+    description: 'Erstellt zusätzliche Variationen mit Schwarz',
+    applies_rule: 'add-black',
+    visual_indicator: {
+      colors: ['baseColor', '#000000'],
+      layout: 'horizontal'
+    }
+  },
+  {
+    id: 'add-black-white',
+    name: '+ Schwarz & Weiß',
+    description: 'Erstellt mehrere Variationen mit Schwarz, Weiß und der Grundfarbe',
+    applies_rule: 'add-black-white',
+    visual_indicator: {
+      colors: ['baseColor', '#FFFFFF', '#000000'],
+      layout: 'grid'
+    }
+  }
+];

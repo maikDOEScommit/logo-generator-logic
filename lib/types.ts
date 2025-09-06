@@ -55,6 +55,23 @@ export interface LogoConfig {
   slogan: string;
   enclosingShape: IconData | null; // Shape that encloses the entire logo (circle, shield, etc.)
   customColor?: string;
+  selectedColorOption?: string; // Referenz auf colorOptions.id (base-only, add-white, add-black, add-black-white)
+  baseColor?: string; // Die ursprünglich gewählte Grundfarbe
+}
+
+// === FARB-GENERATIONS-TYPEN ===
+
+export interface ColorVariation {
+  name: string;
+  brandNameColor: string;
+  iconColor: string;
+  backgroundColor: string;
+  sloganColor: string;
+}
+
+export interface GeneratedLogoVariation extends LogoConfig {
+  variationName: string;
+  colorVariation: ColorVariation;
 }
 
 export interface HistoryState {

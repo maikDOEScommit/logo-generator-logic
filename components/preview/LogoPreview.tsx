@@ -104,33 +104,64 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
       );
     } else {
       // Standard layout: check arrangement type
-      const isHorizontalLayout = logoConfig.layout?.arrangement === 'icon-left';
+      const isHorizontalLayout = logoConfig.layout?.arrangement === 'icon-left' || logoConfig.layout?.arrangement === 'text-left';
       
       if (isHorizontalLayout) {
-        // Horizontal layout: icon left, text right
+        // Horizontal layout: different arrangements
+        const isTextFirst = logoConfig.layout?.arrangement === 'text-left';
+        
         return (
           <div className="flex items-center justify-center gap-4">
-            {logoConfig.icon && (
-              <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" />
+            {/* Text first (text-left) or Icon first (icon-left) */}
+            {isTextFirst ? (
+              <>
+                <div className="flex flex-col items-center text-center justify-center">
+                  <span className="whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
+                    fontSize: dynamicFontSize,
+                    fontFamily: font.cssName,
+                    fontWeight: font.generationWeights[0],
+                    color: textColor
+                  }}>
+                    {logoConfig.text}
+                  </span>
+                  {logoConfig.slogan && (
+                    <span className="text-base font-normal opacity-80 mt-1 truncate" style={{ 
+                      fontWeight: 300,
+                      color: textColor
+                    }}>
+                      {logoConfig.slogan}
+                    </span>
+                  )}
+                </div>
+                {logoConfig.icon && (
+                  <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" />
+                )}
+              </>
+            ) : (
+              <>
+                {logoConfig.icon && (
+                  <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" />
+                )}
+                <div className="flex flex-col items-center text-center justify-center">
+                  <span className="whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
+                    fontSize: dynamicFontSize,
+                    fontFamily: font.cssName,
+                    fontWeight: font.generationWeights[0],
+                    color: textColor
+                  }}>
+                    {logoConfig.text}
+                  </span>
+                  {logoConfig.slogan && (
+                    <span className="text-base font-normal opacity-80 mt-1 truncate" style={{ 
+                      fontWeight: 300,
+                      color: textColor
+                    }}>
+                      {logoConfig.slogan}
+                    </span>
+                  )}
+                </div>
+              </>
             )}
-            <div className="flex flex-col items-center text-center justify-center">
-              <span className="whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
-                fontSize: dynamicFontSize,
-                fontFamily: font.cssName,
-                fontWeight: font.generationWeights[0],
-                color: textColor
-              }}>
-                {logoConfig.text}
-              </span>
-              {logoConfig.slogan && (
-                <span className="text-base font-normal opacity-80 mt-1 truncate" style={{ 
-                  fontWeight: 300,
-                  color: textColor
-                }}>
-                  {logoConfig.slogan}
-                </span>
-              )}
-            </div>
           </div>
         );
       } else {
