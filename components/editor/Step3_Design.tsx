@@ -9,17 +9,36 @@ import { Circle } from 'lucide-react';
 const LayoutSelectionCard = ({ layout, isSelected, onClick }: { layout: LayoutData, isSelected: boolean, onClick: () => void }) => (
   <SelectionCard isSelected={isSelected} onClick={onClick}>
     <div className="flex flex-col items-center justify-center gap-2 text-xs">
-      {layout.shape === 'circle' && <Circle size={24}/>}
-      {!layout.shape && (
+      {layout.type === 'enclosed' ? (
+        // Kreis-Layouts: Zeige die Anordnung innerhalb eines Kreises
+        <div className="relative">
+          <Circle size={32} className="text-white/30" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            {layout.arrangement === 'icon-top' ? 
+              <div className="space-y-0.5 scale-50"><div className="w-2 h-2 bg-white/70 rounded-sm mx-auto"></div><div className="w-4 h-1 bg-white/70 rounded-sm"></div></div> : 
+            layout.arrangement === 'text-top' ? 
+              <div className="space-y-0.5 scale-50"><div className="w-4 h-1 bg-white/70 rounded-sm"></div><div className="w-2 h-2 bg-white/70 rounded-sm mx-auto"></div></div> : 
+            layout.arrangement === 'icon-left' ?
+              <div className="flex gap-0.5 items-center scale-50"><div className="w-2 h-2 bg-white/70 rounded-sm"></div><div className="w-4 h-1 bg-white/70 rounded-sm"></div></div> :
+            layout.arrangement === 'text-left' ?
+              <div className="flex gap-0.5 items-center scale-50"><div className="w-4 h-1 bg-white/70 rounded-sm"></div><div className="w-2 h-2 bg-white/70 rounded-sm"></div></div> :
+              <div className="flex gap-0.5 items-center scale-50"><div className="w-2 h-2 bg-white/70 rounded-sm"></div><div className="w-4 h-1 bg-white/70 rounded-sm"></div></div>
+            }
+          </div>
+        </div>
+      ) : (
+        // Standard-Layouts: Zeige die Anordnung ohne Umrandung
         layout.arrangement === 'icon-top' ? 
           <div className="space-y-1"><div className="w-4 h-4 bg-white/50 rounded-sm mx-auto"></div><div className="w-8 h-2 bg-white/50 rounded-sm"></div></div> : 
+        layout.arrangement === 'text-top' ? 
+          <div className="space-y-1"><div className="w-8 h-2 bg-white/50 rounded-sm"></div><div className="w-4 h-4 bg-white/50 rounded-sm mx-auto"></div></div> : 
         layout.arrangement === 'icon-left' ?
           <div className="flex gap-1 items-center"><div className="w-4 h-4 bg-white/50 rounded-sm"></div><div className="w-8 h-2 bg-white/50 rounded-sm"></div></div> :
         layout.arrangement === 'text-left' ?
           <div className="flex gap-1 items-center"><div className="w-8 h-2 bg-white/50 rounded-sm"></div><div className="w-4 h-4 bg-white/50 rounded-sm"></div></div> :
           <div className="flex gap-1 items-center"><div className="w-4 h-4 bg-white/50 rounded-sm"></div><div className="w-8 h-2 bg-white/50 rounded-sm"></div></div>
       )}
-      <p className="mt-1">{layout.name}</p>
+      <p className="mt-1 text-center text-xs">{layout.name}</p>
     </div>
   </SelectionCard>
 );
@@ -276,7 +295,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 transition={{ delay: 0.1, duration: 0.4 }}
               >
                 <h2 className="text-xl font-bold mb-8 text-white">Choose a Layout</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   {layouts.map(layout => (
                     <LayoutSelectionCard 
                       key={layout.id} 
@@ -284,7 +303,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                       isSelected={selectedLayoutType === layout.id} 
                       onClick={() => {
                         setSelectedLayoutType(layout.id);
-                        if (layout.id !== 'circle-enclosed') {
+                        if (layout.type !== 'enclosed') {
                           // For non-circle layouts, set immediately and scroll to color section
                           updateConfig({ layout });
                           setTimeout(() => {
@@ -294,13 +313,14 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                             }
                           }, 100);
                         }
+                        // For circle layouts, keep them in the layout selection state to show enclosing shapes
                       }} 
                     />
                   ))}
                 </div>
                 
-                {/* Show enclosing shapes when circle layout is selected */}
-                {selectedLayoutType === 'circle-enclosed' && (
+                {/* Show enclosing shapes when any circle layout is selected */}
+                {selectedLayoutType && layouts.find(l => l.id === selectedLayoutType)?.type === 'enclosed' && (
                   <div className="mt-6 mb-6">
                     <h3 className="text-lg font-bold mb-3 text-white">Wähle die Form für die Umrandung:</h3>
                     <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
@@ -309,8 +329,8 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                           key={shape.id} 
                           isSelected={config.enclosingShape?.id === shape.id} 
                           onClick={() => {
-                            const circleLayout = layouts.find(l => l.id === 'circle-enclosed');
-                            updateConfig({ enclosingShape: shape, layout: circleLayout });
+                            const selectedLayout = layouts.find(l => l.id === selectedLayoutType);
+                            updateConfig({ enclosingShape: shape, layout: selectedLayout });
                             // Auto-scroll to color section after shape selection
                             setTimeout(() => {
                               const element = document.querySelector('[data-section="color"]');
@@ -516,7 +536,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 // Trigger text animation if callback provided
                 if (onLogoCreate) onLogoCreate();
               }}
-              disabled={!config.layout || !config.palette || (config.layout?.id === 'circle-enclosed' && !config.enclosingShape)}
+              disabled={!config.layout || !config.palette || (config.layout?.type === 'enclosed' && !config.enclosingShape)}
               className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-4 rounded-lg text-xl font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
             >
               Create Logo

@@ -28,7 +28,7 @@ export interface LayoutData {
   name: string;
   type: 'standard' | 'enclosed';
   shape?: 'circle' | 'shield';
-  arrangement: 'icon-top' | 'icon-left' | 'text-left';
+  arrangement: 'icon-top' | 'icon-left' | 'text-left' | 'text-top';
 }
 
 export interface PaletteData {

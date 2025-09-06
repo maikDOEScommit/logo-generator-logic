@@ -108,7 +108,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
             {isTextFirst ? (
               <>
                 <div className="flex flex-col items-center text-center justify-center">
-                  <span className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
+                  <span className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis" style={{ 
                     fontSize: dynamicFontSize,
                     fontFamily: font.cssName,
                     fontWeight: logoConfig.fontWeight || 400,
@@ -135,7 +135,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                   <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" />
                 )}
                 <div className="flex flex-col items-center text-center justify-center">
-                  <span className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis font-bold" style={{ 
+                  <span className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis" style={{ 
                     fontSize: dynamicFontSize,
                     fontFamily: font.cssName,
                     fontWeight: logoConfig.fontWeight || 400,
@@ -164,7 +164,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
               <logoConfig.icon.component size={48} color={textColor} className="mb-2" />
             )}
             <div className="flex flex-col items-center text-center w-full max-w-full px-4">
-              <span className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis max-w-full font-bold" style={{ 
+              <span className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis max-w-full" style={{ 
                 fontSize: dynamicFontSize,
                 fontFamily: font.cssName,
                 fontWeight: logoConfig.fontWeight || 400,

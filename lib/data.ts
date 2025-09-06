@@ -113,7 +113,11 @@ export const layouts: LayoutData[] = [
   { id: 'text-icon-horizontal', name: 'Text + Icon (horizontal)', type: 'standard', arrangement: 'text-left' },
   { id: 'icon-text-horizontal', name: 'Icon + Text (horizontal)', type: 'standard', arrangement: 'icon-left' },
   { id: 'icon-text-vertical', name: 'Icon + Text (vertikal)', type: 'standard', arrangement: 'icon-top' },
-  { id: 'circle-enclosed', name: 'Kreis', type: 'enclosed', shape: 'circle', arrangement: 'icon-top' },
+  { id: 'text-icon-vertical', name: 'Text + Icon (vertikal)', type: 'standard', arrangement: 'text-top' },
+  { id: 'text-icon-horizontal-circle', name: 'Text + Icon (horizontal) + Kreis', type: 'enclosed', shape: 'circle', arrangement: 'text-left' },
+  { id: 'icon-text-horizontal-circle', name: 'Icon + Text (horizontal) + Kreis', type: 'enclosed', shape: 'circle', arrangement: 'icon-left' },
+  { id: 'icon-text-vertical-circle', name: 'Icon + Text (vertikal) + Kreis', type: 'enclosed', shape: 'circle', arrangement: 'icon-top' },
+  { id: 'text-icon-vertical-circle', name: 'Text + Icon (vertikal) + Kreis', type: 'enclosed', shape: 'circle', arrangement: 'text-top' },
 ];
 
 // =================================================================

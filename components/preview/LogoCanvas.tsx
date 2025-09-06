@@ -2,7 +2,7 @@ import { LogoConfig } from '@/lib/types';
 import Head from 'next/head';
 
 const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { config: LogoConfig, idSuffix?: string, backgroundColor?: 'white' | 'black' | 'gradient-black-text' | 'gradient-white-text' }) => {
-  const { icon, font, layout, palette, text, slogan } = config;
+  const { icon, font, layout, palette, text, slogan, enclosingShape } = config;
   if (!layout || !palette) return null;
 
   const IconComponent = icon?.component;
@@ -118,14 +118,26 @@ const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { conf
         </g>
       );
     }
+    if (layout.arrangement === 'text-top') {
+      // Text über Icon - Brand Name oben, Icon unten
+      const totalHeight = fontSize + 20 + 50 + (slogan ? sloganFontSize + 10 : 0); // Text + Gap + Icon + Slogan
+      const startY = (200 - totalHeight) / 2;
+      
+      return (
+        <g>
+          <text x="100" y={startY + fontSize / 2} fontSize={fontSize} fontWeight={config.fontWeight || 700} textAnchor="middle" dominantBaseline="middle" fill={brandNameColor}>{text || "Markenname"}</text>
+          {slogan && <text x="100" y={startY + fontSize + 10} fontSize={sloganFontSize} textAnchor="middle" dominantBaseline="middle" fill={textColor}>{slogan}</text>}
+          {IconComponent && <IconComponent x={75} y={startY + fontSize + (slogan ? sloganFontSize + 10 : 0) + 20} width={50} height={50} color={iconColor} />}
+        </g>
+      );
+    }
     return null;
   };
 
   const renderShape = () => {
-    if (layout.type !== 'enclosed') return null;
-    if (layout.shape === 'circle') return <circle cx="100" cy="100" r="95" fill="none" stroke={primaryColor} strokeWidth="4" />
-    if (layout.shape === 'shield') return <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" transform="scale(8.4) translate(-1.5, -1.5)" fill="none" stroke={primaryColor} strokeWidth="0.5" />
-    return null;
+    if (layout.type !== 'enclosed' || !enclosingShape) return null;
+    const EnclosingShapeComponent = enclosingShape.component;
+    return <EnclosingShapeComponent x={10} y={10} width={180} height={180} color={primaryColor} fill="none" stroke={primaryColor} strokeWidth="3" />;
   };
 
   const svgId = `logo-svg-${palette.id}${idSuffix}`;
@@ -167,7 +179,6 @@ const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { conf
       <svg id={svgId} width="100%" height="auto" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         {font && <style>{`#${svgId} text { font-family: '${font.name}', ${font.family}; }`}</style>}
         {renderBackground()}
-        {layout.type === 'enclosed' && <rect x="0" y="0" width="200" height="200" fill="none" stroke={primaryColor} strokeWidth="4" rx={layout.shape === 'circle' ? 100 : 20}/>}
         {renderShape()}
         {renderContent()}
       </svg>
