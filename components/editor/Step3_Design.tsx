@@ -5,6 +5,7 @@ import Section from '@/components/ui/Section';
 import SelectionCard from '@/components/ui/SelectionCard';
 import { layouts, fontCategories, personalities } from '@/lib/data';
 import { Circle } from 'lucide-react';
+import { ColorLogic, ColorOption, ColorAnalysis } from '@/lib/colorLogic';
 
 const LayoutSelectionCard = ({ layout, isSelected, onClick }: { layout: LayoutData, isSelected: boolean, onClick: () => void }) => (
   <SelectionCard isSelected={isSelected} onClick={onClick}>
@@ -66,6 +67,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const [neonMode, setNeonMode] = useState<boolean>(false);
   const [selectedColorCombo, setSelectedColorCombo] = useState<string | null>(null);
   const [visibleIconCount, setVisibleIconCount] = useState<number>(24);
+  const [selectedBaseColor, setSelectedBaseColor] = useState<string | null>(null);
+  const [selectedColorOption, setSelectedColorOption] = useState<ColorOption>('base-only');
+  const [colorAnalysis, setColorAnalysis] = useState<ColorAnalysis | null>(null);
   
   // Reset color combination selection when palette changes to a base color
   useEffect(() => {
@@ -90,6 +94,25 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
     } else {
       // Show only intensive colors (original 14 base colors)
       return suggestedPalettes.filter(palette => palette.tags?.includes('intense') && !palette.tags?.includes('neon'));
+    }
+  };
+
+  // Neue Funktion: Ausführung der intelligenten Farblogik
+  const handleBaseColorSelection = (baseColor: string) => {
+    setSelectedBaseColor(baseColor);
+    // Automatisch Analyse mit aktueller Option durchführen
+    const analysis = ColorLogic.analyzeColorChoice(baseColor, selectedColorOption);
+    setColorAnalysis(analysis);
+    console.log('🎨 Farbanalyse:', analysis);
+  };
+
+  // Neue Funktion: Option-Änderung
+  const handleColorOptionChange = (option: ColorOption) => {
+    setSelectedColorOption(option);
+    if (selectedBaseColor) {
+      const analysis = ColorLogic.analyzeColorChoice(selectedBaseColor, option);
+      setColorAnalysis(analysis);
+      console.log('🎨 Farbanalyse aktualisiert:', analysis);
     }
   };
 
@@ -418,17 +441,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
               <button
                 key={palette.id}
                 onClick={() => {
-                  updateConfig({ palette });
-                  // Auto-scroll to Create Logo button
-                  setTimeout(() => {
-                    const createButton = document.querySelector('[data-create-logo]');
-                    if (createButton) {
-                      createButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                  }, 300);
+                  handleBaseColorSelection(palette.colors[0]);
                 }}
                 className={`h-12 rounded-lg border-2 transition-all transform hover:scale-105 ${
-                  config.palette?.id === palette.id 
+                  selectedBaseColor === palette.colors[0] 
                     ? `border-white shadow-lg scale-105 ${neonMode ? 'shadow-white/50 animate-pulse' : 'shadow-white/25'}` 
                     : 'border-white/20 hover:border-white/40'
                 } ${neonMode ? 'hover:shadow-glow' : ''}`}
@@ -441,29 +457,25 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             ))}
           </div>
           
-          {/* Color Combination Options - Only show when a single color is selected from the base colors */}
-          {config.palette && (config.palette.tags?.includes('intense') || config.palette.tags?.includes('neon')) && (
+          {/* Intelligente Farbkombinations-Optionen - Nur zeigen wenn eine Grundfarbe gewählt wurde */}
+          {selectedBaseColor && (
             <div className="mt-4 p-4 bg-white/5 rounded-lg border border-white/10">
               <h4 className="text-sm font-bold text-white mb-3">Farbkombination wählen:</h4>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 <button
-                  onClick={() => {
-                    const baseColor = config.palette!.colors[0];
-                    const basePalette = suggestedPalettes.find(p => p.colors[0] === baseColor && (p.tags?.includes('intense') || p.tags?.includes('neon')));
-                    if (basePalette) {
-                      setSelectedColorCombo('white');
-                      updateConfig({ 
-                        palette: {
-                          id: `${basePalette.id}-white`,
-                          colors: [baseColor, '#FFFFFF', '#000000'] as [string, string, string],
-                          name: `${basePalette.name.replace('Intensiv ', '').replace('Neon ', '')} + Weiß`,
-                          tags: [...(basePalette.tags || []), 'combo']
-                        }
-                      });
-                    }
-                  }}
+                  onClick={() => handleColorOptionChange('base-only')}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
-                    selectedColorCombo === 'white' 
+                    selectedColorOption === 'base-only' 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
+                      : 'bg-white/10 hover:bg-white/20 text-white'
+                  }`}
+                >
+                  Auto
+                </button>
+                <button
+                  onClick={() => handleColorOptionChange('add-white')}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
+                    selectedColorOption === 'add-white' 
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
                       : 'bg-white/10 hover:bg-white/20 text-white'
                   }`}
@@ -471,23 +483,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   + Weiß
                 </button>
                 <button
-                  onClick={() => {
-                    const baseColor = config.palette!.colors[0];
-                    const basePalette = suggestedPalettes.find(p => p.colors[0] === baseColor && (p.tags?.includes('intense') || p.tags?.includes('neon')));
-                    if (basePalette) {
-                      setSelectedColorCombo('black');
-                      updateConfig({ 
-                        palette: {
-                          id: `${basePalette.id}-black`,
-                          colors: [baseColor, '#000000', '#FFFFFF'] as [string, string, string],
-                          name: `${basePalette.name.replace('Intensiv ', '').replace('Neon ', '')} + Schwarz`,
-                          tags: [...(basePalette.tags || []), 'combo']
-                        }
-                      });
-                    }
-                  }}
+                  onClick={() => handleColorOptionChange('add-black')}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
-                    selectedColorCombo === 'black' 
+                    selectedColorOption === 'add-black' 
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
                       : 'bg-white/10 hover:bg-white/20 text-white'
                   }`}
@@ -495,29 +493,75 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   + Schwarz
                 </button>
                 <button
-                  onClick={() => {
-                    const baseColor = config.palette!.colors[0];
-                    const basePalette = suggestedPalettes.find(p => p.colors[0] === baseColor && (p.tags?.includes('intense') || p.tags?.includes('neon')));
-                    if (basePalette) {
-                      setSelectedColorCombo('both');
-                      updateConfig({ 
-                        palette: {
-                          id: `${basePalette.id}-both`,
-                          colors: [baseColor, '#000000', '#FFFFFF'] as [string, string, string],
-                          name: `${basePalette.name.replace('Intensiv ', '').replace('Neon ', '')} + Schwarz & Weiß`,
-                          tags: [...(basePalette.tags || []), 'combo']
-                        }
-                      });
-                    }
-                  }}
+                  onClick={() => handleColorOptionChange('add-both')}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
-                    selectedColorCombo === 'both' 
+                    selectedColorOption === 'add-both' 
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
                       : 'bg-white/10 hover:bg-white/20 text-white'
                   }`}
                 >
-                  + Schwarz & Weiß
+                  + Beide
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* Generierte Logo-Variationen - Nur zeigen wenn Farbanalyse verfügbar */}
+          {colorAnalysis && colorAnalysis.variations.length > 0 && (
+            <div className="col-span-full mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
+              <h4 className="text-lg font-bold text-white mb-3">Generierte Logo-Variationen ({colorAnalysis.variations.length})</h4>
+              <p className="text-sm text-white/60 mb-4">Alle Variationen erfüllen WCAG-Kontraststandards für optimale Lesbarkeit.</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {colorAnalysis.variations.map((variation, index) => (
+                  <SelectionCard 
+                    key={variation.id} 
+                    isSelected={false} 
+                    onClick={() => {
+                      // Setze die ausgewählte Variation als aktuelle Palette
+                      const palette: PaletteData = {
+                        id: variation.id,
+                        name: variation.name,
+                        colors: [variation.backgroundColor, variation.iconColor, variation.textColor] as [string, string, string],
+                        tags: ['generated', 'smart-color']
+                      };
+                      updateConfig({ palette });
+                      console.log('🎯 Logo-Variation gewählt:', variation);
+                      // Auto-scroll to Create Logo button
+                      setTimeout(() => {
+                        const createButton = document.querySelector('[data-create-logo]');
+                        if (createButton) {
+                          createButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                      }, 300);
+                    }}
+                  >
+                    <div className="flex flex-col items-center gap-2 p-3">
+                      {/* Mini Logo Preview */}
+                      <div 
+                        className="w-full h-16 rounded flex items-center justify-center gap-2 text-xs"
+                        style={{ backgroundColor: variation.backgroundColor }}
+                      >
+                        {config.icon && (
+                          <config.icon.component 
+                            size={16} 
+                            color={variation.iconColor} 
+                          />
+                        )}
+                        <span 
+                          className="font-semibold truncate"
+                          style={{ color: variation.textColor }}
+                        >
+                          {config.text || 'Logo'}
+                        </span>
+                      </div>
+                      {/* Variation Info */}
+                      <div className="text-center">
+                        <p className="text-xs font-semibold text-white">{variation.name}</p>
+                        <p className="text-xs text-white/60 mt-1">{variation.description}</p>
+                      </div>
+                    </div>
+                  </SelectionCard>
+                ))}
               </div>
             </div>
           )}
