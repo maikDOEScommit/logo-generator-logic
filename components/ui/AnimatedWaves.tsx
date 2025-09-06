@@ -119,10 +119,10 @@ const AnimatedWaves = () => {
   }, []);
 
   return (
-    <div className="w-full h-24 bg-gradient-to-r from-gray-800/20 to-gray-900/30 rounded-xl overflow-hidden border border-white/10">
+    <div className="w-full h-24 overflow-hidden">
       <canvas 
         ref={canvasRef}
-        className="w-full h-full rounded-xl"
+        className="w-full h-full"
         style={{ display: 'block' }}
       />
     </div>

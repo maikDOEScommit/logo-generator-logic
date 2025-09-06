@@ -40,7 +40,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="w-full"
+        className="w-screen -mx-4 md:-mx-8 lg:-mx-12"
       >
         <AnimatedWaves />
       </motion.div>
