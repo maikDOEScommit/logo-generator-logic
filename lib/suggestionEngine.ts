@@ -2,28 +2,47 @@
 import { fontCategories, colorPalettes, layouts, FontCategory, ColorPalette, FontInfo } from './data';
 import { IconData, FontData, PaletteData } from './types';
 import { 
-  Heart, Star, Shield, Zap, Leaf, Coffee, Camera, Music, Gamepad2, Palette, Code, Target, Lightbulb, Rocket,
-  Circle, Square, Triangle, Diamond, Hexagon, Pentagon, Minus, Plus, X, Check, ArrowRight, ArrowUp,
-  Sun, Moon, Cloud, Flame, Droplets, Mountain, TreePine, Flower2, Building, 
-  Car, Plane, Ship, Bike, Train, Globe, Map, Compass, Phone, Mail, Wifi,
-  Battery, Settings, Search, Volume2, Play, Pause,
-  ThumbsUp, ThumbsDown, Smile, AlertCircle, CheckCircle, Info, HelpCircle, Bell,
-  ShoppingCart, CreditCard, DollarSign, TrendingUp, TrendingDown, BarChart, PieChart,
-  Bookmark, Users, User, UserPlus, MessageCircle, Send,
-  Edit, Trash2, Copy, Download, Upload, Share, Link, RefreshCw,
-  ArrowLeft, ArrowDown, ChevronUp, ChevronDown, ChevronLeft, ChevronRight,
-  Archive, Folder, File, Image,
-  Power, Plug, Smartphone, Laptop, Monitor, Expand, Minimize2,
-  Square as StopIcon,
-  // NEW ICONS (24 additional)
-  Crown, Award, Trophy, Gift, Cake, Pizza, Home, School, Hospital, Store,
-  Lock, Unlock, Key, Eye, EyeOff, Clock, Calendar, Timer, Watch,
-  Wrench, Hammer, Scissors, PaintBucket, Headphones
+  // BASIC SHAPES & SYMBOLS (9)
+  Circle, Square, Triangle, Diamond, Hexagon, Pentagon, Star, Heart, Plus,
+  // NATURE & WEATHER (10)  
+  Sun, Cloud, Flame, Droplets, Leaf, TreePine, Flower2, Mountain, Zap,
+  // BUSINESS & FINANCE (10)
+  DollarSign, TrendingUp, BarChart, PieChart, ShoppingCart, CreditCard, Building, Target as Briefcase, Users as Handshake,
+  // TECHNOLOGY & DIGITAL (13)
+  Code, Smartphone, Laptop, Monitor, Wifi, Battery, Settings, Search, Globe, Lightbulb, Gamepad2, Coffee, Plug,
+  // TRANSPORTATION (8)
+  Car, Plane, Ship, Bike, Train, Rocket, Compass, Map,
+  // COMMUNICATION & SOCIAL (8)
+  Phone, Mail, MessageCircle, Send, Users, User, UserPlus, Bell,
+  // CREATIVE & MEDIA (8)
+  Palette, Camera, Music, Play, Pause, Square as StopIcon, Volume2, Image,
+  // ACTIONS & INTERFACE (12)
+  Edit, Trash2, Copy, Download, Upload, Share, Link, RefreshCw, Expand, Minimize2, Power, X,
+  // ARROWS & DIRECTION (8)
+  ArrowUp, ArrowDown, ArrowLeft, ArrowRight, ChevronUp, ChevronDown, ChevronLeft, ChevronRight,
+  // STATUS & FEEDBACK (7)
+  CheckCircle, AlertCircle, Info, HelpCircle, ThumbsUp, ThumbsDown, Smile,
+  // ORGANIZATION & FILES (4)
+  Folder, File, Bookmark, Archive,
+  // PREMIUM & ACHIEVEMENT (4)
+  Crown, Award, Trophy, Gift,
+  // FOOD & LIFESTYLE (6)
+  Cake, Pizza, Home, School, Hospital, Store,
+  // SECURITY & ACCESS (4)
+  Lock, Unlock, Key, Shield,
+  // VISIBILITY & AWARENESS (2)
+  Eye, EyeOff,
+  // TIME & SCHEDULING (4)
+  Clock, Calendar, Timer, Watch,
+  // TOOLS & CRAFTSMANSHIP (4)
+  Wrench, Hammer, Scissors, PaintBucket,
+  // AUDIO & ENTERTAINMENT (1)
+  Headphones
 } from 'lucide-react';
 
-// 124 Best Icons Collection - Choose your favorites!
+// 120 Curated Icons Collection - Fixed Order
 export const availableIcons: IconData[] = [
-  // === BASIC SHAPES & SYMBOLS (10) ===
+  // === BASIC SHAPES & SYMBOLS (9) ===
   { id: 'circle', component: Circle, tags: ['shape', 'universal', 'simple', 'clean', 'geometric'] },
   { id: 'square', component: Square, tags: ['shape', 'universal', 'simple', 'clean', 'geometric'] },
   { id: 'triangle', component: Triangle, tags: ['shape', 'universal', 'simple', 'clean', 'geometric'] },
@@ -33,11 +52,9 @@ export const availableIcons: IconData[] = [
   { id: 'star', component: Star, tags: ['quality', 'premium', 'excellence', 'rating'] },
   { id: 'heart', component: Heart, tags: ['love', 'health', 'care', 'wellness'] },
   { id: 'plus', component: Plus, tags: ['symbol', 'universal', 'simple', 'clean', 'minimalist'] },
-  { id: 'minus', component: Minus, tags: ['symbol', 'universal', 'simple', 'clean', 'minimalist'] },
 
-  // === NATURE & WEATHER (10) ===
+  // === NATURE & WEATHER (9) ===
   { id: 'sun', component: Sun, tags: ['nature', 'weather', 'energy', 'bright', 'summer'] },
-  { id: 'moon', component: Moon, tags: ['nature', 'weather', 'night', 'calm', 'serene'] },
   { id: 'cloud', component: Cloud, tags: ['nature', 'weather', 'soft', 'tech', 'storage'] },
   { id: 'flame', component: Flame, tags: ['nature', 'energy', 'passion', 'hot', 'dynamic'] },
   { id: 'droplets', component: Droplets, tags: ['nature', 'water', 'clean', 'pure', 'fresh'] },
@@ -47,19 +64,18 @@ export const availableIcons: IconData[] = [
   { id: 'mountain', component: Mountain, tags: ['nature', 'strength', 'stability', 'adventure', 'outdoor'] },
   { id: 'zap', component: Zap, tags: ['energy', 'power', 'electric', 'fast', 'dynamic'] },
 
-  // === BUSINESS & FINANCE (10) ===
+  // === BUSINESS & FINANCE (9) ===
   { id: 'dollar-sign', component: DollarSign, tags: ['business', 'finance', 'money', 'profit', 'success'] },
   { id: 'trending-up', component: TrendingUp, tags: ['business', 'growth', 'success', 'progress', 'analytics'] },
-  { id: 'trending-down', component: TrendingDown, tags: ['business', 'analytics', 'decline', 'data'] },
   { id: 'bar-chart', component: BarChart, tags: ['business', 'analytics', 'data', 'statistics', 'reporting'] },
   { id: 'pie-chart', component: PieChart, tags: ['business', 'analytics', 'data', 'statistics', 'distribution'] },
   { id: 'shopping-cart', component: ShoppingCart, tags: ['business', 'ecommerce', 'retail', 'shopping', 'commerce'] },
   { id: 'credit-card', component: CreditCard, tags: ['business', 'finance', 'payment', 'transaction', 'money'] },
   { id: 'building', component: Building, tags: ['business', 'corporate', 'office', 'company', 'professional'] },
-  { id: 'briefcase', component: Target, tags: ['business', 'professional', 'work', 'career', 'corporate'] },
-  { id: 'handshake', component: Users, tags: ['business', 'partnership', 'collaboration', 'trust', 'agreement'] },
+  { id: 'briefcase', component: Briefcase, tags: ['business', 'professional', 'work', 'career', 'corporate'] },
+  { id: 'handshake', component: Handshake, tags: ['business', 'partnership', 'collaboration', 'trust', 'agreement'] },
 
-  // === TECHNOLOGY & DIGITAL (15) ===
+  // === TECHNOLOGY & DIGITAL (13) ===
   { id: 'code', component: Code, tags: ['tech', 'development', 'programming', 'digital', 'software'] },
   { id: 'smartphone', component: Smartphone, tags: ['tech', 'mobile', 'communication', 'modern', 'digital'] },
   { id: 'laptop', component: Laptop, tags: ['tech', 'computer', 'work', 'digital', 'productivity'] },
@@ -302,18 +318,12 @@ export function getInitialSuggestions(industry: string, keywords: string[]): Sug
     'tree', 'flower', 'building', 'handshake', 'phone'
   ];
   
-  // Always return exactly these 24 icons in this exact order
-  const suggestedIcons = availableIcons.filter(icon => 
-    fixed24RegularIconIds.includes(icon.id)
-  ).sort((a, b) => 
-    fixed24RegularIconIds.indexOf(a.id) - fixed24RegularIconIds.indexOf(b.id)
-  );
+  // Return ALL 120 icons in their defined order
+  const suggestedIcons = availableIcons;
 
-  // SAFETY CHECK: Ensure we always have exactly 24 icons
-  if (suggestedIcons.length !== 24) {
-    console.error(`ERROR: Expected 24 icons but got ${suggestedIcons.length}. Missing icons:`, 
-      fixed24RegularIconIds.filter(id => !suggestedIcons.some(icon => icon.id === id))
-    );
+  // SAFETY CHECK: Ensure we have all 120 icons
+  if (suggestedIcons.length !== 120) {
+    console.error(`ERROR: Expected 120 icons but got ${suggestedIcons.length}.`);
   }
 
   // Convert font categories to FontData format

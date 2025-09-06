@@ -46,7 +46,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
   const [neonMode, setNeonMode] = useState<boolean>(false);
   const [selectedColorCombo, setSelectedColorCombo] = useState<string | null>(null);
-  const [showAllIcons, setShowAllIcons] = useState<boolean>(false);
+  const [visibleIconCount, setVisibleIconCount] = useState<number>(24);
   
   // Reset color combination selection when palette changes to a base color
   useEffect(() => {
@@ -154,7 +154,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   </button>
                 </div>
                 <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                  {(showAllIcons ? regularIcons.slice(0, 48) : regularIcons.slice(0, 24)).map(icon => (
+                  {regularIcons.slice(0, visibleIconCount).map(icon => (
                     <SelectionCard 
                       key={icon.id} 
                       isSelected={config.icon?.id === icon.id} 
@@ -174,29 +174,34 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   ))}
                 </div>
                 
-                {/* Show More/Less Button */}
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={() => setShowAllIcons(!showAllIcons)}
-                    className="text-white/60 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 mx-auto"
-                  >
-                    {showAllIcons ? (
-                      <>
-                        Show Less Icons (24 fewer)
-                        <svg className="w-4 h-4 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* Show More/Less Buttons */}
+                {regularIcons.length > visibleIconCount && (
+                  <div className="mt-4 text-center space-y-2">
+                    <button
+                      onClick={() => setVisibleIconCount(prev => Math.min(prev + 24, regularIcons.length))}
+                      className="text-white/60 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 mx-auto bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg border border-white/20"
+                    >
+                      Show Next 24 Icons
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    {visibleIconCount > 24 && (
+                      <button
+                        onClick={() => setVisibleIconCount(24)}
+                        className="text-white/60 hover:text-white text-xs font-medium transition-colors flex items-center gap-2 mx-auto"
+                      >
+                        <svg className="w-3 h-3 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
-                      </>
-                    ) : (
-                      <>
-                        Show More Icons (+24 more)
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </>
+                        Reset to first 24
+                      </button>
                     )}
-                  </button>
-                </div>
+                    <div className="text-xs text-white/40">
+                      Showing {visibleIconCount} of {regularIcons.length} icons
+                    </div>
+                  </div>
+                )}
               </div>
             </Section>
           </div>
