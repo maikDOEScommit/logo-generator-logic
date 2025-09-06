@@ -1,0 +1,132 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+
+interface Wave {
+  gradient: CanvasGradient;
+  amplitude: number;
+  frequency: number;
+  speed: number;
+  yOffset: number;
+}
+
+const AnimatedWaves = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationFrameRef = useRef<number>();
+  const wavesRef = useRef<Wave[]>([]);
+  const frameRef = useRef<number>(0);
+
+  const createGradient = (ctx: CanvasRenderingContext2D, colors: [string, string], width: number): CanvasGradient => {
+    const gradient = ctx.createLinearGradient(0, 0, width, 0);
+    gradient.addColorStop(0, colors[0]);
+    gradient.addColorStop(1, colors[1]);
+    return gradient;
+  };
+
+  const setupWaves = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
+    const height = canvas.clientHeight;
+    const width = canvas.clientWidth;
+    
+    wavesRef.current = [
+      {
+        gradient: createGradient(ctx, ["#FF00E5", "#A855F7"], width),
+        amplitude: 25,
+        frequency: 0.008,
+        speed: 0.018,
+        yOffset: height / 2,
+      },
+      {
+        gradient: createGradient(ctx, ["#03F5C3", "#00B8FF"], width),
+        amplitude: 15,
+        frequency: 0.01,
+        speed: -0.022,
+        yOffset: height / 2,
+      },
+      {
+        gradient: createGradient(ctx, ["#00D4FF", "#F50087"], width),
+        amplitude: 20,
+        frequency: 0.012,
+        speed: 0.012,
+        yOffset: height / 2,
+      },
+    ];
+  };
+
+  const animate = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    wavesRef.current.forEach((wave) => {
+      ctx.beginPath();
+      ctx.strokeStyle = wave.gradient;
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = "#FF00E5";
+      ctx.shadowBlur = 10;
+
+      for (let x = -5; x < canvas.clientWidth + 5; x++) {
+        const y =
+          wave.yOffset +
+          wave.amplitude *
+            Math.sin(x * wave.frequency + frameRef.current * wave.speed);
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    });
+
+    frameRef.current++;
+    animationFrameRef.current = requestAnimationFrame(() => animate(ctx, canvas));
+  };
+
+  const resizeCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const container = canvas.parentElement;
+    if (!container) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = container.clientWidth * dpr;
+    canvas.height = container.clientHeight * dpr;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.scale(dpr, dpr);
+    setupWaves(ctx, canvas);
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    resizeCanvas();
+    animate(ctx, canvas);
+
+    const handleResize = () => {
+      resizeCanvas();
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return (
+    <div className="w-full h-24 bg-gradient-to-r from-gray-800/20 to-gray-900/30 rounded-xl overflow-hidden border border-white/10">
+      <canvas 
+        ref={canvasRef}
+        className="w-full h-full rounded-xl"
+        style={{ display: 'block' }}
+      />
+    </div>
+  );
+};
+
+export default AnimatedWaves;

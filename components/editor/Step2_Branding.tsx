@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { personalities } from '@/lib/data';
 import { LogoConfig } from '@/lib/types';
 import { useLogoStore } from '@/lib/state';
+import AnimatedWaves from '@/components/ui/AnimatedWaves';
 
 interface Props {
   config: LogoConfig;
@@ -33,6 +34,16 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
           </span>
         </div>
       </div>
+
+      {/* Animated Waves Divider */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="w-full"
+      >
+        <AnimatedWaves />
+      </motion.div>
 
       {/* Slogan Input */}
       <div className="text-center mt-4">
