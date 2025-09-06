@@ -1,6 +1,7 @@
 'use client';
 
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { Check, Crown, Zap, Download, Star, Shield, Rocket } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -262,6 +263,8 @@ export default function PricingPage() {
           </div>
         </div>
       </motion.section>
+      
+      <Footer />
     </div>
   );
 }

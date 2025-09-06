@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { motion } from 'framer-motion';
 import { 
   Palette, Code, Heart, Zap, Leaf, Coffee, Camera, Music, 
@@ -338,6 +339,8 @@ export default function ExamplesPage() {
           </div>
         </div>
       </motion.section>
+      
+      <Footer />
     </div>
   );
 }
