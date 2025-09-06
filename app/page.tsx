@@ -579,7 +579,7 @@ export default function LogoGeneratorPage() {
           }}
           className={`p-8 md:p-12 min-h-screen sticky top-0 flex flex-col ${visibleSections.includes(4) ? 'hidden' : 'md:block hidden'} relative ${expandPreviewPanel ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
           style={{
-            background: `radial-gradient(circle at top left, #111827 0%, #111827 70%, #0F0F0F 85%, #000000 95%)`
+            background: `radial-gradient(circle at top left, var(--bg-gradient-light, #111827) 0%, var(--bg-gradient-light, #111827) 70%, #0F0F0F 85%, #000000 95%)`
           }}
         >
           {/* Horizontal Border-Top Animation - starts after panel slides in, fills right to left */}

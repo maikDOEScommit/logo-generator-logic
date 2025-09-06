@@ -11,6 +11,7 @@
     --text-primary: theme('colors.white');
     --text-secondary: theme('colors.gray.300');
     --border-color: theme('colors.white' / 0.2);
+    --bg-gradient-light: #111827; /* Keep dark blue gradient in dark mode */
   }
   
   /* Light Mode */
@@ -20,6 +21,7 @@
     --text-primary: theme('colors.gray.900');
     --text-secondary: theme('colors.gray.600');
     --border-color: theme('colors.gray.200');
+    --bg-gradient-light: #FFFFFF; /* Change blue parts to white in light mode */
   }
   
   /* Base transitions for smooth theme switching */
