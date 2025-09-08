@@ -465,29 +465,34 @@ export default function AdvancedFabricLogoEditor({
   useEffect(() => {
     console.log('🚀 useEffect triggered - will check for canvas DOM element');
     
-    // Small delay to ensure DOM is ready
-    const initDelay = setTimeout(() => {
-      console.log('🔍 Checking if canvas DOM element is available...');
+    let retryCount = 0;
+    const maxRetries = 10;
+    
+    const attemptInitialization = () => {
+      console.log(`🔍 Checking if canvas DOM element is available... (attempt ${retryCount + 1})`);
+      
       if (canvasRef.current) {
         console.log('✅ Canvas DOM element found, initializing Fabric.js');
         initializeFabricCanvas();
-      } else {
-        console.log('⏱️ Canvas DOM element not yet available, retrying...');
-        // Retry after another small delay
-        const retryDelay = setTimeout(() => {
-          if (canvasRef.current) {
-            console.log('✅ Canvas DOM element found on retry, initializing Fabric.js');
-            initializeFabricCanvas();
-          } else {
-            console.error('❌ Canvas DOM element still not available after retry');
-          }
-        }, 100);
-        return () => clearTimeout(retryDelay);
+        return;
       }
-    }, 50);
+      
+      retryCount++;
+      if (retryCount < maxRetries) {
+        console.log(`⏱️ Canvas DOM element not yet available, retrying in ${50 * retryCount}ms...`);
+        setTimeout(attemptInitialization, 50 * retryCount);
+      } else {
+        console.error('❌ Canvas DOM element still not available after all retries');
+        // Force show the editor anyway as a fallback
+        setFabricLoaded(true);
+      }
+    };
+
+    // Start the initialization attempt after a short delay
+    const initialDelay = setTimeout(attemptInitialization, 100);
 
     return () => {
-      clearTimeout(initDelay);
+      clearTimeout(initialDelay);
       // Cleanup
       if (fabricCanvasRef.current) {
         fabricCanvasRef.current.dispose();
@@ -495,49 +500,47 @@ export default function AdvancedFabricLogoEditor({
     };
   }, []);
 
-  if (!fabricLoaded) {
-    return (
-      <div className="fixed inset-0 bg-gray-900 text-white z-50 flex flex-col items-center justify-center">
-        <div className="text-white text-lg mb-4">Loading Advanced Editor...</div>
-        <div className="text-sm text-gray-400 mb-4">Initializing Fabric.js canvas...</div>
-        <button 
-          onClick={onClose}
-          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
-        >
-          Close
-        </button>
-        {/* Fallback: Load editor anyway after 5 seconds */}
-        <div className="mt-4 space-y-2">
-          <button 
-            onClick={() => {
-              console.log('🔧 Force loading editor...');
-              setFabricLoaded(true);
-            }}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm block mx-auto"
-          >
-            Force Load Editor (Debug)
-          </button>
-          
-          <button 
-            onClick={() => {
-              console.log('🔄 Retrying initialization...');
-              initializeFabricCanvas();
-            }}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm block mx-auto"
-          >
-            Retry Initialize
-          </button>
-          
-          <div className="text-xs text-gray-500 text-center mt-2">
-            Check browser console for debug info
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="fixed inset-0 bg-gray-900 text-white z-50 flex">
+      {/* Loading Overlay */}
+      {!fabricLoaded && (
+        <div className="absolute inset-0 bg-gray-900 text-white z-60 flex flex-col items-center justify-center">
+          <div className="text-white text-lg mb-4">Loading Advanced Editor...</div>
+          <div className="text-sm text-gray-400 mb-4">Initializing Fabric.js canvas...</div>
+          <button 
+            onClick={onClose}
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+          >
+            Close
+          </button>
+          {/* Fallback: Load editor anyway after 5 seconds */}
+          <div className="mt-4 space-y-2">
+            <button 
+              onClick={() => {
+                console.log('🔧 Force loading editor...');
+                setFabricLoaded(true);
+              }}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm block mx-auto"
+            >
+              Force Load Editor (Debug)
+            </button>
+            
+            <button 
+              onClick={() => {
+                console.log('🔄 Retrying initialization...');
+                initializeFabricCanvas();
+              }}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm block mx-auto"
+            >
+              Retry Initialize
+            </button>
+            
+            <div className="text-xs text-gray-500 text-center mt-2">
+              Check browser console for debug info
+            </div>
+          </div>
+        </div>
+      )}
       {/* Main Canvas Area */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="relative bg-white rounded-lg shadow-2xl">

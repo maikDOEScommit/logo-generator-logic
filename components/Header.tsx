@@ -44,6 +44,7 @@ export const Header = () => {
           mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
           mask-composite: xor;
           -webkit-mask-composite: xor;
+          pointer-events: none;
         }
         .navbar-glass::after {
           content: '';
@@ -60,6 +61,7 @@ export const Header = () => {
             transparent 100%
           );
           border-radius: 12px 12px 0 0;
+          pointer-events: none;
         }
       `}</style>
       <header className="absolute top-0 left-0 w-full p-4 z-10">
