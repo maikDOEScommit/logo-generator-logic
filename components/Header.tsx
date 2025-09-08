@@ -22,10 +22,44 @@ export const Header = () => {
       <style jsx>{`
         .navbar-glass {
           background: rgba(255, 255, 255, 0.05);
+          position: relative;
         }
         .navbar-glass:hover {
           background: rgba(255, 255, 255, 0.08);
           transition: all 0.3s ease-in-out;
+        }
+        .navbar-glass::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 12px;
+          padding: 1px;
+          background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.3) 0%,
+            rgba(255, 255, 255, 0.1) 25%,
+            transparent 50%,
+            rgba(255, 255, 255, 0.1) 75%,
+            rgba(255, 255, 255, 0.3) 100%
+          );
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: xor;
+          -webkit-mask-composite: xor;
+        }
+        .navbar-glass::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, 
+            transparent 0%,
+            rgba(255, 255, 255, 0.6) 20%,
+            rgba(255, 255, 255, 0.9) 50%,
+            rgba(255, 255, 255, 0.6) 80%,
+            transparent 100%
+          );
+          border-radius: 12px 12px 0 0;
         }
       `}</style>
       <header className="absolute top-0 left-0 w-full p-4 z-10">

@@ -32,6 +32,117 @@
   }
 }
 
+/* Light Mode Text and Input Fixes */
+@layer utilities {
+  /* Make all text dark in light mode */
+  html:not(.dark) h1,
+  html:not(.dark) h2, 
+  html:not(.dark) h3,
+  html:not(.dark) h4,
+  html:not(.dark) h5,
+  html:not(.dark) h6,
+  html:not(.dark) p,
+  html:not(.dark) span,
+  html:not(.dark) div,
+  html:not(.dark) label,
+  html:not(.dark) .text-white {
+    color: theme('colors.gray.900') !important;
+  }
+
+  /* Fix input styles for light mode */
+  html:not(.dark) input {
+    background-color: theme('colors.white') !important;
+    border: 1px solid theme('colors.gray.300') !important;
+    color: theme('colors.gray.900') !important;
+  }
+
+  html:not(.dark) input::placeholder {
+    color: theme('colors.gray.500') !important;
+  }
+
+  /* Fix text opacity classes in light mode */
+  html:not(.dark) .text-white\/60,
+  html:not(.dark) .text-white\/50,
+  html:not(.dark) .text-white\/40 {
+    color: theme('colors.gray.600') !important;
+  }
+
+  /* Fix background opacity classes in light mode */
+  html:not(.dark) .bg-white\/5,
+  html:not(.dark) .bg-white\/10,
+  html:not(.dark) .bg-white\/20 {
+    background-color: theme('colors.white') !important;
+    border: 1px solid theme('colors.gray.300') !important;
+  }
+
+  /* Fix border opacity classes in light mode */
+  html:not(.dark) .border-white\/20,
+  html:not(.dark) .border-white\/30 {
+    border-color: theme('colors.gray.300') !important;
+  }
+
+  /* Fix white icons in light mode - make them black */
+  html:not(.dark) svg {
+    color: theme('colors.gray.900') !important;
+  }
+
+  /* Fix icons in preview selections and cards */
+  html:not(.dark) .text-white svg,
+  html:not(.dark) svg.text-white,
+  html:not(.dark) [class*="SelectionCard"] svg,
+  html:not(.dark) [class*="preview"] svg {
+    color: theme('colors.gray.900') !important;
+    fill: theme('colors.gray.900') !important;
+  }
+
+  /* Force black color for symbol icons that have explicit white color prop */
+  html:not(.dark) svg[color="white"] {
+    color: theme('colors.gray.900') !important;
+    fill: theme('colors.gray.900') !important;
+  }
+
+  /* Fix layout shape components */
+  html:not(.dark) .flex.flex-col.items-center svg,
+  html:not(.dark) [class*="shape"] svg {
+    color: theme('colors.gray.900') !important;
+    fill: theme('colors.gray.900') !important;
+    stroke: theme('colors.gray.900') !important;
+  }
+
+  /* Light Mode Loading Screen Styles */
+  html:not(.dark) .fixed.inset-0.bg-gradient-to-br.from-gray-900 {
+    background: linear-gradient(135deg, theme('colors.gray.50'), theme('colors.white'), theme('colors.gray.100')) !important;
+  }
+
+  /* Loading screen text colors in light mode */
+  html:not(.dark) .text-white\/70 {
+    color: theme('colors.gray.600') !important;
+  }
+
+  html:not(.dark) .text-white\/60 {
+    color: theme('colors.gray.500') !important;
+  }
+
+  html:not(.dark) .text-white\/50 {
+    color: theme('colors.gray.400') !important;
+  }
+
+  html:not(.dark) .text-white\/40 {
+    color: theme('colors.gray.400') !important;
+  }
+
+  /* Loading screen particles in light mode */
+  html:not(.dark) .bg-blue-400\/30 {
+    background-color: theme('colors.blue.500') !important;
+    opacity: 0.6 !important;
+  }
+
+  /* Loading screen progress bar background in light mode */
+  html:not(.dark) .bg-white\/10 {
+    background-color: theme('colors.gray.200') !important;
+  }
+}
+
 body {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */

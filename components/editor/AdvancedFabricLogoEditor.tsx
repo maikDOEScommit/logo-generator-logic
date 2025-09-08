@@ -59,6 +59,8 @@ export default function AdvancedFabricLogoEditor({
   onConfigUpdate,
   onClose
 }: AdvancedFabricLogoEditorProps) {
+  console.log('🔥 AdvancedFabricLogoEditor rendering...', config);
+  
   // Canvas and Fabric refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricCanvasRef = useRef<FabricCanvas | null>(null);
@@ -76,11 +78,18 @@ export default function AdvancedFabricLogoEditor({
 
   // Initialize Fabric.js canvas
   const initializeFabricCanvas = useCallback(async () => {
-    if (!canvasRef.current) return;
+    console.log('🔄 Starting Fabric canvas initialization...');
+    if (!canvasRef.current) {
+      console.error('❌ Canvas ref is null');
+      return;
+    }
+    console.log('✅ Canvas ref exists');
 
     try {
+      console.log('📦 Importing Fabric.js...');
       // Dynamic import of fabric
       const fabric = (await import('fabric')).fabric;
+      console.log('✅ Fabric.js imported successfully', fabric);
       
       const canvas = new fabric.Canvas(canvasRef.current, {
         width: 800,
@@ -91,10 +100,20 @@ export default function AdvancedFabricLogoEditor({
       });
 
       fabricCanvasRef.current = canvas as any;
+      console.log('✅ Canvas created and stored in ref');
+      
       setFabricLoaded(true);
+      console.log('✅ fabricLoaded set to true');
 
       // Initialize with logo content
-      await initializeLogoContent(canvas, fabric);
+      console.log('🎨 Initializing logo content...');
+      try {
+        await initializeLogoContent(canvas, fabric);
+        console.log('✅ Logo content initialized successfully');
+      } catch (error) {
+        console.error('❌ Failed to initialize logo content:', error);
+        // Continue anyway, editor should work without logo content
+      }
 
       console.log('✅ Fabric.js canvas initialized successfully');
 
@@ -444,20 +463,75 @@ export default function AdvancedFabricLogoEditor({
 
   // Initialize canvas on component mount
   useEffect(() => {
-    initializeFabricCanvas();
+    console.log('🚀 useEffect triggered - will check for canvas DOM element');
+    
+    // Small delay to ensure DOM is ready
+    const initDelay = setTimeout(() => {
+      console.log('🔍 Checking if canvas DOM element is available...');
+      if (canvasRef.current) {
+        console.log('✅ Canvas DOM element found, initializing Fabric.js');
+        initializeFabricCanvas();
+      } else {
+        console.log('⏱️ Canvas DOM element not yet available, retrying...');
+        // Retry after another small delay
+        const retryDelay = setTimeout(() => {
+          if (canvasRef.current) {
+            console.log('✅ Canvas DOM element found on retry, initializing Fabric.js');
+            initializeFabricCanvas();
+          } else {
+            console.error('❌ Canvas DOM element still not available after retry');
+          }
+        }, 100);
+        return () => clearTimeout(retryDelay);
+      }
+    }, 50);
 
     return () => {
+      clearTimeout(initDelay);
       // Cleanup
       if (fabricCanvasRef.current) {
         fabricCanvasRef.current.dispose();
       }
     };
-  }, [initializeFabricCanvas]);
+  }, []);
 
   if (!fabricLoaded) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-900">
-        <div className="text-white text-lg">Loading Advanced Editor...</div>
+      <div className="fixed inset-0 bg-gray-900 text-white z-50 flex flex-col items-center justify-center">
+        <div className="text-white text-lg mb-4">Loading Advanced Editor...</div>
+        <div className="text-sm text-gray-400 mb-4">Initializing Fabric.js canvas...</div>
+        <button 
+          onClick={onClose}
+          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+        >
+          Close
+        </button>
+        {/* Fallback: Load editor anyway after 5 seconds */}
+        <div className="mt-4 space-y-2">
+          <button 
+            onClick={() => {
+              console.log('🔧 Force loading editor...');
+              setFabricLoaded(true);
+            }}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm block mx-auto"
+          >
+            Force Load Editor (Debug)
+          </button>
+          
+          <button 
+            onClick={() => {
+              console.log('🔄 Retrying initialization...');
+              initializeFabricCanvas();
+            }}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm block mx-auto"
+          >
+            Retry Initialize
+          </button>
+          
+          <div className="text-xs text-gray-500 text-center mt-2">
+            Check browser console for debug info
+          </div>
+        </div>
       </div>
     );
   }
