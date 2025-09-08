@@ -36,7 +36,18 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
           id="text"
           value={config.text || ''}
           onChange={handleTextChange}
-          className="w-full bg-white/5 p-3 rounded-lg border border-white/20 focus:ring-2 focus:ring-primary focus:outline-none"
+          className="w-full bg-white/5 p-3 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-transparent focus:border-transparent relative"
+          style={{
+            background: 'rgba(255, 255, 255, 0.05)'
+          }}
+          onFocus={(e) => {
+            e.target.style.borderImage = 'linear-gradient(135deg, #22d3ee 0%, #9333ea 100%) 1';
+            e.target.style.borderImageSlice = '1';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderImage = 'none';
+            e.target.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+          }}
           placeholder="e.g. Quantum Leap"
           maxLength={24}
         />
@@ -93,7 +104,18 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
               id="slogan"
               value={config.slogan || ''}
               onChange={(e) => updateConfig({ slogan: e.target.value })}
-              className="w-full bg-white/5 p-3 rounded-lg border border-white/20 focus:ring-2 focus:ring-primary focus:outline-none"
+              className="w-full bg-white/5 p-3 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-transparent focus:border-transparent relative"
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderImage = 'linear-gradient(135deg, #22d3ee 0%, #9333ea 100%) 1';
+                e.target.style.borderImageSlice = '1';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderImage = 'none';
+                e.target.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+              }}
               placeholder="e.g. Innovation at its finest"
               maxLength={50}
             />

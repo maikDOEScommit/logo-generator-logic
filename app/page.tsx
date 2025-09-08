@@ -20,6 +20,85 @@ import LogoPreview from '@/components/preview/LogoPreview';
 import MockupPreview from '@/components/preview/MockupPreview';
 import { fontCategories } from '@/lib/data';
 
+// === EXAMPLE BORDER BUTTON COMPONENT ===
+const ExampleBorderButton = () => {
+  const [showTopBorder, setShowTopBorder] = useState(false);
+  const [showLeftBorder, setShowLeftBorder] = useState(false);
+  const [showRightBorder, setShowRightBorder] = useState(false);
+  const [showBottomBorder, setShowBottomBorder] = useState(false);
+
+  const handleClick = () => {
+    // Reset animations
+    setShowTopBorder(false);
+    setShowLeftBorder(false);
+    setShowRightBorder(false);
+    setShowBottomBorder(false);
+    
+    // Start top border and right border simultaneously
+    setTimeout(() => {
+      setShowTopBorder(true);
+      setShowRightBorder(true);
+      
+      // Start left border and bottom border simultaneously after top/right borders complete
+      setTimeout(() => {
+        setShowLeftBorder(true);
+        setShowBottomBorder(true);
+      }, 900); // Wait for top/right border animations to complete
+    }, 100);
+  };
+
+  return (
+    <div className="mt-6">
+      <button
+        onClick={handleClick}
+        className="relative bg-white/5 border border-white/20 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 overflow-hidden"
+      >
+        {/* Horizontal Border-Top Animation - fills right to left */}
+        {showTopBorder && (
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 0.9, ease: "easeOut" }}
+            className="absolute top-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500 rounded-t-lg"
+          />
+        )}
+        
+        {/* Vertical Border-Left Animation - starts after horizontal border completes */}
+        {showLeftBorder && (
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: '100%' }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
+            className="absolute left-0 top-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 rounded-l-lg"
+          />
+        )}
+        
+        {/* Vertical Border-Right Animation - starts simultaneously with top border */}
+        {showRightBorder && (
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: '100%' }}
+            transition={{ duration: 0.9, ease: "easeOut" }}
+            className="absolute right-0 top-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 rounded-r-lg"
+          />
+        )}
+        
+        {/* Horizontal Border-Bottom Animation - starts simultaneously with left border */}
+        {showBottomBorder && (
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
+            className="absolute bottom-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500 rounded-b-lg"
+          />
+        )}
+        
+        <span className="relative z-10">Example Border Animation</span>
+      </button>
+    </div>
+  );
+};
+
 // === MAIN PAGE COMPONENT ===
 export default function LogoGeneratorPage() {
   const [step, setStep] = useState(1);
@@ -361,6 +440,9 @@ export default function LogoGeneratorPage() {
                 >
                   Create Brand!
                 </button>
+                
+                {/* Example Border Animation Button */}
+                <ExampleBorderButton />
               </motion.div>
             )}
           </AnimatePresence>

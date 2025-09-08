@@ -11,7 +11,7 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "hsl(252, 90%, 67%)", // Mehr violett-bläulich
+          DEFAULT: "#3b82f6", // blue-500 matching the 'brand' gradient start
           foreground: "hsl(0, 0%, 100%)",
         },
       },
