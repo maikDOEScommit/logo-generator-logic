@@ -84,7 +84,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
           <motion.div 
             initial={{ opacity: 0, x: -300 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 2.1, ease: "easeOut", type: "spring", stiffness: 50, delay: 0.25 }}
+            transition={{ duration: 2.1, ease: "easeOut", type: "spring", stiffness: 50, delay: 0.8 }}
             className="text-center mt-8"
           >
             <label htmlFor="slogan" className="block text-xl font-bold mb-2 text-white">Need a slogan?</label>
@@ -108,7 +108,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
           <motion.div 
             initial={{ opacity: 0, x: -300 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 2.1, ease: "easeOut", type: "spring", stiffness: 50, delay: 0.5 }}
+            transition={{ duration: 2.1, ease: "easeOut", type: "spring", stiffness: 50, delay: 1.0 }}
             className="mt-8 mb-8"
           >
             <button onClick={onNext} disabled={!config.text} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">

@@ -1,7 +1,7 @@
 // --- app/page.tsx ---
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLogoStore } from '@/lib/state';
 import { getInitialSuggestions } from '@/lib/suggestionEngine';
@@ -109,6 +109,7 @@ export default function LogoGeneratorPage() {
       document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   };
+
 
   // Handle next button clicks - reveal next section and scroll to it
   const handleSectionNext = (currentSection: number) => {
@@ -596,9 +597,9 @@ export default function LogoGeneratorPage() {
           {showLeftBorder && (
             <motion.div
               initial={{ height: 0 }}
-              animate={{ height: '100vh' }}
-              transition={{ duration: 0.9, ease: "easeOut" }}
-              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-[14px]"
+              animate={{ height: 'calc(100vh + 80px)' }}
+              transition={{ duration: 0.45, ease: "easeOut" }}
+              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-t-[14px]"
             />
           )}
           
@@ -606,18 +607,18 @@ export default function LogoGeneratorPage() {
           {showFinalBorder && (
             <motion.div
               initial={{ height: 0 }}
-              animate={{ height: '100vh' }}
-              transition={{ duration: 0.9, ease: "easeOut" }}
-              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-cyan-400 via-purple-600 to-blue-500 overflow-hidden rounded-[14px]"
+              animate={{ height: 'calc(100vh + 80px)' }}
+              transition={{ duration: 0.45, ease: "easeOut" }}
+              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-cyan-400 via-purple-600 to-blue-500 overflow-hidden rounded-t-[14px]"
             />
           )}
           {/* Original Animated Border - only show after first scroll trigger (replaces the new border) */}
           {visibleSections.includes(1) && showStartedText && !showLeftBorder && (
             <motion.div
               initial={{ height: 0 }}
-              animate={{ height: '100vh' }}
-              transition={{ duration: 0.9, delay: 0.45, ease: "easeOut" }}
-              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-[14px]"
+              animate={{ height: 'calc(100vh + 80px)' }}
+              transition={{ duration: 0.45, delay: 0.1125, ease: "easeOut" }}
+              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-t-[14px]"
             />
           )}
           <motion.div 

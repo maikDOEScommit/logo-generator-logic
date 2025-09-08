@@ -88,10 +88,10 @@ export default function AdvancedFabricLogoEditor({
     try {
       console.log('📦 Importing Fabric.js...');
       // Dynamic import of fabric
-      const { Canvas, Text, Rect, Group } = await import('fabric');
-      console.log('✅ Fabric.js imported successfully', Canvas);
+      const fabric = (await import('fabric')).fabric;
+      console.log('✅ Fabric.js imported successfully', fabric);
       
-      const canvas = new Canvas(canvasRef.current, {
+      const canvas = new fabric.Canvas(canvasRef.current, {
         width: 800,
         height: 600,
         backgroundColor: '#ffffff',
@@ -108,7 +108,7 @@ export default function AdvancedFabricLogoEditor({
       // Initialize with logo content
       console.log('🎨 Initializing logo content...');
       try {
-        await initializeLogoContent(canvas, { Text, Rect, Group });
+        await initializeLogoContent(canvas, fabric);
         console.log('✅ Logo content initialized successfully');
       } catch (error) {
         console.error('❌ Failed to initialize logo content:', error);
@@ -123,10 +123,10 @@ export default function AdvancedFabricLogoEditor({
   }, []);
 
   // Initialize logo content on canvas
-  const initializeLogoContent = async (canvas: any, fabricClasses: any) => {
+  const initializeLogoContent = async (canvas: any, fabric: any) => {
     // Add brand text if available
     if (config.text) {
-      const textObj = new fabricClasses.Text(config.text, {
+      const textObj = new fabric.Text(config.text, {
         left: 400,
         top: 250,
         fontSize: 48,
@@ -143,7 +143,7 @@ export default function AdvancedFabricLogoEditor({
 
     // Add slogan if available
     if (config.slogan) {
-      const sloganObj = new fabricClasses.Text(config.slogan, {
+      const sloganObj = new fabric.Text(config.slogan, {
         left: 400,
         top: 320,
         fontSize: 24,
@@ -162,7 +162,7 @@ export default function AdvancedFabricLogoEditor({
     if (config.icon) {
       try {
         // Create a placeholder rectangle for the icon (in real app, load actual SVG)
-        const iconRect = new fabricClasses.Rect({
+        const iconRect = new fabric.Rect({
           left: 400,
           top: 150,
           width: 64,
@@ -176,7 +176,7 @@ export default function AdvancedFabricLogoEditor({
         });
         
         // Add label for icon
-        const iconLabel = new fabricClasses.Text('📝', {
+        const iconLabel = new fabric.Text('📝', {
           left: 400,
           top: 150,
           fontSize: 32,
@@ -186,7 +186,7 @@ export default function AdvancedFabricLogoEditor({
           evented: false
         });
         
-        const iconGroup = new fabricClasses.Group([iconRect, iconLabel], {
+        const iconGroup = new fabric.Group([iconRect, iconLabel], {
           left: 400,
           top: 150,
           originX: 'center',
@@ -261,8 +261,8 @@ export default function AdvancedFabricLogoEditor({
       origY = pointer.y;
 
       // Dynamic import inside the function
-      import('fabric').then(({ Rect }) => {
-        rectangle = new Rect({
+      import('fabric').then(({ fabric }) => {
+        rectangle = new fabric.Rect({
           left: origX,
           top: origY,
           width: 0,
@@ -316,8 +316,8 @@ export default function AdvancedFabricLogoEditor({
       const pointer = canvas.getPointer(e.e);
       
       // Dynamic import inside the function
-      import('fabric').then(({ Text }) => {
-        const textObj = new Text('New Text', {
+      import('fabric').then(({ fabric }) => {
+        const textObj = new fabric.Text('New Text', {
           left: pointer.x,
           top: pointer.y,
           fontSize: 24,
@@ -358,9 +358,9 @@ export default function AdvancedFabricLogoEditor({
       fabricCanvasRef.current.clear();
       
       // Dynamic import of fabric
-      const { FabricImage } = await import('fabric');
+      const { fabric } = await import('fabric');
       
-      const imgInstance = new FabricImage(snapshot, {
+      const imgInstance = new fabric.Image(snapshot, {
         left: 0,
         top: 0,
         selectable: false,
@@ -445,8 +445,8 @@ export default function AdvancedFabricLogoEditor({
       fabricCanvasRef.current.backgroundColor = '#ffffff';
     } else {
       // Re-initialize with logo content in vector mode
-      import('fabric').then(({ Text, Rect, Group }) => {
-        initializeLogoContent(fabricCanvasRef.current, { Text, Rect, Group });
+      import('fabric').then(({ fabric }) => {
+        initializeLogoContent(fabricCanvasRef.current, fabric);
       });
     }
     

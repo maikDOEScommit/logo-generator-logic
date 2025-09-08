@@ -247,9 +247,6 @@ body::-webkit-scrollbar {
 .glowing-typography-container.selected .glowing-typography-btn {
   color: #3B82F6; /* Blue color for selected state */
   border-color: #3B82F6;
-  -webkit-box-shadow: inset 0px 0px 0.3em 0px rgba(59, 130, 246, 0.3), 0px 0px 0.3em 0px rgba(59, 130, 246, 0.3);
-  -moz-box-shadow: inset 0px 0px 0.3em 0px rgba(59, 130, 246, 0.3), 0px 0px 0.3em 0px rgba(59, 130, 246, 0.3);
-  box-shadow: inset 0px 0px 0.3em 0px rgba(59, 130, 246, 0.3), 0px 0px 0.3em 0px rgba(59, 130, 246, 0.3);
   transform: translateY(-1%) scale(1.01);
 }
 
@@ -263,6 +260,9 @@ body::-webkit-scrollbar {
 
 .glowing-typography-container.selected:hover .glowing-typography-btn {
   transform: rotateX(70deg) translateZ(-4px) scale(1.05);
+  -webkit-box-shadow: inset 0px 0px 0.3em 0px rgba(59, 130, 246, 0.3), 0px 0px 0.3em 0px rgba(59, 130, 246, 0.3), 0px 30px 25px -10px rgba(0, 0, 0, 0.6);
+  -moz-box-shadow: inset 0px 0px 0.3em 0px rgba(59, 130, 246, 0.3), 0px 0px 0.3em 0px rgba(59, 130, 246, 0.3), 0px 30px 25px -10px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0px 0px 0.3em 0px rgba(59, 130, 246, 0.3), 0px 0px 0.3em 0px rgba(59, 130, 246, 0.3), 0px 30px 25px -10px rgba(0, 0, 0, 0.6);
 }
 
 .glowing-typography-btn::before {
@@ -272,7 +272,7 @@ body::-webkit-scrollbar {
   bottom: 0;
   left: 0;
   right: 0;
-  opacity: 0.3;
+  opacity: 0;
   filter: blur(0.8em);
   background: currentColor;
   transform: translateY(80%) rotateX(0deg) scale(1, 0.5);
