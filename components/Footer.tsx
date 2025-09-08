@@ -3,8 +3,6 @@ import { Heart, Zap, Github, Twitter, Mail } from 'lucide-react';
 export const Footer = () => {
   return (
     <footer className="relative bg-gradient-to-b from-gray-900/50 to-black border-t border-white/10 mt-20">
-      {/* Decorative gradient line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
       
       <div className="max-w-6xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
