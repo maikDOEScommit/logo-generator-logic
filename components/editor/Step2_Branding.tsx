@@ -55,13 +55,25 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
           <motion.div 
             initial={{ opacity: 0, x: -300 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 2.1, ease: "easeOut", type: "spring", stiffness: 50 }}
+            transition={{ duration: 4.2, ease: "easeOut", type: "spring", stiffness: 50 }}
             className="flex items-center justify-center py-8 mt-4"
           >
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
+              initial={{ 
+                opacity: 0, 
+                scale: 0.95,
+                clipPath: "inset(0 100% 0 0)"
+              }}
+              animate={{ 
+                opacity: 1, 
+                scale: 1,
+                clipPath: "inset(0 0% 0 0)"
+              }}
+              transition={{ 
+                duration: 1.0, 
+                delay: 0.6,
+                clipPath: { duration: 1.5, ease: "easeOut" }
+              }}
               className="w-screen -mx-4 md:-mx-8 lg:-mx-12"
             >
               <AnimatedWaves />
