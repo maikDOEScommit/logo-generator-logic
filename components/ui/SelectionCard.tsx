@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 const SelectionCard = ({ children, isSelected, onClick, disabled = false }: { children: React.ReactNode, isSelected: boolean, onClick: () => void, disabled?: boolean }) => (
   <div
     onClick={disabled ? undefined : onClick}
-    className={`relative p-4 border rounded-lg h-24 flex items-center justify-center text-center transition-all duration-[800ms] ease-out group ${
+    className={`relative p-4 border rounded-lg min-h-24 flex items-center justify-center text-center transition-all duration-[800ms] ease-out group ${
       disabled 
         ? 'border-white/10 bg-white/5 opacity-50 cursor-not-allowed' 
         : isSelected 

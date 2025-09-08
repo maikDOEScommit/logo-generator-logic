@@ -448,14 +448,11 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 }
               }, 300);
             }}>
-            <div className={`flex flex-col items-center gap-2 h-full transition-opacity ${selectedBaseColor ? 'opacity-60' : 'opacity-100'}`}>
+            <div className={`flex flex-col items-center gap-2 h-full transition-opacity ${selectedBaseColor ? 'opacity-80' : 'opacity-100'}`}>
               <div className="flex gap-1 w-full h-12">
                 {palette.colors.map(c => <div key={c} style={{backgroundColor: c}} className="flex-1 h-full rounded"></div>)}
               </div>
               <span className="text-xs text-center text-white/80 px-2">{palette.name}</span>
-              {selectedBaseColor && (
-                <span className="text-xs text-center text-white/50">Klicken zum Wechseln</span>
-              )}
             </div>
           </SelectionCard>
         ))}
@@ -509,7 +506,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 )}
                 
                 {/* Hover tooltip */}
-                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
                   {palette.name}
                   {config.palette && !selectedBaseColor && <div className="text-white/70">Klicken zum Wechseln</div>}
                 </div>
@@ -585,7 +582,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             <div className="col-span-full mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
               <h4 className="text-lg font-bold text-white mb-3">Generierte Logo-Variationen ({colorAnalysis.variations.length})</h4>
               <p className="text-sm text-white/60 mb-4">Alle Variationen erfüllen WCAG-Kontraststandards für optimale Lesbarkeit.</p>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {colorAnalysis.variations.map((variation, index) => (
                   <SelectionCard 
                     key={variation.id} 
@@ -609,29 +606,29 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                       }, 300);
                     }}
                   >
-                    <div className="flex flex-col items-center gap-2 p-3">
+                    <div className="flex flex-col items-center gap-3 p-4">
                       {/* Mini Logo Preview */}
                       <div 
-                        className="w-full h-16 rounded flex items-center justify-center gap-2 text-xs"
+                        className="w-full h-20 rounded-lg flex items-center justify-center gap-2 text-sm"
                         style={{ backgroundColor: variation.backgroundColor }}
                       >
                         {config.icon && (
                           <config.icon.component 
-                            size={16} 
+                            size={20} 
                             color={variation.iconColor} 
                           />
                         )}
                         <span 
-                          className="font-semibold truncate"
+                          className="font-semibold truncate max-w-[120px]"
                           style={{ color: variation.textColor }}
                         >
                           {config.text || 'Logo'}
                         </span>
                       </div>
                       {/* Variation Info */}
-                      <div className="text-center">
-                        <p className="text-xs font-semibold text-white">{variation.name}</p>
-                        <p className="text-xs text-white/60 mt-1">{variation.description}</p>
+                      <div className="text-center min-h-[3rem] flex flex-col justify-center">
+                        <p className="text-sm font-semibold text-white mb-1">{variation.name}</p>
+                        <p className="text-xs text-white/60 leading-relaxed">{variation.description}</p>
                       </div>
                     </div>
                   </SelectionCard>

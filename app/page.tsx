@@ -284,10 +284,43 @@ export default function LogoGeneratorPage() {
           50% { opacity: 1; }
           100% { opacity: 0.8; }
         }
+        
+        .typography-style-button,
+        .typography-style-button:hover,
+        .typography-style-button:focus,
+        .typography-style-button:active,
+        .typography-style-button:visited,
+        .typography-style-button:focus-visible {
+          text-decoration: none !important;
+          color: rgba(255, 255, 255, 0.8) !important;
+          background-color: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(255, 255, 255, 0.2) !important;
+          outline: none !important;
+          box-shadow: none !important;
+        }
+        
+        .typography-style-button:hover {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+          border-color: rgba(255, 255, 255, 0.4) !important;
+        }
+        
+        .typography-style-button:active {
+          background-color: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(255, 255, 255, 0.2) !important;
+          outline: none !important;
+          box-shadow: none !important;
+        }
+        
+        .typography-style-button:focus {
+          background-color: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(255, 255, 255, 0.2) !important;
+          outline: none !important;
+          box-shadow: none !important;
+        }
       `}</style>
       <Header />
-      <main className={`min-h-screen w-full grid grid-cols-1 ${expandPreviewPanel ? 'md:grid-cols-1' : (showPreviewPanel && !visibleSections.includes(4)) ? 'md:grid-cols-2' : 'md:grid-cols-1'} pt-20 transition-all duration-500`}>
-        <div className={`p-4 md:p-8 lg:p-12 overflow-y-auto max-h-[calc(100vh-5rem)] ${expandPreviewPanel ? 'hidden' : (showPreviewPanel && !visibleSections.includes(4)) ? '' : 'md:col-span-1'} transition-all duration-500`}>
+      <main className={`relative w-full grid grid-cols-1 ${expandPreviewPanel ? 'md:grid-cols-1' : (showPreviewPanel && !visibleSections.includes(4)) ? 'md:grid-cols-2' : 'md:grid-cols-1'} pt-20 transition-all duration-500`} style={{ minHeight: '100vh' }}>
+        <div className={`p-4 md:p-8 lg:p-12 overflow-y-auto ${expandPreviewPanel ? 'hidden' : (showPreviewPanel && !visibleSections.includes(4)) ? '' : 'md:col-span-1'} transition-all duration-500`}>
 
           {/* === HERO SECTION === */}
           <AnimatePresence mode="wait">
@@ -470,11 +503,10 @@ export default function LogoGeneratorPage() {
                         <button
                           key={category.name}
                           onClick={() => setSelectedFontCategory(category.name)}
-                          className={`w-full p-3 rounded-lg border-2 transition-all duration-300 transform hover:scale-105 ${
-                            selectedFontCategory === category.name 
-                              ? 'border-primary bg-gradient-to-r from-blue-500/20 to-purple-600/20 text-white shadow-lg shadow-blue-500/25' 
-                              : 'border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10 text-white/80'
-                          }`}
+                          className="typography-style-button w-full p-3 rounded-lg border-2 border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10 text-white/80 transition-all duration-300 transform hover:scale-105"
+                          style={{
+                            textDecoration: 'none'
+                          }}
                         >
                           <div className="text-left">
                             <div className="font-semibold text-sm mb-1">{category.name}</div>
@@ -529,14 +561,14 @@ export default function LogoGeneratorPage() {
                   <div className="flex border-b border-white/20 mb-6">
                     <button 
                       onClick={() => setPreviewTab('preview')} 
-                      className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'}`}
+                      className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-white border-b-2 border-white' : 'text-white/50 hover:text-white'}`}
                     >
                       Preview
                     </button>
                     <button 
                       onClick={() => setPreviewTab('mockups')} 
                       disabled={!(isLogoConfigComplete && showLogoPreview)} 
-                      className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}
+                      className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-white border-b-2 border-white' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}
                     >
                       Mockups
                     </button>
@@ -578,9 +610,11 @@ export default function LogoGeneratorPage() {
             damping: 20, 
             stiffness: 100
           }}
-          className={`p-8 md:p-12 min-h-screen sticky top-0 flex flex-col ${visibleSections.includes(4) ? 'hidden' : 'md:block hidden'} relative ${expandPreviewPanel ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
+          className={`p-8 md:p-12 sticky top-0 flex flex-col ${visibleSections.includes(4) ? 'hidden' : 'md:block hidden'} relative ${expandPreviewPanel ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
           style={{
-            background: `rgba(8, 12, 20, 0.1875)`
+            background: `linear-gradient(to right, rgba(8, 12, 20, 0.02), rgba(8, 12, 20, 0.1875))`,
+            height: '100vh',
+            minHeight: '100vh'
           }}
         >
           {/* Horizontal Border-Top Animation - starts after panel slides in, fills right to left */}
@@ -597,7 +631,7 @@ export default function LogoGeneratorPage() {
           {showLeftBorder && (
             <motion.div
               initial={{ height: 0 }}
-              animate={{ height: 'calc(100vh + 80px)' }}
+              animate={{ height: '100vh' }}
               transition={{ duration: 0.45, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-t-[14px]"
             />
@@ -607,7 +641,7 @@ export default function LogoGeneratorPage() {
           {showFinalBorder && (
             <motion.div
               initial={{ height: 0 }}
-              animate={{ height: 'calc(100vh + 80px)' }}
+              animate={{ height: '100vh' }}
               transition={{ duration: 0.45, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 bg-gradient-to-b from-cyan-400 via-purple-600 to-blue-500 overflow-hidden rounded-t-[14px]"
             />
@@ -616,7 +650,7 @@ export default function LogoGeneratorPage() {
           {visibleSections.includes(1) && showStartedText && !showLeftBorder && (
             <motion.div
               initial={{ height: 0 }}
-              animate={{ height: 'calc(100vh + 80px)' }}
+              animate={{ height: '100vh' }}
               transition={{ duration: 0.45, delay: 0.1125, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-t-[14px]"
             />
@@ -628,8 +662,7 @@ export default function LogoGeneratorPage() {
             className="w-full h-2 bg-white/10 rounded-full mb-4"
           >
             <motion.div 
-              className="h-2 rounded-full" 
-              style={{ background: 'linear-gradient(to right, #22D3EE, #9333EA, #3B82F6)' }}
+              className="h-2 rounded-full bg-white"
               animate={{ width: `${progress}%` }} 
             />
           </motion.div>
@@ -640,8 +673,8 @@ export default function LogoGeneratorPage() {
             transition={{ duration: 0.5, delay: 0.8 }}
             className="flex border-b border-white/20 mb-6"
           >
-            <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'}`}>Preview</button>
-            <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
+            <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-white border-b-2 border-white' : 'text-white/50 hover:text-white'}`}>Preview</button>
+            <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-white border-b-2 border-white' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
           </motion.div>
 
           <div className="flex-grow overflow-y-auto overflow-x-visible pb-20">
@@ -838,8 +871,8 @@ export default function LogoGeneratorPage() {
                   transition={{ duration: 0.5, delay: 0.8 }}
                   className="flex border-b border-white/20 mb-6"
                 >
-                  <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'}`}>Preview</button>
-                  <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-primary border-b-2 border-primary' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
+                  <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-white border-b-2 border-white' : 'text-white/50 hover:text-white'}`}>Preview</button>
+                  <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-white border-b-2 border-white' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
                 </motion.div>
 
                 <div className="flex-grow overflow-y-auto">
