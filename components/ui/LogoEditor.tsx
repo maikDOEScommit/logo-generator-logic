@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
-import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users } from 'lucide-react';
+import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, Move, RotateCcw, Layers } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
+import AdvancedFabricLogoEditor from '@/components/editor/AdvancedFabricLogoEditor';
 
 interface LogoEditorProps {
   config: LogoConfig;
@@ -10,12 +11,51 @@ interface LogoEditorProps {
   availablePalettes: PaletteData[];
 }
 
+// Types for drawing tools
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface Stroke {
+  id: string;
+  tool: 'brush' | 'eraser' | 'box';
+  points: Point[];
+  color: string;
+  width: number;
+  rect?: { x: number; y: number; width: number; height: number };
+}
+
+interface EditLayer {
+  id: string;
+  name: string;
+  visible: boolean;
+  strokes: Stroke[];
+}
+
 const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes }: LogoEditorProps) => {
   const [showFullscreenEditor, setShowFullscreenEditor] = useState(false);
+  const [showAdvancedEditor, setShowAdvancedEditor] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [flippedCards, setFlippedCards] = useState<{[key: string]: boolean}>({});
   const [localConfig, setLocalConfig] = useState<LogoConfig>(config);
+  
+  // Drawing tool states
+  const [drawingTool, setDrawingTool] = useState<'brush' | 'eraser' | 'box' | 'move'>('brush');
+  const [brushSize, setBrushSize] = useState(10);
+  const [brushColor, setBrushColor] = useState('#000000');
+  const [boxWidth, setBoxWidth] = useState(50);
+  const [boxHeight, setBoxHeight] = useState(50);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [currentStroke, setCurrentStroke] = useState<Stroke | null>(null);
+  const [editLayers, setEditLayers] = useState<EditLayer[]>([
+    { id: 'layer-1', name: 'Drawing Layer', visible: true, strokes: [] }
+  ]);
+  
+  // Canvas refs
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const drawingRef = useRef({ drawing: false, startPoint: null as Point | null });
   
   // Sync local config with props
   useEffect(() => {
@@ -27,6 +67,168 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
     const newConfig = { ...localConfig, ...updates };
     setLocalConfig(newConfig);
     onConfigUpdate(updates);
+  };
+
+  // Drawing functions
+  const getPointFromEvent = (e: React.MouseEvent): Point => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    return { x, y };
+  };
+
+  const startDrawing = (e: React.MouseEvent) => {
+    const point = getPointFromEvent(e);
+    
+    if (drawingTool === 'brush' || drawingTool === 'eraser') {
+      const newStroke: Stroke = {
+        id: `stroke-${Date.now()}`,
+        tool: drawingTool,
+        points: [point],
+        color: drawingTool === 'eraser' ? '#FFFFFF' : brushColor,
+        width: brushSize
+      };
+      setCurrentStroke(newStroke);
+      setIsDrawing(true);
+      drawingRef.current.drawing = true;
+    } else if (drawingTool === 'box') {
+      drawingRef.current.drawing = true;
+      drawingRef.current.startPoint = point;
+    }
+  };
+
+  const continueDrawing = (e: React.MouseEvent) => {
+    if (!drawingRef.current.drawing) return;
+    
+    const point = getPointFromEvent(e);
+    
+    if ((drawingTool === 'brush' || drawingTool === 'eraser') && currentStroke) {
+      setCurrentStroke({
+        ...currentStroke,
+        points: [...currentStroke.points, point]
+      });
+    }
+  };
+
+  const endDrawing = (e: React.MouseEvent) => {
+    if (!drawingRef.current.drawing) return;
+    
+    const point = getPointFromEvent(e);
+    
+    if (drawingTool === 'box' && drawingRef.current.startPoint) {
+      const startPoint = drawingRef.current.startPoint;
+      const rect = {
+        x: Math.min(startPoint.x, point.x),
+        y: Math.min(startPoint.y, point.y),
+        width: Math.abs(point.x - startPoint.x),
+        height: Math.abs(point.y - startPoint.y)
+      };
+      
+      const boxStroke: Stroke = {
+        id: `box-${Date.now()}`,
+        tool: 'box',
+        points: [startPoint, point],
+        color: brushColor,
+        width: brushSize,
+        rect
+      };
+      
+      // Add box stroke to current layer
+      setEditLayers(prev => prev.map(layer => 
+        layer.id === 'layer-1' 
+          ? { ...layer, strokes: [...layer.strokes, boxStroke] }
+          : layer
+      ));
+    } else if (currentStroke) {
+      // Add brush/eraser stroke to current layer
+      setEditLayers(prev => prev.map(layer => 
+        layer.id === 'layer-1' 
+          ? { ...layer, strokes: [...layer.strokes, currentStroke] }
+          : layer
+      ));
+    }
+    
+    setCurrentStroke(null);
+    setIsDrawing(false);
+    drawingRef.current.drawing = false;
+    drawingRef.current.startPoint = null;
+  };
+
+  const clearDrawing = () => {
+    setEditLayers(prev => prev.map(layer => ({ ...layer, strokes: [] })));
+  };
+
+  const undoLastStroke = () => {
+    setEditLayers(prev => prev.map(layer => 
+      layer.id === 'layer-1' 
+        ? { ...layer, strokes: layer.strokes.slice(0, -1) }
+        : layer
+    ));
+  };
+
+  // Render drawing layers as SVG overlay
+  const renderDrawingLayers = () => {
+    const pointsToPath = (points: Point[]) => {
+      if (!points || points.length === 0) return "";
+      const [first, ...rest] = points;
+      return `M ${first.x} ${first.y}` + rest.map((p) => ` L ${p.x} ${p.y}`).join("");
+    };
+
+    return (
+      <svg
+        className="absolute inset-0 pointer-events-none w-full h-full"
+        style={{ zIndex: 10 }}
+      >
+        {editLayers.map(layer => 
+          layer.visible && layer.strokes.map(stroke => {
+            if (stroke.tool === 'box' && stroke.rect) {
+              return (
+                <rect
+                  key={stroke.id}
+                  x={stroke.rect.x}
+                  y={stroke.rect.y}
+                  width={stroke.rect.width}
+                  height={stroke.rect.height}
+                  fill={stroke.tool === 'eraser' ? 'rgba(255,255,255,0.8)' : stroke.color}
+                  stroke={stroke.color}
+                  strokeWidth={stroke.width}
+                  opacity={stroke.tool === 'eraser' ? 0.8 : 0.7}
+                />
+              );
+            } else {
+              return (
+                <path
+                  key={stroke.id}
+                  d={pointsToPath(stroke.points)}
+                  fill="none"
+                  stroke={stroke.color}
+                  strokeWidth={stroke.width}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  opacity={stroke.tool === 'eraser' ? 0.8 : 1}
+                />
+              );
+            }
+          })
+        )}
+        
+        {/* Render current stroke being drawn */}
+        {currentStroke && (
+          <path
+            d={pointsToPath(currentStroke.points)}
+            fill="none"
+            stroke={currentStroke.color}
+            strokeWidth={currentStroke.width}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity={0.7}
+          />
+        )}
+      </svg>
+    );
   };
 
   // Helper function to calculate dynamic font size based on text length
@@ -289,21 +491,27 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
         <div className="flex gap-2 justify-center">
           <button
             onClick={handleEdit}
-            className="flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors w-24"
+            className="flex items-center justify-center gap-2 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors"
           >
             <Edit size={14} /> Edit
           </button>
           <button
+            onClick={() => setShowAdvancedEditor(true)}
+            className="flex items-center justify-center gap-2 px-2 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded text-sm font-medium transition-colors"
+          >
+            <Layers size={14} /> Pro
+          </button>
+          <button
             onClick={handleSave}
-            className="flex items-center justify-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium transition-colors w-24"
+            className="flex items-center justify-center gap-2 px-2 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium transition-colors"
           >
             <Save size={14} /> Save
           </button>
           <button
             onClick={handlePurchase}
-            className="flex items-center justify-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm font-medium transition-colors w-24"
+            className="flex items-center justify-center gap-2 px-2 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm font-medium transition-colors"
           >
-            <ShoppingCart size={14} /> Purchase
+            <ShoppingCart size={14} /> Buy
           </button>
         </div>
       </div>
@@ -312,9 +520,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
       {showFullscreenEditor && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-full max-h-[90vh] flex">
-            {/* Logo Preview Side */}
+            {/* Logo Preview Side with Drawing Canvas */}
             <div className="flex-1 p-8 flex items-center justify-center border-r border-white/20">
-              <div className="bg-white rounded-lg p-12 max-w-md w-full aspect-square flex items-center justify-center" key={`${localConfig.fontWeight}-${localConfig.text}-${localConfig.font?.name}-${localConfig.palette?.id}`}>
+              <div className="relative bg-white rounded-lg p-12 max-w-md w-full aspect-square flex items-center justify-center" key={`${localConfig.fontWeight}-${localConfig.text}-${localConfig.font?.name}-${localConfig.palette?.id}`}>
+                
+                {/* Original Logo Content */}
                 {(() => {
                   console.log('Preview render with localConfig.fontWeight:', localConfig.fontWeight);
                   return renderLogoContent(
@@ -324,6 +534,31 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                     localConfig
                   );
                 })()}
+                
+                {/* Drawing Canvas Overlay */}
+                <div 
+                  ref={canvasRef}
+                  className="absolute inset-0 rounded-lg cursor-crosshair"
+                  onMouseDown={startDrawing}
+                  onMouseMove={continueDrawing}
+                  onMouseUp={endDrawing}
+                  onMouseLeave={endDrawing}
+                  style={{ 
+                    cursor: drawingTool === 'brush' ? 'crosshair' : 
+                           drawingTool === 'eraser' ? 'grab' : 
+                           drawingTool === 'box' ? 'copy' : 'move'
+                  }}
+                >
+                  {renderDrawingLayers()}
+                </div>
+                
+                {/* Tool indicator */}
+                <div className="absolute top-2 right-2 bg-gray-800/80 text-white px-2 py-1 rounded text-xs">
+                  {drawingTool === 'brush' ? `🖌️ Brush ${brushSize}px` :
+                   drawingTool === 'eraser' ? `🧽 Eraser ${brushSize}px` :
+                   drawingTool === 'box' ? `⬜ Box ${boxWidth}×${boxHeight}px` :
+                   '👋 Move'}
+                </div>
               </div>
             </div>
 
@@ -340,6 +575,124 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
               </div>
 
               <div className="space-y-6">
+                {/* Drawing Tools Section */}
+                <div>
+                  <h4 className="text-white font-semibold mb-3">Drawing Tools</h4>
+                  
+                  {/* Tool Selection */}
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    <button
+                      onClick={() => setDrawingTool('brush')}
+                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                        drawingTool === 'brush' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                      }`}
+                    >
+                      <Brush size={16} />
+                      Brush
+                    </button>
+                    <button
+                      onClick={() => setDrawingTool('eraser')}
+                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                        drawingTool === 'eraser' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                      }`}
+                    >
+                      <Eraser size={16} />
+                      Eraser
+                    </button>
+                    <button
+                      onClick={() => setDrawingTool('box')}
+                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                        drawingTool === 'box' ? 'bg-purple-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                      }`}
+                    >
+                      <Square size={16} />
+                      Box
+                    </button>
+                    <button
+                      onClick={() => setDrawingTool('move')}
+                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                        drawingTool === 'move' ? 'bg-green-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                      }`}
+                    >
+                      <Move size={16} />
+                      Move
+                    </button>
+                  </div>
+
+                  {/* Tool Settings */}
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-white/80 text-sm mb-1">Color</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={brushColor}
+                          onChange={(e) => setBrushColor(e.target.value)}
+                          className="w-10 h-8 rounded border border-white/20 cursor-pointer"
+                        />
+                        <span className="text-white/60 text-sm">{brushColor}</span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-white/80 text-sm mb-1">Brush/Eraser Size: {brushSize}px</label>
+                      <input
+                        type="range"
+                        min="2"
+                        max="50"
+                        value={brushSize}
+                        onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                        className="w-full slider"
+                      />
+                    </div>
+
+                    {drawingTool === 'box' && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">Box Width</label>
+                          <input
+                            type="number"
+                            min="10"
+                            max="200"
+                            value={boxWidth}
+                            onChange={(e) => setBoxWidth(parseInt(e.target.value) || 50)}
+                            className="w-full px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">Box Height</label>
+                          <input
+                            type="number"
+                            min="10"
+                            max="200"
+                            value={boxHeight}
+                            onChange={(e) => setBoxHeight(parseInt(e.target.value) || 50)}
+                            className="w-full px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Drawing Actions */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={undoLastStroke}
+                        className="flex items-center justify-center gap-1 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-sm transition-colors flex-1"
+                      >
+                        <RotateCcw size={14} />
+                        Undo
+                      </button>
+                      <button
+                        onClick={clearDrawing}
+                        className="flex items-center justify-center gap-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-sm transition-colors flex-1"
+                      >
+                        <X size={14} />
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Text Section */}
                 <div>
                   <h4 className="text-white font-semibold mb-3">Text</h4>
@@ -1030,6 +1383,15 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
             </div>
           </div>
         </div>
+      )}
+
+      {/* Advanced Fabric.js Editor */}
+      {showAdvancedEditor && (
+        <AdvancedFabricLogoEditor
+          config={localConfig}
+          onConfigUpdate={updateLocalConfig}
+          onClose={() => setShowAdvancedEditor(false)}
+        />
       )}
     </>
   );

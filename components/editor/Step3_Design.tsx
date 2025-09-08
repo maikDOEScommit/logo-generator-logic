@@ -103,6 +103,20 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
     // Automatisch Analyse mit aktueller Option durchführen
     const analysis = ColorLogic.analyzeColorChoice(baseColor, selectedColorOption);
     setColorAnalysis(analysis);
+    
+    // Automatisch die erste (beste) Variation als Standard-Palette setzen
+    if (analysis.variations.length > 0) {
+      const bestVariation = analysis.variations[0];
+      const palette: PaletteData = {
+        id: `${analysis.palette.id}-default`,
+        name: `${baseColor} (Standard)`,
+        colors: [bestVariation.backgroundColor, bestVariation.iconColor, bestVariation.textColor] as [string, string, string],
+        tags: ['generated', 'smart-color', 'auto-selected']
+      };
+      updateConfig({ palette });
+      console.log('🎯 Auto-Palette gesetzt:', palette);
+    }
+    
     console.log('🎨 Farbanalyse:', analysis);
   };
 
@@ -112,6 +126,20 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
     if (selectedBaseColor) {
       const analysis = ColorLogic.analyzeColorChoice(selectedBaseColor, option);
       setColorAnalysis(analysis);
+      
+      // Automatisch die erste (beste) Variation als Standard-Palette setzen
+      if (analysis.variations.length > 0) {
+        const bestVariation = analysis.variations[0];
+        const palette: PaletteData = {
+          id: `${analysis.palette.id}-default`,
+          name: `${selectedBaseColor} (${option})`,
+          colors: [bestVariation.backgroundColor, bestVariation.iconColor, bestVariation.textColor] as [string, string, string],
+          tags: ['generated', 'smart-color', 'auto-selected']
+        };
+        updateConfig({ palette });
+        console.log('🎯 Auto-Palette aktualisiert:', palette);
+      }
+      
       console.log('🎨 Farbanalyse aktualisiert:', analysis);
     }
   };
@@ -266,23 +294,27 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   {fontCategories.map((category) => (
                     <div key={category.name} className="flex items-center gap-8">
                       <div className="flex-shrink-0">
-                        <SelectionCard 
-                          isSelected={selectedFontCategory === category.name} 
-                          onClick={() => {
-                            setSelectedFontCategory(category.name);
-                            // Auto-scroll to layout section after selection
-                            setTimeout(() => {
-                              const element = document.querySelector('[data-section="layout"]');
-                              if (element) {
-                                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                              }
-                            }, 100);
-                          }}
-                        >
-                          <div className="text-center p-4 w-32">
-                            <p className="text-base font-semibold text-white">{category.name}</p>
-                          </div>
-                        </SelectionCard>
+                        <div className={`glowing-typography-container ${selectedFontCategory === category.name ? 'selected' : ''}`}>
+                          <button
+                            className="glowing-typography-btn"
+                            onClick={() => {
+                              setSelectedFontCategory(category.name);
+                              // Auto-scroll to layout section after selection
+                              setTimeout(() => {
+                                const element = document.querySelector('[data-section="layout"]');
+                                if (element) {
+                                  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+                              }, 100);
+                            }}
+                          >
+                            <span className="glowing-txt">
+                              {category.name.split('').map((letter, index) => (
+                                <span key={index} className={index === 1 ? 'faulty-letter' : ''}>{letter}</span>
+                              ))}
+                            </span>
+                          </button>
+                        </div>
                       </div>
                       <div className="flex-1">
                         <div className="text-white/80">
@@ -515,14 +547,14 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 {colorAnalysis.variations.map((variation, index) => (
                   <SelectionCard 
                     key={variation.id} 
-                    isSelected={false} 
+                    isSelected={config.palette?.id === variation.id || (index === 0 && config.palette?.tags?.includes('auto-selected') && config.palette?.id.includes('default'))} 
                     onClick={() => {
                       // Setze die ausgewählte Variation als aktuelle Palette
                       const palette: PaletteData = {
                         id: variation.id,
                         name: variation.name,
                         colors: [variation.backgroundColor, variation.iconColor, variation.textColor] as [string, string, string],
-                        tags: ['generated', 'smart-color']
+                        tags: ['generated', 'smart-color', 'user-selected']
                       };
                       updateConfig({ palette });
                       console.log('🎯 Logo-Variation gewählt:', variation);

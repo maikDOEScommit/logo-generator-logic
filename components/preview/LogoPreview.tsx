@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { LogoConfig, PaletteData } from '@/lib/types';
-import { Download, Save } from 'lucide-react';
+import { Download, Save, Edit3, Eye } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 import { useLogoStore } from '@/lib/state';
 import { fontCategories } from '@/lib/data';
 import LogoEditor from '@/components/ui/LogoEditor';
+import AdvancedLogoEditor from '@/components/editor/AdvancedLogoEditor';
 
 const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availablePalettes = [] }: { 
   config: LogoConfig; 
@@ -17,6 +18,9 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
   
   // State for individual logo editing
   const [logoConfigs, setLogoConfigs] = useState<{ [key: string]: LogoConfig }>({});
+  
+  // State for advanced editor
+  const [showAdvancedEditor, setShowAdvancedEditor] = useState(false);
   
   // Helper to get individual logo config or fallback to main config
   const getLogoConfig = (logoId: string): LogoConfig => {
@@ -326,9 +330,48 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
     console.log('Saving logo config:', { text, icon, layout, palette });
   };
 
+  // Show advanced editor if enabled
+  if (showAdvancedEditor) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-2xl text-white">Advanced Logo Editor</h3>
+          <button
+            onClick={() => setShowAdvancedEditor(false)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+          >
+            <Eye className="w-4 h-4" />
+            Back to Preview
+          </button>
+        </div>
+        <div className="bg-gray-900 rounded-lg overflow-hidden">
+          <AdvancedLogoEditor
+            config={config}
+            onConfigUpdate={(newConfig) => {
+              // Update the main config when changes are made in advanced editor
+              console.log('Advanced editor config update:', newConfig);
+            }}
+            onExport={(svg, format) => {
+              console.log(`Exported ${format}:`, svg.substring(0, 100) + '...');
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
-      <h3 className="text-2xl  text-white">Generated Logos: {selectedFontCategory} Category</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-2xl text-white">Generated Logos: {selectedFontCategory} Category</h3>
+        <button
+          onClick={() => setShowAdvancedEditor(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+        >
+          <Edit3 className="w-4 h-4" />
+          Advanced Editor
+        </button>
+      </div>
       
       {/* Show all fonts from the selected category */}
       {fontsToDisplay.map((font, fontIndex) => (
