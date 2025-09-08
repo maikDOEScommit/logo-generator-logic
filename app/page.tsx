@@ -561,14 +561,14 @@ export default function LogoGeneratorPage() {
                   <div className="flex border-b border-white/20 mb-6">
                     <button 
                       onClick={() => setPreviewTab('preview')} 
-                      className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-white border-b-2 border-white' : 'text-white/50 hover:text-white'}`}
+                      className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-white/90 border-b-2 border-white/90' : 'text-white/50 hover:text-white/90'}`}
                     >
                       Preview
                     </button>
                     <button 
                       onClick={() => setPreviewTab('mockups')} 
                       disabled={!(isLogoConfigComplete && showLogoPreview)} 
-                      className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-white border-b-2 border-white' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}
+                      className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-white/90 border-b-2 border-white/90' : 'text-white/50 hover:text-white/90'} disabled:text-white/20 disabled:cursor-not-allowed`}
                     >
                       Mockups
                     </button>
@@ -662,7 +662,7 @@ export default function LogoGeneratorPage() {
             className="w-full h-2 bg-white/10 rounded-full mb-4"
           >
             <motion.div 
-              className="h-2 rounded-full bg-white"
+              className="h-2 rounded-full bg-white/90"
               animate={{ width: `${progress}%` }} 
             />
           </motion.div>
@@ -673,8 +673,8 @@ export default function LogoGeneratorPage() {
             transition={{ duration: 0.5, delay: 0.8 }}
             className="flex border-b border-white/20 mb-6"
           >
-            <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-white border-b-2 border-white' : 'text-white/50 hover:text-white'}`}>Preview</button>
-            <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-white border-b-2 border-white' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
+            <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-white/90 border-b-2 border-white/90' : 'text-white/50 hover:text-white/90'}`}>Preview</button>
+            <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-white/90 border-b-2 border-white/90' : 'text-white/50 hover:text-white/90'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
           </motion.div>
 
           <div className="flex-grow overflow-y-auto overflow-x-visible pb-20">
@@ -871,8 +871,8 @@ export default function LogoGeneratorPage() {
                   transition={{ duration: 0.5, delay: 0.8 }}
                   className="flex border-b border-white/20 mb-6"
                 >
-                  <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-white border-b-2 border-white' : 'text-white/50 hover:text-white'}`}>Preview</button>
-                  <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-white border-b-2 border-white' : 'text-white/50 hover:text-white'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
+                  <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-white/90 border-b-2 border-white/90' : 'text-white/50 hover:text-white/90'}`}>Preview</button>
+                  <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-white/90 border-b-2 border-white/90' : 'text-white/50 hover:text-white/90'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
                 </motion.div>
 
                 <div className="flex-grow overflow-y-auto">
