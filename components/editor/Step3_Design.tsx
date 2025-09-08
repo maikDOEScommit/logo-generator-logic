@@ -432,23 +432,30 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           </div>
         </div>
         
-        {/* Regular Color Palettes (non-intense) */}
+        {/* Regular Color Palettes (non-intense) - Clickable to switch from base color mode */}
         {suggestedPalettes.filter(palette => !palette.tags?.includes('intense')).map(palette => (
-          <SelectionCard key={palette.id} isSelected={config.palette?.id === palette.id} onClick={() => {
-            updateConfig({ palette });
-            // Auto-scroll to Create Logo button
-            setTimeout(() => {
-              const createButton = document.querySelector('[data-create-logo]');
-              if (createButton) {
-                createButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }
-            }, 300);
-          }}>
-            <div className="flex flex-col items-center gap-2 h-full">
+          <SelectionCard 
+            key={palette.id} 
+            isSelected={config.palette?.id === palette.id && !selectedBaseColor} 
+            onClick={() => {
+              setSelectedBaseColor(null); // Clear base color when palette is selected
+              updateConfig({ palette });
+              // Auto-scroll to Create Logo button
+              setTimeout(() => {
+                const createButton = document.querySelector('[data-create-logo]');
+                if (createButton) {
+                  createButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }, 300);
+            }}>
+            <div className={`flex flex-col items-center gap-2 h-full transition-opacity ${selectedBaseColor ? 'opacity-60' : 'opacity-100'}`}>
               <div className="flex gap-1 w-full h-12">
                 {palette.colors.map(c => <div key={c} style={{backgroundColor: c}} className="flex-1 h-full rounded"></div>)}
               </div>
               <span className="text-xs text-center text-white/80 px-2">{palette.name}</span>
+              {selectedBaseColor && (
+                <span className="text-xs text-center text-white/50">Klicken zum Wechseln</span>
+              )}
             </div>
           </SelectionCard>
         ))}
@@ -468,71 +475,106 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
               {neonMode ? '✨ NEON!' : 'Neon!'}
             </button>
           </div>
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-3">
             {getDisplayedColors().map(palette => (
               <button
                 key={palette.id}
                 onClick={() => {
+                  // Clear regular palette selection when base color is selected
+                  updateConfig({ palette: null });
                   handleBaseColorSelection(palette.colors[0]);
                 }}
-                className={`h-12 rounded-lg border-2 transition-all transform hover:scale-105 ${
+                className={`relative group h-16 rounded-xl border-3 transition-all duration-300 transform hover:scale-110 ${
                   selectedBaseColor === palette.colors[0] 
-                    ? `border-white shadow-lg scale-105 ${neonMode ? 'shadow-white/50 animate-pulse' : 'shadow-white/25'}` 
-                    : 'border-white/20 hover:border-white/40'
+                    ? `border-white shadow-2xl scale-110 ${neonMode ? 'shadow-white/70 animate-pulse' : 'shadow-white/30'}` 
+                    : 'border-white/30 hover:border-white/60'
                 } ${neonMode ? 'hover:shadow-glow' : ''}`}
                 style={{
                   backgroundColor: palette.colors[0],
-                  boxShadow: neonMode ? `0 0 20px ${palette.colors[0]}40` : undefined
+                  boxShadow: neonMode ? `0 0 30px ${palette.colors[0]}60, inset 0 0 20px rgba(255,255,255,0.1)` : 'inset 0 0 20px rgba(255,255,255,0.1)',
+                  background: neonMode 
+                    ? `linear-gradient(135deg, ${palette.colors[0]} 0%, ${palette.colors[0]}CC 50%, ${palette.colors[0]} 100%)`
+                    : `linear-gradient(135deg, ${palette.colors[0]} 0%, ${palette.colors[0]}DD 100%)`
                 }}
                 title={palette.name}
-              />
+              >
+                {/* Modern glass effect overlay */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                
+                {/* Selection indicator */}
+                {selectedBaseColor === palette.colors[0] && (
+                  <div className="absolute inset-0 rounded-xl border-2 border-white/80 bg-white/10 flex items-center justify-center">
+                    <div className="w-4 h-4 bg-white rounded-full shadow-lg"></div>
+                  </div>
+                )}
+                
+                {/* Hover tooltip */}
+                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                  {palette.name}
+                  {config.palette && !selectedBaseColor && <div className="text-white/70">Klicken zum Wechseln</div>}
+                </div>
+                
+                {/* Mode switch indicator overlay when regular palette is active */}
+                {config.palette && !selectedBaseColor && (
+                  <div className="absolute inset-0 rounded-xl bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-white text-xs font-medium">Zu Grundfarbe</span>
+                  </div>
+                )}
+              </button>
             ))}
           </div>
           
           {/* Intelligente Farbkombinations-Optionen - Nur zeigen wenn eine Grundfarbe gewählt wurde */}
           {selectedBaseColor && (
             <div className="mt-4 p-4 bg-white/5 rounded-lg border border-white/10">
-              <h4 className="text-sm font-bold text-white mb-3">Farbkombination wählen:</h4>
-              <div className="grid grid-cols-4 gap-2">
+              <h4 className="text-sm font-bold text-white mb-3">Logo-Varianten erstellen:</h4>
+              <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => handleColorOptionChange('base-only')}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
+                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
                     selectedColorOption === 'base-only' 
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
                       : 'bg-white/10 hover:bg-white/20 text-white'
                   }`}
                 >
-                  Auto
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-6 h-4 rounded-sm" style={{ backgroundColor: selectedBaseColor }}></div>
+                    <span>Nur diese Farbe</span>
+                  </div>
                 </button>
                 <button
                   onClick={() => handleColorOptionChange('add-white')}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
+                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
                     selectedColorOption === 'add-white' 
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
                       : 'bg-white/10 hover:bg-white/20 text-white'
                   }`}
                 >
-                  + Weiß
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="flex gap-1">
+                      <div className="w-3 h-4 rounded-sm" style={{ backgroundColor: selectedBaseColor }}></div>
+                      <div className="w-3 h-4 rounded-sm bg-white"></div>
+                    </div>
+                    <span>+ Weiß</span>
+                    <span className="text-xs opacity-75">(2 Varianten)</span>
+                  </div>
                 </button>
                 <button
                   onClick={() => handleColorOptionChange('add-black')}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
+                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
                     selectedColorOption === 'add-black' 
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
                       : 'bg-white/10 hover:bg-white/20 text-white'
                   }`}
                 >
-                  + Schwarz
-                </button>
-                <button
-                  onClick={() => handleColorOptionChange('add-both')}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
-                    selectedColorOption === 'add-both' 
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
-                      : 'bg-white/10 hover:bg-white/20 text-white'
-                  }`}
-                >
-                  + Beide
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="flex gap-1">
+                      <div className="w-3 h-4 rounded-sm" style={{ backgroundColor: selectedBaseColor }}></div>
+                      <div className="w-3 h-4 rounded-sm bg-black"></div>
+                    </div>
+                    <span>+ Schwarz</span>
+                    <span className="text-xs opacity-75">(2 Varianten)</span>
+                  </div>
                 </button>
               </div>
             </div>

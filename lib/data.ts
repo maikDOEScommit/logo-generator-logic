@@ -19,6 +19,8 @@ export const colorPalettes: ColorPalette[] = [
   { name: "Elegant & Luxuriös", colors: ["#1E2022", "#D4AF37", "#800020", "#FFFFF0"] },
   { name: "Dynamisch & Energiegeladen", colors: ["#D92027", "#FFD93D", "#000000", "#FFFFFF"] },
   { name: "Freundlich & Sanft", colors: ["#FAD3E7", "#BEE3F8", "#B2F5EA", "#FFFFFF"] },
+  { name: "Ocean & Sunset", colors: ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFF8E1"] },
+  { name: "Cosmic & Deep", colors: ["#667EEA", "#764BA2", "#F093FB", "#F8F9FA"] },
 ];
 
 // 2. SCHRIFTARTEN
@@ -199,42 +201,6 @@ export const colorGenerationRules: ColorGenerationRule[] = [
       }
     ]
   },
-  {
-    id: 'add-black-white',
-    name: 'Grundfarbe + Schwarz & Weiß',
-    description: 'Generiert 4 Variationen mit verschiedenen Schwarz-Weiß-Grundfarbe-Kombinationen',
-    generates: 4,
-    variants: [
-      {
-        name: 'Grundfarbe dominiert',
-        brandNameColor: (baseColor) => baseColor,
-        iconColor: () => '#FFFFFF',
-        backgroundColor: () => '#000000',
-        sloganColor: () => '#FFFFFF'
-      },
-      {
-        name: 'Schwarz dominiert',
-        brandNameColor: () => '#FFFFFF',
-        iconColor: (baseColor) => baseColor,
-        backgroundColor: () => '#000000',
-        sloganColor: () => '#FFFFFF'
-      },
-      {
-        name: 'Weiß dominiert',
-        brandNameColor: () => '#000000',
-        iconColor: (baseColor) => baseColor,
-        backgroundColor: () => '#FFFFFF',
-        sloganColor: () => '#000000'
-      },
-      {
-        name: 'Kontrastreich',
-        brandNameColor: (baseColor) => baseColor,
-        iconColor: () => '#000000',
-        backgroundColor: () => '#FFFFFF',
-        sloganColor: (baseColor) => baseColor
-      }
-    ]
-  }
 ];
 
 // =================================================================
@@ -284,14 +250,4 @@ export const colorOptions: ColorOption[] = [
       layout: 'horizontal'
     }
   },
-  {
-    id: 'add-black-white',
-    name: '+ Schwarz & Weiß',
-    description: 'Erstellt mehrere Variationen mit Schwarz, Weiß und der Grundfarbe',
-    applies_rule: 'add-black-white',
-    visual_indicator: {
-      colors: ['baseColor', '#FFFFFF', '#000000'],
-      layout: 'grid'
-    }
-  }
 ];
