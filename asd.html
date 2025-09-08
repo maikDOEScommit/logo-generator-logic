@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eindrückbarer Button Effekt</title>
+    <style>
+      /* Stile für die Zentrierung und den Hintergrund der Seite */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background-color: #e0e5ec; /* Ein weicher, heller Hintergrund */
+      }
+
+      /* Das Styling für den Button */
+      .push-button {
+        /* Grundlegende Gestaltung */
+        padding: 16px 32px;
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        background-color: #e0e5ec;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        outline: none;
+
+        /* Der Button sieht jetzt standardmäßig eingedrückt aus */
+        box-shadow: inset 4px 4px 8px #c1c9d2, inset -4px -4px 8px #ffffff;
+
+        /* Die Dauer der Animation wurde verlängert, um den Übergang langsamer zu machen. */
+        transition: box-shadow 0.8s ease-out;
+      }
+
+      /* Der Hover-Effekt lässt den Button jetzt herausspringen */
+      .push-button:hover {
+        /* Der Schatten wird nach außen gekehrt. Derobere/linke Schatten
+               hat jetzt die Hintergrundfarbe und ist damit unsichtbar. */
+        box-shadow: none;
+      }
+
+      /* Ein zusätzlicher Effekt für den Klick, der ihn leicht zurückdrückt */
+      .push-button:active {
+        box-shadow: 4px 4px 8px #c1c9d2, -4px -4px 8px #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Dies ist der eigentliche Button -->
+    <button class="push-button">Fahr über mich!</button>
+  </body>
+</html>
