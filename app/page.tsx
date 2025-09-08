@@ -20,84 +20,6 @@ import LogoPreview from '@/components/preview/LogoPreview';
 import MockupPreview from '@/components/preview/MockupPreview';
 import { fontCategories } from '@/lib/data';
 
-// === EXAMPLE BORDER BUTTON COMPONENT ===
-const ExampleBorderButton = () => {
-  const [showTopBorder, setShowTopBorder] = useState(false);
-  const [showLeftBorder, setShowLeftBorder] = useState(false);
-  const [showRightBorder, setShowRightBorder] = useState(false);
-  const [showBottomBorder, setShowBottomBorder] = useState(false);
-
-  const handleClick = () => {
-    // Reset animations
-    setShowTopBorder(false);
-    setShowLeftBorder(false);
-    setShowRightBorder(false);
-    setShowBottomBorder(false);
-    
-    // Start top border and right border simultaneously
-    setTimeout(() => {
-      setShowTopBorder(true);
-      setShowRightBorder(true);
-      
-      // Start left border and bottom border simultaneously after top/right borders complete
-      setTimeout(() => {
-        setShowLeftBorder(true);
-        setShowBottomBorder(true);
-      }, 900); // Wait for top/right border animations to complete
-    }, 100);
-  };
-
-  return (
-    <div className="mt-6">
-      <button
-        onClick={handleClick}
-        className="relative bg-white/5 border border-white/20 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 overflow-hidden"
-      >
-        {/* Horizontal Border-Top Animation - fills right to left */}
-        {showTopBorder && (
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: '100%' }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-            className="absolute top-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500 rounded-t-lg"
-          />
-        )}
-        
-        {/* Vertical Border-Left Animation - starts after horizontal border completes */}
-        {showLeftBorder && (
-          <motion.div
-            initial={{ height: 0 }}
-            animate={{ height: '100%' }}
-            transition={{ duration: 0.45, ease: "easeOut" }}
-            className="absolute left-0 top-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 rounded-l-lg"
-          />
-        )}
-        
-        {/* Vertical Border-Right Animation - starts simultaneously with top border */}
-        {showRightBorder && (
-          <motion.div
-            initial={{ height: 0 }}
-            animate={{ height: '100%' }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-            className="absolute right-0 top-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 rounded-r-lg"
-          />
-        )}
-        
-        {/* Horizontal Border-Bottom Animation - starts simultaneously with left border */}
-        {showBottomBorder && (
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: '100%' }}
-            transition={{ duration: 0.45, ease: "easeOut" }}
-            className="absolute bottom-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500 rounded-b-lg"
-          />
-        )}
-        
-        <span className="relative z-10">Example Border Animation</span>
-      </button>
-    </div>
-  );
-};
 
 // === MAIN PAGE COMPONENT ===
 export default function LogoGeneratorPage() {
@@ -371,28 +293,6 @@ export default function LogoGeneratorPage() {
         .typography-style-button:visited,
         .typography-style-button:focus-visible {
           text-decoration: none !important;
-          color: rgba(255, 255, 255, 0.8) !important;
-          background-color: rgba(255, 255, 255, 0.05) !important;
-          border-color: rgba(255, 255, 255, 0.2) !important;
-          outline: none !important;
-          box-shadow: none !important;
-        }
-        
-        .typography-style-button:hover {
-          background-color: rgba(255, 255, 255, 0.1) !important;
-          border-color: rgba(255, 255, 255, 0.4) !important;
-        }
-        
-        .typography-style-button:active {
-          background-color: rgba(255, 255, 255, 0.05) !important;
-          border-color: rgba(255, 255, 255, 0.2) !important;
-          outline: none !important;
-          box-shadow: none !important;
-        }
-        
-        .typography-style-button:focus {
-          background-color: rgba(255, 255, 255, 0.05) !important;
-          border-color: rgba(255, 255, 255, 0.2) !important;
           outline: none !important;
           box-shadow: none !important;
         }
@@ -440,9 +340,6 @@ export default function LogoGeneratorPage() {
                 >
                   Create Brand!
                 </button>
-                
-                {/* Example Border Animation Button */}
-                <ExampleBorderButton />
               </motion.div>
             )}
           </AnimatePresence>
@@ -585,18 +482,30 @@ export default function LogoGeneratorPage() {
                         <button
                           key={category.name}
                           onClick={() => setSelectedFontCategory(category.name)}
-                          className="typography-style-button w-full p-3 rounded-lg border-2 border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10 text-white/80 transition-all duration-300 transform hover:scale-105"
+                          className="typography-style-button relative w-full p-3 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 transition-all duration-300 transform hover:scale-105 overflow-hidden"
                           style={{
                             textDecoration: 'none'
                           }}
                         >
-                          <div className="text-left">
-                            <div className="font-semibold text-sm mb-1">{category.name}</div>
-                            <div className="text-xs text-white/60">
-                              {category.name === 'Modern' && 'Clean, minimalist fonts for tech companies'}
-                              {category.name === 'Elegant' && 'Sophisticated script fonts for luxury brands'}
-                              {category.name === 'Bold' && 'Strong, impactful fonts for dynamic companies'}
-                              {category.name === 'Heritage' && 'Classic serif fonts for traditional businesses'}
+                          {/* Complete colored border frame - like Industry buttons */}
+                          {/* Top Border */}
+                          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500" />
+                          {/* Right Border */}
+                          <div className="absolute top-0 right-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400" />
+                          {/* Bottom Border */}
+                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500" />
+                          {/* Left Border */}
+                          <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400" />
+                          
+                          <div className="relative z-10">
+                            <div className="text-left">
+                              <div className="font-semibold text-sm mb-1">{category.name}</div>
+                              <div className="text-xs text-white/60">
+                                {category.name === 'Modern' && 'Clean, minimalist fonts for tech companies'}
+                                {category.name === 'Elegant' && 'Sophisticated script fonts for luxury brands'}
+                                {category.name === 'Bold' && 'Strong, impactful fonts for dynamic companies'}
+                                {category.name === 'Heritage' && 'Classic serif fonts for traditional businesses'}
+                              </div>
                             </div>
                           </div>
                         </button>
