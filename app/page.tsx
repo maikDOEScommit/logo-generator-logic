@@ -482,31 +482,18 @@ export default function LogoGeneratorPage() {
                         <button
                           key={category.name}
                           onClick={() => setSelectedFontCategory(category.name)}
-                          className="typography-style-button relative w-full p-3 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 transition-all duration-300 transform hover:scale-105 overflow-hidden"
-                          style={{
-                            textDecoration: 'none'
-                          }}
+                          className={`w-full p-4 rounded-lg border text-left transition-all duration-300 transform hover:scale-[1.02] ${
+                            selectedFontCategory === category.name
+                              ? 'bg-white/10 border-white/30 text-white shadow-lg shadow-white/10'
+                              : 'bg-white/5 border-white/10 text-white/80 hover:bg-white/8 hover:border-white/20'
+                          }`}
                         >
-                          {/* Complete colored border frame - like Industry buttons */}
-                          {/* Top Border */}
-                          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500" />
-                          {/* Right Border */}
-                          <div className="absolute top-0 right-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400" />
-                          {/* Bottom Border */}
-                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500" />
-                          {/* Left Border */}
-                          <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400" />
-                          
-                          <div className="relative z-10">
-                            <div className="text-left">
-                              <div className="font-semibold text-sm mb-1">{category.name}</div>
-                              <div className="text-xs text-white/60">
-                                {category.name === 'Modern' && 'Clean, minimalist fonts for tech companies'}
-                                {category.name === 'Elegant' && 'Sophisticated script fonts for luxury brands'}
-                                {category.name === 'Bold' && 'Strong, impactful fonts for dynamic companies'}
-                                {category.name === 'Heritage' && 'Classic serif fonts for traditional businesses'}
-                              </div>
-                            </div>
+                          <div className="font-semibold text-sm mb-2">{category.name}</div>
+                          <div className="text-xs text-white/60 leading-relaxed">
+                            {category.name === 'Modern' && 'Clean, minimalist fonts for tech companies'}
+                            {category.name === 'Elegant' && 'Sophisticated script fonts for luxury brands'}
+                            {category.name === 'Bold' && 'Strong, impactful fonts for dynamic companies'}
+                            {category.name === 'Heritage' && 'Classic serif fonts for traditional businesses'}
                           </div>
                         </button>
                       ))}

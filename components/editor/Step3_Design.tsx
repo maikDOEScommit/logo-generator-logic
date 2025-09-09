@@ -587,6 +587,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   <SelectionCard 
                     key={variation.id} 
                     isSelected={config.palette?.id === variation.id || (index === 0 && config.palette?.tags?.includes('auto-selected') && config.palette?.id.includes('default'))} 
+                    noAnimation={true}
                     onClick={() => {
                       // Setze die ausgewählte Variation als aktuelle Palette
                       const palette: PaletteData = {
