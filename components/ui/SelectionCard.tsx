@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const SelectionCard = ({ children, isSelected, onClick, disabled = false }: { children: React.ReactNode, isSelected: boolean, onClick: () => void, disabled?: boolean }) => {
   const [showTopBorder, setShowTopBorder] = useState(false);
@@ -8,6 +8,21 @@ const SelectionCard = ({ children, isSelected, onClick, disabled = false }: { ch
   const [showRightBorder, setShowRightBorder] = useState(false);
   const [showBottomBorder, setShowBottomBorder] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
+
+  // Reset animations when isSelected becomes false
+  useEffect(() => {
+    if (!isSelected) {
+      // Start reverse animation sequence for deselection
+      setShowBottomBorder(false);
+      setShowLeftBorder(false);
+      
+      setTimeout(() => {
+        setShowRightBorder(false);
+        setShowTopBorder(false);
+        setAnimationComplete(false);
+      }, 225);
+    }
+  }, [isSelected]);
 
   const handleClick = () => {
     if (disabled) return;
@@ -48,41 +63,33 @@ const SelectionCard = ({ children, isSelected, onClick, disabled = false }: { ch
       }`}
     >
       {/* Animated borders for selection animation */}
-      {showTopBorder && (
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: '100%' }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
-          className="absolute top-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500"
-        />
-      )}
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{ width: showTopBorder ? '100%' : 0 }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        className="absolute top-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500"
+      />
       
-      {showRightBorder && (
-        <motion.div
-          initial={{ height: 0 }}
-          animate={{ height: '100%' }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
-          className="absolute right-0 top-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400"
-        />
-      )}
+      <motion.div
+        initial={{ height: 0 }}
+        animate={{ height: showRightBorder ? '100%' : 0 }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        className="absolute right-0 top-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400"
+      />
       
-      {showLeftBorder && (
-        <motion.div
-          initial={{ height: 0 }}
-          animate={{ height: '100%' }}
-          transition={{ duration: 0.225, ease: "easeOut" }}
-          className="absolute left-0 top-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400"
-        />
-      )}
+      <motion.div
+        initial={{ height: 0 }}
+        animate={{ height: showLeftBorder ? '100%' : 0 }}
+        transition={{ duration: 0.225, ease: "easeOut" }}
+        className="absolute left-0 top-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400"
+      />
       
-      {showBottomBorder && (
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: '100%' }}
-          transition={{ duration: 0.225, ease: "easeOut" }}
-          className="absolute bottom-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500"
-        />
-      )}
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{ width: showBottomBorder ? '100%' : 0 }}
+        transition={{ duration: 0.225, ease: "easeOut" }}
+        className="absolute bottom-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500"
+      />
 
       {/* Static colored border frame for already selected state */}
       {isSelected && !showTopBorder && !disabled && (

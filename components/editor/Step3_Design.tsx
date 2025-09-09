@@ -460,7 +460,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
         {/* Solid Color Bar - 14 intensive colors in horizontal layout */}
         <div className="col-span-full mt-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-bold text-white">Oder wähle eine Grundfarbe:</h3>
+            <div></div>
             <button
               onClick={() => setNeonMode(!neonMode)}
               className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 ${
