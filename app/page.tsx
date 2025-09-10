@@ -90,7 +90,7 @@ export default function LogoGeneratorPage() {
   useEffect(() => {
     const body = document.body;
     // Remove all existing background section classes
-    body.classList.remove('bg-section-0', 'bg-section-1', 'bg-section-2', 'bg-section-3', 'bg-section-3-1', 'bg-section-3-2', 'bg-section-3-3', 'bg-section-4');
+    body.classList.remove('bg-section-0', 'bg-section-1', 'bg-section-2', 'bg-section-3', 'bg-section-3-05', 'bg-section-3-1', 'bg-section-3-2', 'bg-section-3-3', 'bg-section-4');
     
     // Get the highest section number (most progressed section)
     // Handle both regular sections (numbers) and subsections (strings like '3-1')
@@ -278,7 +278,7 @@ export default function LogoGeneratorPage() {
   // Handle design progress - triggered when user progresses through Step3_Design
   const handleDesignProgress = (progressKey: string) => {
     const sectionMap: Record<string, string> = {
-      'icon-selected': '3-0.5',
+      'icon-selected': '3-05',
       'typography-selected': '3-1',
       'layout-selected': '3-2', 
       'colors-selected': '3-3'

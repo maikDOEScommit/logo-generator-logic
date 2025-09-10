@@ -208,6 +208,18 @@ body {
   background-position: center 31.25%;
 }
 
+.dark body.bg-section-3-0\.5 {
+  background-position: center 31.25%;  /* Section 3.0.5 - Icon selection */
+}
+
+.dark body.bg-section-3-05::after {
+  background-position: center 31.25%;
+}
+
+.dark body.bg-section-3-05 {
+  background-position: center 31.25%;  /* Section 3.05 - Icon selection */
+}
+
 .dark body.bg-section-3-1::after {
   background-position: center 32.5%;
 }
@@ -320,6 +332,25 @@ body::-webkit-scrollbar {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Selected state borders for typography buttons */
+.glowing-typography-container.selected::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 0.8em;
+  z-index: -1;
+  background: 
+    linear-gradient(90deg, rgb(254, 240, 138), rgb(189, 183, 107), rgb(110, 231, 183), rgb(255, 255, 255)) top,
+    linear-gradient(180deg, rgb(255, 255, 255), rgb(110, 231, 183), rgb(189, 183, 107), rgb(254, 240, 138)) right,
+    linear-gradient(270deg, rgb(255, 255, 255), rgb(110, 231, 183), rgb(189, 183, 107), rgb(254, 240, 138)) bottom,
+    linear-gradient(90deg, rgb(254, 240, 138), rgb(189, 183, 107), rgb(110, 231, 183), rgb(255, 255, 255)) left;
+  background-size: 100% 4px, 4px 100%, 100% 4px, 4px 100%;
+  background-repeat: no-repeat;
 }
 
 /* Glowing 3D Typography Button Styles */

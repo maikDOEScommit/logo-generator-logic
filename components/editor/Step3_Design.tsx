@@ -453,13 +453,31 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           <label className="block text-lg font-bold mb-3 text-white">Brand Personality (max. 2)</label>
           <div className="flex flex-wrap gap-2 mb-3">
             {personalities.map(p => (
-              <button
+              <div
                 key={p.id}
-                onClick={() => onTogglePersonality(p.id)}
-                className={`px-3 py-2 rounded-full text-sm font-medium transition-all transform ${selectedPersonalities.includes(p.id) ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25 scale-105' : 'bg-white/10 hover:bg-white/20 hover:scale-105'}`}
+                className={`relative p-[2px] rounded-lg transition-all transform hover:scale-105 ${
+                  selectedPersonalities.includes(p.id) ? 'scale-105' : ''
+                }`}
+                style={{
+                  background: 'linear-gradient(90deg, #fef08a 0%, #bdad6b 25%, #6ee7b7 50%, #ffffff 100%)',
+                  padding: '3px',
+                  borderRadius: '0.5rem',
+                  boxShadow: selectedPersonalities.includes(p.id)
+                    ? '0 0 25px #fef08a, 0 0 35px #6ee7b7, 0 0 50px #ffffff'
+                    : '0 0 15px #fef08a, 0 0 25px #6ee7b7, 0 0 35px #ffffff'
+                }}
               >
-                {p.name}
-              </button>
+                <button
+                  onClick={() => onTogglePersonality(p.id)}
+                  className={`w-full px-3 py-2 rounded-[calc(0.5rem-2px)] text-sm font-medium transition-all ${
+                    selectedPersonalities.includes(p.id) 
+                      ? 'bg-white/20 text-white' 
+                      : 'bg-white/10 hover:bg-white/20 text-white'
+                  }`}
+                >
+                  {p.name}
+                </button>
+              </div>
             ))}
           </div>
           <div className="text-xs text-white/50">
@@ -715,10 +733,11 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 if (onLogoCreate) onLogoCreate();
               }}
               disabled={!config.layout || !config.palette || (config.layout?.type === 'enclosed' && !config.enclosingShape)}
-              className="bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 text-white px-12 py-4 rounded-lg text-xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-pink-300/30 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none hover:from-pink-400 hover:via-purple-400 hover:to-orange-300 relative overflow-hidden"
+              className="w-full bg-black text-white font-bold py-2.5 px-6 rounded-xl shadow-xl shadow-black/30 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl hover:shadow-black/40 hover:rotate-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group border border-white/20"
             >
               <span className="relative z-10">Create Logo</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 translate-x-[-100%] hover:translate-x-[100%] hover:transition-transform hover:duration-700"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-100%] group-hover:translate-x-[100%] group-hover:transition-transform group-hover:duration-700"></div>
             </button>
           </div>
         </>
