@@ -4,6 +4,7 @@ import { Download, Save, Edit3, Eye } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 import { useLogoStore } from '@/lib/state';
 import { fontCategories } from '@/lib/data';
+import { generateLogoVariations, determineColorRule, LogoVariation } from '@/lib/logoGeneration';
 import LogoEditor from '@/components/ui/LogoEditor';
 import AdvancedLogoEditor from '@/components/editor/AdvancedLogoEditor';
 
@@ -51,6 +52,12 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
     
   // If no fonts selected, use all fonts from the first category
   const fontsToDisplay = selectedCategoryFonts.length > 0 ? selectedCategoryFonts : fontCategories[0].fonts;
+
+  // Generate logo variations based on color rules
+  const logoVariations = useMemo(() => {
+    const colorRule = determineColorRule(config.palette, config.baseColor);
+    return generateLogoVariations(config, config.baseColor || '#0A3D62', colorRule);
+  }, [config]);
   
   // Helper function to calculate dynamic font size based on text length
   const getDynamicFontSize = (textLength: number, isCircleLayout: boolean = false) => {
@@ -60,6 +67,104 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
     if (textLength <= 16) return `${baseSize * 0.7}rem`;
     if (textLength <= 20) return `${baseSize * 0.6}rem`;
     return `${baseSize * 0.5}rem`;
+  };
+
+  // Helper function to render logo variations with new color logic
+  const renderLogoVariation = (variation: LogoVariation, font: any, logoConfig: LogoConfig) => {
+    const dynamicFontSize = getDynamicFontSize(logoConfig.text.length, logoConfig.layout?.type === 'enclosed');
+    
+    // Handle gradient colors
+    const brandNameStyle: React.CSSProperties = {
+      fontSize: dynamicFontSize,
+      fontFamily: font.cssName,
+      fontWeight: logoConfig.fontWeight || font.generationWeights[0],
+      ...(variation.hasGradient && variation.brandNameColor.includes('linear-gradient') 
+        ? { backgroundImage: variation.brandNameColor, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }
+        : { color: variation.brandNameColor })
+    };
+
+    const iconColor = variation.hasGradient && variation.iconColor.includes('linear-gradient') 
+      ? variation.brandNameColor // For gradients, we'll use the same as brand name for now
+      : variation.iconColor;
+
+    const sloganStyle: React.CSSProperties = {
+      fontSize: '0.75rem',
+      fontWeight: 300,
+      ...(variation.hasGradient && variation.sloganColor.includes('linear-gradient') 
+        ? { backgroundImage: variation.sloganColor, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }
+        : { color: variation.sloganColor })
+    };
+
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        {logoConfig.layout?.arrangement === 'text-left' ? (
+          <div className="flex items-center justify-center gap-3">
+            <div className="flex flex-col items-center">
+              <span className="whitespace-nowrap overflow-hidden text-ellipsis" style={brandNameStyle}>
+                {logoConfig.text}
+              </span>
+              {logoConfig.slogan && (
+                <span className="opacity-80 mt-1 truncate" style={sloganStyle}>
+                  {logoConfig.slogan}
+                </span>
+              )}
+            </div>
+            {logoConfig.icon && (
+              <logoConfig.icon.component size={32} color={iconColor} className="flex-shrink-0" />
+            )}
+          </div>
+        ) : logoConfig.layout?.arrangement === 'icon-left' ? (
+          <div className="flex items-center justify-center gap-3">
+            {logoConfig.icon && (
+              <logoConfig.icon.component size={32} color={iconColor} className="flex-shrink-0" />
+            )}
+            <div className="flex flex-col items-center">
+              <span className="whitespace-nowrap overflow-hidden text-ellipsis" style={brandNameStyle}>
+                {logoConfig.text}
+              </span>
+              {logoConfig.slogan && (
+                <span className="opacity-80 mt-1 truncate" style={sloganStyle}>
+                  {logoConfig.slogan}
+                </span>
+              )}
+            </div>
+          </div>
+        ) : logoConfig.layout?.arrangement === 'text-top' ? (
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="flex flex-col items-center mb-2">
+              <span className="whitespace-nowrap overflow-hidden text-ellipsis" style={brandNameStyle}>
+                {logoConfig.text}
+              </span>
+              {logoConfig.slogan && (
+                <span className="opacity-80 mt-1 truncate" style={sloganStyle}>
+                  {logoConfig.slogan}
+                </span>
+              )}
+            </div>
+            {logoConfig.icon && (
+              <logoConfig.icon.component size={28} color={iconColor} className="flex-shrink-0" />
+            )}
+          </div>
+        ) : (
+          // icon-top
+          <div className="flex flex-col items-center justify-center text-center">
+            {logoConfig.icon && (
+              <logoConfig.icon.component size={28} color={iconColor} className="flex-shrink-0 mb-2" />
+            )}
+            <div className="flex flex-col items-center">
+              <span className="whitespace-nowrap overflow-hidden text-ellipsis" style={brandNameStyle}>
+                {logoConfig.text}
+              </span>
+              {logoConfig.slogan && (
+                <span className="opacity-80 mt-1 truncate" style={sloganStyle}>
+                  {logoConfig.slogan}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   // Helper function to render logo content based on layout type
@@ -373,132 +478,36 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
         </button>
       </div>
       
-      {/* Show all fonts from the selected category */}
+      {/* Show all fonts from the selected category with new variation logic */}
       {fontsToDisplay.map((font, fontIndex) => (
         <div key={font.name} className="space-y-4 pb-8 border-b border-white/10 last:border-b-0">
           <h4 className="text-xl font-semibold text-white">{font.name}</h4>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Light Version */}
-            <div>
-              <h5 className="font-medium mb-2 text-white text-sm">Light Version</h5>
-              <div className="bg-white/10 border border-white rounded-lg p-4 max-w-full overflow-hidden group relative">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {/* Render variations based on color rules */}
+            {logoVariations.map((variation, variationIndex) => (
+              <div key={`${font.name}-${variation.id}`}>
+                <h5 className="font-medium mb-2 text-white text-sm">{variation.name}</h5>
                 <div 
-                  key={`${font.name}-light-${getLogoConfig(`${font.name}-light`).fontWeight || 400}-${getLogoConfig(`${font.name}-light`).text || 'default'}`}
-                  id={`logo-${font.name.replace(/\s+/g, '-')}-light-${fontIndex}`}
-                  className="text-4xl  text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
-                  style={{ 
-                    fontFamily: font.cssName,
-                    fontWeight: getLogoConfig(`${font.name}-light`).fontWeight || font.generationWeights[0],
-                    color: getLogoConfig(`${font.name}-light`).palette?.colors[1] || (palette ? palette.colors[1] : '#0A3D62'),
-                    backgroundColor: getLogoConfig(`${font.name}-light`).palette?.colors[0] || (palette ? palette.colors[0] : '#FFFFFF')
-                  }}
+                  className="border border-white/20 rounded-lg p-4 max-w-full overflow-hidden group relative"
+                  style={{ backgroundColor: variation.backgroundColor }}
                 >
-                  {renderLogoContent(
-                    getLogoConfig(`${font.name}-light`).palette?.colors[1] || (palette ? palette.colors[1] : '#0A3D62'),
-                    getLogoConfig(`${font.name}-light`).palette?.colors[0] || (palette ? palette.colors[0] : '#FFFFFF'),
-                    font,
-                    getLogoConfig(`${font.name}-light`)
-                  )}
+                  <div 
+                    key={`${font.name}-${variation.id}-${getLogoConfig(`${font.name}-${variation.id}`).fontWeight || 400}-${getLogoConfig(`${font.name}-${variation.id}`).text || 'default'}`}
+                    id={`logo-${font.name.replace(/\s+/g, '-')}-${variation.id}-${fontIndex}`}
+                    className="text-4xl text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden min-h-[120px]"
+                  >
+                    {renderLogoVariation(variation, font, getLogoConfig(`${font.name}-${variation.id}`))}
+                  </div>
+                  <LogoEditor
+                    config={getLogoConfig(`${font.name}-${variation.id}`)}
+                    onConfigUpdate={(newConfig) => updateLogoConfig(`${font.name}-${variation.id}`, newConfig)}
+                    availableIcons={availableIcons}
+                    availablePalettes={availablePalettes}
+                  />
                 </div>
-                <LogoEditor
-                  config={getLogoConfig(`${font.name}-light`)}
-                  onConfigUpdate={(newConfig) => updateLogoConfig(`${font.name}-light`, newConfig)}
-                  availableIcons={availableIcons}
-                  availablePalettes={availablePalettes}
-                />
               </div>
-            </div>
-
-            {/* Dark Version */}
-            <div>
-              <h5 className="font-medium mb-2 text-white text-sm">Dark Version</h5>
-              <div className="bg-black border border-white/20 rounded-lg p-4 max-w-full overflow-hidden group relative">
-                <div 
-                  key={`${font.name}-dark-${getLogoConfig(`${font.name}-dark`).fontWeight || 400}-${getLogoConfig(`${font.name}-dark`).text || 'default'}`}
-                  className="text-4xl  text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
-                  style={{ 
-                    fontFamily: font.cssName,
-                    fontWeight: font.generationWeights[1] || font.generationWeights[0],
-                    color: getLogoConfig(`${font.name}-dark`).palette?.colors[2] || (palette ? palette.colors[2] : '#FFFFFF'),
-                    backgroundColor: '#000000'
-                  }}
-                >
-                  {renderLogoContent(
-                    getLogoConfig(`${font.name}-dark`).palette?.colors[2] || (palette ? palette.colors[2] : '#FFFFFF'),
-                    '#000000',
-                    font,
-                    getLogoConfig(`${font.name}-dark`)
-                  )}
-                </div>
-                <LogoEditor
-                  config={getLogoConfig(`${font.name}-dark`)}
-                  onConfigUpdate={(newConfig) => updateLogoConfig(`${font.name}-dark`, newConfig)}
-                  availableIcons={availableIcons}
-                  availablePalettes={availablePalettes}
-                />
-              </div>
-            </div>
-
-            {/* Accent Version */}
-            <div>
-              <h5 className="font-medium mb-2 text-white text-sm">Accent Version</h5>
-              <div className="bg-white/10 border border-white rounded-lg p-4 max-w-full overflow-hidden group relative">
-                <div 
-                  key={`${font.name}-accent-${getLogoConfig(`${font.name}-accent`).fontWeight || 400}-${getLogoConfig(`${font.name}-accent`).text || 'default'}`}
-                  className="text-4xl  text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
-                  style={{ 
-                    fontFamily: font.cssName,
-                    fontWeight: getLogoConfig(`${font.name}-accent`).fontWeight || font.generationWeights[0],
-                    color: getLogoConfig(`${font.name}-accent`).palette?.colors[0] || (palette ? palette.colors[0] : '#0A3D62'),
-                    backgroundColor: getLogoConfig(`${font.name}-accent`).palette?.colors[2] || (palette ? palette.colors[2] : '#CEDEEB')
-                  }}
-                >
-                  {renderLogoContent(
-                    getLogoConfig(`${font.name}-accent`).palette?.colors[0] || (palette ? palette.colors[0] : '#0A3D62'),
-                    getLogoConfig(`${font.name}-accent`).palette?.colors[2] || (palette ? palette.colors[2] : '#CEDEEB'),
-                    font,
-                    getLogoConfig(`${font.name}-accent`)
-                  )}
-                </div>
-                <LogoEditor
-                  config={getLogoConfig(`${font.name}-accent`)}
-                  onConfigUpdate={(newConfig) => updateLogoConfig(`${font.name}-accent`, newConfig)}
-                  availableIcons={availableIcons}
-                  availablePalettes={availablePalettes}
-                />
-              </div>
-            </div>
-
-            {/* Secondary Version */}
-            <div>
-              <h5 className="font-medium mb-2 text-white text-sm">Secondary Version</h5>
-              <div className="bg-white/10 border border-white rounded-lg p-4 max-w-full overflow-hidden group relative">
-                <div 
-                  key={`${font.name}-secondary-${getLogoConfig(`${font.name}-secondary`).fontWeight || 400}-${getLogoConfig(`${font.name}-secondary`).text || 'default'}`}
-                  className="text-4xl  text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden"
-                  style={{ 
-                    fontFamily: font.cssName,
-                    fontWeight: getLogoConfig(`${font.name}-secondary`).fontWeight || font.generationWeights[0],
-                    color: getLogoConfig(`${font.name}-secondary`).palette?.colors[2] || (palette ? palette.colors[2] : '#FFFFFF'),
-                    backgroundColor: getLogoConfig(`${font.name}-secondary`).palette?.colors[0] || (palette ? palette.colors[0] : '#0A3D62')
-                  }}
-                >
-                  {renderLogoContent(
-                    getLogoConfig(`${font.name}-secondary`).palette?.colors[2] || (palette ? palette.colors[2] : '#FFFFFF'),
-                    getLogoConfig(`${font.name}-secondary`).palette?.colors[0] || (palette ? palette.colors[0] : '#0A3D62'),
-                    font,
-                    getLogoConfig(`${font.name}-secondary`)
-                  )}
-                </div>
-                <LogoEditor
-                  config={getLogoConfig(`${font.name}-secondary`)}
-                  onConfigUpdate={(newConfig) => updateLogoConfig(`${font.name}-secondary`, newConfig)}
-                  availableIcons={availableIcons}
-                  availablePalettes={availablePalettes}
-                />
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       ))}

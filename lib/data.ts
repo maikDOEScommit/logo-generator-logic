@@ -2,6 +2,23 @@
 import { LayoutData } from './types';
 
 // =================================================================
+// HILFSFUNKTIONEN
+// =================================================================
+
+// Hilfsfunktion zur Helligkeitsanpassung von Farben für Gradients
+function adjustColorBrightness(color: string, amount: number): string {
+  const usePound = color[0] === '#';
+  const col = usePound ? color.slice(1) : color;
+  
+  const num = parseInt(col, 16);
+  const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+  const g = Math.max(0, Math.min(255, (num >> 8 & 0x00FF) + amount));
+  const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
+  
+  return (usePound ? '#' : '') + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+}
+
+// =================================================================
 // DATEN-ARCHITEKTUR
 // Dies ist die "Single Source of Truth" für alle Design-Optionen.
 // =================================================================
@@ -145,59 +162,136 @@ export const colorGenerationRules: ColorGenerationRule[] = [
   {
     id: 'base-only',
     name: 'Nur Grundfarbe',
-    description: 'Verwendet nur die ausgewählte Grundfarbe',
-    generates: 1,
+    description: 'Verwendet nur die ausgewählte Grundfarbe - 4 Variationen',
+    generates: 4,
     variants: [
       {
-        name: 'Monochrom',
+        name: 'Auf Weiß - Einfarbig',
         brandNameColor: (baseColor) => baseColor,
         iconColor: (baseColor) => baseColor,
         backgroundColor: () => '#FFFFFF',
         sloganColor: (baseColor) => baseColor
+      },
+      {
+        name: 'Auf Schwarz - Einfarbig',
+        brandNameColor: (baseColor) => baseColor,
+        iconColor: (baseColor) => baseColor,
+        backgroundColor: () => '#000000',
+        sloganColor: (baseColor) => baseColor
+      },
+      {
+        name: 'Auf Weiß - Gradient',
+        brandNameColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        iconColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`
+      },
+      {
+        name: 'Auf Schwarz - Gradient',
+        brandNameColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        iconColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        backgroundColor: () => '#000000',
+        sloganColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`
       }
     ]
   },
   {
     id: 'add-white',
     name: 'Grundfarbe + Weiß',
-    description: 'Generiert 2 Variationen: eine mit weißem Brand-Namen, eine mit weißem Icon',
-    generates: 2,
+    description: 'Generiert 6 Variationen mit Weiß-Kombinationen',
+    generates: 6,
     variants: [
       {
-        name: 'Weißer Brand-Name',
+        name: 'Auf Weiß - Brand & Logo Grundfarbe',
+        brandNameColor: (baseColor) => baseColor,
+        iconColor: (baseColor) => baseColor,
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: (baseColor) => baseColor
+      },
+      {
+        name: 'Auf Weiß - Brand ODER Logo Gradient',
+        brandNameColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        iconColor: (baseColor) => baseColor,
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: (baseColor) => baseColor
+      },
+      {
+        name: 'Auf Schwarz - Brand Weiß, Logo Grundfarbe',
         brandNameColor: () => '#FFFFFF',
         iconColor: (baseColor) => baseColor,
-        backgroundColor: (baseColor) => baseColor,
+        backgroundColor: () => '#000000',
         sloganColor: () => '#FFFFFF'
       },
       {
-        name: 'Weißes Icon',
+        name: 'Auf Schwarz - Brand Grundfarbe, Logo Weiß',
         brandNameColor: (baseColor) => baseColor,
         iconColor: () => '#FFFFFF',
-        backgroundColor: () => '#FFFFFF',
+        backgroundColor: () => '#000000',
         sloganColor: (baseColor) => baseColor
+      },
+      {
+        name: 'Auf Schwarz - Brand Gradient, Logo Weiß',
+        brandNameColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        iconColor: () => '#FFFFFF',
+        backgroundColor: () => '#000000',
+        sloganColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`
+      },
+      {
+        name: 'Auf Schwarz - Brand Weiß, Logo Gradient',
+        brandNameColor: () => '#FFFFFF',
+        iconColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        backgroundColor: () => '#000000',
+        sloganColor: () => '#FFFFFF'
       }
     ]
   },
   {
     id: 'add-black',
     name: 'Grundfarbe + Schwarz',
-    description: 'Generiert 2 Variationen: eine mit schwarzem Brand-Namen, eine mit schwarzem Icon',
-    generates: 2,
+    description: 'Generiert 6 Variationen mit Schwarz-Kombinationen',
+    generates: 6,
     variants: [
       {
-        name: 'Schwarzer Brand-Name',
+        name: 'Auf Weiß - Brand Grundfarbe, Logo Schwarz',
+        brandNameColor: (baseColor) => baseColor,
+        iconColor: () => '#000000',
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: (baseColor) => baseColor
+      },
+      {
+        name: 'Auf Weiß - Brand Schwarz, Logo Grundfarbe',
         brandNameColor: () => '#000000',
         iconColor: (baseColor) => baseColor,
         backgroundColor: () => '#FFFFFF',
         sloganColor: () => '#000000'
       },
       {
-        name: 'Schwarzes Icon',
-        brandNameColor: (baseColor) => baseColor,
+        name: 'Auf Weiß - Brand Gradient, Logo Schwarz',
+        brandNameColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
         iconColor: () => '#000000',
         backgroundColor: () => '#FFFFFF',
+        sloganColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`
+      },
+      {
+        name: 'Auf Weiß - Brand Schwarz, Logo Gradient',
+        brandNameColor: () => '#000000',
+        iconColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: () => '#000000'
+      },
+      {
+        name: 'Auf Schwarz - Brand & Logo Grundfarbe',
+        brandNameColor: (baseColor) => baseColor,
+        iconColor: (baseColor) => baseColor,
+        backgroundColor: () => '#000000',
         sloganColor: (baseColor) => baseColor
+      },
+      {
+        name: 'Auf Schwarz - Brand & Logo Gradient',
+        brandNameColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        iconColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        backgroundColor: () => '#000000',
+        sloganColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`
       }
     ]
   },

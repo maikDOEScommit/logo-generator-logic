@@ -601,7 +601,7 @@ export default function LogoGeneratorPage() {
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
               transition={{ duration: 0.9, ease: "easeOut" }}
-              className="absolute top-0 left-0 h-2 bg-gradient-to-r from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-[14px]"
+              className="absolute top-0 left-0 h-2 bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 overflow-hidden rounded-[14px]"
             />
           )}
           
@@ -611,7 +611,7 @@ export default function LogoGeneratorPage() {
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
               transition={{ duration: 0.45, ease: "easeOut" }}
-              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-t-[14px]"
+              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-pink-300 via-purple-300 to-orange-200 overflow-hidden rounded-t-[14px]"
             />
           )}
           
@@ -621,7 +621,7 @@ export default function LogoGeneratorPage() {
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
               transition={{ duration: 0.45, ease: "easeOut" }}
-              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-cyan-400 via-purple-600 to-blue-500 overflow-hidden rounded-t-[14px]"
+              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-orange-200 via-purple-300 to-pink-300 overflow-hidden rounded-t-[14px]"
             />
           )}
           {/* Original Animated Border - only show after first scroll trigger (replaces the new border) */}
@@ -630,17 +630,17 @@ export default function LogoGeneratorPage() {
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
               transition={{ duration: 0.45, delay: 0.1125, ease: "easeOut" }}
-              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-t-[14px]"
+              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-pink-300 via-purple-300 to-orange-200 overflow-hidden rounded-t-[14px]"
             />
           )}
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: showStartedText ? 1 : 0 }}
             transition={{ duration: 0.5, delay: 0.8 }}
-            className="w-full h-2 bg-white/10 rounded-full mb-4"
+            className="w-full h-2 bg-gradient-to-r from-pink-100/20 via-purple-100/20 to-orange-100/20 rounded-full mb-4"
           >
             <motion.div 
-              className="h-2 rounded-full bg-white/90"
+              className="h-2 rounded-full bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200"
               animate={{ width: `${progress}%` }} 
             />
           </motion.div>
@@ -649,10 +649,10 @@ export default function LogoGeneratorPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: showStartedText ? 1 : 0 }}
             transition={{ duration: 0.5, delay: 0.8 }}
-            className="flex border-b border-white/20 mb-6"
+            className="flex border-b border-purple-200/30 mb-6"
           >
-            <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-white/90 border-b-2 border-white/90' : 'text-white/50 hover:text-white/90'}`}>Preview</button>
-            <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-white/90 border-b-2 border-white/90' : 'text-white/50 hover:text-white/90'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
+            <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-purple-100 border-b-2 border-purple-300' : 'text-purple-200/70 hover:text-purple-100'}`}>Preview</button>
+            <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-purple-100 border-b-2 border-purple-300' : 'text-purple-200/70 hover:text-purple-100'} disabled:text-purple-200/30 disabled:cursor-not-allowed`}>Mockups</button>
           </motion.div>
 
           <div className="flex-grow overflow-y-auto overflow-x-visible pb-20">
@@ -688,7 +688,7 @@ export default function LogoGeneratorPage() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: '100%', opacity: 0 }}
                                 transition={{ duration: 0.5, delay: 0.2 }}
-                                className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent my-6"
+                                className="block bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text text-transparent my-6"
                               >
                                 get
                               </motion.span>
@@ -729,7 +729,7 @@ export default function LogoGeneratorPage() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: '100%', opacity: 0 }}
                                 transition={{ duration: 0.5, delay: 0.2 }}
-                                className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent my-4"
+                                className="block bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text text-transparent my-4"
                               >
                                 50 seconds
                               </motion.span>
@@ -779,7 +779,7 @@ export default function LogoGeneratorPage() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: '100%', opacity: 0 }}
                                 transition={{ duration: 0.5, delay: 0.4 }}
-                                className="block bg-gradient-to-r from-cyan-400 via-purple-600 to-blue-500 bg-clip-text text-transparent animate-pulse"
+                                className="block bg-gradient-to-r from-orange-200 via-purple-300 to-pink-300 bg-clip-text text-transparent animate-pulse"
                                 style={{
                                   animation: 'gradient-pulse 2s ease-in-out infinite alternate'
                                 }}

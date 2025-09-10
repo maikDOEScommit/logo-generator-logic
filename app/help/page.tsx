@@ -348,7 +348,7 @@ export default function HelpCenterPage() {
           <div className="bg-gradient-to-r from-blue-500/10 to-purple-600/10 backdrop-blur-sm border border-white/20 rounded-xl p-8 text-center">
             <h2 className="text-2xl font-bold text-white mb-4">Still need help?</h2>
             <p className="text-white/70 mb-6 max-w-2xl mx-auto">
-              Can't find what you're looking for? Our support team is here to help you create the perfect logo.
+              Can&apos;t find what you&apos;re looking for? Our support team is here to help you create the perfect logo.
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
