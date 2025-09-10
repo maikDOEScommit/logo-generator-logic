@@ -2,7 +2,7 @@ import { Heart, Zap, Github, Twitter, Mail } from 'lucide-react';
 
 export const Footer = () => {
   return (
-    <footer className="relative bg-gradient-to-b from-gray-900/50 to-black border-t border-white/10 mt-20">
+    <footer className="relative bg-gradient-to-b from-gray-900/25 to-black/50 border-t border-white/5 mt-20 opacity-50">
       
       <div className="max-w-6xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">

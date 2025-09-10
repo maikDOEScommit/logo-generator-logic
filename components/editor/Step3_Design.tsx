@@ -105,6 +105,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
     setColorAnalysis(analysis);
     
     // Automatisch die erste (beste) Variation als Standard-Palette setzen
+    // WICHTIG: Immer eine Palette setzen, auch wenn keine Variationen generiert wurden
     if (analysis.variations.length > 0) {
       const bestVariation = analysis.variations[0];
       const palette: PaletteData = {
@@ -115,6 +116,16 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
       };
       updateConfig({ palette });
       console.log('🎯 Auto-Palette gesetzt:', palette);
+    } else {
+      // Fallback: Erstelle eine einfache Palette wenn ColorLogic keine Variationen zurückgibt
+      const fallbackPalette: PaletteData = {
+        id: `fallback-${baseColor.replace('#', '')}`,
+        name: `${baseColor} (Fallback)`,
+        colors: ['#FFFFFF', baseColor, baseColor] as [string, string, string],
+        tags: ['generated', 'fallback']
+      };
+      updateConfig({ palette: fallbackPalette });
+      console.log('⚠️ Fallback-Palette gesetzt:', fallbackPalette);
     }
     
     console.log('🎨 Farbanalyse:', analysis);
@@ -128,6 +139,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
       setColorAnalysis(analysis);
       
       // Automatisch die erste (beste) Variation als Standard-Palette setzen
+      // WICHTIG: Immer eine Palette setzen, auch wenn keine Variationen generiert wurden
       if (analysis.variations.length > 0) {
         const bestVariation = analysis.variations[0];
         const palette: PaletteData = {
@@ -138,6 +150,16 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
         };
         updateConfig({ palette });
         console.log('🎯 Auto-Palette aktualisiert:', palette);
+      } else {
+        // Fallback: Erstelle eine einfache Palette wenn ColorLogic keine Variationen zurückgibt
+        const fallbackPalette: PaletteData = {
+          id: `fallback-${selectedBaseColor.replace('#', '')}-${option}`,
+          name: `${selectedBaseColor} (${option} Fallback)`,
+          colors: ['#FFFFFF', selectedBaseColor, selectedBaseColor] as [string, string, string],
+          tags: ['generated', 'fallback']
+        };
+        updateConfig({ palette: fallbackPalette });
+        console.log('⚠️ Fallback-Palette aktualisiert:', fallbackPalette);
       }
       
       console.log('🎨 Farbanalyse aktualisiert:', analysis);
@@ -162,7 +184,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   onClick={() => {
                     setWantsIcon(true);
                   }}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95"
+                  className="flex-1 bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-pink-300/25 active:scale-95"
                 >
                   Yes, show me icons
                 </button>
@@ -472,7 +494,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
               {neonMode ? '✨ NEON!' : 'Neon!'}
             </button>
           </div>
-          <div className="grid grid-cols-7 gap-3">
+          <div className="grid grid-cols-7 gap-3 mb-4">
             {getDisplayedColors().map(palette => (
               <button
                 key={palette.id}
@@ -521,11 +543,26 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             ))}
           </div>
           
+          
           {/* Intelligente Farbkombinations-Optionen - Nur zeigen wenn eine Grundfarbe gewählt wurde */}
           {selectedBaseColor && (
             <div className="mt-4 p-4 bg-white/5 rounded-lg border border-white/10">
               <h4 className="text-sm font-bold text-white mb-3">Logo-Varianten erstellen:</h4>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-4 gap-3">
+                <button
+                  onClick={() => handleColorOptionChange('color-only')}
+                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
+                    selectedColorOption === 'color-only' 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
+                      : 'bg-white/10 hover:bg-white/20 text-white'
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-6 h-4 rounded-sm" style={{ backgroundColor: selectedBaseColor }}></div>
+                    <span>Nur diese Farbe</span>
+                    <span className="text-xs opacity-75">(ohne B/W)</span>
+                  </div>
+                </button>
                 <button
                   onClick={() => handleColorOptionChange('base-only')}
                   className={`px-4 py-3 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
@@ -535,8 +572,12 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   }`}
                 >
                   <div className="flex flex-col items-center gap-1">
-                    <div className="w-6 h-4 rounded-sm" style={{ backgroundColor: selectedBaseColor }}></div>
-                    <span>Nur diese Farbe</span>
+                    <div className="flex gap-1">
+                      <div className="w-3 h-4 rounded-sm" style={{ backgroundColor: selectedBaseColor }}></div>
+                      <div className="w-3 h-4 rounded-sm bg-gray-400"></div>
+                    </div>
+                    <span>+ Auto B/W</span>
+                    <span className="text-xs opacity-75">(intelligent)</span>
                   </div>
                 </button>
                 <button
@@ -653,9 +694,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 if (onLogoCreate) onLogoCreate();
               }}
               disabled={!config.layout || !config.palette || (config.layout?.type === 'enclosed' && !config.enclosingShape)}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-4 rounded-lg text-xl font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+              className="bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 text-white px-12 py-4 rounded-lg text-xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-pink-300/30 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none hover:from-pink-400 hover:via-purple-400 hover:to-orange-300 relative overflow-hidden"
             >
-              Create Logo
+              <span className="relative z-10">Create Logo</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 translate-x-[-100%] hover:translate-x-[100%] hover:transition-transform hover:duration-700"></div>
             </button>
           </div>
         </>

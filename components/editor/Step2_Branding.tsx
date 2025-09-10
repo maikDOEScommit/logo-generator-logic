@@ -36,7 +36,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
           id="text"
           value={config.text || ''}
           onChange={handleTextChange}
-          className="w-full bg-white/5 p-3 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-transparent focus:border-transparent relative"
+          className="w-full bg-white/5 p-3 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-transparent focus:border-transparent relative text-white placeholder:text-white/70"
           style={{
             background: 'rgba(255, 255, 255, 0.05)'
           }}
@@ -104,7 +104,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
               id="slogan"
               value={config.slogan || ''}
               onChange={(e) => updateConfig({ slogan: e.target.value })}
-              className="w-full bg-white/5 p-3 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-transparent focus:border-transparent relative"
+              className="w-full bg-white/5 p-3 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-transparent focus:border-transparent relative text-white placeholder:text-white/70"
               style={{
                 background: 'rgba(255, 255, 255, 0.05)'
               }}
@@ -133,8 +133,8 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
             transition={{ duration: 2.1, ease: "easeOut", type: "spring", stiffness: 50, delay: 1.0 }}
             className="mt-8 mb-8"
           >
-            <button onClick={onNext} disabled={!config.text} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
-              Continue to Design
+            <button onClick={onNext} disabled={!config.text} className="w-full bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-pink-300/30 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none hover:from-pink-400 hover:via-purple-400 hover:to-orange-300">
+              <span className="relative z-10">Continue to Design</span>
             </button>
           </motion.div>
         </>

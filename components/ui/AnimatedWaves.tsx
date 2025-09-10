@@ -29,21 +29,21 @@ const AnimatedWaves = () => {
     
     wavesRef.current = [
       {
-        gradient: createGradient(ctx, ["#FF00E5", "#A855F7"], width),
+        gradient: createGradient(ctx, ["#f9a8d4", "#f472b6"], width), // Pink-300 (start color of actual border)
         amplitude: 25,
         frequency: 0.008,
         speed: 0.018,
         yOffset: height / 2,
       },
       {
-        gradient: createGradient(ctx, ["#03F5C3", "#00B8FF"], width),
+        gradient: createGradient(ctx, ["#d8b4fe", "#c084fc"], width), // Purple-300 (middle color of actual border)
         amplitude: 15,
         frequency: 0.01,
         speed: -0.022,
         yOffset: height / 2,
       },
       {
-        gradient: createGradient(ctx, ["#00D4FF", "#F50087"], width),
+        gradient: createGradient(ctx, ["#fed7aa", "#fdba74"], width), // Orange-200 (end color of actual border)
         amplitude: 20,
         frequency: 0.012,
         speed: 0.012,
@@ -59,8 +59,8 @@ const AnimatedWaves = () => {
       ctx.beginPath();
       ctx.strokeStyle = wave.gradient;
       ctx.lineWidth = 2.5;
-      ctx.shadowColor = "#FF00E5";
-      ctx.shadowBlur = 10;
+      ctx.shadowColor = "#f9a8d4";
+      ctx.shadowBlur = 8;
 
       for (let x = -5; x < canvas.clientWidth + 5; x++) {
         const y =

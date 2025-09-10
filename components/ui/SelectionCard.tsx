@@ -79,28 +79,28 @@ const SelectionCard = ({ children, isSelected, onClick, disabled = false, noAnim
             initial={{ width: 0 }}
             animate={{ width: showTopBorder ? '100%' : 0 }}
             transition={{ duration: 0.45, ease: "easeOut" }}
-            className="absolute top-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500"
+            className="absolute top-0 right-0 h-1 bg-gradient-to-l from-pink-300 via-purple-300 to-orange-200"
           />
           
           <motion.div
             initial={{ height: 0 }}
             animate={{ height: showRightBorder ? '100%' : 0 }}
             transition={{ duration: 0.45, ease: "easeOut" }}
-            className="absolute right-0 top-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400"
+            className="absolute right-0 top-0 w-1 bg-gradient-to-b from-orange-200 via-purple-300 to-pink-300"
           />
           
           <motion.div
             initial={{ height: 0 }}
             animate={{ height: showLeftBorder ? '100%' : 0 }}
             transition={{ duration: 0.225, ease: "easeOut" }}
-            className="absolute left-0 top-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400"
+            className="absolute left-0 top-0 w-1 bg-gradient-to-b from-orange-200 via-purple-300 to-pink-300"
           />
           
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: showBottomBorder ? '100%' : 0 }}
             transition={{ duration: 0.225, ease: "easeOut" }}
-            className="absolute bottom-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500"
+            className="absolute bottom-0 right-0 h-1 bg-gradient-to-l from-pink-300 via-purple-300 to-orange-200"
           />
         </>
       )}
@@ -109,13 +109,13 @@ const SelectionCard = ({ children, isSelected, onClick, disabled = false, noAnim
       {!noAnimation && isSelected && !showTopBorder && !disabled && (
         <>
           {/* Top Border */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-l from-pink-300 via-purple-300 to-orange-200" />
           {/* Right Border */}
-          <div className="absolute top-0 right-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400" />
+          <div className="absolute top-0 right-0 bottom-0 w-1 bg-gradient-to-b from-orange-200 via-purple-300 to-pink-300" />
           {/* Bottom Border */}
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500" />
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-l from-pink-300 via-purple-300 to-orange-200" />
           {/* Left Border */}
-          <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-purple-600 to-cyan-400" />
+          <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-orange-200 via-purple-300 to-pink-300" />
         </>
       )}
       
@@ -128,7 +128,7 @@ const SelectionCard = ({ children, isSelected, onClick, disabled = false, noAnim
           className="absolute top-2 right-2 text-white rounded-full p-1 z-20" 
           style={{ 
             transform: 'scale(0.88)',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 20%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0.6) 80%, transparent 100%)'
+            background: 'linear-gradient(135deg, #f9a8d4 0%, #d8b4fe 50%, #fed7aa 100%)'
           }}
         >
           <Check size={12} />

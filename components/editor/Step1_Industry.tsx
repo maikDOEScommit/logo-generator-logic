@@ -11,7 +11,7 @@ interface Props {
 
 const Step1_Industry = ({ industry, setIndustry, onNext }: Props) => (
   <motion.div key="step1" className="space-y-8 animate-fade-in">
-    <h1 className="text-4xl font-bold">Tell us about your <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">brand!</span></h1>
+    <h1 className="text-4xl font-bold">Tell us about your <span className="bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 bg-clip-text text-transparent">brand!</span></h1>
     <Section title="What industry are you in?">
       {Object.entries(industries).map(([key, value]) => (
         <SelectionCard key={key} isSelected={industry === key} onClick={() => setIndustry(key)}>
@@ -19,8 +19,8 @@ const Step1_Industry = ({ industry, setIndustry, onNext }: Props) => (
         </SelectionCard>
       ))}
     </Section>
-    <button onClick={onNext} disabled={!industry} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
-      Continue
+    <button onClick={onNext} disabled={!industry} className="w-full bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-pink-300/30 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none hover:from-pink-400 hover:via-purple-400 hover:to-orange-300">
+      <span className="relative z-10">Continue</span>
     </button>
   </motion.div>
 );

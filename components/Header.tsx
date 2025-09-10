@@ -66,7 +66,7 @@ export const Header = () => {
       `}</style>
       <header className="absolute top-0 left-0 w-full p-4 z-10">
       <div className="max-w-7xl mx-auto bg-white/5 backdrop-blur-[1px] rounded-xl border border-white/10 px-6 py-3 flex justify-between items-center navbar-glass">
-      <Link href="/" className="font-bold text-xl bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+      <Link href="/" className="font-bold text-xl text-white">
         Lola Gen 2.0
       </Link>
       <div className="flex items-center gap-4">
@@ -105,7 +105,7 @@ export const Header = () => {
               <button className="text-sm font-medium hover:text-primary transition-colors">Sign In</button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95">Sign Up</button>
+              <button className="bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-pink-300/25 active:scale-95">Sign Up</button>
             </SignUpButton>
           </div>
         </SignedOut>

@@ -1,7 +1,7 @@
 // lib/colorLogic.ts
 // Intelligente Farblogik für Logo-Generator
 
-export type ColorOption = 'base-only' | 'add-white' | 'add-black' | 'add-both';
+export type ColorOption = 'base-only' | 'color-only' | 'add-white' | 'add-black' | 'add-both';
 
 export interface ColorPalette {
   id: string;
@@ -74,6 +74,13 @@ export function createColorPalette(
       id = `${baseColor.replace('#', '')}-auto`;
       break;
 
+    case 'color-only':
+      // Szenario 0: Nur die Grundfarbe verwenden (ohne Schwarz oder Weiß)
+      colors = [baseColor];
+      name = `Nur ${baseColor}`;
+      id = `${baseColor.replace('#', '')}-only`;
+      break;
+
     case 'add-white':
       // Szenario 2: Hauptfarbe + Weiß
       colors = [baseColor, '#FFFFFF'];
@@ -115,6 +122,47 @@ export function generateLogoVariations(palette: ColorPalette): LogoVariation[] {
   const hasBlack = colors.includes('#000000');
 
   const variations: LogoVariation[] = [];
+
+  // Spezialfall: Nur eine Farbe (color-only Modus)
+  if (colors.length === 1) {
+    // Versuche verschiedene Hintergründe mit der einen Farbe
+    const colorOnlyVariations = [
+      {
+        id: `${palette.id}-on-white`,
+        name: 'Auf weißem Grund',
+        backgroundColor: '#FFFFFF',
+        iconColor: baseColor,
+        textColor: baseColor,
+        description: 'Einfarbig auf weißem Hintergrund'
+      },
+      {
+        id: `${palette.id}-on-black`,
+        name: 'Auf schwarzem Grund',
+        backgroundColor: '#000000',
+        iconColor: baseColor,
+        textColor: baseColor,
+        description: 'Einfarbig auf schwarzem Hintergrund'
+      },
+      {
+        id: `${palette.id}-colored-bg`,
+        name: 'Farbiger Hintergrund',
+        backgroundColor: baseColor,
+        iconColor: isLightColor(baseColor) ? '#000000' : '#FFFFFF',
+        textColor: isLightColor(baseColor) ? '#000000' : '#FFFFFF',
+        description: 'Kontrastfarben auf farbigem Hintergrund'
+      }
+    ];
+
+    // Nur Variationen mit gutem Kontrast hinzufügen
+    colorOnlyVariations.forEach(variation => {
+      if (hasGoodContrast(variation.iconColor, variation.backgroundColor) &&
+          hasGoodContrast(variation.textColor, variation.backgroundColor)) {
+        variations.push(variation);
+      }
+    });
+
+    return variations;
+  }
 
   // Variation 1: Standard-Ansicht (heller Grund)
   const standardVariation: LogoVariation = {

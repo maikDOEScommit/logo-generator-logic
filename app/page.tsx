@@ -158,7 +158,7 @@ export default function LogoGeneratorPage() {
                 setShowStartedText(true);
               }, 800); // Faster: Wait for scroll (500ms) + reduced delay for border animation
             }, 100); // Small delay after starting vertical border
-          }, 700); // Reduced wait time since border-top starts earlier
+          }, 1100); // Wait for border-top animation to complete (1.3s - 200ms start delay)
         }, 800); // Wait for hero exit animation
       }
     } else if (currentSection === 1) {
@@ -336,9 +336,13 @@ export default function LogoGeneratorPage() {
                 </p>
                 <button
                   onClick={() => handleSectionNext(0)}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 md:px-8 md:py-4 rounded-lg text-base md:text-lg font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95"
+                  className="bg-gradient-to-r from-pink-400 via-purple-400 to-orange-300 text-white font-bold px-8 py-4 rounded-lg shadow-xl shadow-pink-300/30 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl hover:shadow-pink-400/40 hover:rotate-1 active:scale-95 relative overflow-hidden group"
                 >
-                  Create Brand!
+                  <span className="relative z-10">
+                    Create Brand!
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-100%] group-hover:translate-x-[100%] group-hover:transition-transform group-hover:duration-700"></div>
                 </button>
               </motion.div>
             )}
@@ -600,8 +604,11 @@ export default function LogoGeneratorPage() {
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
-              transition={{ duration: 0.9, ease: "easeOut" }}
-              className="absolute top-0 left-0 h-2 bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 overflow-hidden rounded-[14px]"
+              transition={{ duration: 1.3, ease: "easeIn" }}
+              className="absolute top-0 right-0 h-2 overflow-hidden rounded-[14px]"
+              style={{
+                background: 'linear-gradient(90deg, rgb(249, 168, 212) 0%, rgb(196, 181, 253) 50%, rgb(253, 186, 116) 100%)'
+              }}
             />
           )}
           
