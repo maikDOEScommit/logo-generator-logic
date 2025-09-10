@@ -95,20 +95,23 @@ export default function LogoGeneratorPage() {
     // Get the highest section number (most progressed section)
     // Handle both regular sections (numbers) and subsections (strings like '3-1')
     const maxSection = visibleSections.reduce((max, current) => {
-      // If current is a number, compare normally
-      if (typeof current === 'number') {
-        return current > max ? current : max;
-      }
-      // If current is a string (subsection), compare based on the numeric value
-      if (typeof current === 'string') {
-        const parts = current.split('-');
-        const majorSection = parseInt(parts[0]);
-        const minorSection = parts[1] ? parseFloat(`0.${parts[1]}`) : 0;
-        const currentValue = majorSection + minorSection;
-        return currentValue > max ? current : max;
-      }
-      return max;
-    }, 0);
+      // Convert both max and current to numeric values for comparison
+      const getNumericValue = (section: number | string): number => {
+        if (typeof section === 'number') return section;
+        if (typeof section === 'string') {
+          const parts = section.split('-');
+          const majorSection = parseInt(parts[0]);
+          const minorSection = parts[1] ? parseFloat(`0.${parts[1]}`) : 0;
+          return majorSection + minorSection;
+        }
+        return 0;
+      };
+      
+      const maxValue = getNumericValue(max);
+      const currentValue = getNumericValue(current);
+      
+      return currentValue > maxValue ? current : max;
+    }, 0 as number | string);
     
     // Add the corresponding background class
     body.classList.add(`bg-section-${maxSection}`);

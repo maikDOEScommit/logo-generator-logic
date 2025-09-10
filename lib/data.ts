@@ -117,7 +117,11 @@ export const industries = {
   'construction': { tags: ['construction', 'building'], name: 'Construction & Real Estate' },
   'automotive': { tags: ['automotive', 'transport'], name: 'Automotive & Transport' },
   'consulting': { tags: ['consulting', 'business'], name: 'Consulting & Services' },
-  'entertainment': { tags: ['entertainment', 'media'], name: 'Entertainment & Media' }
+  'entertainment': { tags: ['entertainment', 'media'], name: 'Entertainment & Media' },
+  'legal': { tags: ['legal', 'law', 'professional'], name: 'Legal & Law' },
+  'travel': { tags: ['travel', 'tourism', 'hospitality'], name: 'Travel & Tourism' },
+  'beauty': { tags: ['beauty', 'fashion', 'lifestyle'], name: 'Beauty & Fashion' },
+  'nonprofit': { tags: ['nonprofit', 'social', 'charity'], name: 'Non-Profit & Social' }
 };
 
 export const personalities = [

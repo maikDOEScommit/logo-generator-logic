@@ -79,28 +79,28 @@ const SelectionCard = ({ children, isSelected, onClick, disabled = false, noAnim
             initial={{ width: 0 }}
             animate={{ width: showTopBorder ? '100%' : 0 }}
             transition={{ duration: 0.45, ease: "easeOut" }}
-            className="absolute top-0 right-0 h-1 bg-gradient-to-l from-green-500 via-teal-300 to-green-300"
+            className="absolute top-0 right-0 h-1" style={{background: 'linear-gradient(90deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)'}}
           />
           
           <motion.div
             initial={{ height: 0 }}
             animate={{ height: showRightBorder ? '100%' : 0 }}
             transition={{ duration: 0.45, ease: "easeOut" }}
-            className="absolute right-0 top-0 w-1 bg-gradient-to-b from-green-500 via-teal-300 to-green-300"
+            className="absolute right-0 top-0 w-1" style={{background: 'linear-gradient(180deg, rgb(255, 255, 255) 0%, rgb(110, 231, 183) 25%, rgb(189, 183, 107) 50%, rgb(254, 240, 138) 100%)'}}
           />
           
           <motion.div
             initial={{ height: 0 }}
             animate={{ height: showLeftBorder ? '100%' : 0 }}
             transition={{ duration: 0.225, ease: "easeOut" }}
-            className="absolute left-0 top-0 w-1 bg-gradient-to-b from-green-500 via-teal-300 to-green-300"
+            className="absolute left-0 top-0 w-1" style={{background: 'linear-gradient(180deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)'}}
           />
           
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: showBottomBorder ? '100%' : 0 }}
             transition={{ duration: 0.225, ease: "easeOut" }}
-            className="absolute bottom-0 right-0 h-1 bg-gradient-to-l from-green-500 via-teal-300 to-green-300"
+            className="absolute bottom-0 right-0 h-1" style={{background: 'linear-gradient(90deg, rgb(255, 255, 255) 0%, rgb(110, 231, 183) 25%, rgb(189, 183, 107) 50%, rgb(254, 240, 138) 100%)'}}
           />
         </>
       )}
@@ -109,13 +109,13 @@ const SelectionCard = ({ children, isSelected, onClick, disabled = false, noAnim
       {!noAnimation && isSelected && !showTopBorder && !disabled && (
         <>
           {/* Top Border */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-l from-green-500 via-teal-300 to-green-300" />
+          <div className="absolute top-0 left-0 right-0 h-1" style={{background: 'linear-gradient(90deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)'}} />
           {/* Right Border */}
-          <div className="absolute top-0 right-0 bottom-0 w-1 bg-gradient-to-b from-green-500 via-teal-300 to-green-300" />
+          <div className="absolute top-0 right-0 bottom-0 w-1" style={{background: 'linear-gradient(180deg, rgb(255, 255, 255) 0%, rgb(110, 231, 183) 25%, rgb(189, 183, 107) 50%, rgb(254, 240, 138) 100%)'}} />
           {/* Bottom Border */}
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-l from-green-500 via-teal-300 to-green-300" />
+          <div className="absolute bottom-0 left-0 right-0 h-1" style={{background: 'linear-gradient(90deg, rgb(255, 255, 255) 0%, rgb(110, 231, 183) 25%, rgb(189, 183, 107) 50%, rgb(254, 240, 138) 100%)'}} />
           {/* Left Border */}
-          <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-green-500 via-teal-300 to-green-300" />
+          <div className="absolute top-0 left-0 bottom-0 w-1" style={{background: 'linear-gradient(180deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)'}} />
         </>
       )}
       

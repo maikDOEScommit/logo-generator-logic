@@ -50,7 +50,7 @@ export const availableIcons: IconData[] = [
   { id: 'hexagon', component: Hexagon, tags: ['shape', 'universal', 'simple', 'clean', 'geometric'] },
   { id: 'pentagon', component: Pentagon, tags: ['shape', 'universal', 'simple', 'clean', 'geometric'] },
   { id: 'star', component: Star, tags: ['quality', 'premium', 'excellence', 'rating'] },
-  { id: 'heart', component: Heart, tags: ['love', 'health', 'care', 'wellness'] },
+  { id: 'heart', component: Heart, tags: ['love', 'health', 'care', 'wellness', 'beauty', 'nonprofit', 'social'] },
   { id: 'plus', component: Plus, tags: ['symbol', 'universal', 'simple', 'clean', 'minimalist'] },
 
   // === NATURE & WEATHER (9) ===
@@ -73,7 +73,7 @@ export const availableIcons: IconData[] = [
   { id: 'credit-card', component: CreditCard, tags: ['business', 'finance', 'payment', 'transaction', 'money'] },
   { id: 'building', component: Building, tags: ['business', 'corporate', 'office', 'company', 'professional'] },
   { id: 'briefcase', component: Briefcase, tags: ['business', 'professional', 'work', 'career', 'corporate'] },
-  { id: 'handshake', component: Handshake, tags: ['business', 'partnership', 'collaboration', 'trust', 'agreement'] },
+  { id: 'handshake', component: Handshake, tags: ['business', 'partnership', 'collaboration', 'trust', 'agreement', 'nonprofit', 'social'] },
 
   // === TECHNOLOGY & DIGITAL (13) ===
   { id: 'code', component: Code, tags: ['tech', 'development', 'programming', 'digital', 'software'] },
@@ -92,27 +92,27 @@ export const availableIcons: IconData[] = [
 
   // === TRANSPORTATION (8) ===
   { id: 'car', component: Car, tags: ['transport', 'vehicle', 'automotive', 'travel', 'mobility'] },
-  { id: 'plane', component: Plane, tags: ['transport', 'travel', 'aviation', 'flight', 'journey'] },
+  { id: 'plane', component: Plane, tags: ['transport', 'travel', 'aviation', 'flight', 'journey', 'tourism'] },
   { id: 'ship', component: Ship, tags: ['transport', 'maritime', 'shipping', 'cargo', 'ocean'] },
   { id: 'bicycle', component: Bike, tags: ['transport', 'eco', 'healthy', 'sport', 'sustainable'] },
   { id: 'train', component: Train, tags: ['transport', 'railway', 'travel', 'commute', 'transit'] },
   { id: 'rocket', component: Rocket, tags: ['startup', 'growth', 'speed', 'innovation', 'launch'] },
-  { id: 'compass', component: Compass, tags: ['navigation', 'direction', 'travel', 'adventure', 'guidance'] },
-  { id: 'map', component: Map, tags: ['navigation', 'location', 'travel', 'geography', 'direction'] },
+  { id: 'compass', component: Compass, tags: ['navigation', 'direction', 'travel', 'adventure', 'guidance', 'tourism'] },
+  { id: 'map', component: Map, tags: ['navigation', 'location', 'travel', 'geography', 'direction', 'tourism'] },
 
   // === COMMUNICATION & SOCIAL (8) ===
   { id: 'phone', component: Phone, tags: ['communication', 'contact', 'call', 'support', 'service'] },
   { id: 'mail', component: Mail, tags: ['communication', 'email', 'message', 'contact', 'correspondence'] },
   { id: 'message-circle', component: MessageCircle, tags: ['communication', 'chat', 'conversation', 'support', 'social'] },
   { id: 'send', component: Send, tags: ['communication', 'deliver', 'message', 'transmit', 'share'] },
-  { id: 'users', component: Users, tags: ['social', 'team', 'community', 'group', 'collaboration'] },
+  { id: 'users', component: Users, tags: ['social', 'team', 'community', 'group', 'collaboration', 'nonprofit'] },
   { id: 'user', component: User, tags: ['personal', 'profile', 'individual', 'account', 'identity'] },
   { id: 'user-plus', component: UserPlus, tags: ['social', 'add', 'invite', 'join', 'community'] },
   { id: 'bell', component: Bell, tags: ['notification', 'alert', 'reminder', 'announcement', 'attention'] },
 
   // === CREATIVE & MEDIA (8) ===
-  { id: 'palette', component: Palette, tags: ['design', 'creative', 'art', 'color', 'artistic'] },
-  { id: 'camera', component: Camera, tags: ['photography', 'media', 'creative', 'visual', 'capture'] },
+  { id: 'palette', component: Palette, tags: ['design', 'creative', 'art', 'color', 'artistic', 'beauty', 'fashion'] },
+  { id: 'camera', component: Camera, tags: ['photography', 'media', 'creative', 'visual', 'capture', 'beauty', 'fashion'] },
   { id: 'music', component: Music, tags: ['audio', 'entertainment', 'creative', 'sound', 'artistic'] },
   { id: 'play', component: Play, tags: ['media', 'video', 'audio', 'entertainment', 'start'] },
   { id: 'pause', component: Pause, tags: ['media', 'video', 'audio', 'control', 'stop'] },
@@ -151,11 +151,11 @@ export const availableIcons: IconData[] = [
   { id: 'help-circle', component: HelpCircle, tags: ['support', 'question', 'assistance', 'help', 'guide'] },
   { id: 'thumbs-up', component: ThumbsUp, tags: ['positive', 'like', 'approve', 'good', 'success'] },
   { id: 'thumbs-down', component: ThumbsDown, tags: ['negative', 'dislike', 'disapprove', 'bad', 'reject'] },
-  { id: 'smile', component: Smile, tags: ['happy', 'positive', 'emotion', 'good', 'satisfied'] },
+  { id: 'smile', component: Smile, tags: ['happy', 'positive', 'emotion', 'good', 'satisfied', 'nonprofit', 'social'] },
 
   // === ORGANIZATION & FILES (4) ===
   { id: 'folder', component: Folder, tags: ['organization', 'storage', 'files', 'directory', 'structure'] },
-  { id: 'file', component: File, tags: ['document', 'data', 'storage', 'information', 'content'] },
+  { id: 'file', component: File, tags: ['document', 'data', 'storage', 'information', 'content', 'legal', 'law'] },
   { id: 'bookmark', component: Bookmark, tags: ['save', 'favorite', 'mark', 'remember', 'important'] },
   { id: 'archive', component: Archive, tags: ['storage', 'backup', 'preserve', 'organize', 'history'] },
 
@@ -168,7 +168,7 @@ export const availableIcons: IconData[] = [
   // === FOOD & LIFESTYLE (6) ===
   { id: 'cake', component: Cake, tags: ['food', 'celebration', 'bakery', 'sweet', 'party'] },
   { id: 'pizza', component: Pizza, tags: ['food', 'restaurant', 'italian', 'casual', 'delivery'] },
-  { id: 'home', component: Home, tags: ['house', 'residential', 'family', 'comfort', 'domestic'] },
+  { id: 'home', component: Home, tags: ['house', 'residential', 'family', 'comfort', 'domestic', 'hospitality', 'tourism'] },
   { id: 'school', component: School, tags: ['education', 'learning', 'academic', 'knowledge', 'teaching'] },
   { id: 'hospital', component: Hospital, tags: ['healthcare', 'medical', 'health', 'treatment', 'care'] },
   { id: 'store', component: Store, tags: ['retail', 'shop', 'commerce', 'business', 'marketplace'] },
@@ -177,7 +177,7 @@ export const availableIcons: IconData[] = [
   { id: 'lock', component: Lock, tags: ['security', 'protection', 'private', 'safe', 'secure'] },
   { id: 'unlock', component: Unlock, tags: ['access', 'open', 'available', 'unlocked', 'free'] },
   { id: 'key', component: Key, tags: ['access', 'security', 'unlock', 'password', 'entry'] },
-  { id: 'shield', component: Shield, tags: ['protection', 'security', 'defense', 'safe', 'guard'] },
+  { id: 'shield', component: Shield, tags: ['protection', 'security', 'defense', 'safe', 'guard', 'legal', 'law'] },
 
   // === VISIBILITY & AWARENESS (2) ===
   { id: 'eye', component: Eye, tags: ['vision', 'see', 'watch', 'observe', 'visible'] },
@@ -192,7 +192,7 @@ export const availableIcons: IconData[] = [
   // === TOOLS & CRAFTSMANSHIP (4) ===
   { id: 'wrench', component: Wrench, tags: ['tools', 'repair', 'maintenance', 'mechanic', 'fix'] },
   { id: 'hammer', component: Hammer, tags: ['tools', 'construction', 'build', 'craft', 'repair'] },
-  { id: 'scissors', component: Scissors, tags: ['tools', 'cut', 'trim', 'craft', 'precise'] },
+  { id: 'scissors', component: Scissors, tags: ['tools', 'cut', 'trim', 'craft', 'precise', 'beauty', 'fashion'] },
   { id: 'paint-bucket', component: PaintBucket, tags: ['design', 'color', 'paint', 'creative', 'fill'] },
 
   // === AUDIO & ENTERTAINMENT (1) ===
@@ -308,6 +308,30 @@ export function getInitialSuggestions(industry: string, keywords: string[]): Sug
   if (['construction', 'building'].includes(industry) || keywords.includes('stabil')) {
     suggestedFontCategory = fontCategories.find(c => c.name === 'Bold')!;
     suggestedPalette = colorPalettes.find(p => p.name.includes('Seriös'))!;
+  }
+
+  // Regel 8: Legal & Law (Professional & Trustworthy)
+  if (['legal', 'law'].includes(industry) || keywords.includes('professional')) {
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Heritage')!;
+    suggestedPalette = colorPalettes.find(p => p.name.includes('Seriös'))!;
+  }
+
+  // Regel 9: Travel & Tourism (Friendly & Adventurous)
+  if (['travel', 'tourism', 'hospitality'].includes(industry) || keywords.includes('adventure')) {
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Modern')!;
+    suggestedPalette = colorPalettes.find(p => p.name.includes('Ocean'))!;
+  }
+
+  // Regel 10: Beauty & Fashion (Elegant & Luxurious)
+  if (['beauty', 'fashion', 'lifestyle'].includes(industry) || keywords.includes('elegant')) {
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Elegant')!;
+    suggestedPalette = colorPalettes.find(p => p.name.includes('Luxuriös'))!;
+  }
+
+  // Regel 11: Non-Profit & Social (Friendly & Trustworthy)
+  if (['nonprofit', 'social', 'charity'].includes(industry) || keywords.includes('social')) {
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Modern')!;
+    suggestedPalette = colorPalettes.find(p => p.name.includes('Freundlich'))!;
   }
 
   // FIXED SET OF EXACTLY 24 REGULAR ICONS - SINGLE SOURCE OF TRUTH
