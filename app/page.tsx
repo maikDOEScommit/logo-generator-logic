@@ -86,6 +86,18 @@ export default function LogoGeneratorPage() {
     return getInitialSuggestions(industry || 'tech', selectedPersonalities);
   }, [industry, selectedPersonalities]);
 
+  // Update background position based on visible sections
+  useEffect(() => {
+    const body = document.body;
+    // Remove all existing background section classes
+    body.classList.remove('bg-section-0', 'bg-section-1', 'bg-section-2', 'bg-section-3', 'bg-section-4');
+    
+    // Get the highest section number (most progressed section)
+    const maxSection = Math.max(...visibleSections);
+    
+    // Add the corresponding background class
+    body.classList.add(`bg-section-${maxSection}`);
+  }, [visibleSections]);
 
   // Calculate progress based on visible sections (scroll triggers)
   const getProgress = () => {
