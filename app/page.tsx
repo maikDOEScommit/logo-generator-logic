@@ -278,6 +278,7 @@ export default function LogoGeneratorPage() {
   // Handle design progress - triggered when user progresses through Step3_Design
   const handleDesignProgress = (progressKey: string) => {
     const sectionMap: Record<string, string> = {
+      'icon-selected': '3-0.5',
       'typography-selected': '3-1',
       'layout-selected': '3-2', 
       'colors-selected': '3-3'

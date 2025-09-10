@@ -204,6 +204,10 @@ body {
   background-position: center 30%;
 }
 
+.dark body.bg-section-3-0\.5::after {
+  background-position: center 31.25%;
+}
+
 .dark body.bg-section-3-1::after {
   background-position: center 32.5%;
 }
@@ -245,6 +249,10 @@ body {
 
 .dark body.bg-section-3 {
   background-position: center 30%;  /* Section 3 - Design start */
+}
+
+.dark body.bg-section-3-0\.5 {
+  background-position: center 31.25%;  /* Section 3.0.5 - Icon selection */
 }
 
 .dark body.bg-section-3-1 {

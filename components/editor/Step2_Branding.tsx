@@ -41,7 +41,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
             background: 'rgba(255, 255, 255, 0.05)'
           }}
           onFocus={(e) => {
-            e.target.style.borderImage = 'linear-gradient(135deg, #22d3ee 0%, #9333ea 100%) 1';
+            e.target.style.borderImage = 'linear-gradient(to right, #15803d, #a7f3d0, #ffffff) 1';
             e.target.style.borderImageSlice = '1';
           }}
           onBlur={(e) => {
@@ -109,7 +109,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
                 background: 'rgba(255, 255, 255, 0.05)'
               }}
               onFocus={(e) => {
-                e.target.style.borderImage = 'linear-gradient(135deg, #22d3ee 0%, #9333ea 100%) 1';
+                e.target.style.borderImage = 'linear-gradient(to right, #15803d, #a7f3d0, #ffffff) 1';
                 e.target.style.borderImageSlice = '1';
               }}
               onBlur={(e) => {

@@ -185,7 +185,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   onClick={() => {
                     setWantsIcon(true);
                   }}
-                  className="flex-1 bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-pink-300/25 active:scale-95"
+                  className="flex-1 bg-black text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-black/25 active:scale-95"
                 >
                   Yes, show me icons
                 </button>
@@ -253,6 +253,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                       isSelected={config.icon?.id === icon.id} 
                       onClick={() => {
                         updateConfig({ icon });
+                        // Trigger background progression when icon is selected
+                        if (onDesignProgress) {
+                          onDesignProgress('icon-selected');
+                        }
                         // Auto-scroll to typography after selecting an icon
                         setTimeout(() => {
                           const element = document.querySelector('[data-section="typography"]');
