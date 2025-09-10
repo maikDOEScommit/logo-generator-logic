@@ -124,7 +124,13 @@ const SelectionCard = ({ children, isSelected, onClick, disabled = false, noAnim
       </div>
       
       {isSelected && (
-        <div className="absolute top-2 right-2 bg-gradient-to-r from-cyan-400 to-purple-600 text-white rounded-full p-1 z-20" style={{ transform: 'scale(0.88)' }}>
+        <div 
+          className="absolute top-2 right-2 text-white rounded-full p-1 z-20" 
+          style={{ 
+            transform: 'scale(0.88)',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 20%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0.6) 80%, transparent 100%)'
+          }}
+        >
           <Check size={12} />
         </div>
       )}

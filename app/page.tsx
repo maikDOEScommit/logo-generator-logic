@@ -601,7 +601,10 @@ export default function LogoGeneratorPage() {
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
               transition={{ duration: 0.9, ease: "easeOut" }}
-              className="absolute top-0 right-0 h-2 bg-gradient-to-l from-cyan-400 via-purple-600 to-blue-500 overflow-hidden rounded-[14px]"
+              className="absolute top-0 right-0 h-2 overflow-hidden rounded-[14px]"
+              style={{
+                background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 20%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0.6) 80%, transparent 100%)'
+              }}
             />
           )}
           
@@ -858,7 +861,15 @@ export default function LogoGeneratorPage() {
                     {previewTab === 'preview' && (
                       <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         {isLogoConfigComplete && showLogoPreview ? <LogoPreview config={config} selectedFontCategory={selectedFontCategory} /> : 
-                          <div className="h-full flex items-center justify-center"><p className="text-white/50">Loading logos...</p></div>
+                          <div className="h-full flex items-center justify-center relative">
+                            <div 
+                              className="absolute top-0 left-0 right-0 h-1 rounded-t"
+                              style={{
+                                background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 20%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0.6) 80%, transparent 100%)'
+                              }}
+                            />
+                            <p className="text-white/50">Loading logos...</p>
+                          </div>
                         }
                       </motion.div>
                     )}
