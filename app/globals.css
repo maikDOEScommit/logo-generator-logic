@@ -9,7 +9,7 @@
     --bg-primary: theme('colors.gray.900');
     --bg-secondary: theme('colors.gray.800');
     --text-primary: theme('colors.white');
-    --text-secondary: theme('colors.gray.300');
+    --text-secondary: theme('colors.white');
     --border-color: theme('colors.white' / 0.2);
     --bg-gradient-light: #111827; /* Keep dark blue gradient in dark mode */
   }
@@ -58,6 +58,22 @@
 
   html:not(.dark) input::placeholder {
     color: theme('colors.gray.500') !important;
+  }
+
+  /* Dark mode input placeholders - completely white */
+  .dark input::placeholder {
+    color: theme('colors.white') !important;
+  }
+
+  /* Dark mode - make all text opacity classes completely white */
+  .dark .text-white\/80,
+  .dark .text-white\/70,
+  .dark .text-white\/60,
+  .dark .text-white\/50,
+  .dark .text-white\/40,
+  .dark .text-white\/30,
+  .dark .text-white\/20 {
+    color: theme('colors.white') !important;
   }
 
   /* Fix text opacity classes in light mode */
@@ -162,7 +178,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/pulli.jpg');
+  background-image: url('/mint-texture.jpg');
   background-size: cover;
   background-attachment: fixed;
   background-repeat: no-repeat;
@@ -177,24 +193,36 @@ body {
 }
 
 .dark body.bg-section-1::after {
-  background-position: center 25%;
+  background-position: center 10%;
 }
 
 .dark body.bg-section-2::after {
-  background-position: center 50%;
+  background-position: center 20%;
 }
 
 .dark body.bg-section-3::after {
-  background-position: center 75%;
+  background-position: center 30%;
+}
+
+.dark body.bg-section-3-1::after {
+  background-position: center 32.5%;
+}
+
+.dark body.bg-section-3-2::after {
+  background-position: center 35%;
+}
+
+.dark body.bg-section-3-3::after {
+  background-position: center 37.5%;
 }
 
 .dark body.bg-section-4::after {
-  background-position: center 100%;
+  background-position: center 40%;
 }
 
 /* Dark mode - show new background with scroll-triggered positioning */
 .dark body {
-  background-image: url('/pulli.jpg');
+  background-image: url('/mint-texture.jpg');
   background-size: cover;
   background-attachment: fixed;
   background-repeat: no-repeat;
@@ -208,19 +236,31 @@ body {
 }
 
 .dark body.bg-section-1 {
-  background-position: center 25%;  /* Section 1 - 25% down */
+  background-position: center 10%;  /* Section 1 - 25% down */
 }
 
 .dark body.bg-section-2 {
-  background-position: center 50%;  /* Section 2 - Middle */
+  background-position: center 20%;  /* Section 2 - Middle */
 }
 
 .dark body.bg-section-3 {
-  background-position: center 75%;  /* Section 3 - 75% down */
+  background-position: center 30%;  /* Section 3 - Design start */
+}
+
+.dark body.bg-section-3-1 {
+  background-position: center 32.5%;  /* Section 3.1 - Typography selection */
+}
+
+.dark body.bg-section-3-2 {
+  background-position: center 35%;  /* Section 3.2 - Layout selection */
+}
+
+.dark body.bg-section-3-3 {
+  background-position: center 37.5%;  /* Section 3.3 - Color selection */
 }
 
 .dark body.bg-section-4 {
-  background-position: center 100%; /* Section 4 - Bottom */
+  background-position: center 40%; /* Section 4 - Results */
 }
 
 
@@ -231,17 +271,18 @@ body::-webkit-scrollbar {
 /* Typewriter cursor animation */
 @keyframes typewriter-cursor {
   0% {
-    opacity: 0;
-  }
-  50% {
     opacity: 1;
   }
-  100% {
+  50% {
     opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
 
 .typewriter-cursor {
+  background: #000000 !important;
   animation: typewriter-cursor 1s infinite;
 }
 
@@ -303,7 +344,7 @@ body::-webkit-scrollbar {
   bottom: 0;
   border-radius: inherit;
   padding: 4px;
-  background: linear-gradient(to right, #f9a8d4, #d8b4fe, #fed7aa);
+  background: linear-gradient(to right, #15803d, #a7f3d0, #ffffff);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: xor;
   -webkit-mask-composite: xor;
@@ -403,26 +444,26 @@ body::-webkit-scrollbar {
 /* Modern Pastel Glass Effect for Step2 Branding */
 .pastel-glass-container {
   background: linear-gradient(135deg, 
-    rgba(135, 206, 250, 0.15) 0%, 
-    rgba(255, 165, 0, 0.12) 35%, 
+    rgba(134, 239, 172, 0.15) 0%, 
+    rgba(167, 243, 208, 0.12) 35%, 
     rgba(255, 255, 255, 0.08) 70%, 
-    rgba(173, 216, 230, 0.10) 100%
+    rgba(187, 247, 208, 0.10) 100%
   );
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 
-    0 8px 32px rgba(135, 206, 250, 0.1), 
+    0 8px 32px rgba(134, 239, 172, 0.1), 
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   border-radius: 24px;
 }
 
 .floating-orb-sky {
-  background: radial-gradient(circle, rgba(135, 206, 250, 0.6) 0%, rgba(173, 216, 230, 0.3) 100%);
+  background: radial-gradient(circle, rgba(134, 239, 172, 0.6) 0%, rgba(167, 243, 208, 0.3) 100%);
   filter: blur(8px);
 }
 
 .floating-orb-orange {
-  background: radial-gradient(circle, rgba(255, 165, 0, 0.5) 0%, rgba(255, 218, 185, 0.3) 100%);
+  background: radial-gradient(circle, rgba(187, 247, 208, 0.5) 0%, rgba(220, 252, 231, 0.3) 100%);
   filter: blur(6px);
 }
 

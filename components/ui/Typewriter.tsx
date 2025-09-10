@@ -102,7 +102,7 @@ export function Typewriter({
           return (
             <>
               {beforeGradient}
-              <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-yellow-200 via-yellow-600 to-emerald-300 bg-clip-text text-transparent">
                 {potentialGradientPart}
               </span>
             </>

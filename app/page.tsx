@@ -27,7 +27,7 @@ export default function LogoGeneratorPage() {
   const [industry, setIndustry] = useState<string | null>(null);
   const [selectedPersonalities, setSelectedPersonalities] = useState<string[]>([]);
   const [previewTab, setPreviewTab] = useState<'preview' | 'mockups'>('preview');
-  const [visibleSections, setVisibleSections] = useState<number[]>([0]); // Start with hero section visible
+  const [visibleSections, setVisibleSections] = useState<(number | string)[]>([0]); // Start with hero section visible
   const [showPreviewPanel, setShowPreviewPanel] = useState(false); // Control preview panel visibility
   const [showStartedText, setShowStartedText] = useState(false); // Control "Let's get started" text visibility
   const [hideStartedText, setHideStartedText] = useState(false); // Control hiding "Let's get started" text
@@ -90,10 +90,25 @@ export default function LogoGeneratorPage() {
   useEffect(() => {
     const body = document.body;
     // Remove all existing background section classes
-    body.classList.remove('bg-section-0', 'bg-section-1', 'bg-section-2', 'bg-section-3', 'bg-section-4');
+    body.classList.remove('bg-section-0', 'bg-section-1', 'bg-section-2', 'bg-section-3', 'bg-section-3-1', 'bg-section-3-2', 'bg-section-3-3', 'bg-section-4');
     
     // Get the highest section number (most progressed section)
-    const maxSection = Math.max(...visibleSections);
+    // Handle both regular sections (numbers) and subsections (strings like '3-1')
+    const maxSection = visibleSections.reduce((max, current) => {
+      // If current is a number, compare normally
+      if (typeof current === 'number') {
+        return current > max ? current : max;
+      }
+      // If current is a string (subsection), compare based on the numeric value
+      if (typeof current === 'string') {
+        const parts = current.split('-');
+        const majorSection = parseInt(parts[0]);
+        const minorSection = parts[1] ? parseFloat(`0.${parts[1]}`) : 0;
+        const currentValue = majorSection + minorSection;
+        return currentValue > max ? current : max;
+      }
+      return max;
+    }, 0);
     
     // Add the corresponding background class
     body.classList.add(`bg-section-${maxSection}`);
@@ -257,6 +272,20 @@ export default function LogoGeneratorPage() {
     }, 1000); // Wait for scroll to complete
   };
 
+  // Handle design progress - triggered when user progresses through Step3_Design
+  const handleDesignProgress = (progressKey: string) => {
+    const sectionMap: Record<string, string> = {
+      'typography-selected': '3-1',
+      'layout-selected': '3-2', 
+      'colors-selected': '3-3'
+    };
+    
+    const newSection = sectionMap[progressKey];
+    if (newSection && !visibleSections.includes(newSection)) {
+      setVisibleSections([...visibleSections, newSection]);
+    }
+  };
+
   // Handle final logo creation - use new suggestion engine and generate logo
   const handleLogoCreation = () => {
     // Logo creation is now triggered when user has selected all required elements
@@ -348,12 +377,12 @@ export default function LogoGeneratorPage() {
                 </p>
                 <button
                   onClick={() => handleSectionNext(0)}
-                  className="bg-gradient-to-r from-pink-400 via-purple-400 to-orange-300 text-white font-bold px-8 py-4 rounded-lg shadow-xl shadow-pink-300/30 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl hover:shadow-pink-400/40 hover:rotate-1 active:scale-95 relative overflow-hidden group"
+                  className="bg-black text-white font-bold px-8 py-4 rounded-lg shadow-xl shadow-black/30 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl hover:shadow-black/40 hover:rotate-1 active:scale-95 relative overflow-hidden group"
                 >
                   <span className="relative z-10">
                     Create Brand!
                   </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-100%] group-hover:translate-x-[100%] group-hover:transition-transform group-hover:duration-700"></div>
                 </button>
               </motion.div>
@@ -414,8 +443,8 @@ export default function LogoGeneratorPage() {
               <div className="w-full max-w-2xl">
                 <div className="space-y-12">
                   <div className="flex items-center gap-2">
-                    <button onClick={handleUndo} disabled={true} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"><Undo2 size={16}/> Undo</button>
-                    <button onClick={handleRedo} disabled={true} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"><Redo2 size={16}/> Redo</button>
+                    <button onClick={handleUndo} disabled={true} className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-500/30 transition-colors border border-emerald-300/30"><Undo2 size={16}/> Undo</button>
+                    <button onClick={handleRedo} disabled={true} className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-500/30 transition-colors border border-emerald-300/30"><Redo2 size={16}/> Redo</button>
                   </div>
                   <Step3_Design
                     config={config}
@@ -426,6 +455,7 @@ export default function LogoGeneratorPage() {
                     selectedPersonalities={selectedPersonalities}
                     onTogglePersonality={handlePersonalityToggle}
                     onLogoCreate={handleLogoCreation}
+                    onDesignProgress={handleDesignProgress}
                   />
                 </div>
               </div>
@@ -619,7 +649,7 @@ export default function LogoGeneratorPage() {
               transition={{ duration: 1.3, ease: "easeIn" }}
               className="absolute top-0 right-0 h-2 overflow-hidden rounded-[14px]"
               style={{
-                background: 'linear-gradient(90deg, rgb(249, 168, 212) 0%, rgb(196, 181, 253) 50%, rgb(253, 186, 116) 100%)'
+                background: 'linear-gradient(90deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)'
               }}
             />
           )}
@@ -630,7 +660,10 @@ export default function LogoGeneratorPage() {
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
               transition={{ duration: 0.45, ease: "easeOut" }}
-              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-pink-300 via-purple-300 to-orange-200 overflow-hidden rounded-t-[14px]"
+              className="absolute left-0 top-0 w-2 overflow-hidden rounded-t-[14px]"
+              style={{
+                background: 'linear-gradient(180deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)'
+              }}
             />
           )}
           
@@ -640,7 +673,10 @@ export default function LogoGeneratorPage() {
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
               transition={{ duration: 0.45, ease: "easeOut" }}
-              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-orange-200 via-purple-300 to-pink-300 overflow-hidden rounded-t-[14px]"
+              className="absolute left-0 top-0 w-2 overflow-hidden rounded-t-[14px]"
+              style={{
+                background: 'linear-gradient(180deg, rgb(255, 255, 255) 0%, rgb(110, 231, 183) 25%, rgb(189, 183, 107) 50%, rgb(254, 240, 138) 100%)'
+              }}
             />
           )}
           {/* Original Animated Border - only show after first scroll trigger (replaces the new border) */}
@@ -649,17 +685,20 @@ export default function LogoGeneratorPage() {
               initial={{ height: 0 }}
               animate={{ height: '100vh' }}
               transition={{ duration: 0.45, delay: 0.1125, ease: "easeOut" }}
-              className="absolute left-0 top-0 w-2 bg-gradient-to-b from-pink-300 via-purple-300 to-orange-200 overflow-hidden rounded-t-[14px]"
+              className="absolute left-0 top-0 w-2 overflow-hidden rounded-t-[14px]"
+              style={{
+                background: 'linear-gradient(180deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)'
+              }}
             />
           )}
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: showStartedText ? 1 : 0 }}
             transition={{ duration: 0.5, delay: 0.8 }}
-            className="w-full h-2 bg-gradient-to-r from-pink-100/20 via-purple-100/20 to-orange-100/20 rounded-full mb-4"
+            className="w-full h-2 bg-gradient-to-r from-yellow-100/20 via-stone-100/20 to-amber-50/20 rounded-full mb-4"
           >
             <motion.div 
-              className="h-2 rounded-full bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200"
+              className="h-2 rounded-full bg-gradient-to-r from-yellow-200 via-stone-200 to-amber-50"
               animate={{ width: `${progress}%` }} 
             />
           </motion.div>
@@ -668,10 +707,10 @@ export default function LogoGeneratorPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: showStartedText ? 1 : 0 }}
             transition={{ duration: 0.5, delay: 0.8 }}
-            className="flex border-b border-purple-200/30 mb-6"
+            className="flex border-b border-yellow-200/30 mb-6"
           >
-            <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-purple-100 border-b-2 border-purple-300' : 'text-purple-200/70 hover:text-purple-100'}`}>Preview</button>
-            <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-purple-100 border-b-2 border-purple-300' : 'text-purple-200/70 hover:text-purple-100'} disabled:text-purple-200/30 disabled:cursor-not-allowed`}>Mockups</button>
+            <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-yellow-100 border-b-2 border-yellow-300' : 'text-yellow-200/70 hover:text-yellow-100'}`}>Preview</button>
+            <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-yellow-100 border-b-2 border-yellow-300' : 'text-yellow-200/70 hover:text-yellow-100'} disabled:text-yellow-200/30 disabled:cursor-not-allowed`}>Mockups</button>
           </motion.div>
 
           <div className="flex-grow overflow-y-auto overflow-x-visible pb-20">
@@ -707,7 +746,7 @@ export default function LogoGeneratorPage() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: '100%', opacity: 0 }}
                                 transition={{ duration: 0.5, delay: 0.2 }}
-                                className="block bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text text-transparent my-6"
+                                className="block text-black my-6"
                               >
                                 get
                               </motion.span>
@@ -748,7 +787,7 @@ export default function LogoGeneratorPage() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: '100%', opacity: 0 }}
                                 transition={{ duration: 0.5, delay: 0.2 }}
-                                className="block bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text text-transparent my-4"
+                                className="block text-black my-4"
                               >
                                 50 seconds
                               </motion.span>
@@ -798,7 +837,7 @@ export default function LogoGeneratorPage() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: '100%', opacity: 0 }}
                                 transition={{ duration: 0.5, delay: 0.4 }}
-                                className="block bg-gradient-to-r from-orange-200 via-purple-300 to-pink-300 bg-clip-text text-transparent animate-pulse"
+                                className="block text-black animate-pulse"
                                 style={{
                                   animation: 'gradient-pulse 2s ease-in-out infinite alternate'
                                 }}
@@ -868,8 +907,8 @@ export default function LogoGeneratorPage() {
                   transition={{ duration: 0.5, delay: 0.8 }}
                   className="flex border-b border-white/20 mb-6"
                 >
-                  <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-white/90 border-b-2 border-white/90' : 'text-white/50 hover:text-white/90'}`}>Preview</button>
-                  <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-white/90 border-b-2 border-white/90' : 'text-white/50 hover:text-white/90'} disabled:text-white/20 disabled:cursor-not-allowed`}>Mockups</button>
+                  <button onClick={() => setPreviewTab('preview')} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'preview' ? 'text-yellow-100 border-b-2 border-yellow-300' : 'text-yellow-200/70 hover:text-yellow-100'}`}>Preview</button>
+                  <button onClick={() => setPreviewTab('mockups')} disabled={!(isLogoConfigComplete && showLogoPreview)} className={`px-4 py-2 font-bold transition-colors ${previewTab === 'mockups' ? 'text-yellow-100 border-b-2 border-yellow-300' : 'text-yellow-200/70 hover:text-yellow-100'} disabled:text-yellow-200/30 disabled:cursor-not-allowed`}>Mockups</button>
                 </motion.div>
 
                 <div className="flex-grow overflow-y-auto">

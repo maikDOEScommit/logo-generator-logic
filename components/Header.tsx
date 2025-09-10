@@ -83,7 +83,7 @@ export const Header = () => {
         {/* Dark/Light Mode Toggle */}
         <button
           onClick={() => setIsDarkMode(!isDarkMode)}
-          className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+          className="p-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 transition-colors border border-emerald-300/30"
           title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
         >
           {isDarkMode ? (
@@ -105,7 +105,7 @@ export const Header = () => {
               <button className="text-sm font-medium hover:text-primary transition-colors">Sign In</button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-pink-300/25 active:scale-95">Sign Up</button>
+              <button className="bg-black text-white px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:bg-transparent hover:text-black hover:scale-[1.15] active:scale-95 border border-black">Sign Up</button>
             </SignUpButton>
           </div>
         </SignedOut>

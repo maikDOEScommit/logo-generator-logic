@@ -58,9 +58,10 @@ interface Props {
   selectedPersonalities: string[];
   onTogglePersonality: (id: string) => void;
   onLogoCreate?: () => void;
+  onDesignProgress?: (progressKey: string) => void;
 }
 
-const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory, setSelectedFontCategory, selectedPersonalities, onTogglePersonality, onLogoCreate }: Props) => {
+const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory, setSelectedFontCategory, selectedPersonalities, onTogglePersonality, onLogoCreate, onDesignProgress }: Props) => {
   const { suggestedIcons, suggestedEnclosingShapes, suggestedPalettes } = suggestions;
   const [selectedLayoutType, setSelectedLayoutType] = useState<string | null>(null);
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
@@ -321,6 +322,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                             className="glowing-typography-btn"
                             onClick={() => {
                               setSelectedFontCategory(category.name);
+                              // Trigger background progression
+                              if (onDesignProgress) {
+                                onDesignProgress('typography-selected');
+                              }
                               // Auto-scroll to layout section after selection
                               setTimeout(() => {
                                 const element = document.querySelector('[data-section="layout"]');
@@ -380,6 +385,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                       isSelected={selectedLayoutType === layout.id} 
                       onClick={() => {
                         setSelectedLayoutType(layout.id);
+                        // Trigger background progression when layout is selected
+                        if (onDesignProgress) {
+                          onDesignProgress('layout-selected');
+                        }
                         if (layout.type !== 'enclosed') {
                           // For non-circle layouts, set immediately and scroll to color section
                           updateConfig({ layout });
@@ -462,6 +471,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             onClick={() => {
               setSelectedBaseColor(null); // Clear base color when palette is selected
               updateConfig({ palette });
+              // Trigger background progression when colors are selected
+              if (onDesignProgress) {
+                onDesignProgress('colors-selected');
+              }
               // Auto-scroll to Create Logo button
               setTimeout(() => {
                 const createButton = document.querySelector('[data-create-logo]');
@@ -638,6 +651,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                         tags: ['generated', 'smart-color', 'user-selected']
                       };
                       updateConfig({ palette });
+                      // Trigger background progression when colors are selected
+                      if (onDesignProgress) {
+                        onDesignProgress('colors-selected');
+                      }
                       console.log('🎯 Logo-Variation gewählt:', variation);
                       // Auto-scroll to Create Logo button
                       setTimeout(() => {

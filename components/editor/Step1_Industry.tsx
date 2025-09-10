@@ -11,7 +11,7 @@ interface Props {
 
 const Step1_Industry = ({ industry, setIndustry, onNext }: Props) => (
   <motion.div key="step1" className="space-y-8 animate-fade-in">
-    <h1 className="text-4xl font-bold">Tell us about your <span className="bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 bg-clip-text text-transparent">brand!</span></h1>
+    <h1 className="text-4xl font-bold">Tell us about your <span className="bg-gradient-to-r from-green-600 via-teal-400 to-green-400 bg-clip-text text-transparent">brand!</span></h1>
     <Section title="What industry are you in?">
       {Object.entries(industries).map(([key, value]) => (
         <SelectionCard key={key} isSelected={industry === key} onClick={() => setIndustry(key)}>
@@ -19,8 +19,10 @@ const Step1_Industry = ({ industry, setIndustry, onNext }: Props) => (
         </SelectionCard>
       ))}
     </Section>
-    <button onClick={onNext} disabled={!industry} className="w-full bg-gradient-to-r from-pink-300 via-purple-300 to-orange-200 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-pink-300/30 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none hover:from-pink-400 hover:via-purple-400 hover:to-orange-300">
+    <button onClick={onNext} disabled={!industry} className="w-full bg-black text-white font-bold py-2.5 px-6 rounded-xl shadow-xl shadow-black/30 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl hover:shadow-black/40 hover:rotate-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group border border-white/20">
       <span className="relative z-10">Continue</span>
+      <div className="absolute inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-100%] group-hover:translate-x-[100%] group-hover:transition-transform group-hover:duration-700"></div>
     </button>
   </motion.div>
 );
