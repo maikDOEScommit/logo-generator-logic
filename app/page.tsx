@@ -601,10 +601,7 @@ export default function LogoGeneratorPage() {
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
               transition={{ duration: 0.9, ease: "easeOut" }}
-              className="absolute top-0 right-0 h-2 overflow-hidden rounded-[14px]"
-              style={{
-                background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 20%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0.6) 80%, transparent 100%)'
-              }}
+              className="absolute top-0 left-0 h-2 bg-gradient-to-r from-blue-500 via-purple-600 to-cyan-400 overflow-hidden rounded-[14px]"
             />
           )}
           
