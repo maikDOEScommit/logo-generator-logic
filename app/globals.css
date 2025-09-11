@@ -334,8 +334,8 @@ body::-webkit-scrollbar {
   justify-content: center;
 }
 
-/* Selected state borders for typography buttons */
-.glowing-typography-container.selected::before {
+/* Colored borders for all typography buttons */
+.glowing-typography-container::before {
   content: '';
   position: absolute;
   top: 0;
@@ -351,6 +351,8 @@ body::-webkit-scrollbar {
     linear-gradient(90deg, rgb(254, 240, 138), rgb(189, 183, 107), rgb(110, 231, 183), rgb(255, 255, 255)) left;
   background-size: 100% 4px, 4px 100%, 100% 4px, 4px 100%;
   background-repeat: no-repeat;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  transform-origin: center bottom;
 }
 
 /* Glowing 3D Typography Button Styles */
@@ -360,35 +362,21 @@ body::-webkit-scrollbar {
   padding: 1.2em 2.5em;
   border: none;
   border-radius: 0.8em;
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   font-size: 1.1em;
   font-weight: 700;
   letter-spacing: 0.05em;
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  margin: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, color 0.3s ease-in-out;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.6s cubic-bezier(0.23, 1, 0.32, 1), color 0.3s ease-out;
   transform-origin: center bottom;
 }
 
-.glowing-typography-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: inherit;
-  padding: 4px;
-  background: linear-gradient(to right, #15803d, #a7f3d0, #ffffff);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: xor;
-  -webkit-mask-composite: xor;
-  pointer-events: none;
-}
 
 /* Selected state */
 .glowing-typography-container.selected .glowing-typography-btn {
@@ -400,14 +388,24 @@ body::-webkit-scrollbar {
 /* The 3D hover effect - Box lies flat, text stands up - Triggered by CONTAINER hover */
 .glowing-typography-container:hover .glowing-typography-btn {
   transform: rotateX(75deg) translateZ(-5px) scale(1.02);
-  box-shadow: 0px 30px 25px -10px rgba(0, 0, 0, 0.6);
-  -webkit-box-shadow: 0px 30px 25px -10px rgba(0, 0, 0, 0.6);
-  -moz-box-shadow: 0px 30px 25px -10px rgba(0, 0, 0, 0.6);
+  box-shadow: 0px 30px 25px -10px rgba(255, 255, 255, 0.4);
+  -webkit-box-shadow: 0px 30px 25px -10px rgba(255, 255, 255, 0.4);
+  -moz-box-shadow: 0px 30px 25px -10px rgba(255, 255, 255, 0.4);
+}
+
+/* Make borders rotate with the 3D hover effect */
+.glowing-typography-container:hover::before {
+  transform: rotateX(75deg) translateZ(-5px) scale(1.02);
 }
 
 .glowing-typography-container.selected:hover .glowing-typography-btn {
   transform: rotateX(70deg) translateZ(-4px) scale(1.05);
-  box-shadow: 0px 30px 25px -10px rgba(0, 0, 0, 0.6);
+  box-shadow: 0px 30px 25px -10px rgba(255, 255, 255, 0.4);
+}
+
+/* Make borders rotate with the selected 3D hover effect */
+.glowing-typography-container.selected:hover::before {
+  transform: rotateX(70deg) translateZ(-4px) scale(1.05);
 }
 
 .glowing-typography-btn::before {
@@ -419,18 +417,18 @@ body::-webkit-scrollbar {
   right: 0;
   opacity: 0;
   filter: blur(0.8em);
-  background: currentColor;
+  background: white;
   transform: translateY(80%) rotateX(0deg) scale(1, 0.5);
   pointer-events: none;
   border-radius: 0.8em;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .glowing-txt {
   display: block;
   text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.2), 0 0 0.45em currentColor;
   -webkit-text-stroke: 0.005em rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1);
   transform-origin: center bottom;
   position: relative;
   z-index: 2;
@@ -441,7 +439,7 @@ body::-webkit-scrollbar {
 .faulty-letter {
   opacity: 0.7;
   animation: faulty-flicker 3s linear infinite;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* Hover effects - Text fades out when box lies flat - Triggered by CONTAINER hover */
