@@ -5,7 +5,7 @@ import Section from '@/components/ui/Section';
 import SelectionCard from '@/components/ui/SelectionCard';
 import { layouts, fontCategories, personalities } from '@/lib/data';
 import { Circle } from 'lucide-react';
-import { ColorLogic, ColorOption, ColorAnalysis } from '@/lib/colorLogic';
+import { ColorOption } from '@/lib/colorLogic';
 
 const LayoutSelectionCard = ({ layout, isSelected, onClick }: { layout: LayoutData, isSelected: boolean, onClick: () => void }) => (
   <SelectionCard isSelected={isSelected} onClick={onClick}>
@@ -69,8 +69,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const [selectedColorCombo, setSelectedColorCombo] = useState<string | null>(null);
   const [visibleIconCount, setVisibleIconCount] = useState<number>(24);
   const [selectedBaseColor, setSelectedBaseColor] = useState<string | null>(null);
-  const [selectedColorOption, setSelectedColorOption] = useState<ColorOption>('base-only');
-  const [colorAnalysis, setColorAnalysis] = useState<ColorAnalysis | null>(null);
+  const [selectedColorOption, setSelectedColorOption] = useState<ColorOption | null>(null);
   
   // Reset color combination selection when palette changes to a base color
   useEffect(() => {
@@ -98,72 +97,66 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
     }
   };
 
-  // Neue Funktion: Ausführung der intelligenten Farblogik
+  // Neue Funktion: Ausführung der Grundfarben-Auswahl
   const handleBaseColorSelection = (baseColor: string) => {
     setSelectedBaseColor(baseColor);
-    // Automatisch Analyse mit aktueller Option durchführen
-    const analysis = ColorLogic.analyzeColorChoice(baseColor, selectedColorOption);
-    setColorAnalysis(analysis);
-    
-    // Automatisch die erste (beste) Variation als Standard-Palette setzen
-    // WICHTIG: Immer eine Palette setzen, auch wenn keine Variationen generiert wurden
-    if (analysis.variations.length > 0) {
-      const bestVariation = analysis.variations[0];
-      const palette: PaletteData = {
-        id: `${analysis.palette.id}-default`,
-        name: `${baseColor} (Standard)`,
-        colors: [bestVariation.backgroundColor, bestVariation.iconColor, bestVariation.textColor] as [string, string, string],
-        tags: ['generated', 'smart-color', 'auto-selected']
-      };
-      updateConfig({ palette });
-      console.log('🎯 Auto-Palette gesetzt:', palette);
-    } else {
-      // Fallback: Erstelle eine einfache Palette wenn ColorLogic keine Variationen zurückgibt
-      const fallbackPalette: PaletteData = {
-        id: `fallback-${baseColor.replace('#', '')}`,
-        name: `${baseColor} (Fallback)`,
-        colors: ['#FFFFFF', baseColor, baseColor] as [string, string, string],
-        tags: ['generated', 'fallback']
-      };
-      updateConfig({ palette: fallbackPalette });
-      console.log('⚠️ Fallback-Palette gesetzt:', fallbackPalette);
-    }
-    
-    console.log('🎨 Farbanalyse:', analysis);
+    // Clear any existing palette to show selection options
+    updateConfig({ palette: null });
+    console.log('🎨 Grundfarbe ausgewählt:', baseColor);
   };
 
   // Neue Funktion: Option-Änderung
   const handleColorOptionChange = (option: ColorOption) => {
     setSelectedColorOption(option);
     if (selectedBaseColor) {
-      const analysis = ColorLogic.analyzeColorChoice(selectedBaseColor, option);
-      setColorAnalysis(analysis);
+      // Direkt eine Palette basierend auf der ColorLogic setzen, keine Variationen-Auswahl
+      let palette: PaletteData;
       
-      // Automatisch die erste (beste) Variation als Standard-Palette setzen
-      // WICHTIG: Immer eine Palette setzen, auch wenn keine Variationen generiert wurden
-      if (analysis.variations.length > 0) {
-        const bestVariation = analysis.variations[0];
-        const palette: PaletteData = {
-          id: `${analysis.palette.id}-default`,
-          name: `${selectedBaseColor} (${option})`,
-          colors: [bestVariation.backgroundColor, bestVariation.iconColor, bestVariation.textColor] as [string, string, string],
-          tags: ['generated', 'smart-color', 'auto-selected']
-        };
-        updateConfig({ palette });
-        console.log('🎯 Auto-Palette aktualisiert:', palette);
-      } else {
-        // Fallback: Erstelle eine einfache Palette wenn ColorLogic keine Variationen zurückgibt
-        const fallbackPalette: PaletteData = {
-          id: `fallback-${selectedBaseColor.replace('#', '')}-${option}`,
-          name: `${selectedBaseColor} (${option} Fallback)`,
-          colors: ['#FFFFFF', selectedBaseColor, selectedBaseColor] as [string, string, string],
-          tags: ['generated', 'fallback']
-        };
-        updateConfig({ palette: fallbackPalette });
-        console.log('⚠️ Fallback-Palette aktualisiert:', fallbackPalette);
+      switch (option) {
+        case 'color-only':
+          palette = {
+            id: `${selectedBaseColor.replace('#', '')}-only`,
+            name: `Nur ${selectedBaseColor}`,
+            colors: [selectedBaseColor] as [string, string, string],
+            tags: ['generated', 'smart-color', 'final']
+          };
+          break;
+        case 'add-white':
+          palette = {
+            id: `${selectedBaseColor.replace('#', '')}-white`,
+            name: `${selectedBaseColor} + Weiß`,
+            colors: [selectedBaseColor, '#FFFFFF'] as [string, string, string],
+            tags: ['generated', 'smart-color', 'final']
+          };
+          break;
+        case 'add-black':
+          palette = {
+            id: `${selectedBaseColor.replace('#', '')}-black`,
+            name: `${selectedBaseColor} + Schwarz`,
+            colors: [selectedBaseColor, '#000000'] as [string, string, string],
+            tags: ['generated', 'smart-color', 'final']
+          };
+          break;
+        default:
+          return;
       }
       
-      console.log('🎨 Farbanalyse aktualisiert:', analysis);
+      updateConfig({ palette });
+      
+      // Trigger background progression when colors are selected
+      if (onDesignProgress) {
+        onDesignProgress('colors-selected');
+      }
+      
+      // Auto-scroll to Create Logo button
+      setTimeout(() => {
+        const createButton = document.querySelector('[data-create-logo]');
+        if (createButton) {
+          createButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+      
+      console.log('🎯 Finale Palette gesetzt:', palette);
     }
   };
 
@@ -550,11 +543,6 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   </div>
                 )}
                 
-                {/* Hover tooltip */}
-                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
-                  {palette.name}
-                  {config.palette && !selectedBaseColor && <div className="text-white/70">Klicken zum Wechseln</div>}
-                </div>
                 
                 {/* Mode switch indicator overlay when regular palette is active */}
                 {config.palette && !selectedBaseColor && (
@@ -570,8 +558,8 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           {/* Intelligente Farbkombinations-Optionen - Nur zeigen wenn eine Grundfarbe gewählt wurde */}
           {selectedBaseColor && (
             <div className="mt-4 p-4 bg-white/5 rounded-lg border border-white/10">
-              <h4 className="text-sm font-bold text-white mb-3">Logo-Varianten erstellen:</h4>
-              <div className="grid grid-cols-4 gap-3">
+              <h4 className="text-sm font-bold text-white mb-3">Zusatzfarbe wählen (optional):</h4>
+              <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => handleColorOptionChange('color-only')}
                   className={`px-4 py-3 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
@@ -582,25 +570,8 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 >
                   <div className="flex flex-col items-center gap-1">
                     <div className="w-6 h-4 rounded-sm" style={{ backgroundColor: selectedBaseColor }}></div>
-                    <span>Nur diese Farbe</span>
-                    <span className="text-xs opacity-75">(ohne B/W)</span>
-                  </div>
-                </button>
-                <button
-                  onClick={() => handleColorOptionChange('base-only')}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
-                    selectedColorOption === 'base-only' 
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
-                      : 'bg-white/10 hover:bg-white/20 text-white'
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="flex gap-1">
-                      <div className="w-3 h-4 rounded-sm" style={{ backgroundColor: selectedBaseColor }}></div>
-                      <div className="w-3 h-4 rounded-sm bg-gray-400"></div>
-                    </div>
-                    <span>+ Auto B/W</span>
-                    <span className="text-xs opacity-75">(intelligent)</span>
+                    <span>Nur Grundfarbe</span>
+                    <span className="text-xs opacity-75">(ohne Zusatz)</span>
                   </div>
                 </button>
                 <button
@@ -641,70 +612,6 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             </div>
           )}
 
-          {/* Generierte Logo-Variationen - Nur zeigen wenn Farbanalyse verfügbar */}
-          {colorAnalysis && colorAnalysis.variations.length > 0 && (
-            <div className="col-span-full mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
-              <h4 className="text-lg font-bold text-white mb-3">Generierte Logo-Variationen ({colorAnalysis.variations.length})</h4>
-              <p className="text-sm text-white/60 mb-4">Alle Variationen erfüllen WCAG-Kontraststandards für optimale Lesbarkeit.</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {colorAnalysis.variations.map((variation, index) => (
-                  <SelectionCard 
-                    key={variation.id} 
-                    isSelected={config.palette?.id === variation.id || (index === 0 && config.palette?.tags?.includes('auto-selected') && config.palette?.id.includes('default'))} 
-                    noAnimation={true}
-                    onClick={() => {
-                      // Setze die ausgewählte Variation als aktuelle Palette
-                      const palette: PaletteData = {
-                        id: variation.id,
-                        name: variation.name,
-                        colors: [variation.backgroundColor, variation.iconColor, variation.textColor] as [string, string, string],
-                        tags: ['generated', 'smart-color', 'user-selected']
-                      };
-                      updateConfig({ palette });
-                      // Trigger background progression when colors are selected
-                      if (onDesignProgress) {
-                        onDesignProgress('colors-selected');
-                      }
-                      console.log('🎯 Logo-Variation gewählt:', variation);
-                      // Auto-scroll to Create Logo button
-                      setTimeout(() => {
-                        const createButton = document.querySelector('[data-create-logo]');
-                        if (createButton) {
-                          createButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                      }, 300);
-                    }}
-                  >
-                    <div className="flex flex-col items-center gap-3 p-4">
-                      {/* Mini Logo Preview */}
-                      <div 
-                        className="w-full h-20 rounded-lg flex items-center justify-center gap-2 text-sm"
-                        style={{ backgroundColor: variation.backgroundColor }}
-                      >
-                        {config.icon && (
-                          <config.icon.component 
-                            size={20} 
-                            color={variation.iconColor} 
-                          />
-                        )}
-                        <span 
-                          className="font-semibold truncate max-w-[120px]"
-                          style={{ color: variation.textColor }}
-                        >
-                          {config.text || 'Logo'}
-                        </span>
-                      </div>
-                      {/* Variation Info */}
-                      <div className="text-center min-h-[3rem] flex flex-col justify-center">
-                        <p className="text-sm font-semibold text-white mb-1">{variation.name}</p>
-                        <p className="text-xs text-white/60 leading-relaxed">{variation.description}</p>
-                      </div>
-                    </div>
-                  </SelectionCard>
-                ))}
-              </div>
-            </div>
-          )}
                 </div>
               </Section>
             </div>
