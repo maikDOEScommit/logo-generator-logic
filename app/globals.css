@@ -361,7 +361,7 @@ body::-webkit-scrollbar {
   color: black;
   padding: 1.2em 2.5em;
   border: none;
-  border-radius: 0.8em;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.95);
   font-size: 1.1em;
   font-weight: 700;
@@ -420,7 +420,7 @@ body::-webkit-scrollbar {
   background: white;
   transform: translateY(80%) rotateX(0deg) scale(1, 0.5);
   pointer-events: none;
-  border-radius: 0.8em;
+  border-radius: 0;
   transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
@@ -507,4 +507,62 @@ body::-webkit-scrollbar {
 .floating-orb-white {
   background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(240, 248, 255, 0.2) 100%);
   filter: blur(12px);
+}
+
+/* Modern Brand Personality Button Styles */
+.brand-personality-container {
+  position: relative;
+  border-radius: 0.5rem;
+  padding: 2px;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  background: linear-gradient(135deg, 
+    rgba(254, 240, 138, 0.4) 0%, 
+    rgba(189, 183, 107, 0.3) 25%, 
+    rgba(110, 231, 183, 0.4) 50%, 
+    rgba(255, 255, 255, 0.3) 100%
+  );
+}
+
+.brand-personality-container:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, 
+    rgba(254, 240, 138, 0.6) 0%, 
+    rgba(189, 183, 107, 0.5) 25%, 
+    rgba(110, 231, 183, 0.6) 50%, 
+    rgba(255, 255, 255, 0.5) 100%
+  );
+}
+
+.brand-personality-container.selected {
+  background: linear-gradient(135deg, 
+    rgba(254, 240, 138, 0.8) 0%, 
+    rgba(189, 183, 107, 0.7) 25%, 
+    rgba(110, 231, 183, 0.8) 50%, 
+    rgba(255, 255, 255, 0.7) 100%
+  );
+}
+
+.brand-personality-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: calc(0.5rem - 2px);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  border: none;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.brand-personality-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-0.5px);
+}
+
+.brand-personality-container.selected .brand-personality-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 600;
 }

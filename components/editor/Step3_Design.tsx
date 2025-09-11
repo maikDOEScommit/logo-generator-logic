@@ -455,25 +455,13 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             {personalities.map(p => (
               <div
                 key={p.id}
-                className={`relative p-[2px] rounded-lg transition-all transform hover:scale-105 ${
-                  selectedPersonalities.includes(p.id) ? 'scale-105' : ''
+                className={`brand-personality-container ${
+                  selectedPersonalities.includes(p.id) ? 'selected' : ''
                 }`}
-                style={{
-                  background: 'linear-gradient(90deg, #fef08a 0%, #bdad6b 25%, #6ee7b7 50%, #ffffff 100%)',
-                  padding: '3px',
-                  borderRadius: '0.5rem',
-                  boxShadow: selectedPersonalities.includes(p.id)
-                    ? '0 0 25px #fef08a, 0 0 35px #6ee7b7, 0 0 50px #ffffff'
-                    : '0 0 15px #fef08a, 0 0 25px #6ee7b7, 0 0 35px #ffffff'
-                }}
               >
                 <button
                   onClick={() => onTogglePersonality(p.id)}
-                  className={`w-full px-3 py-2 rounded-[calc(0.5rem-2px)] text-sm font-medium transition-all ${
-                    selectedPersonalities.includes(p.id) 
-                      ? 'bg-white/20 text-white' 
-                      : 'bg-white/10 hover:bg-white/20 text-white'
-                  }`}
+                  className="brand-personality-btn"
                 >
                   {p.name}
                 </button>
