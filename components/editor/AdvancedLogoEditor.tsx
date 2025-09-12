@@ -14,8 +14,12 @@ import {
   Type,
   Move,
   Palette,
+  Square,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { LogoConfig } from '@/lib/types';
+import { availableIcons } from '@/lib/suggestionEngine';
 
 // ---- Helpers ----
 const uid = (() => {
@@ -49,12 +53,24 @@ interface Stroke {
   points: Point[];
 }
 
+interface BoxShape {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  color: string;
+  fillOpacity: number;
+  strokeWidth: number;
+}
+
 interface LogoLayer {
   id: string;
   name: string;
   visible: boolean;
   type: 'drawing' | 'logo-element';
   strokes?: Stroke[];
+  boxes?: BoxShape[];
   logoElement?: {
     type: 'text' | 'icon';
     content: string;
@@ -82,9 +98,26 @@ export default function AdvancedLogoEditor({
   const [canvasHeight, setCanvasHeight] = useState(600);
 
   // Drawing tools
-  const [tool, setTool] = useState<'brush' | 'eraser' | 'text' | 'move'>('brush');
-  const [color, setColor] = useState(config.palette?.colors[1] || '#6b7cff');
+  const [tool, setTool] = useState<'brush' | 'eraser' | 'text' | 'move' | 'box'>('brush');
+  const [brushColor, setBrushColor] = useState(config.palette?.colors[1] || '#6b7cff');
+  const [boxColor, setBoxColor] = useState('#ff6b6b');
   const [brushWidth, setBrushWidth] = useState(8);
+  const [showIconList, setShowIconList] = useState(false);
+  
+  // Text editing
+  const [brandNameColor, setBrandNameColor] = useState(config.palette?.colors[1] || '#000000');
+  const [sloganColor, setSloganColor] = useState(config.palette?.colors[1] || '#000000');
+  const [fontWeight, setFontWeight] = useState(config.fontWeight || 600);
+  
+  // Box drawing state
+  const [isDrawingBox, setIsDrawingBox] = useState(false);
+  const [boxStart, setBoxStart] = useState<Point | null>(null);
+  const [currentBox, setCurrentBox] = useState<BoxShape | null>(null);
+  
+  // Move tool state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState<Point | null>(null);
+  const [selectedElement, setSelectedElement] = useState<{type: 'box' | 'stroke', layerId: string, elementId: string} | null>(null);
 
   // Layers system
   const [layers, setLayers] = useState<LogoLayer[]>(() => {
@@ -94,7 +127,8 @@ export default function AdvancedLogoEditor({
         name: 'Background', 
         visible: true, 
         type: 'drawing',
-        strokes: [] 
+        strokes: [],
+        boxes: []
       }
     ];
 
@@ -155,12 +189,21 @@ export default function AdvancedLogoEditor({
   const boardWrapperRef = useRef<HTMLDivElement | null>(null);
   const [scale, setScale] = useState(1);
 
-  // Update color when palette changes
+  // Update colors when palette changes
   useEffect(() => {
     if (config.palette?.colors[1]) {
-      setColor(config.palette.colors[1]);
+      setBrushColor(config.palette.colors[1]);
+      setBrandNameColor(config.palette.colors[1]);
+      setSloganColor(config.palette.colors[1]);
     }
   }, [config.palette]);
+
+  // Update font weight and colors from config
+  useEffect(() => {
+    if (config.fontWeight) {
+      setFontWeight(config.fontWeight);
+    }
+  }, [config.fontWeight]);
 
   // Responsive scaling
   useEffect(() => {
@@ -191,14 +234,14 @@ export default function AdvancedLogoEditor({
       visible: true,
       type,
       ...(type === 'drawing' 
-        ? { strokes: [] }
+        ? { strokes: [], boxes: [] }
         : { 
             logoElement: {
               type: 'text',
               content: 'New Text',
               x: canvasWidth / 2,
               y: canvasHeight / 2,
-              color: color,
+              color: brushColor,
               size: 24
             }
           }
@@ -268,45 +311,98 @@ export default function AdvancedLogoEditor({
     }
     
     const p = getLocalPoint(e);
-    drawingRef.current.drawing = true;
-    drawingRef.current.stroke = {
-      id: uid(),
-      tool,
-      color,
-      width: brushWidth,
-      points: [p],
-    };
+    
+    if (tool === 'box') {
+      setIsDrawingBox(true);
+      setBoxStart(p);
+      setCurrentBox({
+        id: uid(),
+        x: p.x,
+        y: p.y,
+        width: 0,
+        height: 0,
+        color: boxColor,
+        fillOpacity: 1.0,
+        strokeWidth: 2
+      });
+    } else if (tool === 'move') {
+      // Simple move tool - for now just set dragging state
+      // In a full implementation, you'd detect which element was clicked
+      setIsDragging(true);
+      setDragStart(p);
+    } else if (tool === 'brush' || tool === 'eraser') {
+      drawingRef.current.drawing = true;
+      drawingRef.current.stroke = {
+        id: uid(),
+        tool,
+        color: brushColor,
+        width: brushWidth,
+        points: [p],
+      };
+    }
   }
 
   function onPointerMove(e: React.PointerEvent) {
-    if (!drawingRef.current.drawing) return;
     const p = getLocalPoint(e);
-    const stroke = drawingRef.current.stroke;
-    if (!stroke) return;
     
-    const last = stroke.points[stroke.points.length - 1];
-    const dx = p.x - last.x;
-    const dy = p.y - last.y;
-    if (dx * dx + dy * dy > 0.5) {
-      stroke.points.push(p);
-      setLayers((prev) => prev.slice());
+    if (isDrawingBox && boxStart && currentBox) {
+      const width = p.x - boxStart.x;
+      const height = p.y - boxStart.y;
+      setCurrentBox({
+        ...currentBox,
+        width: width,
+        height: height
+      });
+    } else if (isDragging && tool === 'move') {
+      // Move tool logic - placeholder for now
+      // In a full implementation, you'd move the selected element here
+      console.log('Moving element', p);
+    } else if (drawingRef.current.drawing) {
+      const stroke = drawingRef.current.stroke;
+      if (!stroke) return;
+      
+      const last = stroke.points[stroke.points.length - 1];
+      const dx = p.x - last.x;
+      const dy = p.y - last.y;
+      if (dx * dx + dy * dy > 0.5) {
+        stroke.points.push(p);
+        setLayers((prev) => prev.slice());
+      }
     }
   }
 
   function onPointerUp() {
-    if (!drawingRef.current.drawing) return;
-    drawingRef.current.drawing = false;
-    const stroke = drawingRef.current.stroke;
-    drawingRef.current.stroke = null;
-    if (!stroke || stroke.points.length < 1) return;
-    
-    setLayers((prev) =>
-      prev.map((l, i) =>
-        i === activeLayerIndex && l.type === 'drawing' && l.strokes
-          ? { ...l, strokes: [...l.strokes, stroke] }
-          : l
-      )
-    );
+    if (isDrawingBox && currentBox) {
+      // Add box to the active layer
+      setLayers((prev) =>
+        prev.map((l, i) =>
+          i === activeLayerIndex && l.type === 'drawing'
+            ? { ...l, boxes: [...(l.boxes || []), currentBox] }
+            : l
+        )
+      );
+      setIsDrawingBox(false);
+      setBoxStart(null);
+      setCurrentBox(null);
+    } else if (isDragging && tool === 'move') {
+      // End dragging
+      setIsDragging(false);
+      setDragStart(null);
+      setSelectedElement(null);
+    } else if (drawingRef.current.drawing) {
+      drawingRef.current.drawing = false;
+      const stroke = drawingRef.current.stroke;
+      drawingRef.current.stroke = null;
+      if (!stroke || stroke.points.length < 1) return;
+      
+      setLayers((prev) =>
+        prev.map((l, i) =>
+          i === activeLayerIndex && l.type === 'drawing' && l.strokes
+            ? { ...l, strokes: [...l.strokes, stroke] }
+            : l
+        )
+      );
+    }
   }
 
   // ---- Export ----
@@ -334,22 +430,40 @@ export default function AdvancedLogoEditor({
       .map((layer) => {
         if (!layer.visible) return "";
         
-        if (layer.type === 'drawing' && layer.strokes) {
+        if (layer.type === 'drawing') {
           const maskId = `mask_${layer.id}`;
-          const brushStr = layer.strokes
-            .filter((s) => s.tool === "brush")
-            .map(
-              (s) =>
-                `\n      <path d="${pointsToPath(
-                  s.points
-                )}" fill="none" stroke="${
-                  s.color
-                }" stroke-linecap="round" stroke-linejoin="round" stroke-width="${
-                  s.width
-                }"/>`
-            )
-            .join("");
-          return `<g mask="url(#${maskId})">${brushStr}\n    </g>`;
+          let content = '';
+          
+          // Add strokes
+          if (layer.strokes) {
+            const brushStr = layer.strokes
+              .filter((s) => s.tool === "brush")
+              .map(
+                (s) =>
+                  `\n      <path d="${pointsToPath(
+                    s.points
+                  )}" fill="none" stroke="${
+                    s.color
+                  }" stroke-linecap="round" stroke-linejoin="round" stroke-width="${
+                    s.width
+                  }"/>`
+              )
+              .join("");
+            content += brushStr;
+          }
+          
+          // Add boxes
+          if (layer.boxes) {
+            const boxStr = layer.boxes
+              .map(
+                (box) =>
+                  `\n      <rect x="${box.x}" y="${box.y}" width="${Math.abs(box.width)}" height="${Math.abs(box.height)}" fill="${box.color}" fill-opacity="${box.fillOpacity}" stroke="${box.color}" stroke-width="${box.strokeWidth}"/>`
+              )
+              .join("");
+            content += boxStr;
+          }
+          
+          return `<g mask="url(#${maskId})">${content}\n    </g>`;
         }
         
         if (layer.type === 'logo-element' && layer.logoElement) {
@@ -425,10 +539,15 @@ export default function AdvancedLogoEditor({
         width={canvasWidth}
         height={canvasHeight}
         viewBox={`0 0 ${canvasWidth} ${canvasHeight}`}
-        className="touch-none select-none block"
+        className={`touch-none select-none block ${(tool === 'brush' || tool === 'eraser') ? 'cursor-none' : ''}`}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        style={{
+          cursor: (tool === 'brush' || tool === 'eraser')
+            ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${brushWidth + 2}' height='${brushWidth + 2}' viewBox='0 0 ${brushWidth + 2} ${brushWidth + 2}'><circle cx='${(brushWidth + 2) / 2}' cy='${(brushWidth + 2) / 2}' r='${brushWidth / 2}' fill='none' stroke='black' stroke-width='1'/></svg>") ${(brushWidth + 2) / 2} ${(brushWidth + 2) / 2}, crosshair` 
+            : 'default'
+        }}
       >
         {/* Background */}
         <rect 
@@ -465,10 +584,11 @@ export default function AdvancedLogoEditor({
         {layers.map((layer) => {
           if (!layer.visible) return null;
           
-          if (layer.type === 'drawing' && layer.strokes) {
+          if (layer.type === 'drawing') {
             return (
               <g key={layer.id} mask={`url(#mask_${layer.id})`}>
-                {layer.strokes.filter((s) => s.tool === "brush").map((s) => (
+                {/* Render strokes */}
+                {layer.strokes?.filter((s) => s.tool === "brush").map((s) => (
                   <path
                     key={s.id}
                     d={pointsToPath(s.points)}
@@ -477,6 +597,20 @@ export default function AdvancedLogoEditor({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={s.width}
+                  />
+                ))}
+                {/* Render boxes */}
+                {layer.boxes?.map((box) => (
+                  <rect
+                    key={box.id}
+                    x={box.x}
+                    y={box.y}
+                    width={Math.abs(box.width)}
+                    height={Math.abs(box.height)}
+                    fill={box.color}
+                    fillOpacity={box.fillOpacity}
+                    stroke={box.color}
+                    strokeWidth={box.strokeWidth}
                   />
                 ))}
               </g>
@@ -532,7 +666,7 @@ export default function AdvancedLogoEditor({
             <path
               d={pointsToPath(drawingRef.current.stroke.points)}
               fill="none"
-              stroke="#00000055"
+              stroke="#000000AA"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={drawingRef.current.stroke.width}
@@ -547,6 +681,20 @@ export default function AdvancedLogoEditor({
               strokeWidth={drawingRef.current.stroke.width}
             />
           ))}
+        
+        {/* Live box preview */}
+        {currentBox && (
+          <rect
+            x={currentBox.x}
+            y={currentBox.y}
+            width={Math.abs(currentBox.width)}
+            height={Math.abs(currentBox.height)}
+            fill={currentBox.color}
+            fillOpacity={1.0}
+            stroke={currentBox.color}
+            strokeWidth={2}
+          />
+        )}
       </svg>
     );
   };
@@ -560,6 +708,7 @@ export default function AdvancedLogoEditor({
       if (e.key === "e" || e.key === "E") setTool("eraser");
       if (e.key === "t" || e.key === "T") setTool("text");
       if (e.key === "m" || e.key === "M") setTool("move");
+      if (e.key === "r" || e.key === "R") setTool("box");
     };
     
     window.addEventListener("keydown", handleKeyDown);
@@ -591,15 +740,42 @@ export default function AdvancedLogoEditor({
             >
               <Eraser className="w-4 h-4" /> Eraser
             </button>
+            <button
+              onClick={() => setTool("box")}
+              className={`px-3 py-2 rounded-lg flex items-center gap-2 text-sm ${
+                tool === "box" ? "bg-blue-600 text-white" : "text-gray-300 hover:text-white"
+              }`}
+            >
+              <Square className="w-4 h-4" /> Box
+            </button>
+            <button
+              onClick={() => setTool("move")}
+              className={`px-3 py-2 rounded-lg flex items-center gap-2 text-sm ${
+                tool === "move" ? "bg-blue-600 text-white" : "text-gray-300 hover:text-white"
+              }`}
+            >
+              <Move className="w-4 h-4" /> Move
+            </button>
           </div>
 
-          {/* Color picker */}
+          {/* Brush Color picker */}
           <div className="flex items-center gap-2 px-3 py-2 bg-gray-700 rounded-lg">
-            <Palette className="w-4 h-4" />
+            <Brush className="w-4 h-4" />
             <input
               type="color"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
+              value={brushColor}
+              onChange={(e) => setBrushColor(e.target.value)}
+              className="w-8 h-6 rounded border-0 cursor-pointer"
+            />
+          </div>
+
+          {/* Box Color picker */}
+          <div className="flex items-center gap-2 px-3 py-2 bg-gray-700 rounded-lg">
+            <Square className="w-4 h-4" />
+            <input
+              type="color"
+              value={boxColor}
+              onChange={(e) => setBoxColor(e.target.value)}
               className="w-8 h-6 rounded border-0 cursor-pointer"
             />
           </div>
@@ -650,8 +826,107 @@ export default function AdvancedLogoEditor({
           </div>
         </div>
 
-        {/* Right sidebar - Layers */}
+        {/* Right sidebar - Controls & Layers */}
         <div className="w-80 border-l border-gray-700 bg-gray-800 flex flex-col">
+          {/* Logo Text Controls */}
+          <div className="px-4 py-3 border-b border-gray-700">
+            <h4 className="font-semibold mb-3 text-white">Logo Text</h4>
+            
+            {/* Brand Name Input with Color Picker */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={config.text || ''}
+                  onChange={(e) => onConfigUpdate({ text: e.target.value })}
+                  placeholder="Brand Name"
+                  className="flex-1 px-3 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm"
+                />
+                <input
+                  type="color"
+                  value={brandNameColor}
+                  onChange={(e) => {
+                    setBrandNameColor(e.target.value);
+                    onConfigUpdate({ brandNameColor: e.target.value });
+                  }}
+                  className="w-8 h-8 rounded border-0 cursor-pointer"
+                  title="Brand Name Color"
+                />
+              </div>
+              
+              {/* Slogan Input with Color Picker */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={config.slogan || ''}
+                  onChange={(e) => onConfigUpdate({ slogan: e.target.value })}
+                  placeholder="Slogan (optional)"
+                  className="flex-1 px-3 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm"
+                />
+                <input
+                  type="color"
+                  value={sloganColor}
+                  onChange={(e) => {
+                    setSloganColor(e.target.value);
+                    onConfigUpdate({ sloganColor: e.target.value });
+                  }}
+                  className="w-8 h-8 rounded border-0 cursor-pointer"
+                  title="Slogan Color"
+                />
+              </div>
+              
+              {/* Font Weight Slider */}
+              <div className="space-y-2">
+                <label className="text-sm text-gray-300">Font Weight</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="100"
+                    max="900"
+                    step="100"
+                    value={fontWeight}
+                    onChange={(e) => {
+                      setFontWeight(parseInt(e.target.value));
+                      onConfigUpdate({ fontWeight: parseInt(e.target.value) });
+                    }}
+                    className="flex-1"
+                  />
+                  <span className="text-sm text-white w-8 text-center">{fontWeight}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Icon Library */}
+          <div className="px-4 py-3 border-b border-gray-700">
+            <div 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setShowIconList(!showIconList)}
+            >
+              <h4 className="font-semibold text-white">Icon Library</h4>
+              {showIconList ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </div>
+            
+            {showIconList && (
+              <div className="mt-3 max-h-48 overflow-y-auto">
+                <div className="grid grid-cols-4 gap-2">
+                  {availableIcons.map(icon => (
+                    <button
+                      key={icon.id}
+                      onClick={() => onConfigUpdate({ icon: icon })}
+                      className={`p-2 rounded border border-gray-600 hover:border-blue-500 hover:bg-gray-700 transition-colors ${
+                        config.icon?.id === icon.id ? 'border-blue-500 bg-blue-600' : 'bg-gray-700'
+                      }`}
+                      title={icon.id}
+                    >
+                      <icon.component size={16} color="white" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
             <div className="flex items-center gap-2">
               <Layers className="w-4 h-4" />

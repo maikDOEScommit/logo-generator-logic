@@ -488,33 +488,37 @@ export default function LogoGeneratorPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                  <div className="bg-white/5 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-bold text-black">Design Quality</h3>
-                      <span className="text-2xl font-bold text-white">82/100</span>
-                    </div>
-                    <div className="w-full h-2 bg-white/10 rounded-full mb-3">
-                      <div
-                        className="h-2 rounded-full bg-white transition-all duration-500"
-                        style={{ width: "82%" }}
-                      />
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-white/10">
-                      <h4 className="text-sm font-semibold text-black mb-2">Improvement suggestions:</h4>
-                      <ul className="text-xs text-white/70 space-y-1">
-                        <li className="flex items-start gap-2">
-                          <span className="text-primary mt-0.5">•</span>
-                          Wählen Sie eine klassische Schriftart und professionelle Farben für mehr Zeitlosigkeit
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-primary mt-0.5">•</span>
-                          Vervollständigen Sie alle Elemente für ein starkes Gesamtkonzept
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-primary mt-0.5">•</span>
-                          Wählen Sie Farben, die zu Ihrer Branche passen (z.B. Blau für Tech, Grün für Nachhaltigkeit)
-                        </li>
-                      </ul>
+                  <div className="bg-white/5 rounded-lg p-4 relative">
+                    {/* 10% black overlay */}
+                    <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-bold text-black">Design Quality</h3>
+                        <span className="text-2xl font-bold text-white">82/100</span>
+                      </div>
+                      <div className="w-full h-2 bg-white/10 rounded-full mb-3">
+                        <div
+                          className="h-2 rounded-full bg-white transition-all duration-500"
+                          style={{ width: "82%" }}
+                        />
+                      </div>
+                      <div className="mt-4 pt-4 border-t border-white/10">
+                        <h4 className="text-sm font-semibold text-black mb-2">Improvement suggestions:</h4>
+                        <ul className="text-xs text-white/70 space-y-1">
+                          <li className="flex items-start gap-2">
+                            <span className="text-primary mt-0.5">•</span>
+                            Wählen Sie eine klassische Schriftart und professionelle Farben für mehr Zeitlosigkeit
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-primary mt-0.5">•</span>
+                            Vervollständigen Sie alle Elemente für ein starkes Gesamtkonzept
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-primary mt-0.5">•</span>
+                            Wählen Sie Farben, die zu Ihrer Branche passen (z.B. Blau für Tech, Grün für Nachhaltigkeit)
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -525,28 +529,32 @@ export default function LogoGeneratorPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
                 >
-                  <div className="bg-white/5 rounded-lg p-4">
-                    <h3 className="font-bold text-black mb-4">Typography Style</h3>
-                    <div className="space-y-3">
-                      {fontCategories.map((category) => (
-                        <button
-                          key={category.name}
-                          onClick={() => setSelectedFontCategory(category.name)}
-                          className={`w-full p-4 rounded-lg border text-left transition-all duration-300 transform hover:scale-[1.02] ${
-                            selectedFontCategory === category.name
-                              ? 'bg-white/10 border-white/30 text-white shadow-lg shadow-white/10'
-                              : 'bg-white/5 border-white/10 text-white/80 hover:bg-white/8 hover:border-white/20'
-                          }`}
-                        >
-                          <div className="font-semibold text-sm mb-2">{category.name}</div>
-                          <div className="text-xs text-white/60 leading-relaxed">
-                            {category.name === 'Modern' && 'Clean, minimalist fonts for tech companies'}
-                            {category.name === 'Elegant' && 'Sophisticated script fonts for luxury brands'}
-                            {category.name === 'Bold' && 'Strong, impactful fonts for dynamic companies'}
-                            {category.name === 'Heritage' && 'Classic serif fonts for traditional businesses'}
-                          </div>
-                        </button>
-                      ))}
+                  <div className="bg-white/5 rounded-lg p-4 relative">
+                    {/* 10% black overlay */}
+                    <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
+                    <div className="relative z-10">
+                      <h3 className="font-bold text-black mb-4">Typography Style</h3>
+                      <div className="space-y-3">
+                        {fontCategories.map((category) => (
+                          <button
+                            key={category.name}
+                            onClick={() => setSelectedFontCategory(category.name)}
+                            className={`w-full p-4 rounded-lg border text-left transition-all duration-300 transform hover:scale-[1.02] ${
+                              selectedFontCategory === category.name
+                                ? 'bg-white/10 border-white/30 text-white shadow-lg shadow-white/10'
+                                : 'bg-white/5 border-white/10 text-white/80 hover:bg-white/8 hover:border-white/20'
+                            }`}
+                          >
+                            <div className="font-semibold text-sm mb-2">{category.name}</div>
+                            <div className="text-xs text-white/60 leading-relaxed">
+                              {category.name === 'Modern' && 'Clean, minimalist fonts for tech companies'}
+                              {category.name === 'Elegant' && 'Sophisticated script fonts for luxury brands'}
+                              {category.name === 'Bold' && 'Strong, impactful fonts for dynamic companies'}
+                              {category.name === 'Heritage' && 'Classic serif fonts for traditional businesses'}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </motion.div>
