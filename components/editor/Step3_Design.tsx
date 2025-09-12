@@ -203,7 +203,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   No, text only
                 </button>
               </div>
-              <div className="text-xs text-white/60">Rule 2: Memorability - Simple symbols are remembered better</div>
+              <div className="text-xs text-white/60 relative inline-block">                <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>                <span className="relative z-10">Rule 2: Memorability - Simple symbols are remembered better</span>              </div>
             </motion.div>
           </div>
         </div>
@@ -314,10 +314,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 transition={{ delay: 0.1, duration: 0.4 }}
               >
                 <h2 className="text-xl font-bold mb-8 text-black">Choose your Typography Style</h2>
-                <div className="space-y-4 mb-6">
+                <div className="space-y-4 mb-6 relative">
                   {fontCategories.map((category) => (
-                    <div key={category.name} className="flex items-center gap-8">
-                      <div className="flex-shrink-0">
+                    <div key={category.name} className="flex items-center gap-8 relative">
+                      <div className="flex-shrink-0 z-10">
                         <div className={`glowing-typography-container ${selectedFontCategory === category.name ? 'selected' : ''}`}>
                           <button
                             className="glowing-typography-btn"
@@ -344,8 +344,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                           </button>
                         </div>
                       </div>
-                      <div className="flex-1">
-                        <div className="text-white/80">
+                      <div className="flex-1 relative">
+                        {/* 10% black layer only behind the text content */}
+                        <div className="absolute inset-0 bg-black/10 rounded-lg -mx-2 -my-1"></div>
+                        <div className="text-white/80 relative z-10 px-2 py-1">
                           <div className="text-sm leading-relaxed mb-2">
                             {category.name === 'Modern' && 'Clean, minimalist fonts perfect for tech companies and contemporary brands. Highly readable across all devices.'}
                             {category.name === 'Elegant' && 'Sophisticated script fonts that convey luxury and refinement. Ideal for premium brands and creative agencies.'}
@@ -364,7 +366,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                     </div>
                   ))}
                 </div>
-                <div className="text-xs text-white/60">Rule 3: Timelessness - Classic fonts outlast trends</div>
+                <div className="text-xs text-white/60 text-center mt-8 relative inline-block mx-auto">                  <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>                  <span className="relative z-10">Rule 3: Timelessness - Classic fonts outlast trends</span>                </div>
               </motion.div>
             </div>
           </div>
@@ -437,7 +439,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   </div>
                 )}
                 
-                <div className="text-xs text-white/60">Rule 4: Scalability - Standard layouts work at any size</div>
+                <div className="text-xs text-white/60 relative inline-block">                  <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>                  <span className="relative z-10">Rule 4: Scalability - Standard layouts work at any size</span>                </div>
               </motion.div>
             </div>
           </div>
@@ -465,8 +467,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
               </div>
             ))}
           </div>
-          <div className="text-xs text-white/50">
-            Rule 6: Relevance - These traits influence color palette suggestions
+          <div className="text-xs text-white/50 relative inline-block">
+            <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>
+            <span className="relative z-10">Rule 6: Relevance - These traits influence color palette suggestions</span>
           </div>
         </div>
         

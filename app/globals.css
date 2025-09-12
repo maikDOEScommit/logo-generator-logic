@@ -391,6 +391,7 @@ body::-webkit-scrollbar {
   box-shadow: 0px 30px 25px -10px rgba(255, 255, 255, 0.4);
   -webkit-box-shadow: 0px 30px 25px -10px rgba(255, 255, 255, 0.4);
   -moz-box-shadow: 0px 30px 25px -10px rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.525);
 }
 
 /* Make borders rotate with the 3D hover effect */
@@ -401,6 +402,7 @@ body::-webkit-scrollbar {
 .glowing-typography-container.selected:hover .glowing-typography-btn {
   transform: rotateX(70deg) translateZ(-4px) scale(1.05);
   box-shadow: 0px 30px 25px -10px rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.525);
 }
 
 /* Make borders rotate with the selected 3D hover effect */

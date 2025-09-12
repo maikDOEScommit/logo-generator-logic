@@ -57,7 +57,45 @@ export function generateLogoVariations(
   }));
 }
 
-// Generiert die ursprünglichen 4 Variationen für reguläre Paletten
+// Color utility functions for evaluation
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
+function getRelativeLuminance(rgb: { r: number; g: number; b: number }): number {
+  const normalize = (c: number) => {
+    c = c / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  
+  const r = normalize(rgb.r);
+  const g = normalize(rgb.g);
+  const b = normalize(rgb.b);
+  
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function getContrastRatio(color1: string, color2: string): number {
+  const rgb1 = hexToRgb(color1);
+  const rgb2 = hexToRgb(color2);
+  
+  if (!rgb1 || !rgb2) return 1;
+  
+  const lum1 = getRelativeLuminance(rgb1);
+  const lum2 = getRelativeLuminance(rgb2);
+  
+  const lighter = Math.max(lum1, lum2);
+  const darker = Math.min(lum1, lum2);
+  
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+// Generate all possible combinations and evaluate them
 function generateRegularPaletteVariations(config: LogoConfig): LogoVariation[] {
   const palette = config.palette;
   if (!palette || !palette.colors) {
@@ -75,44 +113,123 @@ function generateRegularPaletteVariations(config: LogoConfig): LogoVariation[] {
     ];
   }
 
-  return [
-    {
-      id: 'regular-light',
-      name: 'Light Version',
-      brandNameColor: palette.colors[0],
-      iconColor: palette.colors[0],
-      backgroundColor: '#FFFFFF',
-      sloganColor: palette.colors[0],
-      hasGradient: false
-    },
-    {
-      id: 'regular-dark',
-      name: 'Dark Version',
-      brandNameColor: palette.colors[2],
-      iconColor: palette.colors[2],
-      backgroundColor: '#000000',
-      sloganColor: palette.colors[2],
-      hasGradient: false
-    },
-    {
-      id: 'regular-accent',
-      name: 'Accent Version',
-      brandNameColor: palette.colors[0],
-      iconColor: palette.colors[0],
-      backgroundColor: palette.colors[2],
-      sloganColor: palette.colors[0],
-      hasGradient: false
-    },
-    {
-      id: 'regular-secondary',
-      name: 'Secondary Version',
-      brandNameColor: palette.colors[2],
-      iconColor: palette.colors[2],
-      backgroundColor: palette.colors[0],
-      sloganColor: palette.colors[2],
-      hasGradient: false
-    }
+  const colors = [palette.colors[0], palette.colors[1], palette.colors[2]];
+  const combinations: Array<{
+    id: string;
+    background: { type: string; value: string; startColor?: string; endColor?: string; name: string };
+    brandnameColor: string;
+    iconColor: string;
+    score: number;
+  }> = [];
+
+  // Create solid backgrounds
+  const backgrounds = [
+    { type: 'solid', value: '#FFFFFF', name: 'White' },
+    { type: 'solid', value: '#000000', name: 'Black' },
+    { type: 'solid', value: colors[0], name: 'Color A' },
+    { type: 'solid', value: colors[1], name: 'Color B' },
+    { type: 'solid', value: colors[2], name: 'Color C' }
   ];
+
+  // Create gradients
+  const gradients = [
+    { type: 'gradient', value: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})`, 
+      startColor: colors[0], endColor: colors[1], name: 'A→B' },
+    { type: 'gradient', value: `linear-gradient(135deg, ${colors[1]}, ${colors[0]})`, 
+      startColor: colors[1], endColor: colors[0], name: 'B→A' },
+    { type: 'gradient', value: `linear-gradient(135deg, ${colors[0]}, ${colors[2]})`, 
+      startColor: colors[0], endColor: colors[2], name: 'A→C' },
+    { type: 'gradient', value: `linear-gradient(135deg, ${colors[2]}, ${colors[0]})`, 
+      startColor: colors[2], endColor: colors[0], name: 'C→A' },
+    { type: 'gradient', value: `linear-gradient(135deg, ${colors[1]}, ${colors[2]})`, 
+      startColor: colors[1], endColor: colors[2], name: 'B→C' },
+    { type: 'gradient', value: `linear-gradient(135deg, ${colors[2]}, ${colors[1]})`, 
+      startColor: colors[2], endColor: colors[1], name: 'C→B' }
+  ];
+
+  let id = 1;
+
+  // Generate all combinations
+  [...backgrounds, ...gradients].forEach(bg => {
+    colors.forEach(brandColor => {
+      colors.forEach(iconColor => {
+        combinations.push({
+          id: `combo_${id++}`,
+          background: bg,
+          brandnameColor: brandColor,
+          iconColor: iconColor,
+          score: 0
+        });
+      });
+    });
+  });
+
+  // Calculate scores
+  combinations.forEach(combo => {
+    let brandContrast, iconContrast;
+
+    if (combo.background.type === 'solid') {
+      brandContrast = getContrastRatio(combo.brandnameColor, combo.background.value);
+      iconContrast = getContrastRatio(combo.iconColor, combo.background.value);
+    } else if (combo.background.type === 'gradient') {
+      const brandContrastStart = getContrastRatio(combo.brandnameColor, combo.background.startColor!);
+      const brandContrastEnd = getContrastRatio(combo.brandnameColor, combo.background.endColor!);
+      brandContrast = Math.min(brandContrastStart, brandContrastEnd);
+
+      const iconContrastStart = getContrastRatio(combo.iconColor, combo.background.startColor!);
+      const iconContrastEnd = getContrastRatio(combo.iconColor, combo.background.endColor!);
+      iconContrast = Math.min(iconContrastStart, iconContrastEnd);
+    }
+
+    let score = Math.min(brandContrast, iconContrast);
+
+    // Hierarchy malus - same colors
+    if (combo.brandnameColor === combo.iconColor && 
+        combo.brandnameColor === combo.background.value) {
+      score = 0;
+    }
+
+    // Harmony bonus - different colors for brand and icon
+    if (combo.brandnameColor !== combo.iconColor) {
+      score *= 1.1;
+    }
+
+    // Penalize very low contrast
+    if (score < 2) {
+      score *= 0.5;
+    }
+
+    combo.score = Math.round(score * 100) / 100;
+  });
+
+  // Filter into categories and select best
+  const whiteBg = combinations.filter(c => c.background.value === '#FFFFFF').sort((a, b) => b.score - a.score);
+  const blackBg = combinations.filter(c => c.background.value === '#000000').sort((a, b) => b.score - a.score);
+  const solidColorBg = combinations.filter(c => 
+    c.background.type === 'solid' && 
+    c.background.value !== '#FFFFFF' && 
+    c.background.value !== '#000000'
+  ).sort((a, b) => b.score - a.score);
+  const gradientBg = combinations.filter(c => c.background.type === 'gradient').sort((a, b) => b.score - a.score);
+
+  // Select top results: 2 white, 2 black, 4 solid color, 4 gradient
+  const bestCombinations = [
+    ...whiteBg.slice(0, 2),
+    ...blackBg.slice(0, 2),
+    ...solidColorBg.slice(0, 4),
+    ...gradientBg.slice(0, 4)
+  ].sort((a, b) => b.score - a.score);
+
+  // Convert to LogoVariation format
+  return bestCombinations.map((combo, index) => ({
+    id: combo.id,
+    name: `${combo.background.name} (Score: ${combo.score})`,
+    brandNameColor: combo.brandnameColor,
+    iconColor: combo.iconColor,
+    backgroundColor: combo.background.value,
+    sloganColor: combo.brandnameColor, // Use same as brand name for consistency
+    hasGradient: combo.background.type === 'gradient'
+  }));
 }
 
 // Bestimmt die anzuwendende Farbregel basierend auf der Auswahl
