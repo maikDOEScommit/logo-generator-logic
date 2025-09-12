@@ -116,11 +116,11 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
         {logoConfig.layout?.arrangement === 'text-left' ? (
           <div className="flex items-center justify-center gap-3">
             <div className="flex flex-col items-center">
-              <span className="whitespace-nowrap overflow-hidden text-ellipsis" style={brandNameStyle}>
+              <span className="text-center break-words max-w-full" style={brandNameStyle}>
                 {logoConfig.text}
               </span>
               {logoConfig.slogan && (
-                <span className="opacity-80 mt-1 truncate" style={sloganStyle}>
+                <span className="opacity-80 mt-1 text-center break-words max-w-full" style={sloganStyle}>
                   {logoConfig.slogan}
                 </span>
               )}
@@ -135,11 +135,11 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
               <logoConfig.icon.component size={32} color={iconColor} className="flex-shrink-0" />
             )}
             <div className="flex flex-col items-center">
-              <span className="whitespace-nowrap overflow-hidden text-ellipsis" style={brandNameStyle}>
+              <span className="text-center break-words max-w-full" style={brandNameStyle}>
                 {logoConfig.text}
               </span>
               {logoConfig.slogan && (
-                <span className="opacity-80 mt-1 truncate" style={sloganStyle}>
+                <span className="opacity-80 mt-1 text-center break-words max-w-full" style={sloganStyle}>
                   {logoConfig.slogan}
                 </span>
               )}
@@ -148,11 +148,11 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
         ) : logoConfig.layout?.arrangement === 'text-top' ? (
           <div className="flex flex-col items-center justify-center text-center">
             <div className="flex flex-col items-center mb-2">
-              <span className="whitespace-nowrap overflow-hidden text-ellipsis" style={brandNameStyle}>
+              <span className="text-center break-words max-w-full" style={brandNameStyle}>
                 {logoConfig.text}
               </span>
               {logoConfig.slogan && (
-                <span className="opacity-80 mt-1 truncate" style={sloganStyle}>
+                <span className="opacity-80 mt-1 text-center break-words max-w-full" style={sloganStyle}>
                   {logoConfig.slogan}
                 </span>
               )}
@@ -168,11 +168,11 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
               <logoConfig.icon.component size={28} color={iconColor} className="flex-shrink-0 mb-2" />
             )}
             <div className="flex flex-col items-center">
-              <span className="whitespace-nowrap overflow-hidden text-ellipsis" style={brandNameStyle}>
+              <span className="text-center break-words max-w-full" style={brandNameStyle}>
                 {logoConfig.text}
               </span>
               {logoConfig.slogan && (
-                <span className="opacity-80 mt-1 truncate" style={sloganStyle}>
+                <span className="opacity-80 mt-1 text-center break-words max-w-full" style={sloganStyle}>
                   {logoConfig.slogan}
                 </span>
               )}
@@ -207,7 +207,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
             {logoConfig.layout?.arrangement === 'text-left' ? (
               <div className="flex items-center justify-center gap-2 text-center">
                 <div className="flex flex-col items-center">
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm" style={{ 
+                  <span className="text-center break-words max-w-full text-sm" style={{ 
                     fontSize: `${parseFloat(dynamicFontSize) * 0.8}rem`,
                     fontFamily: font.cssName,
                     fontWeight: logoConfig.fontWeight || font.generationWeights[0],
@@ -216,7 +216,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                     {logoConfig.text}
                   </span>
                   {logoConfig.slogan && (
-                    <span className="text-xs font-normal opacity-80 mt-1 truncate" style={{ 
+                    <span className="text-xs font-normal opacity-80 mt-1 text-center break-words max-w-full" style={{ 
                       fontWeight: 300,
                       color: textColor
                     }}>
@@ -234,7 +234,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   <logoConfig.icon.component size={24} color={textColor} className="flex-shrink-0" />
                 )}
                 <div className="flex flex-col items-center">
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm" style={{ 
+                  <span className="text-center break-words max-w-full text-sm" style={{ 
                     fontSize: `${parseFloat(dynamicFontSize) * 0.8}rem`,
                     fontFamily: font.cssName,
                     fontWeight: logoConfig.fontWeight || font.generationWeights[0],
@@ -243,7 +243,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                     {logoConfig.text}
                   </span>
                   {logoConfig.slogan && (
-                    <span className="text-xs font-normal opacity-80 mt-1 truncate" style={{ 
+                    <span className="text-xs font-normal opacity-80 mt-1 text-center break-words max-w-full" style={{ 
                       fontWeight: 300,
                       color: textColor
                     }}>
@@ -255,7 +255,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
             ) : logoConfig.layout?.arrangement === 'text-top' ? (
               <div className="flex flex-col items-center justify-center text-center">
                 <div className="flex flex-col items-center mb-1">
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm" style={{ 
+                  <span className="text-center break-words max-w-full text-sm" style={{ 
                     fontSize: `${parseFloat(dynamicFontSize) * 0.8}rem`,
                     fontFamily: font.cssName,
                     fontWeight: logoConfig.fontWeight || font.generationWeights[0],
@@ -264,7 +264,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                     {logoConfig.text}
                   </span>
                   {logoConfig.slogan && (
-                    <span className="text-xs font-normal opacity-80 mt-1 truncate" style={{ 
+                    <span className="text-xs font-normal opacity-80 mt-1 text-center break-words max-w-full" style={{ 
                       fontWeight: 300,
                       color: textColor
                     }}>
@@ -283,7 +283,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   <logoConfig.icon.component size={24} color={textColor} className="mb-1" />
                 )}
                 <div className="flex flex-col items-center">
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis text-sm" style={{ 
+                  <span className="text-center break-words max-w-full text-sm" style={{ 
                     fontSize: `${parseFloat(dynamicFontSize) * 0.8}rem`,
                     fontFamily: font.cssName,
                     fontWeight: logoConfig.fontWeight || font.generationWeights[0],
@@ -292,7 +292,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                     {logoConfig.text}
                   </span>
                   {logoConfig.slogan && (
-                    <span className="text-xs font-normal opacity-80 mt-1 truncate" style={{ 
+                    <span className="text-xs font-normal opacity-80 mt-1 text-center break-words max-w-full" style={{ 
                       fontWeight: 300,
                       color: textColor
                     }}>
@@ -319,7 +319,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
             {isTextFirst ? (
               <>
                 <div className="flex flex-col items-center text-center justify-center">
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis " style={{ 
+                  <span className="text-center break-words max-w-full" style={{ 
                     fontSize: dynamicFontSize,
                     fontFamily: font.cssName,
                     fontWeight: config.fontWeight || font.generationWeights[0],
@@ -328,7 +328,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                     {logoConfig.text}
                   </span>
                   {logoConfig.slogan && (
-                    <span className="text-base font-normal opacity-80 mt-1 truncate" style={{ 
+                    <span className="text-base font-normal opacity-80 mt-1 text-center break-words max-w-full" style={{ 
                       fontWeight: 300,
                       color: textColor
                     }}>
@@ -346,7 +346,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" />
                 )}
                 <div className="flex flex-col items-center text-center justify-center">
-                  <span className="whitespace-nowrap overflow-hidden text-ellipsis " style={{ 
+                  <span className="text-center break-words max-w-full" style={{ 
                     fontSize: dynamicFontSize,
                     fontFamily: font.cssName,
                     fontWeight: config.fontWeight || font.generationWeights[0],
@@ -355,7 +355,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                     {logoConfig.text}
                   </span>
                   {logoConfig.slogan && (
-                    <span className="text-base font-normal opacity-80 mt-1 truncate" style={{ 
+                    <span className="text-base font-normal opacity-80 mt-1 text-center break-words max-w-full" style={{ 
                       fontWeight: 300,
                       color: textColor
                     }}>
@@ -376,7 +376,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
           return (
             <div className="flex flex-col items-center">
               <div className="flex flex-col items-center text-center w-full max-w-full px-4 mb-2">
-                <span className="whitespace-nowrap overflow-hidden text-ellipsis max-w-full " style={{ 
+                <span className="text-center break-words max-w-full" style={{ 
                   fontSize: dynamicFontSize,
                   fontFamily: font.cssName,
                   fontWeight: logoConfig.fontWeight || font.generationWeights[0],
@@ -385,7 +385,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   {logoConfig.text}
                 </span>
                 {logoConfig.slogan && (
-                  <span className="text-base font-normal opacity-80 mt-1 max-w-full truncate" style={{ 
+                  <span className="text-base font-normal opacity-80 mt-1 max-w-full text-center break-words" style={{ 
                     fontWeight: 300,
                     color: textColor
                   }}>
@@ -406,7 +406,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                 <logoConfig.icon.component size={48} color={textColor} className="mb-2" />
               )}
               <div className="flex flex-col items-center text-center w-full max-w-full px-4">
-                <span className="whitespace-nowrap overflow-hidden text-ellipsis max-w-full " style={{ 
+                <span className="text-center break-words max-w-full" style={{ 
                   fontSize: dynamicFontSize,
                   fontFamily: font.cssName,
                   fontWeight: logoConfig.fontWeight || font.generationWeights[0],
@@ -415,7 +415,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   {logoConfig.text}
                 </span>
                 {logoConfig.slogan && (
-                  <span className="text-base font-normal opacity-80 mt-1 max-w-full truncate" style={{ 
+                  <span className="text-base font-normal opacity-80 mt-1 max-w-full text-center break-words" style={{ 
                     fontWeight: 300,
                     color: textColor
                   }}>
@@ -515,7 +515,8 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   <div 
                     key={`${font.name}-${variation.id}-${getLogoConfig(`${font.name}-${variation.id}`).fontWeight || 400}-${getLogoConfig(`${font.name}-${variation.id}`).text || 'default'}`}
                     id={`logo-${font.name.replace(/\s+/g, '-')}-${variation.id}-${fontIndex}`}
-                    className="text-4xl text-center p-6 rounded flex items-center justify-center gap-4 w-full max-w-full overflow-hidden min-h-[120px]"
+                    className="text-4xl text-center p-4 rounded flex items-center justify-center gap-2 w-full overflow-visible min-h-[140px]"
+                    style={{ minWidth: 'fit-content' }}
                   >
                     {renderLogoVariation(variation, font, getLogoConfig(`${font.name}-${variation.id}`))}
                   </div>

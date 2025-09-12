@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
-import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, Move, RotateCcw, Layers } from 'lucide-react';
+import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Layers } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
 import AdvancedFabricLogoEditor from '@/components/editor/AdvancedFabricLogoEditor';
 
@@ -28,10 +28,12 @@ interface Point {
 
 interface Stroke {
   id: string;
-  tool: 'brush' | 'eraser' | 'box';
+  tool: 'brush' | 'eraser' | 'box' | 'line';
   points: Point[];
   color: string;
   width: number;
+  opacity: number; // 0-1 scale for SVG opacity
+  lineCap?: 'round' | 'square'; // For line tool
   rect?: { x: number; y: number; width: number; height: number };
 }
 
@@ -46,6 +48,8 @@ interface BoxShape {
   strokeWidth: number;
   rotation: number;
   selected: boolean;
+  opacity: number; // 0-1 scale for box opacity
+  permanent: boolean; // If true, box cannot be modified
 }
 
 interface EditLayer {
@@ -66,6 +70,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   // Drawing tool states
   const [drawingTool, setDrawingTool] = useState<'brush' | 'eraser' | 'box' | 'line'>('brush');
   const [brushSize, setBrushSize] = useState(10);
+  const [brushOpacity, setBrushOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
+  const [brushLineCap, setBrushLineCap] = useState<'round' | 'square'>('round'); // Line cap for brush
+  const [eraserOpacity, setEraserOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
+  const [boxOpacity, setBoxOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
   const [boxStrokeColor, setBoxStrokeColor] = useState('#000000');
   const [boxFillColor, setBoxFillColor] = useState('#ff0000');
   const [iconColor, setIconColor] = useState(config.palette?.colors[1] || '#000000');
@@ -110,16 +118,12 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     originalBox: BoxShape;
   } | null>(null);
 
-  // Fill popup state
-  const [showFillPopup, setShowFillPopup] = useState(false);
-  const [fillColor, setFillColor] = useState('#ff0000');
 
-  // Zoom state
-  const [zoomLevel, setZoomLevel] = useState(1);
   
   // Line tool state
   const [lineColor, setLineColor] = useState('#000000');
   const [lineWidth, setLineWidth] = useState(3);
+  const [lineCap, setLineCap] = useState<'round' | 'square'>('round');
   const [currentLine, setCurrentLine] = useState<{ start: Point; end: Point } | null>(null);
   const [currentStroke, setCurrentStroke] = useState<Stroke | null>(null);
   const [editLayers, setEditLayers] = useState<EditLayer[]>([
@@ -284,7 +288,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         tool: drawingTool,
         points: [point],
         color: drawingTool === 'eraser' ? '#FFFFFF' : brushColor,
-        width: brushSize
+        width: brushSize,
+        opacity: drawingTool === 'eraser' ? (eraserOpacity / 10) : (brushOpacity / 10),
+        lineCap: brushLineCap // Use brushLineCap for both brush and eraser
       };
       setCurrentStroke(newStroke);
       setIsDrawing(true);
@@ -297,10 +303,12 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         width: 0,
         height: 0,
         strokeColor: boxStrokeColor,
-        fillColor: 'transparent', // New boxes start transparent, use fill tool to color them
+        fillColor: boxFillColor, // Use the selected fill color directly
         strokeWidth: 0.5,
         rotation: 0,
-        selected: false
+        selected: false,
+        opacity: boxOpacity / 10, // Convert 1-10 scale to 0-1 scale
+        permanent: false
       };
       setCurrentBox(newBox);
       setIsDrawing(true);
@@ -328,6 +336,23 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       setBoxes(prev => prev.map(box => 
         box.id === rotatingBox 
           ? { ...box, rotation: newRotation }
+          : box
+      ));
+      return;
+    }
+    
+    // Handle move
+    if (isMoving && movingBox && moveStart) {
+      const deltaX = point.x - moveStart.startX;
+      const deltaY = point.y - moveStart.startY;
+      
+      setBoxes(prev => prev.map(box => 
+        box.id === movingBox 
+          ? { 
+              ...box, 
+              x: moveStart.originalBox.x + deltaX,
+              y: moveStart.originalBox.y + deltaY
+            }
           : box
       ));
       return;
@@ -400,12 +425,21 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       // Finalize the box and add it to the boxes array
       const finalBox = {
         ...currentBox,
-        selected: true // Select the newly created box for rotation adjustment
+        selected: true // Select the newly created box for drag and drop
       };
       
       setBoxes(prev => [...prev, finalBox]);
       setSelectedBox(finalBox.id);
       setCurrentBox(null);
+      
+      // Enable drag and drop immediately after creation
+      setIsMoving(true);
+      setMovingBox(finalBox.id);
+      setMoveStart({
+        startX: point.x,
+        startY: point.y,
+        originalBox: finalBox
+      });
     } else if (currentStroke) {
       // Add brush/eraser stroke to current layer
       setEditLayers(prev => prev.map(layer => 
@@ -417,10 +451,12 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       // Create a line stroke from the current line
       const lineStroke: Stroke = {
         id: `line-${Date.now()}`,
-        tool: 'brush' as any,
+        tool: 'line',
         points: [currentLine.start, currentLine.end],
         color: lineColor,
-        width: lineWidth
+        width: lineWidth,
+        opacity: brushOpacity / 10, // Use brush opacity for line tool
+        lineCap: lineCap
       };
       
       setEditLayers(prev => prev.map(layer => 
@@ -448,14 +484,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     ));
   };
 
-  // Fill tool functionality
-  const fillBox = (boxId: string) => {
-    setBoxes(prev => prev.map(box => 
-      box.id === boxId 
-        ? { ...box, fillColor: fillColor }
-        : box
-    ));
-  };
 
   const clearDrawing = () => {
     setEditLayers(prev => prev.map(layer => ({ ...layer, strokes: [] })));
@@ -494,13 +522,13 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   y={stroke.rect.y}
                   width={stroke.rect.width}
                   height={stroke.rect.height}
-                  fill={(stroke.tool as any) === 'eraser' ? 'rgba(255,255,255,0.8)' : stroke.color}
+                  fill={(stroke.tool as any) === 'eraser' ? 'rgba(255,255,255,' + stroke.opacity + ')' : stroke.color}
                   stroke={stroke.color}
                   strokeWidth={stroke.width}
-                  opacity={(stroke.tool as any) === 'eraser' ? 0.8 : 0.7}
+                  opacity={stroke.opacity}
                 />
               );
-            } else if ((stroke.tool as any) === 'line' && stroke.points.length >= 2) {
+            } else if (stroke.tool === 'line' && stroke.points.length >= 2) {
               return (
                 <line
                   key={stroke.id}
@@ -510,7 +538,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   y2={stroke.points[1].y}
                   stroke={stroke.color}
                   strokeWidth={stroke.width}
-                  strokeLinecap="round"
+                  strokeLinecap={stroke.lineCap || "round"}
+                  opacity={stroke.opacity}
                   style={{ pointerEvents: 'none' }}
                 />
               );
@@ -522,9 +551,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   fill="none"
                   stroke={stroke.color}
                   strokeWidth={stroke.width}
-                  strokeLinecap="round"
+                  strokeLinecap={stroke.lineCap || "round"}
                   strokeLinejoin="round"
-                  opacity={stroke.tool === 'eraser' ? 0.8 : 1}
+                  opacity={stroke.opacity}
                   style={{ pointerEvents: 'none' }}
                 />
               );
@@ -543,16 +572,21 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
               fill={box.fillColor === 'transparent' ? 'none' : box.fillColor}
               stroke={box.strokeColor}
               strokeWidth={box.strokeWidth}
-              opacity={0.9}
-              className="cursor-move"
+              opacity={box.opacity}
+              className={drawingTool === 'eraser' ? "cursor-crosshair" : "cursor-move"}
               onMouseDown={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
                 
-                if (showFillPopup) {
-                  // Apply fill and close popup
-                  fillBox(box.id);
-                  setShowFillPopup(false);
+                // Don't interact with permanent boxes
+                if (box.permanent) {
+                  return;
+                }
+                
+                // If eraser tool is active, delete the box
+                if (drawingTool === 'eraser') {
+                  setBoxes(prev => prev.filter(b => b.id !== box.id));
+                  setSelectedBox(null);
                   return;
                 }
                 
@@ -575,9 +609,18 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 setIsMoving(true);
                 setMovingBox(box.id);
               }}
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                
+                // Drop the box by ending the move state
+                setIsMoving(false);
+                setMovingBox(null);
+                setMoveStart(null);
+              }}
             />
             {/* Selection handles - resize functionality */}
-            {box.selected && (
+            {box.selected && !box.permanent && (
               <>
                 {/* Top-left resize handle */}
                 <circle 
@@ -716,7 +759,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             fill={currentBox.fillColor === 'transparent' ? 'none' : currentBox.fillColor}
             stroke={currentBox.strokeColor}
             strokeWidth={currentBox.strokeWidth}
-            opacity={0.8}
+            opacity={currentBox.opacity}
             strokeDasharray="5,5"
             style={{ pointerEvents: 'none' }}
           />
@@ -729,7 +772,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             fill="none"
             stroke={currentStroke.color}
             strokeWidth={currentStroke.width}
-            strokeLinecap="round"
+            strokeLinecap={currentStroke.lineCap || "round"}
             strokeLinejoin="round"
             opacity={0.7}
             style={{ pointerEvents: 'none' }}
@@ -745,7 +788,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             y2={currentLine.end.y}
             stroke={lineColor}
             strokeWidth={lineWidth}
-            strokeLinecap="round"
+            strokeLinecap={lineCap}
             opacity={0.7}
             style={{ pointerEvents: 'none' }}
             strokeDasharray="5,5"
@@ -766,7 +809,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   };
 
   // Helper function to render logo content based on layout type
-  const renderLogoContent = (textColor: string, backgroundColor: string, font: any, logoConfig: LogoConfig) => {
+  const renderLogoContent = (textColor: string, backgroundColor: string, font: any, logoConfig: LogoConfig, sloganColorParam?: string) => {
     const isCircleLayout = logoConfig.layout?.id === 'circle-enclosed';
     const dynamicFontSize = getDynamicFontSize(logoConfig.text.length, isCircleLayout);
     
@@ -811,7 +854,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
               {logoConfig.slogan && (
                 <span className="text-sm font-normal opacity-80 mt-1 max-w-full truncate" style={{ 
                   fontWeight: 300,
-                  color: textColor
+                  color: sloganColorParam || textColor
                 }}>
                   {logoConfig.slogan}
                 </span>
@@ -845,7 +888,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   {logoConfig.slogan && (
                     <span className="text-base font-normal opacity-80 mt-1 truncate" style={{ 
                       fontWeight: 300,
-                      color: textColor
+                      color: sloganColorParam || textColor
                     }}>
                       {logoConfig.slogan}
                     </span>
@@ -872,7 +915,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   {logoConfig.slogan && (
                     <span className="text-base font-normal opacity-80 mt-1 truncate" style={{ 
                       fontWeight: 300,
-                      color: textColor
+                      color: sloganColorParam || textColor
                     }}>
                       {logoConfig.slogan}
                     </span>
@@ -901,7 +944,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
               {logoConfig.slogan && (
                 <span className="text-base font-normal opacity-80 mt-1 max-w-full truncate" style={{ 
                   fontWeight: 300,
-                  color: textColor
+                  color: sloganColorParam || textColor
                 }}>
                   {logoConfig.slogan}
                 </span>
@@ -980,36 +1023,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
   return (
     <>
-      <style jsx>{`
-        .preserve-3d {
-          transform-style: preserve-3d;
-        }
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #3B82F6;
-          cursor: pointer;
-          border: 2px solid #ffffff;
-          box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-        }
-        .slider::-moz-range-thumb {
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #3B82F6;
-          cursor: pointer;
-          border: 2px solid #ffffff;
-          box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-        }
-      `}</style>
       {/* Menu Panel - slides up from bottom on hover */}
       <div className="absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-white/20 rounded-b-lg p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-200 z-10 shadow-xl">
         <div className="flex gap-1 justify-center">
@@ -1050,17 +1063,19 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             {/* Logo Preview Side with Drawing Canvas */}
             <div className="flex-1 p-8 flex items-center justify-center border-r border-white/20">
               <div 
-                className="relative bg-white rounded-lg p-12 max-w-md w-full aspect-square flex items-center justify-center" 
+                className="relative rounded-lg p-12 max-w-md w-full aspect-square flex items-center justify-center" 
                 key={`${localConfig.fontWeight}-${localConfig.text}-${localConfig.font?.name}-${localConfig.palette?.id}`}
                 style={{
-                  transform: `scale(${zoomLevel})`,
-                  transformOrigin: 'center'
+                  ...(variation?.backgroundColor?.includes('linear-gradient') 
+                    ? { backgroundImage: variation.backgroundColor }
+                    : { backgroundColor: variation?.backgroundColor || '#FFFFFF' })
                 }}
               >
                 
                 {/* Original Logo Content */}
                 {(() => {
                   console.log('Preview render with localConfig.fontWeight:', localConfig.fontWeight);
+                  console.log('Preview render with font:', localConfig.font);
                   return renderLogoContent(
                     brandNameColor,
                     localConfig.palette?.colors[0] || '#FFFFFF',
@@ -1072,22 +1087,33 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       icon: localConfig.icon,
                       layout: localConfig.layout,
                       enclosingShape: localConfig.enclosingShape
-                    }
+                    },
+                    sloganColor
                   );
                 })()}
                 
                 {/* Drawing Canvas Overlay */}
                 <div 
                   ref={canvasRef}
-                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser') ? 'cursor-none' : (drawingTool as any) === 'fill' ? 'cursor-crosshair' : 'cursor-crosshair'}`}
+                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') ? 'cursor-none' : 'cursor-crosshair'}`}
                   onMouseDown={startDrawing}
                   onMouseMove={continueDrawing}
                   onMouseUp={endDrawing}
                   onMouseLeave={endDrawing}
+                  onDoubleClick={() => {
+                    // Drop any box that's currently being moved
+                    if (isMoving && movingBox) {
+                      setIsMoving(false);
+                      setMovingBox(null);
+                      setMoveStart(null);
+                    }
+                  }}
                   style={{ 
                     cursor: (drawingTool === 'brush' || drawingTool === 'eraser')
                       ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${Math.round((brushSize + 2))}' height='${Math.round((brushSize + 2))}' viewBox='0 0 ${brushSize + 2} ${brushSize + 2}'><circle cx='${(brushSize + 2) / 2}' cy='${(brushSize + 2) / 2}' r='${brushSize / 2}' fill='none' stroke='black' stroke-width='1'/></svg>") ${Math.round(((brushSize + 2) / 2))} ${Math.round(((brushSize + 2) / 2))}, crosshair`
-                      : drawingTool === 'box' ? 'copy' : drawingTool === 'line' ? 'crosshair' : 'default'
+                      : drawingTool === 'line'
+                        ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${Math.round((lineWidth + 2))}' height='${Math.round((lineWidth + 2))}' viewBox='0 0 ${lineWidth + 2} ${lineWidth + 2}'><circle cx='${(lineWidth + 2) / 2}' cy='${(lineWidth + 2) / 2}' r='${lineWidth / 2}' fill='none' stroke='black' stroke-width='1'/></svg>") ${Math.round(((lineWidth + 2) / 2))} ${Math.round(((lineWidth + 2) / 2))}, crosshair`
+                        : drawingTool === 'box' ? 'copy' : 'default'
                   }}
                 >
                   {renderDrawingLayers()}
@@ -1158,32 +1184,88 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     >
                       📏 Line
                     </button>
-                    <button
-                      onClick={() => setShowFillPopup(true)}
-                      className="flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors bg-yellow-600 text-white hover:bg-yellow-700"
-                    >
-                      🎨 Fill
-                    </button>
                   </div>
 
                   {/* Tool Settings */}
                   <div className="space-y-3">
                     {/* Brush and Eraser Color Settings */}
                     {(drawingTool === 'brush' || drawingTool === 'eraser') && (
-                      <div>
-                        <label className="block text-white/80 text-sm mb-1">
-                          {drawingTool === 'brush' ? 'Brush Color' : 'Eraser Color'}
-                        </label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="color"
-                            value={brushColor}
-                            onChange={(e) => setBrushColor(e.target.value)}
-                            className="w-10 h-8 rounded border border-white/20 cursor-pointer"
-                          />
-                          <span className="text-white/60 text-sm">{brushColor}</span>
+                      <>
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">
+                            {drawingTool === 'brush' ? 'Brush Color' : 'Eraser Color'}
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={brushColor}
+                              onChange={(e) => setBrushColor(e.target.value)}
+                              className="w-10 h-8 rounded border border-white/20 cursor-pointer"
+                            />
+                            <span className="text-white/60 text-sm">{brushColor}</span>
+                          </div>
                         </div>
-                      </div>
+                        
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">Brush/Eraser Size: {brushSize}px</label>
+                          <input
+                            type="range"
+                            min="2"
+                            max="50"
+                            value={brushSize}
+                            onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                            className="w-full slider"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">
+                            {drawingTool === 'brush' ? 'Brush' : 'Eraser'} Opacity: {drawingTool === 'brush' ? brushOpacity : eraserOpacity}/10
+                          </label>
+                          <input
+                            type="range"
+                            min="1"
+                            max="10"
+                            value={drawingTool === 'brush' ? brushOpacity : eraserOpacity}
+                            onChange={(e) => {
+                              if (drawingTool === 'brush') {
+                                setBrushOpacity(parseInt(e.target.value));
+                              } else {
+                                setEraserOpacity(parseInt(e.target.value));
+                              }
+                            }}
+                            className="w-full slider"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">
+                            {drawingTool === 'brush' ? 'Pinselende' : 'Radiererenden'}
+                          </label>
+                          <div className="flex items-center justify-between bg-white/10 border border-white/20 rounded p-2">
+                            <button
+                              onClick={() => setBrushLineCap('round')}
+                              className={`flex-1 px-3 py-2 rounded text-sm transition-colors ${
+                                brushLineCap === 'round' 
+                                  ? 'bg-blue-600 text-white' 
+                                  : 'text-white/80 hover:text-white hover:bg-white/10'
+                              }`}
+                            >
+                              ● Rund
+                            </button>
+                            <button
+                              onClick={() => setBrushLineCap('square')}
+                              className={`flex-1 px-3 py-2 rounded text-sm transition-colors ${
+                                brushLineCap === 'square' 
+                                  ? 'bg-blue-600 text-white' 
+                                  : 'text-white/80 hover:text-white hover:bg-white/10'
+                              }`}
+                            >
+                              ■ Quadratisch
+                            </button>
+                          </div>
+                        </div>
+                      </>
                     )}
                     
                     {/* Box Color Settings */}
@@ -1195,7 +1277,17 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             <input
                               type="color"
                               value={boxStrokeColor}
-                              onChange={(e) => setBoxStrokeColor(e.target.value)}
+                              onChange={(e) => {
+                                setBoxStrokeColor(e.target.value);
+                                // Update selected box stroke color immediately
+                                if (selectedBox) {
+                                  setBoxes(prev => prev.map(box => 
+                                    box.id === selectedBox 
+                                      ? { ...box, strokeColor: e.target.value }
+                                      : box
+                                  ));
+                                }
+                              }}
                               className="w-10 h-8 rounded border border-white/20 cursor-pointer"
                             />
                             <span className="text-white/60 text-sm">{boxStrokeColor}</span>
@@ -1208,11 +1300,43 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             <input
                               type="color"
                               value={boxFillColor}
-                              onChange={(e) => setBoxFillColor(e.target.value)}
+                              onChange={(e) => {
+                                setBoxFillColor(e.target.value);
+                                // Update selected box fill color immediately
+                                if (selectedBox) {
+                                  setBoxes(prev => prev.map(box => 
+                                    box.id === selectedBox 
+                                      ? { ...box, fillColor: e.target.value }
+                                      : box
+                                  ));
+                                }
+                              }}
                               className="w-10 h-8 rounded border border-white/20 cursor-pointer"
                             />
                             <span className="text-white/60 text-sm">{boxFillColor}</span>
                           </div>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">Box Opacity: {boxOpacity}/10</label>
+                          <input
+                            type="range"
+                            min="1"
+                            max="10"
+                            value={boxOpacity}
+                            onChange={(e) => {
+                              setBoxOpacity(parseInt(e.target.value));
+                              // Update selected box opacity immediately
+                              if (selectedBox) {
+                                setBoxes(prev => prev.map(box => 
+                                  box.id === selectedBox 
+                                    ? { ...box, opacity: parseInt(e.target.value) / 10 }
+                                    : box
+                                ));
+                              }
+                            }}
+                            className="w-full slider"
+                          />
                         </div>
                       </>
                     )}
@@ -1244,42 +1368,35 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             className="w-full slider"
                           />
                         </div>
+                        
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">Linienende</label>
+                          <div className="flex items-center justify-between bg-white/10 border border-white/20 rounded p-2">
+                            <button
+                              onClick={() => setLineCap('round')}
+                              className={`flex-1 px-3 py-2 rounded text-sm transition-colors ${
+                                lineCap === 'round' 
+                                  ? 'bg-blue-600 text-white' 
+                                  : 'text-white/80 hover:text-white hover:bg-white/10'
+                              }`}
+                            >
+                              ● Rund
+                            </button>
+                            <button
+                              onClick={() => setLineCap('square')}
+                              className={`flex-1 px-3 py-2 rounded text-sm transition-colors ${
+                                lineCap === 'square' 
+                                  ? 'bg-blue-600 text-white' 
+                                  : 'text-white/80 hover:text-white hover:bg-white/10'
+                              }`}
+                            >
+                              ■ Quadratisch
+                            </button>
+                          </div>
+                        </div>
                       </>
                     )}
                     
-                    {/* Zoom Controls */}
-                    <div className="border-t border-white/20 pt-3">
-                      <label className="block text-white/80 text-sm mb-1">Zoom: {Math.round(zoomLevel * 100)}%</label>
-                      <div className="flex items-center gap-2 mb-2">
-                        <button
-                          onClick={() => setZoomLevel(Math.max(0.25, zoomLevel - 0.25))}
-                          className="px-3 py-1 bg-white/10 text-white/80 rounded text-xs hover:bg-white/20 transition-colors"
-                        >
-                          -
-                        </button>
-                        <input
-                          type="range"
-                          min="0.25"
-                          max="3"
-                          step="0.25"
-                          value={zoomLevel}
-                          onChange={(e) => setZoomLevel(parseFloat(e.target.value))}
-                          className="flex-1 slider"
-                        />
-                        <button
-                          onClick={() => setZoomLevel(Math.min(3, zoomLevel + 0.25))}
-                          className="px-3 py-1 bg-white/10 text-white/80 rounded text-xs hover:bg-white/20 transition-colors"
-                        >
-                          +
-                        </button>
-                      </div>
-                      <button
-                        onClick={() => setZoomLevel(1)}
-                        className="w-full px-3 py-1 bg-white/10 text-white/80 rounded text-xs hover:bg-white/20 transition-colors"
-                      >
-                        Reset Zoom
-                      </button>
-                    </div>
                     
                     {/* Box Controls */}
                     {selectedBox && (
@@ -1302,27 +1419,23 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                               ↻ +15°
                             </button>
                             <button
-                              onClick={() => setSelectedBox(null)}
-                              className="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors"
+                              onClick={() => {
+                                // Make the selected box permanent
+                                setBoxes(prev => prev.map(box => 
+                                  box.id === selectedBox 
+                                    ? { ...box, permanent: true, selected: false }
+                                    : box
+                                ));
+                                setSelectedBox(null);
+                              }}
+                              className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
                             >
-                              Deselect
+                              Place here!
                             </button>
                           </div>
                         </div>
                       </div>
                     )}
-                    
-                    <div>
-                      <label className="block text-white/80 text-sm mb-1">Brush/Eraser Size: {brushSize}px</label>
-                      <input
-                        type="range"
-                        min="2"
-                        max="50"
-                        value={brushSize}
-                        onChange={(e) => setBrushSize(parseInt(e.target.value))}
-                        className="w-full slider"
-                      />
-                    </div>
 
                     {drawingTool === 'box' && (
                       <div className="grid grid-cols-2 gap-2">
@@ -1392,7 +1505,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             value={brandNameColor}
                             onChange={(e) => {
                               setBrandNameColor(e.target.value);
-                              updateLocalConfig({});
+                              updateLocalConfig({ brandNameColor: e.target.value });
                             }}
                             className="w-8 h-6 rounded border border-white/20 cursor-pointer"
                           />
@@ -1417,7 +1530,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             value={sloganColor}
                             onChange={(e) => {
                               setSloganColor(e.target.value);
-                              updateLocalConfig({});
+                              updateLocalConfig({ sloganColor: e.target.value });
                             }}
                             className="w-8 h-6 rounded border border-white/20 cursor-pointer"
                           />
@@ -1426,6 +1539,32 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       </div>
                     </div>
                     <div>
+                      <label className="block text-white/80 text-sm mb-1">Font Family</label>
+                      <select
+                        value={localConfig.font?.name || 'Inter'}
+                        onChange={(e) => {
+                          // Find the font in fontCategories
+                          const selectedFont = fontCategories
+                            .flatMap(cat => cat.fonts)
+                            .find(font => font.name === e.target.value);
+                          console.log('Font changed:', e.target.value, 'Selected font:', selectedFont);
+                          if (selectedFont) {
+                            updateLocalConfig({ font: selectedFont });
+                          }
+                        }}
+                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white text-sm mb-3"
+                      >
+                        {fontCategories.map(category => (
+                          <optgroup key={category.name} label={category.name}>
+                            {category.fonts.map(font => (
+                              <option key={font.name} value={font.name}>
+                                {font.name}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
+                      
                       <label className="block text-white/80 text-sm mb-1">Font Weight</label>
                       <div className="space-y-2">
                         <div className="grid grid-cols-3 gap-2">
@@ -1487,7 +1626,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         value={iconColor}
                         onChange={(e) => {
                           setIconColor(e.target.value);
-                          updateLocalConfig({});
+                          updateLocalConfig({ iconColor: e.target.value });
                         }}
                         className="w-8 h-6 rounded border border-white/20 cursor-pointer"
                       />
@@ -2032,60 +2171,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         </div>
       )}
 
-      {/* Fill Color Popup */}
-      {showFillPopup && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
-          <div className="bg-gray-900 rounded-xl border border-white/20 p-6 w-full max-w-sm">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-white font-bold text-lg">Fill Color</h3>
-              <button
-                onClick={() => setShowFillPopup(false)}
-                className="text-white/60 hover:text-white text-xl font-bold w-8 h-8 flex items-center justify-center"
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-white/80 text-sm mb-2">Select Fill Color</label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={fillColor}
-                    onChange={(e) => setFillColor(e.target.value)}
-                    className="w-16 h-16 rounded-lg border-2 border-white/20 cursor-pointer"
-                  />
-                  <div className="flex-1">
-                    <span className="text-white/60 text-sm block">{fillColor.toUpperCase()}</span>
-                    <p className="text-white/50 text-xs mt-1">Click on a box to fill it with this color</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex gap-2 mt-6">
-                <button
-                  onClick={() => setShowFillPopup(false)}
-                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    setDrawingTool('box');
-                    setCurrentBox(null);
-                    setSelectedBox(null);
-                    // setShowFillColorPicker(false);
-                  }}
-                  className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded font-medium transition-colors"
-                >
-                  Ready to Fill
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Advanced Fabric.js Editor */}
       {showAdvancedEditor && (
