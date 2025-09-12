@@ -69,7 +69,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const [selectedColorCombo, setSelectedColorCombo] = useState<string | null>(null);
   const [visibleIconCount, setVisibleIconCount] = useState<number>(24);
   const [selectedBaseColor, setSelectedBaseColor] = useState<string | null>(null);
-  const [selectedColorOption, setSelectedColorOption] = useState<ColorOption | null>(null);
+  const [selectedColorOption, setSelectedColorOption] = useState<string | null>(null);
   
   // Reset color combination selection when palette changes to a base color
   useEffect(() => {
@@ -106,14 +106,14 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   };
 
   // Neue Funktion: Option-Änderung
-  const handleColorOptionChange = (option: ColorOption) => {
+  const handleColorOptionChange = (option: string) => {
     setSelectedColorOption(option);
     if (selectedBaseColor) {
       // Direkt eine Palette basierend auf der ColorLogic setzen, keine Variationen-Auswahl
       let palette: PaletteData;
       
       switch (option) {
-        case 'color-only':
+        case 'base-only':
           palette = {
             id: `${selectedBaseColor.replace('#', '')}-only`,
             name: `Nur ${selectedBaseColor}`,
@@ -141,7 +141,11 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           return;
       }
       
-      updateConfig({ palette });
+      updateConfig({ 
+        palette,
+        baseColor: selectedBaseColor,
+        selectedColorOption: option
+      });
       
       // Trigger background progression when colors are selected
       if (onDesignProgress) {
@@ -309,7 +313,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.4 }}
               >
-                <h2 className="text-xl font-bold mb-8 text-white">Choose your Typography Style</h2>
+                <h2 className="text-xl font-bold mb-8 text-black">Choose your Typography Style</h2>
                 <div className="space-y-4 mb-6">
                   {fontCategories.map((category) => (
                     <div key={category.name} className="flex items-center gap-8">
@@ -561,9 +565,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
               <h4 className="text-sm font-bold text-white mb-3">Zusatzfarbe wählen (optional):</h4>
               <div className="grid grid-cols-3 gap-3">
                 <button
-                  onClick={() => handleColorOptionChange('color-only')}
+                  onClick={() => handleColorOptionChange('base-only')}
                   className={`px-4 py-3 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
-                    selectedColorOption === 'color-only' 
+                    selectedColorOption === 'base-only' 
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
                       : 'bg-white/10 hover:bg-white/20 text-white'
                   }`}

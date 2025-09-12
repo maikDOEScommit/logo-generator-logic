@@ -55,7 +55,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
 
   // Generate logo variations based on color rules
   const logoVariations = useMemo(() => {
-    const colorRule = determineColorRule(config.palette, config.baseColor);
+    const colorRule = determineColorRule(config.palette, config.baseColor, config.selectedColorOption);
     return generateLogoVariations(config, config.baseColor || '#0A3D62', colorRule);
   }, [config]);
   
@@ -83,8 +83,9 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
         : { color: variation.brandNameColor })
     };
 
+    // Icons können keine CSS-Gradients verwenden, daher Fallback auf base color
     const iconColor = variation.hasGradient && variation.iconColor.includes('linear-gradient') 
-      ? variation.brandNameColor // For gradients, we'll use the same as brand name for now
+      ? config.baseColor || '#0A3D62' // Verwende die baseColor als Fallback für Icons mit Gradients
       : variation.iconColor;
 
     const sloganStyle: React.CSSProperties = {
@@ -483,14 +484,18 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
         <div key={font.name} className="space-y-4 pb-8 border-b border-white/10 last:border-b-0">
           <h4 className="text-xl font-semibold text-white">{font.name}</h4>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-4">
             {/* Render variations based on color rules */}
             {logoVariations.map((variation, variationIndex) => (
               <div key={`${font.name}-${variation.id}`}>
                 <h5 className="font-medium mb-2 text-white text-sm">{variation.name}</h5>
                 <div 
                   className="border border-white/20 rounded-lg p-4 max-w-full overflow-hidden group relative"
-                  style={{ backgroundColor: variation.backgroundColor }}
+                  style={{ 
+                    ...(variation.backgroundColor.includes('linear-gradient') 
+                      ? { backgroundImage: variation.backgroundColor }
+                      : { backgroundColor: variation.backgroundColor })
+                  }}
                 >
                   <div 
                     key={`${font.name}-${variation.id}-${getLogoConfig(`${font.name}-${variation.id}`).fontWeight || 400}-${getLogoConfig(`${font.name}-${variation.id}`).text || 'default'}`}

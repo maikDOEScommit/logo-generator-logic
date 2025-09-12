@@ -116,18 +116,21 @@ function generateRegularPaletteVariations(config: LogoConfig): LogoVariation[] {
 }
 
 // Bestimmt die anzuwendende Farbregel basierend auf der Auswahl
-export function determineColorRule(selectedPalette: any, selectedBaseColor?: string): 'base-only' | 'add-white' | 'add-black' | null {
+export function determineColorRule(selectedPalette: any, selectedBaseColor?: string, selectedColorOption?: string): 'base-only' | 'add-white' | 'add-black' | null {
   // Wenn eine reguläre Palette ausgewählt wurde, keine spezielle Regel anwenden
-  if (selectedPalette && selectedPalette.colors && Array.isArray(selectedPalette.colors)) {
+  if (selectedPalette && selectedPalette.colors && Array.isArray(selectedPalette.colors) && !selectedPalette.tags?.includes('generated')) {
     return null;
   }
 
   // Wenn eine Grundfarbe ausgewählt wurde
   if (selectedBaseColor) {
-    // Hier würde man die Logik für die Bestimmung der Regel implementieren
-    // basierend auf zusätzlichen Optionen (weiß/schwarz)
-    // Für jetzt als Beispiel:
-    return 'base-only'; // Standard für Grundfarbe ohne Zusatz
+    // Verwende die selectedColorOption direkt wenn verfügbar
+    if (selectedColorOption === 'add-white' || selectedColorOption === 'add-black' || selectedColorOption === 'base-only') {
+      return selectedColorOption as 'base-only' | 'add-white' | 'add-black';
+    }
+    
+    // Fallback auf base-only wenn keine Option gewählt wurde
+    return 'base-only';
   }
 
   return null;

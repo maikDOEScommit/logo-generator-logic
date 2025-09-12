@@ -129,7 +129,7 @@ export default function ExamplesPage() {
     } else {
       setFilteredLogos(logoExamples.filter(logo => logo.industry === selectedFilter));
     }
-  }, [selectedFilter]);
+  }, [selectedFilter, logoExamples]);
 
   const containerVariants = {
     hidden: { opacity: 0 },

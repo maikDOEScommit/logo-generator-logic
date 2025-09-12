@@ -18,6 +18,19 @@ function adjustColorBrightness(color: string, amount: number): string {
   return (usePound ? '#' : '') + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
 }
 
+// Verbesserte Gradient-Erstellung mit größerem Farbbereich
+function createGradient(baseColor: string): string {
+  // Erstelle einen Gradient mit einem helleren und einem dunkleren Ton für mehr Sichtbarkeit
+  const lighterColor = adjustColorBrightness(baseColor, 80); // Noch heller für bessere Sichtbarkeit
+  const darkerColor = adjustColorBrightness(baseColor, -80); // Noch dunkler für bessere Sichtbarkeit
+  return `linear-gradient(135deg, ${lighterColor} 0%, ${baseColor} 50%, ${darkerColor} 100%)`;
+}
+
+// Silberner Gradient für spezielle Variationen
+function createSilverGradient(): string {
+  return `linear-gradient(135deg, #C0C0C0 0%, #E8E8E8 25%, #FFFFFF 50%, #E8E8E8 75%, #C0C0C0 100%)`;
+}
+
 // =================================================================
 // DATEN-ARCHITEKTUR
 // Dies ist die "Single Source of Truth" für alle Design-Optionen.
@@ -185,117 +198,201 @@ export const colorGenerationRules: ColorGenerationRule[] = [
       },
       {
         name: 'Auf Weiß - Gradient',
-        brandNameColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
-        iconColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        brandNameColor: (baseColor) => createGradient(baseColor),
+        iconColor: (baseColor) => createGradient(baseColor),
         backgroundColor: () => '#FFFFFF',
-        sloganColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`
+        sloganColor: (baseColor) => createGradient(baseColor)
       },
       {
         name: 'Auf Schwarz - Gradient',
-        brandNameColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
-        iconColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        brandNameColor: (baseColor) => createGradient(baseColor),
+        iconColor: (baseColor) => createGradient(baseColor),
         backgroundColor: () => '#000000',
-        sloganColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`
+        sloganColor: (baseColor) => createGradient(baseColor)
       }
     ]
   },
   {
     id: 'add-white',
     name: 'Grundfarbe + Weiß',
-    description: 'Generiert 6 Variationen mit Weiß-Kombinationen',
-    generates: 6,
+    description: 'Generiert 12 Variationen mit Weiß-Kombinationen',
+    generates: 12,
     variants: [
       {
-        name: 'Auf Weiß - Brand & Logo Grundfarbe',
+        name: 'Weiß: Base Solid - Brandname und Icon in Grundfarbe',
         brandNameColor: (baseColor) => baseColor,
         iconColor: (baseColor) => baseColor,
         backgroundColor: () => '#FFFFFF',
         sloganColor: (baseColor) => baseColor
       },
       {
-        name: 'Auf Weiß - Brand ODER Logo Gradient',
-        brandNameColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
-        iconColor: (baseColor) => baseColor,
+        name: 'Weiß: Brandname und Icon in einem linear-gradient',
+        brandNameColor: (baseColor) => createGradient(baseColor),
+        iconColor: (baseColor) => createGradient(baseColor),
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: (baseColor) => createGradient(baseColor)
+      },
+      {
+        name: 'Weiß: Base Gradient - Brandname Grundfarbe, Icon mit Gradient',
+        brandNameColor: (baseColor) => baseColor,
+        iconColor: (baseColor) => createGradient(baseColor),
         backgroundColor: () => '#FFFFFF',
         sloganColor: (baseColor) => baseColor
       },
       {
-        name: 'Auf Schwarz - Brand Weiß, Logo Grundfarbe',
+        name: 'Weiß: Brandname Gradient, Icon Grundfarbe',
+        brandNameColor: (baseColor) => createGradient(baseColor),
+        iconColor: (baseColor) => baseColor,
+        backgroundColor: () => '#FFFFFF',
+        sloganColor: (baseColor) => createGradient(baseColor)
+      },
+      {
+        name: 'Schwarz: Text Weiß, Icon Base - Brandname weiß, Icon in Grundfarbe',
         brandNameColor: () => '#FFFFFF',
         iconColor: (baseColor) => baseColor,
         backgroundColor: () => '#000000',
         sloganColor: () => '#FFFFFF'
       },
       {
-        name: 'Auf Schwarz - Brand Grundfarbe, Logo Weiß',
+        name: 'Schwarz: Text Base, Icon Weiß - Brandname in Grundfarbe, Icon weiß',
         brandNameColor: (baseColor) => baseColor,
         iconColor: () => '#FFFFFF',
         backgroundColor: () => '#000000',
         sloganColor: (baseColor) => baseColor
       },
       {
-        name: 'Auf Schwarz - Brand Gradient, Logo Weiß',
-        brandNameColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        name: 'Schwarz: Text Gradient, Icon Weiß - Brandname als Gradient, Icon weiß',
+        brandNameColor: (baseColor) => createGradient(baseColor),
         iconColor: () => '#FFFFFF',
         backgroundColor: () => '#000000',
-        sloganColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`
+        sloganColor: (baseColor) => createGradient(baseColor)
       },
       {
-        name: 'Auf Schwarz - Brand Weiß, Logo Gradient',
+        name: 'Schwarz: Text Weiß, Icon Gradient - Brandname weiß, Icon mit Gradient',
         brandNameColor: () => '#FFFFFF',
-        iconColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        iconColor: (baseColor) => createGradient(baseColor),
         backgroundColor: () => '#000000',
         sloganColor: () => '#FFFFFF'
+      },
+      {
+        name: 'Grundfarbe Background: Text & Icon Weiß',
+        brandNameColor: () => '#FFFFFF',
+        iconColor: () => '#FFFFFF',
+        backgroundColor: (baseColor) => baseColor,
+        sloganColor: () => '#FFFFFF'
+      },
+      {
+        name: 'Gradient Background: Text & Icon Weiß',
+        brandNameColor: () => '#FFFFFF',
+        iconColor: () => '#FFFFFF',
+        backgroundColor: (baseColor) => createGradient(baseColor),
+        sloganColor: () => '#FFFFFF'
+      },
+      {
+        name: 'Grundfarbe Background: Text & Icon Silber-Gradient',
+        brandNameColor: () => createSilverGradient(),
+        iconColor: () => '#000000', // Icons können keinen Gradient, daher schwarz
+        backgroundColor: (baseColor) => baseColor,
+        sloganColor: () => createSilverGradient()
+      },
+      {
+        name: 'Gradient Background: Text & Icon Silber-Gradient',
+        brandNameColor: () => createSilverGradient(),
+        iconColor: () => '#000000', // Icons können keinen Gradient, daher schwarz
+        backgroundColor: (baseColor) => createGradient(baseColor),
+        sloganColor: () => createSilverGradient()
       }
     ]
   },
   {
     id: 'add-black',
     name: 'Grundfarbe + Schwarz',
-    description: 'Generiert 6 Variationen mit Schwarz-Kombinationen',
-    generates: 6,
+    description: 'Generiert 12 Variationen mit Schwarz-Kombinationen',
+    generates: 12,
     variants: [
       {
-        name: 'Auf Weiß - Brand Grundfarbe, Logo Schwarz',
+        name: 'Weiß: Text Base, Icon Schwarz - Brandname in Grundfarbe, Icon schwarz',
         brandNameColor: (baseColor) => baseColor,
         iconColor: () => '#000000',
         backgroundColor: () => '#FFFFFF',
         sloganColor: (baseColor) => baseColor
       },
       {
-        name: 'Auf Weiß - Brand Schwarz, Logo Grundfarbe',
+        name: 'Weiß: Text Schwarz, Icon Base - Brandname schwarz, Icon in Grundfarbe',
         brandNameColor: () => '#000000',
         iconColor: (baseColor) => baseColor,
         backgroundColor: () => '#FFFFFF',
         sloganColor: () => '#000000'
       },
       {
-        name: 'Auf Weiß - Brand Gradient, Logo Schwarz',
-        brandNameColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        name: 'Weiß: Text Gradient, Icon Schwarz - Brandname als Gradient, Icon schwarz',
+        brandNameColor: (baseColor) => createGradient(baseColor),
         iconColor: () => '#000000',
         backgroundColor: () => '#FFFFFF',
-        sloganColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`
+        sloganColor: (baseColor) => createGradient(baseColor)
       },
       {
-        name: 'Auf Weiß - Brand Schwarz, Logo Gradient',
+        name: 'Weiß: Text Schwarz, Icon Gradient - Brandname schwarz, Icon mit Gradient',
         brandNameColor: () => '#000000',
-        iconColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        iconColor: (baseColor) => createGradient(baseColor),
         backgroundColor: () => '#FFFFFF',
         sloganColor: () => '#000000'
       },
       {
-        name: 'Auf Schwarz - Brand & Logo Grundfarbe',
+        name: 'Schwarz: Beide Base - Brandname und Icon in Grundfarbe',
         brandNameColor: (baseColor) => baseColor,
         iconColor: (baseColor) => baseColor,
         backgroundColor: () => '#000000',
         sloganColor: (baseColor) => baseColor
       },
       {
-        name: 'Auf Schwarz - Brand & Logo Gradient',
-        brandNameColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
-        iconColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`,
+        name: 'Schwarz: Beide Gradient - Brandname und Icon mit Gradient',
+        brandNameColor: (baseColor) => createGradient(baseColor),
+        iconColor: (baseColor) => createGradient(baseColor),
         backgroundColor: () => '#000000',
-        sloganColor: (baseColor) => `linear-gradient(to right, ${baseColor}, ${adjustColorBrightness(baseColor, -30)})`
+        sloganColor: (baseColor) => createGradient(baseColor)
+      },
+      {
+        name: 'Schwarz: Brandname Grundfarbe, Icon Gradient',
+        brandNameColor: (baseColor) => baseColor,
+        iconColor: (baseColor) => createGradient(baseColor),
+        backgroundColor: () => '#000000',
+        sloganColor: (baseColor) => baseColor
+      },
+      {
+        name: 'Schwarz: Icon Grundfarbe, Brandname Gradient',
+        brandNameColor: (baseColor) => createGradient(baseColor),
+        iconColor: (baseColor) => baseColor,
+        backgroundColor: () => '#000000',
+        sloganColor: (baseColor) => createGradient(baseColor)
+      },
+      {
+        name: 'Grundfarbe Background: Text & Icon Schwarz',
+        brandNameColor: () => '#000000',
+        iconColor: () => '#000000',
+        backgroundColor: (baseColor) => baseColor,
+        sloganColor: () => '#000000'
+      },
+      {
+        name: 'Gradient Background: Text & Icon Schwarz',
+        brandNameColor: () => '#000000',
+        iconColor: () => '#000000',
+        backgroundColor: (baseColor) => createGradient(baseColor),
+        sloganColor: () => '#000000'
+      },
+      {
+        name: 'Grundfarbe Background: Text & Icon Silber-Gradient',
+        brandNameColor: () => createSilverGradient(),
+        iconColor: () => '#FFFFFF', // Icon weiß für Kontrast auf dunklem Grund
+        backgroundColor: (baseColor) => baseColor,
+        sloganColor: () => createSilverGradient()
+      },
+      {
+        name: 'Gradient Background: Text & Icon Silber-Gradient',
+        brandNameColor: () => createSilverGradient(),
+        iconColor: () => '#FFFFFF', // Icon weiß für Kontrast auf dunklem Grund
+        backgroundColor: (baseColor) => createGradient(baseColor),
+        sloganColor: () => createSilverGradient()
       }
     ]
   },

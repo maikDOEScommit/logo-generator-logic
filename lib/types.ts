@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import { FontInfo } from './data';
 
 // === KERN-TYPEN FÜR DIE DATEN-ENGINE ===
 
@@ -48,7 +49,7 @@ export interface PersonalityData {
 
 export interface LogoConfig {
   icon: IconData | null;
-  font: FontData | null;
+  font: FontInfo | null;
   layout: LayoutData | null;
   palette: PaletteData | null;
   text: string;

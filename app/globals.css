@@ -361,14 +361,14 @@ body::-webkit-scrollbar {
   color: black;
   padding: 1.2em 2.5em;
   border: none;
-  border-radius: 0;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.35);
   font-size: 1.1em;
   font-weight: 700;
   letter-spacing: 0.05em;
   width: calc(100% - 8px);
   height: calc(100% - 8px);
   margin: 4px;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;

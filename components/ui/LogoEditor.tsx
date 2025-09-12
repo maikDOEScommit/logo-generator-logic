@@ -488,33 +488,33 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
       `}</style>
       {/* Menu Panel - slides up from bottom on hover */}
       <div className="absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-white/20 rounded-b-lg p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-200 z-10 shadow-xl">
-        <div className="flex gap-2 justify-center">
+        <div className="flex gap-1 justify-center">
           <button
             onClick={handleEdit}
-            className="flex items-center justify-center gap-2 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors flex-1 max-w-[60px]"
           >
-            <Edit size={14} /> Edit
+            <Edit size={12} /> Edit
           </button>
           <button
             onClick={() => {
               console.log('🔥 Pro Button clicked! Setting showAdvancedEditor to true...');
               setShowAdvancedEditor(true);
             }}
-            className="flex items-center justify-center gap-2 px-2 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded text-xs font-medium transition-colors flex-1 max-w-[60px]"
           >
-            <Layers size={14} /> Pro
+            <Layers size={12} /> Pro
           </button>
           <button
             onClick={handleSave}
-            className="flex items-center justify-center gap-2 px-2 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-medium transition-colors flex-1 max-w-[60px]"
           >
-            <Save size={14} /> Save
+            <Save size={12} /> Save
           </button>
           <button
             onClick={handlePurchase}
-            className="flex items-center justify-center gap-2 px-2 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded text-xs font-medium transition-colors flex-1 max-w-[60px]"
           >
-            <ShoppingCart size={14} /> Buy
+            <ShoppingCart size={12} /> Buy
           </button>
         </div>
       </div>

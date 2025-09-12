@@ -490,7 +490,7 @@ export default function LogoGeneratorPage() {
                 >
                   <div className="bg-white/5 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-bold text-primary">Design Quality</h3>
+                      <h3 className="font-bold text-black">Design Quality</h3>
                       <span className="text-2xl font-bold text-white">82/100</span>
                     </div>
                     <div className="w-full h-2 bg-white/10 rounded-full mb-3">
@@ -500,7 +500,7 @@ export default function LogoGeneratorPage() {
                       />
                     </div>
                     <div className="mt-4 pt-4 border-t border-white/10">
-                      <h4 className="text-sm font-semibold text-primary mb-2">Improvement suggestions:</h4>
+                      <h4 className="text-sm font-semibold text-black mb-2">Improvement suggestions:</h4>
                       <ul className="text-xs text-white/70 space-y-1">
                         <li className="flex items-start gap-2">
                           <span className="text-primary mt-0.5">•</span>
@@ -526,7 +526,7 @@ export default function LogoGeneratorPage() {
                   transition={{ duration: 0.5, delay: 0.4 }}
                 >
                   <div className="bg-white/5 rounded-lg p-4">
-                    <h3 className="font-bold text-primary mb-4">Typography Style</h3>
+                    <h3 className="font-bold text-black mb-4">Typography Style</h3>
                     <div className="space-y-3">
                       {fontCategories.map((category) => (
                         <button
@@ -650,8 +650,8 @@ export default function LogoGeneratorPage() {
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
-              transition={{ duration: 1.3, ease: "easeIn" }}
-              className="absolute top-0 right-0 h-2 overflow-hidden rounded-[14px]"
+              transition={{ duration: 1.3, ease: "easeOut" }}
+              className="absolute top-0 left-0 h-2 overflow-hidden rounded-[14px]"
               style={{
                 background: 'linear-gradient(90deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)'
               }}
@@ -704,6 +704,7 @@ export default function LogoGeneratorPage() {
             <motion.div 
               className="h-2 rounded-full bg-gradient-to-r from-yellow-200 via-stone-200 to-amber-50"
               animate={{ width: `${progress}%` }} 
+              transition={{ duration: 0.8, ease: "easeOut" }}
             />
           </motion.div>
 
