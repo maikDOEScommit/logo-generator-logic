@@ -181,7 +181,7 @@ function generateRegularPaletteVariations(config: LogoConfig): LogoVariation[] {
       iconContrast = Math.min(iconContrastStart, iconContrastEnd);
     }
 
-    let score = Math.min(brandContrast, iconContrast);
+    let score = Math.min(brandContrast || 0, iconContrast || 0);
 
     // Hierarchy malus - same colors
     if (combo.brandnameColor === combo.iconColor && 

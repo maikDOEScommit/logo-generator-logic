@@ -4,8 +4,118 @@ import { LogoConfig, IconData, FontData, LayoutData, PaletteData } from '@/lib/t
 import Section from '@/components/ui/Section';
 import SelectionCard from '@/components/ui/SelectionCard';
 import { layouts, fontCategories, personalities } from '@/lib/data';
-import { Circle } from 'lucide-react';
+import { Circle, Check } from 'lucide-react';
 import { ColorOption } from '@/lib/colorLogic';
+
+// Brand Personality Button Component with Border Animation
+const BrandPersonalityButton = ({ personality, isSelected, onClick }: { personality: any, isSelected: boolean, onClick: () => void }) => {
+  const [showTopBorder, setShowTopBorder] = useState(false);
+  const [showLeftBorder, setShowLeftBorder] = useState(false);
+  const [showRightBorder, setShowRightBorder] = useState(false);
+  const [showBottomBorder, setShowBottomBorder] = useState(false);
+
+  // Reset animations when isSelected becomes false
+  useEffect(() => {
+    if (!isSelected) {
+      setShowBottomBorder(false);
+      setShowLeftBorder(false);
+      
+      setTimeout(() => {
+        setShowRightBorder(false);
+        setShowTopBorder(false);
+      }, 225);
+    }
+  }, [isSelected]);
+
+  const handleClick = () => {
+    // Reset animations
+    setShowTopBorder(false);
+    setShowLeftBorder(false);
+    setShowRightBorder(false);
+    setShowBottomBorder(false);
+    
+    // Start border animation sequence
+    setTimeout(() => {
+      setShowTopBorder(true);
+      setShowRightBorder(true);
+      
+      setTimeout(() => {
+        setShowLeftBorder(true);
+        setShowBottomBorder(true);
+        
+        setTimeout(() => {
+          onClick(); // Call the actual onClick after animation completes
+        }, 225);
+      }, 450);
+    }, 50);
+  };
+
+  return (
+    <div
+      className={`relative brand-personality-container ${isSelected ? 'selected' : ''}`}
+      onClick={handleClick}
+    >
+      {/* Animated borders */}
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{ width: showTopBorder ? '100%' : 0 }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        className="absolute top-0 right-0 h-1" 
+        style={{background: 'linear-gradient(90deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)'}}
+      />
+      
+      <motion.div
+        initial={{ height: 0 }}
+        animate={{ height: showRightBorder ? '100%' : 0 }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        className="absolute right-0 top-0 w-1" 
+        style={{background: 'linear-gradient(180deg, rgb(255, 255, 255) 0%, rgb(110, 231, 183) 25%, rgb(189, 183, 107) 50%, rgb(254, 240, 138) 100%)'}}
+      />
+      
+      <motion.div
+        initial={{ height: 0 }}
+        animate={{ height: showLeftBorder ? '100%' : 0 }}
+        transition={{ duration: 0.225, ease: "easeOut" }}
+        className="absolute left-0 top-0 w-1" 
+        style={{background: 'linear-gradient(180deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)'}}
+      />
+      
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{ width: showBottomBorder ? '100%' : 0 }}
+        transition={{ duration: 0.225, ease: "easeOut" }}
+        className="absolute bottom-0 right-0 h-1" 
+        style={{background: 'linear-gradient(90deg, rgb(255, 255, 255) 0%, rgb(110, 231, 183) 25%, rgb(189, 183, 107) 50%, rgb(254, 240, 138) 100%)'}}
+      />
+
+      {/* Static colored border frame for already selected state */}
+      {isSelected && !showTopBorder && (
+        <>
+          <div className="absolute top-0 left-0 right-0 h-1" style={{background: 'linear-gradient(90deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)'}} />
+          <div className="absolute top-0 right-0 bottom-0 w-1" style={{background: 'linear-gradient(180deg, rgb(255, 255, 255) 0%, rgb(110, 231, 183) 25%, rgb(189, 183, 107) 50%, rgb(254, 240, 138) 100%)'}} />
+          <div className="absolute bottom-0 left-0 right-0 h-1" style={{background: 'linear-gradient(90deg, rgb(255, 255, 255) 0%, rgb(110, 231, 183) 25%, rgb(189, 183, 107) 50%, rgb(254, 240, 138) 100%)'}} />
+          <div className="absolute top-0 left-0 bottom-0 w-1" style={{background: 'linear-gradient(180deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)'}} />
+        </>
+      )}
+      
+      <div className="brand-personality-btn">
+        {personality.name}
+      </div>
+      
+      {isSelected && (
+        <div 
+          className="absolute top-2 right-2 text-white rounded-full p-1 z-20" 
+          style={{ 
+            transform: 'scale(0.88)',
+            background: 'linear-gradient(135deg, #15803d 0%, #5eead4 50%, #22c55e 100%)'
+          }}
+        >
+          <Check size={12} />
+        </div>
+      )}
+    </div>
+  );
+};
 
 const LayoutSelectionCard = ({ layout, isSelected, onClick }: { layout: LayoutData, isSelected: boolean, onClick: () => void }) => (
   <SelectionCard isSelected={isSelected} onClick={onClick}>
@@ -65,7 +175,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const { suggestedIcons, suggestedEnclosingShapes, suggestedPalettes } = suggestions;
   const [selectedLayoutType, setSelectedLayoutType] = useState<string | null>(null);
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
-  const [neonMode, setNeonMode] = useState<boolean>(false);
+  const [colorMode, setColorMode] = useState<'grundton' | 'pastell' | 'neon' | 'dunkel'>('grundton');
   const [selectedColorCombo, setSelectedColorCombo] = useState<string | null>(null);
   const [visibleIconCount, setVisibleIconCount] = useState<number>(24);
   const [selectedBaseColor, setSelectedBaseColor] = useState<string | null>(null);
@@ -86,14 +196,52 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   // These are already the fixed 24 icons defined in suggestionEngine.ts
   const regularIcons = suggestedIcons;
 
-  // Filter colors based on neon mode
+  // Helper functions to generate dynamic colors
+  const generatePastelColor = (baseColor: string): string => {
+    const num = parseInt(baseColor.slice(1), 16);
+    const r = Math.min(255, Math.max(0, ((num >> 16) & 255) + 80));
+    const g = Math.min(255, Math.max(0, ((num >> 8) & 255) + 80));  
+    const b = Math.min(255, Math.max(0, (num & 255) + 80));
+    return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+  };
+
+  const generateDarkColor = (baseColor: string): string => {
+    const num = parseInt(baseColor.slice(1), 16);
+    const r = Math.max(0, ((num >> 16) & 255) - 60);
+    const g = Math.max(0, ((num >> 8) & 255) - 60);
+    const b = Math.max(0, (num & 255) - 60);
+    return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+  };
+
+  // Filter colors based on color mode
   const getDisplayedColors = () => {
-    if (neonMode) {
-      // Show only neon colors (14 bright neon versions)
-      return suggestedPalettes.filter(palette => palette.tags?.includes('neon'));
-    } else {
-      // Show only intensive colors (original 14 base colors)
-      return suggestedPalettes.filter(palette => palette.tags?.includes('intense') && !palette.tags?.includes('neon'));
+    const baseIntensiveColors = suggestedPalettes.filter(palette => 
+      palette.tags?.includes('intense') && !palette.tags?.includes('neon')
+    );
+
+    switch (colorMode) {
+      case 'neon':
+        return suggestedPalettes.filter(palette => palette.tags?.includes('neon'));
+      case 'pastell':
+        // Generate pastel versions dynamically from base colors
+        return baseIntensiveColors.map(palette => ({
+          ...palette,
+          id: `pastel-${palette.id}`,
+          name: `Pastell ${palette.name.replace('Intensiv ', '')}`,
+          colors: [generatePastelColor(palette.colors[0]), palette.colors[1], palette.colors[2]] as [string, string, string]
+        }));
+      case 'dunkel':
+        // Generate dark versions dynamically from base colors  
+        return baseIntensiveColors.map(palette => ({
+          ...palette,
+          id: `dark-${palette.id}`,
+          name: `Dunkel ${palette.name.replace('Intensiv ', '')}`,
+          colors: [generateDarkColor(palette.colors[0]), palette.colors[1], palette.colors[2]] as [string, string, string]
+        }));
+      case 'grundton':
+      default:
+        // Show only the 21 base intensive colors
+        return baseIntensiveColors;
     }
   };
 
@@ -117,7 +265,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           palette = {
             id: `${selectedBaseColor.replace('#', '')}-only`,
             name: `Nur ${selectedBaseColor}`,
-            colors: [selectedBaseColor] as [string, string, string],
+            colors: [selectedBaseColor, selectedBaseColor, selectedBaseColor] as [string, string, string],
             tags: ['generated', 'smart-color', 'final']
           };
           break;
@@ -125,7 +273,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           palette = {
             id: `${selectedBaseColor.replace('#', '')}-white`,
             name: `${selectedBaseColor} + Weiß`,
-            colors: [selectedBaseColor, '#FFFFFF'] as [string, string, string],
+            colors: [selectedBaseColor, '#FFFFFF', selectedBaseColor] as [string, string, string],
             tags: ['generated', 'smart-color', 'final']
           };
           break;
@@ -133,7 +281,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           palette = {
             id: `${selectedBaseColor.replace('#', '')}-black`,
             name: `${selectedBaseColor} + Schwarz`,
-            colors: [selectedBaseColor, '#000000'] as [string, string, string],
+            colors: [selectedBaseColor, '#000000', selectedBaseColor] as [string, string, string],
             tags: ['generated', 'smart-color', 'final']
           };
           break;
@@ -374,13 +522,16 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           <div data-section="layout" className="h-screen flex items-center justify-center -mt-36">
             <div className="w-full max-w-2xl text-center">
               <motion.div
-                className="w-full"
+                className="w-full bg-white/5 rounded-lg p-6 relative"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.4 }}
               >
-                <h2 className="text-xl font-bold mb-8 text-white">Choose a Layout</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                {/* 10% black overlay */}
+                <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
+                <div className="relative z-10">
+                  <h2 className="text-xl font-bold mb-8 text-white">Choose a Layout</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   {layouts.map(layout => (
                     <LayoutSelectionCard 
                       key={layout.id} 
@@ -439,7 +590,8 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   </div>
                 )}
                 
-                <div className="text-xs text-white/60 relative inline-block">                  <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>                  <span className="relative z-10">Rule 4: Scalability - Standard layouts work at any size</span>                </div>
+                  <div className="text-xs text-white/60 relative inline-block">                  <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>                  <span className="relative z-10">Rule 4: Scalability - Standard layouts work at any size</span>                  </div>
+                </div>
               </motion.div>
             </div>
           </div>
@@ -448,75 +600,114 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             <div className="w-full max-w-2xl">
               <Section title="Choose a Color Palette" helpText="Rule 9: Smart Color Choice - Colors convey emotions and brand values">
         {/* Brand Personality Selection */}
-        <div className="col-span-full mb-6 p-4 bg-white/5 rounded-lg border border-white/10">
-          <label className="block text-lg font-bold mb-3 text-white">Brand Personality (max. 2)</label>
-          <div className="flex flex-wrap gap-2 mb-3">
-            {personalities.map(p => (
-              <div
-                key={p.id}
-                className={`brand-personality-container ${
-                  selectedPersonalities.includes(p.id) ? 'selected' : ''
-                }`}
-              >
-                <button
-                  onClick={() => onTogglePersonality(p.id)}
-                  className="brand-personality-btn"
-                >
-                  {p.name}
-                </button>
+        <div className="col-span-full mb-6 relative">
+          {/* 10% black overlay */}
+          <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
+          <div className="relative z-10 p-4 bg-white/5 rounded-lg border border-white/10">
+            <label className="block text-lg font-bold mb-3 text-white">Brand Personality (max. 2)</label>
+            <div className="space-y-3 mb-3">
+              {/* First row: 3 shortest buttons */}
+              <div className="grid grid-cols-3 gap-3">
+                {personalities
+                  .filter(p => ['modern', 'elegant', 'playful'].includes(p.id))
+                  .map(p => (
+                    <BrandPersonalityButton
+                      key={p.id}
+                      personality={p}
+                      isSelected={selectedPersonalities.includes(p.id)}
+                      onClick={() => onTogglePersonality(p.id)}
+                    />
+                  ))}
               </div>
-            ))}
-          </div>
-          <div className="text-xs text-white/50 relative inline-block">
-            <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>
-            <span className="relative z-10">Rule 6: Relevance - These traits influence color palette suggestions</span>
+              
+              {/* Second row: 2 longest buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                {personalities
+                  .filter(p => ['serious', 'organic'].includes(p.id))
+                  .map(p => (
+                    <BrandPersonalityButton
+                      key={p.id}
+                      personality={p}
+                      isSelected={selectedPersonalities.includes(p.id)}
+                      onClick={() => onTogglePersonality(p.id)}
+                    />
+                  ))}
+              </div>
+            </div>
+            <div className="text-xs text-white/50 relative inline-block">
+              <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>
+              <span className="relative z-10">Rule 6: Relevance - These traits influence color palette suggestions</span>
+            </div>
           </div>
         </div>
         
         {/* Regular Color Palettes (non-intense) - Clickable to switch from base color mode */}
-        {suggestedPalettes.filter(palette => !palette.tags?.includes('intense')).map(palette => (
-          <SelectionCard 
-            key={palette.id} 
-            isSelected={config.palette?.id === palette.id && !selectedBaseColor} 
-            onClick={() => {
-              setSelectedBaseColor(null); // Clear base color when palette is selected
-              updateConfig({ palette });
-              // Trigger background progression when colors are selected
-              if (onDesignProgress) {
-                onDesignProgress('colors-selected');
-              }
-              // Auto-scroll to Create Logo button
-              setTimeout(() => {
-                const createButton = document.querySelector('[data-create-logo]');
-                if (createButton) {
-                  createButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-              }, 300);
-            }}>
-            <div className={`flex flex-col items-center gap-2 h-full transition-opacity ${selectedBaseColor ? 'opacity-80' : 'opacity-100'}`}>
-              <div className="flex gap-1 w-full h-12">
-                {palette.colors.map(c => <div key={c} style={{backgroundColor: c}} className="flex-1 h-full rounded"></div>)}
-              </div>
-              <span className="text-xs text-center text-white/80 px-2">{palette.name}</span>
+        <div className="col-span-full relative">
+          {/* 10% black overlay */}
+          <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
+          <div className="relative z-10 p-4">
+            <h3 className="text-xl font-bold text-white mb-4">Choose from color palettes</h3>
+            <div className="grid grid-cols-4 gap-4">
+              {suggestedPalettes.filter(palette => !palette.tags?.includes('intense')).map(palette => (
+                <SelectionCard 
+                  key={palette.id} 
+                  isSelected={config.palette?.id === palette.id && !selectedBaseColor} 
+                  onClick={() => {
+                    setSelectedBaseColor(null); // Clear base color when palette is selected
+                    updateConfig({ palette });
+                    // Trigger background progression when colors are selected
+                    if (onDesignProgress) {
+                      onDesignProgress('colors-selected');
+                    }
+                    // Auto-scroll to Create Logo button
+                    setTimeout(() => {
+                      const createButton = document.querySelector('[data-create-logo]');
+                      if (createButton) {
+                        createButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }
+                    }, 300);
+                  }}>
+                  <div className={`flex flex-col items-center gap-2 h-full transition-opacity ${selectedBaseColor ? 'opacity-80' : 'opacity-100'}`}>
+                    <div className="flex gap-1 w-full h-12">
+                      {palette.colors.map(c => <div key={c} style={{backgroundColor: c}} className="flex-1 h-full rounded"></div>)}
+                    </div>
+                    <span className="text-xs text-center text-white/80 px-2">{palette.name}</span>
+                  </div>
+                </SelectionCard>
+              ))}
             </div>
-          </SelectionCard>
-        ))}
-        
-        {/* Solid Color Bar - 14 intensive colors in horizontal layout */}
-        <div className="col-span-full mt-6">
-          <div className="flex items-center justify-between mb-3">
-            <div></div>
-            <button
-              onClick={() => setNeonMode(!neonMode)}
-              className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 ${
-                neonMode 
-                  ? 'bg-gradient-to-r from-pink-500 to-cyan-500 text-black shadow-lg shadow-pink-500/50 animate-pulse' 
-                  : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:shadow-lg hover:shadow-purple-500/25'
-              }`}
-            >
-              {neonMode ? '✨ NEON!' : 'Neon!'}
-            </button>
           </div>
+        </div>
+        
+        {/* Solid Color Bar - 21 intensive colors in horizontal layout */}
+        <div className="col-span-full mt-6 relative">
+          {/* 10% black overlay under entire basic color section */}
+          <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
+          <div className="relative z-10 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xl font-bold text-white">Choose Basic Color</h3>
+              <div className="flex gap-2">
+                {(['grundton', 'pastell', 'neon', 'dunkel'] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setColorMode(mode)}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all duration-300 transform hover:scale-105 ${
+                      colorMode === mode
+                        ? mode === 'neon' 
+                          ? 'bg-gradient-to-r from-pink-500 to-cyan-500 text-black shadow-lg shadow-pink-500/50 animate-pulse'
+                          : mode === 'pastell'
+                          ? 'bg-gradient-to-r from-pink-300 to-blue-300 text-black shadow-lg'
+                          : mode === 'dunkel'
+                          ? 'bg-gradient-to-r from-gray-700 to-black text-white shadow-lg'
+                          : 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
+                        : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:shadow-lg hover:from-gray-500 hover:to-gray-600'
+                    }`}
+                  >
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
           <div className="grid grid-cols-7 gap-3 mb-4">
             {getDisplayedColors().map(palette => (
               <button
@@ -526,15 +717,15 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   updateConfig({ palette: null });
                   handleBaseColorSelection(palette.colors[0]);
                 }}
-                className={`relative group h-16 rounded-xl border-3 transition-all duration-300 transform hover:scale-110 ${
+                className={`relative group h-16 rounded-xl border-2 border-white transition-all duration-300 transform hover:scale-110 ${
                   selectedBaseColor === palette.colors[0] 
-                    ? `border-white shadow-2xl scale-110 ${neonMode ? 'shadow-white/70 animate-pulse' : 'shadow-white/30'}` 
-                    : 'border-white/30 hover:border-white/60'
-                } ${neonMode ? 'hover:shadow-glow' : ''}`}
+                    ? `shadow-2xl scale-110 ${colorMode === 'neon' ? 'shadow-white/70 animate-pulse' : 'shadow-white/30'}` 
+                    : 'border-white/60 hover:border-white/80'
+                } ${colorMode === 'neon' ? 'hover:shadow-glow' : ''}`}
                 style={{
                   backgroundColor: palette.colors[0],
-                  boxShadow: neonMode ? `0 0 30px ${palette.colors[0]}60, inset 0 0 20px rgba(255,255,255,0.1)` : 'inset 0 0 20px rgba(255,255,255,0.1)',
-                  background: neonMode 
+                  boxShadow: colorMode === 'neon' ? `0 0 30px ${palette.colors[0]}60, inset 0 0 20px rgba(255,255,255,0.1)` : 'inset 0 0 20px rgba(255,255,255,0.1)',
+                  background: colorMode === 'neon' 
                     ? `linear-gradient(135deg, ${palette.colors[0]} 0%, ${palette.colors[0]}CC 50%, ${palette.colors[0]} 100%)`
                     : `linear-gradient(135deg, ${palette.colors[0]} 0%, ${palette.colors[0]}DD 100%)`
                 }}
@@ -559,7 +750,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 )}
               </button>
             ))}
+            </div>
           </div>
+        </div>
           
           
           {/* Intelligente Farbkombinations-Optionen - Nur zeigen wenn eine Grundfarbe gewählt wurde */}
@@ -619,7 +812,6 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             </div>
           )}
 
-                </div>
               </Section>
             </div>
           </div>

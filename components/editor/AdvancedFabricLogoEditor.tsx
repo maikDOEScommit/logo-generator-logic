@@ -442,7 +442,7 @@ export default function AdvancedFabricLogoEditor({
     fabricCanvasRef.current.clear();
     
     if (isRasterMode) {
-      fabricCanvasRef.current.backgroundColor = '#ffffff';
+      (fabricCanvasRef.current as any).backgroundColor = '#ffffff';
     } else {
       // Re-initialize with logo content in vector mode
       import('fabric').then(({ Text, Rect, Group }) => {

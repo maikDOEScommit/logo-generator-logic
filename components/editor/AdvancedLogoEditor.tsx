@@ -847,7 +847,7 @@ export default function AdvancedLogoEditor({
                   value={brandNameColor}
                   onChange={(e) => {
                     setBrandNameColor(e.target.value);
-                    onConfigUpdate({ brandNameColor: e.target.value });
+                    onConfigUpdate({});
                   }}
                   className="w-8 h-8 rounded border-0 cursor-pointer"
                   title="Brand Name Color"
@@ -868,7 +868,7 @@ export default function AdvancedLogoEditor({
                   value={sloganColor}
                   onChange={(e) => {
                     setSloganColor(e.target.value);
-                    onConfigUpdate({ sloganColor: e.target.value });
+                    onConfigUpdate({});
                   }}
                   className="w-8 h-8 rounded border-0 cursor-pointer"
                   title="Slogan Color"

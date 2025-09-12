@@ -65,7 +65,7 @@ const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { conf
   const iconColor = getIconColor();
   const brandNameColor = getBrandColor();
 
-  const fontUrl = font ? `https://fonts.googleapis.com/css2?family=${font.url.replace(/ /g, '+')}:wght@${font.weights.join(';')}&display=swap` : '';
+  const fontUrl = font ? `https://fonts.googleapis.com/css2?family=${(font as any).url?.replace(/ /g, '+')}:wght@${(font as any).weights?.join(';')}&display=swap` : '';
 
   const renderContent = () => {
     const textLength = text.length || 10;
@@ -177,7 +177,7 @@ const LogoCanvas = ({ config, idSuffix = '', backgroundColor = 'white' }: { conf
     <>
       {font && <Head><link rel="stylesheet" href={fontUrl} /></Head>}
       <svg id={svgId} width="100%" height="auto" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        {font && <style>{`#${svgId} text { font-family: '${font.name}', ${font.family}; }`}</style>}
+        {font && <style>{`#${svgId} text { font-family: '${font.name}', ${(font as any).family || 'sans-serif'}; }`}</style>}
         {renderBackground()}
         {renderShape()}
         {renderContent()}

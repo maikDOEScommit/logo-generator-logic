@@ -25,7 +25,22 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
   
   // Helper to get individual logo config or fallback to main config
   const getLogoConfig = (logoId: string): LogoConfig => {
-    return logoConfigs[logoId] || config;
+    const individualConfig = logoConfigs[logoId];
+    if (individualConfig) {
+      return individualConfig;
+    }
+    // Return a complete config with all required properties
+    return {
+      ...config,
+      text: config.text || 'Your Logo',
+      slogan: config.slogan || '',
+      font: config.font || null,
+      fontWeight: config.fontWeight || 400,
+      icon: config.icon,
+      layout: config.layout,
+      palette: config.palette,
+      enclosingShape: config.enclosingShape
+    };
   };
   
   // Helper to update individual logo config
@@ -505,7 +520,12 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                     {renderLogoVariation(variation, font, getLogoConfig(`${font.name}-${variation.id}`))}
                   </div>
                   <LogoEditor
-                    config={getLogoConfig(`${font.name}-${variation.id}`)}
+                    config={{
+                      ...getLogoConfig(`${font.name}-${variation.id}`),
+                      font: font, // Ensure the correct font is used
+                      fontWeight: font.generationWeights[0] || 400,
+                    }}
+                    variation={variation} // Pass the specific variation with its colors
                     onConfigUpdate={(newConfig) => updateLogoConfig(`${font.name}-${variation.id}`, newConfig)}
                     availableIcons={availableIcons}
                     availablePalettes={availablePalettes}

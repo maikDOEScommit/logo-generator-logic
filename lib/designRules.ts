@@ -59,13 +59,13 @@ export const DESIGN_RULES: DesignRule[] = [
     validator: (config) => {
       if (!config.font) return false;
       // Klassische Schriftarten bevorzugen, keine zu trendigen Farben
-      return config.font.category.includes('Klassisch') || config.font.category.includes('Modern');
+      return (config.font as any).category?.includes('Klassisch') || (config.font as any).category?.includes('Modern');
     },
     scorer: (config) => {
       if (!config.font || !config.palette) return 0;
       let score = 60;
-      if (config.font.category.includes('Klassisch')) score += 25;
-      if (config.font.category.includes('Modern')) score += 20;
+      if ((config.font as any).category?.includes('Klassisch')) score += 25;
+      if ((config.font as any).category?.includes('Modern')) score += 20;
       // Neutrale, professionelle Farben bevorzugen
       if (config.palette.tags.includes('corporate') || config.palette.tags.includes('serious')) score += 15;
       return Math.min(100, score);

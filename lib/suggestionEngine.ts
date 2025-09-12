@@ -199,7 +199,7 @@ export const availableIcons: IconData[] = [
   { id: 'headphones', component: Headphones, tags: ['audio', 'music', 'sound', 'entertainment', 'listening'] }
 ];
 
-// Convert original color palettes + intensive colors to PaletteData format
+// Convert original color palettes + intensive colors to PaletteData format - 21 strong primary colors
 const intensiveColors: PaletteData[] = [
   { id: 'red', name: 'Intensiv Rot', colors: ['#E53E3E', '#FC8181', '#FFFFFF'], tags: ['red', 'intense'] },
   { id: 'orange', name: 'Intensiv Orange', colors: ['#FF8C00', '#FFA500', '#FFFFFF'], tags: ['orange', 'intense'] },
@@ -214,10 +214,18 @@ const intensiveColors: PaletteData[] = [
   { id: 'gray', name: 'Intensiv Grau', colors: ['#4A5568', '#A0AEC0', '#FFFFFF'], tags: ['gray', 'intense'] },
   { id: 'black', name: 'Intensiv Schwarz', colors: ['#1A202C', '#4A5568', '#FFFFFF'], tags: ['black', 'intense'] },
   { id: 'brown', name: 'Intensiv Braun', colors: ['#8B4513', '#D2691E', '#FFFFFF'], tags: ['brown', 'intense'] },
-  { id: 'lime', name: 'Intensiv Limette', colors: ['#84CC16', '#A3E635', '#000000'], tags: ['lime', 'intense'] }
+  { id: 'lime', name: 'Intensiv Limette', colors: ['#84CC16', '#A3E635', '#000000'], tags: ['lime', 'intense'] },
+  // Additional 7 colors to reach 21 total
+  { id: 'coral', name: 'Intensiv Koralle', colors: ['#FF6B6B', '#FF8E8E', '#FFFFFF'], tags: ['coral', 'intense'] },
+  { id: 'turquoise', name: 'Intensiv Türkis-Blau', colors: ['#40E0D0', '#5DDEF4', '#FFFFFF'], tags: ['turquoise', 'intense'] },
+  { id: 'violet', name: 'Intensiv Violett', colors: ['#8B00FF', '#9932CC', '#FFFFFF'], tags: ['violet', 'intense'] },
+  { id: 'crimson', name: 'Intensiv Karmesin', colors: ['#DC143C', '#F14668', '#FFFFFF'], tags: ['crimson', 'intense'] },
+  { id: 'forest', name: 'Intensiv Waldgrün', colors: ['#228B22', '#32CD32', '#FFFFFF'], tags: ['forest', 'intense'] },
+  { id: 'navy', name: 'Intensiv Marineblau', colors: ['#191970', '#4169E1', '#FFFFFF'], tags: ['navy', 'intense'] },
+  { id: 'magenta', name: 'Intensiv Magenta', colors: ['#FF00FF', '#FF69B4', '#FFFFFF'], tags: ['magenta', 'intense'] }
 ];
 
-// Knallige Neon-Versionen der 14 Grundfarben
+// Knallige Neon-Versionen der 21 Grundfarben
 const neonColors: PaletteData[] = [
   { id: 'neon-red', name: 'Neon Rot', colors: ['#FF0040', '#FF4081', '#000000'], tags: ['red', 'neon', 'intense'] },
   { id: 'neon-orange', name: 'Neon Orange', colors: ['#FF4500', '#FF6B35', '#000000'], tags: ['orange', 'neon', 'intense'] },
@@ -232,12 +240,39 @@ const neonColors: PaletteData[] = [
   { id: 'neon-gray', name: 'Neon Grau', colors: ['#C0C0C0', '#E5E5E5', '#000000'], tags: ['gray', 'neon', 'intense'] },
   { id: 'neon-black', name: 'Neon Schwarz', colors: ['#000000', '#333333', '#00FF00'], tags: ['black', 'neon', 'intense'] },
   { id: 'neon-brown', name: 'Neon Braun', colors: ['#D2691E', '#FF8C00', '#000000'], tags: ['brown', 'neon', 'intense'] },
-  { id: 'neon-lime', name: 'Neon Limette', colors: ['#32CD32', '#7FFF00', '#000000'], tags: ['lime', 'neon', 'intense'] }
+  { id: 'neon-lime', name: 'Neon Limette', colors: ['#32CD32', '#7FFF00', '#000000'], tags: ['lime', 'neon', 'intense'] },
+  // Additional 7 neon colors
+  { id: 'neon-coral', name: 'Neon Koralle', colors: ['#FF007F', '#FF69B4', '#000000'], tags: ['coral', 'neon', 'intense'] },
+  { id: 'neon-turquoise', name: 'Neon Türkis-Blau', colors: ['#00FFF0', '#40FFFF', '#000000'], tags: ['turquoise', 'neon', 'intense'] },
+  { id: 'neon-violet', name: 'Neon Violett', colors: ['#9900FF', '#BF00FF', '#000000'], tags: ['violet', 'neon', 'intense'] },
+  { id: 'neon-crimson', name: 'Neon Karmesin', colors: ['#FF0033', '#FF1744', '#000000'], tags: ['crimson', 'neon', 'intense'] },
+  { id: 'neon-forest', name: 'Neon Waldgrün', colors: ['#00FF00', '#00FF7F', '#000000'], tags: ['forest', 'neon', 'intense'] },
+  { id: 'neon-navy', name: 'Neon Marineblau', colors: ['#0066FF', '#0080FF', '#000000'], tags: ['navy', 'neon', 'intense'] },
+  { id: 'neon-magenta', name: 'Neon Magenta', colors: ['#FF0080', '#FF00FF', '#000000'], tags: ['magenta', 'neon', 'intense'] }
 ];
+
+// Dynamic color generation functions for Pastell and Dunkel modes
+function generatePastelColor(baseColor: string): string {
+  // Convert base color to a pastel version by increasing brightness and lowering saturation
+  const num = parseInt(baseColor.slice(1), 16);
+  const r = Math.min(255, Math.max(0, ((num >> 16) & 255) + 80));
+  const g = Math.min(255, Math.max(0, ((num >> 8) & 255) + 80));  
+  const b = Math.min(255, Math.max(0, (num & 255) + 80));
+  return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+}
+
+function generateDarkColor(baseColor: string): string {
+  // Convert base color to a dark version by decreasing brightness
+  const num = parseInt(baseColor.slice(1), 16);
+  const r = Math.max(0, ((num >> 16) & 255) - 60);
+  const g = Math.max(0, ((num >> 8) & 255) - 60);
+  const b = Math.max(0, (num & 255) - 60);
+  return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+}
 
 // Convert original colorPalettes to PaletteData format
 export const suggestionPalettes: PaletteData[] = [
-  // Original rule-based palettes
+  // Original rule-based palettes (keep unchanged) - 8 regular palettes
   ...colorPalettes.map((palette, index) => ({
     id: `palette-${index}`,
     name: palette.name,
@@ -249,10 +284,11 @@ export const suggestionPalettes: PaletteData[] = [
           palette.name.includes('Dynamisch') ? ['energy', 'bold'] :
           ['friendly', 'soft']
   })),
-  // Add intensive colors
+  // Add only the base intensive colors (Grundton) - 21 base colors
   ...intensiveColors,
-  // Add neon colors
+  // Add only neon colors - 21 neon colors
   ...neonColors
+  // Remove pastel and dark colors - they will be generated dynamically based on color mode
 ];
 
 export interface Suggestions {

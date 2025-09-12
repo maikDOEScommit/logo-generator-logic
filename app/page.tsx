@@ -340,6 +340,13 @@ export default function LogoGeneratorPage() {
           text-decoration: none !important;
           outline: none !important;
           box-shadow: none !important;
+          background-color: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        .typography-style-button:hover {
+          background-color: rgba(255, 255, 255, 0.08) !important;
+          border-color: rgba(255, 255, 255, 0.2) !important;
         }
       `}</style>
       <Header />
@@ -539,11 +546,7 @@ export default function LogoGeneratorPage() {
                           <button
                             key={category.name}
                             onClick={() => setSelectedFontCategory(category.name)}
-                            className={`w-full p-4 rounded-lg border text-left transition-all duration-300 transform hover:scale-[1.02] ${
-                              selectedFontCategory === category.name
-                                ? 'bg-white/10 border-white/30 text-white shadow-lg shadow-white/10'
-                                : 'bg-white/5 border-white/10 text-white/80 hover:bg-white/8 hover:border-white/20'
-                            }`}
+                            className="typography-style-button w-full p-4 rounded-lg border text-left transition-all duration-300 transform hover:scale-[1.02] text-white/80"
                           >
                             <div className="font-semibold text-sm mb-2">{category.name}</div>
                             <div className="text-xs text-white/60 leading-relaxed">

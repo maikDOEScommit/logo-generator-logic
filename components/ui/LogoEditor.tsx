@@ -9,6 +9,15 @@ interface LogoEditorProps {
   onConfigUpdate: (newConfig: Partial<LogoConfig>) => void;
   availableIcons: IconData[];
   availablePalettes: PaletteData[];
+  variation?: {
+    id: string;
+    name: string;
+    brandNameColor: string;
+    iconColor: string;
+    backgroundColor: string;
+    sloganColor: string;
+    hasGradient: boolean;
+  };
 }
 
 // Types for drawing tools
@@ -46,7 +55,7 @@ interface EditLayer {
   strokes: Stroke[];
 }
 
-const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes }: LogoEditorProps) => {
+const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes, variation }: LogoEditorProps) => {
   const [showFullscreenEditor, setShowFullscreenEditor] = useState(false);
   const [showAdvancedEditor, setShowAdvancedEditor] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
@@ -125,7 +134,17 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
   // Sync local config with props
   useEffect(() => {
     setLocalConfig(config);
-  }, [config]);
+    // Update colors based on the variation or fallback to config colors
+    if (variation) {
+      setIconColor(variation.iconColor);
+      setBrandNameColor(variation.brandNameColor);
+      setSloganColor(variation.sloganColor);
+    } else {
+      setIconColor(config.palette?.colors[1] || '#000000');
+      setBrandNameColor(config.palette?.colors[1] || '#000000');
+      setSloganColor(config.palette?.colors[1] || '#000000');
+    }
+  }, [config, variation]);
 
   // Global mouse events for rotation, resize, and move
   useEffect(() => {
@@ -398,7 +417,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
       // Create a line stroke from the current line
       const lineStroke: Stroke = {
         id: `line-${Date.now()}`,
-        tool: 'line',
+        tool: 'brush' as any,
         points: [currentLine.start, currentLine.end],
         color: lineColor,
         width: lineWidth
@@ -475,13 +494,13 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                   y={stroke.rect.y}
                   width={stroke.rect.width}
                   height={stroke.rect.height}
-                  fill={stroke.tool === 'eraser' ? 'rgba(255,255,255,0.8)' : stroke.color}
+                  fill={(stroke.tool as any) === 'eraser' ? 'rgba(255,255,255,0.8)' : stroke.color}
                   stroke={stroke.color}
                   strokeWidth={stroke.width}
-                  opacity={stroke.tool === 'eraser' ? 0.8 : 0.7}
+                  opacity={(stroke.tool as any) === 'eraser' ? 0.8 : 0.7}
                 />
               );
-            } else if (stroke.tool === 'line' && stroke.points.length >= 2) {
+            } else if ((stroke.tool as any) === 'line' && stroke.points.length >= 2) {
               return (
                 <line
                   key={stroke.id}
@@ -544,7 +563,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                   selected: b.id === box.id
                 })));
                 
-                // Prepare for potential move (will be activated on first mouse move)
+                // Start moving immediately
                 const svg = e.currentTarget.ownerSVGElement;
                 if (!svg) return;
                 const rect = svg.getBoundingClientRect();
@@ -553,13 +572,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                   startY: e.clientY - rect.top,
                   originalBox: { ...box }
                 });
-              }}
-              onMouseMove={(e) => {
-                if (moveStart && !isMoving) {
-                  // Start moving on first mouse move
-                  setIsMoving(true);
-                  setMovingBox(box.id);
-                }
+                setIsMoving(true);
+                setMovingBox(box.id);
               }}
             />
             {/* Selection handles - resize functionality */}
@@ -1035,33 +1049,45 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
           <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-full max-h-[90vh] flex">
             {/* Logo Preview Side with Drawing Canvas */}
             <div className="flex-1 p-8 flex items-center justify-center border-r border-white/20">
-              <div className="relative bg-white rounded-lg p-12 max-w-md w-full aspect-square flex items-center justify-center" key={`${localConfig.fontWeight}-${localConfig.text}-${localConfig.font?.name}-${localConfig.palette?.id}`}>
+              <div 
+                className="relative bg-white rounded-lg p-12 max-w-md w-full aspect-square flex items-center justify-center" 
+                key={`${localConfig.fontWeight}-${localConfig.text}-${localConfig.font?.name}-${localConfig.palette?.id}`}
+                style={{
+                  transform: `scale(${zoomLevel})`,
+                  transformOrigin: 'center'
+                }}
+              >
                 
                 {/* Original Logo Content */}
                 {(() => {
                   console.log('Preview render with localConfig.fontWeight:', localConfig.fontWeight);
                   return renderLogoContent(
-                    localConfig.palette?.colors[1] || '#000000',
+                    brandNameColor,
                     localConfig.palette?.colors[0] || '#FFFFFF',
-                    localConfig.font || fontCategories[0].fonts[0], // Use selected font or default
-                    localConfig
+                    localConfig.font || { cssName: 'Inter, sans-serif', name: 'Inter' }, // Use actual font from config
+                    {
+                      ...localConfig,
+                      text: localConfig.text || 'Your Logo',
+                      fontWeight: localConfig.fontWeight || 400,
+                      icon: localConfig.icon,
+                      layout: localConfig.layout,
+                      enclosingShape: localConfig.enclosingShape
+                    }
                   );
                 })()}
                 
                 {/* Drawing Canvas Overlay */}
                 <div 
                   ref={canvasRef}
-                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser') ? 'cursor-none' : drawingTool === 'fill' ? 'cursor-crosshair' : 'cursor-crosshair'}`}
+                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser') ? 'cursor-none' : (drawingTool as any) === 'fill' ? 'cursor-crosshair' : 'cursor-crosshair'}`}
                   onMouseDown={startDrawing}
                   onMouseMove={continueDrawing}
                   onMouseUp={endDrawing}
                   onMouseLeave={endDrawing}
                   style={{ 
                     cursor: (drawingTool === 'brush' || drawingTool === 'eraser')
-                      ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${Math.round((brushSize + 2) * zoomLevel)}' height='${Math.round((brushSize + 2) * zoomLevel)}' viewBox='0 0 ${brushSize + 2} ${brushSize + 2}'><circle cx='${(brushSize + 2) / 2}' cy='${(brushSize + 2) / 2}' r='${brushSize / 2}' fill='none' stroke='black' stroke-width='1'/></svg>") ${Math.round(((brushSize + 2) / 2) * zoomLevel)} ${Math.round(((brushSize + 2) / 2) * zoomLevel)}, crosshair`
-                      : drawingTool === 'box' ? 'copy' : drawingTool === 'line' ? 'crosshair' : 'default',
-                    transform: `scale(${zoomLevel})`,
-                    transformOrigin: 'center'
+                      ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${Math.round((brushSize + 2))}' height='${Math.round((brushSize + 2))}' viewBox='0 0 ${brushSize + 2} ${brushSize + 2}'><circle cx='${(brushSize + 2) / 2}' cy='${(brushSize + 2) / 2}' r='${brushSize / 2}' fill='none' stroke='black' stroke-width='1'/></svg>") ${Math.round(((brushSize + 2) / 2))} ${Math.round(((brushSize + 2) / 2))}, crosshair`
+                      : drawingTool === 'box' ? 'copy' : drawingTool === 'line' ? 'crosshair' : 'default'
                   }}
                 >
                   {renderDrawingLayers()}
@@ -1366,7 +1392,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                             value={brandNameColor}
                             onChange={(e) => {
                               setBrandNameColor(e.target.value);
-                              updateLocalConfig({ brandNameColor: e.target.value });
+                              updateLocalConfig({});
                             }}
                             className="w-8 h-6 rounded border border-white/20 cursor-pointer"
                           />
@@ -1391,7 +1417,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                             value={sloganColor}
                             onChange={(e) => {
                               setSloganColor(e.target.value);
-                              updateLocalConfig({ sloganColor: e.target.value });
+                              updateLocalConfig({});
                             }}
                             className="w-8 h-6 rounded border border-white/20 cursor-pointer"
                           />
@@ -1461,7 +1487,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                         value={iconColor}
                         onChange={(e) => {
                           setIconColor(e.target.value);
-                          updateLocalConfig({ iconColor: e.target.value });
+                          updateLocalConfig({});
                         }}
                         className="w-8 h-6 rounded border border-white/20 cursor-pointer"
                       />
@@ -2046,8 +2072,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes 
                 </button>
                 <button
                   onClick={() => {
-                    // Keep popup open, user will click on boxes to fill them
-                    // Popup will close automatically when a box is clicked
+                    setDrawingTool('box');
+                    setCurrentBox(null);
+                    setSelectedBox(null);
+                    // setShowFillColorPicker(false);
                   }}
                   className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded font-medium transition-colors"
                 >
