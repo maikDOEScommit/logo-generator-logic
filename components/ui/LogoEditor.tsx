@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
-import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Layers } from 'lucide-react';
+import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Layers, Pipette } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
 import AdvancedFabricLogoEditor from '@/components/editor/AdvancedFabricLogoEditor';
 
@@ -28,7 +28,7 @@ interface Point {
 
 interface Stroke {
   id: string;
-  tool: 'brush' | 'eraser' | 'box' | 'line';
+  tool: 'brush' | 'eraser' | 'box' | 'line' | 'eyedropper';
   points: Point[];
   color: string;
   width: number;
@@ -68,7 +68,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [localConfig, setLocalConfig] = useState<LogoConfig>(config);
   
   // Drawing tool states
-  const [drawingTool, setDrawingTool] = useState<'brush' | 'eraser' | 'box' | 'line'>('brush');
+  const [drawingTool, setDrawingTool] = useState<'brush' | 'eraser' | 'box' | 'line' | 'eyedropper'>('brush');
   const [brushSize, setBrushSize] = useState(10);
   const [brushOpacity, setBrushOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
   const [brushLineCap, setBrushLineCap] = useState<'round' | 'square'>('round'); // Line cap for brush
@@ -79,6 +79,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [iconColor, setIconColor] = useState(config.palette?.colors[1] || '#000000');
   const [brandNameColor, setBrandNameColor] = useState(config.palette?.colors[1] || '#000000');
   const [sloganColor, setSloganColor] = useState(config.palette?.colors[1] || '#000000');
+  const [sampledColor, setSampledColor] = useState<string | null>(null);
   
   // Box drawing state
   const [boxes, setBoxes] = useState<BoxShape[]>([]);
@@ -135,9 +136,12 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const svgRef = useRef<SVGSVGElement>(null);
   const drawingRef = useRef({ drawing: false, startPoint: null as Point | null });
   
-  // Sync local config with props
+  // Sync local config with props (but preserve user-selected font)
   useEffect(() => {
-    setLocalConfig(config);
+    setLocalConfig(prev => ({
+      ...config,
+      font: prev?.font || config.font // Preserve selected font
+    }));
     // Update colors based on the variation or fallback to config colors
     if (variation) {
       setIconColor(variation.iconColor);
@@ -279,15 +283,73 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     return { x, y };
   };
 
+  const sampleColor = (point: Point, e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    let sampledColor: string | null = null;
+    
+    // Try to get color from clicked element
+    if (target) {
+      // Check for SVG elements
+      if (target.tagName === 'text' || target.tagName === 'tspan') {
+        const fill = target.getAttribute('fill') || window.getComputedStyle(target).fill;
+        if (fill && fill !== 'none') {
+          sampledColor = fill;
+        }
+      }
+      
+      // Check for icon color (from React components)
+      const computedStyle = window.getComputedStyle(target);
+      if (computedStyle.color && computedStyle.color !== 'rgba(0, 0, 0, 0)') {
+        sampledColor = computedStyle.color;
+      }
+    }
+    
+    // If no specific element color found, sample background
+    if (!sampledColor) {
+      if (variation?.backgroundColor?.includes('linear-gradient')) {
+        sampledColor = '#FFFFFF'; // Fallback for gradients
+      } else if (variation?.backgroundColor) {
+        sampledColor = variation.backgroundColor;
+      } else {
+        sampledColor = brandNameColor; // Final fallback
+      }
+    }
+    
+    // Convert rgb to hex if needed
+    if (sampledColor?.startsWith('rgb')) {
+      const rgbMatch = sampledColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (rgbMatch) {
+        const r = parseInt(rgbMatch[1]);
+        const g = parseInt(rgbMatch[2]);
+        const b = parseInt(rgbMatch[3]);
+        sampledColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+      }
+    }
+    
+    // Set the sampled color and update brush color
+    setSampledColor(sampledColor);
+    setBrushColor(sampledColor || '#000000');
+  };
+
   const startDrawing = (e: React.MouseEvent) => {
     const point = getPointFromEvent(e);
+    
+    if (drawingTool === 'eyedropper') {
+      // Sample color at clicked position
+      sampleColor(point, e);
+      return;
+    }
     
     if (drawingTool === 'brush' || drawingTool === 'eraser') {
       const newStroke: Stroke = {
         id: `stroke-${Date.now()}`,
         tool: drawingTool,
         points: [point],
-        color: drawingTool === 'eraser' ? '#FFFFFF' : brushColor,
+        color: drawingTool === 'eraser' ? 
+          (variation?.backgroundColor?.includes('linear-gradient') 
+            ? '#FFFFFF' 
+            : (variation?.backgroundColor || localConfig.palette?.colors[0] || '#FFFFFF')) 
+          : brushColor,
         width: brushSize,
         opacity: drawingTool === 'eraser' ? (eraserOpacity / 10) : (brushOpacity / 10),
         lineCap: brushLineCap // Use brushLineCap for both brush and eraser
@@ -522,7 +584,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   y={stroke.rect.y}
                   width={stroke.rect.width}
                   height={stroke.rect.height}
-                  fill={(stroke.tool as any) === 'eraser' ? 'rgba(255,255,255,' + stroke.opacity + ')' : stroke.color}
+                  fill={stroke.color}
                   stroke={stroke.color}
                   strokeWidth={stroke.width}
                   opacity={stroke.opacity}
@@ -1062,20 +1124,28 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-full max-h-[90vh] flex">
             {/* Logo Preview Side with Drawing Canvas */}
             <div className="flex-1 p-8 flex items-center justify-center border-r border-white/20">
-              <div 
-                className="relative rounded-lg p-12 max-w-md w-full aspect-square flex items-center justify-center" 
-                key={`${localConfig.fontWeight}-${localConfig.text}-${localConfig.font?.name}-${localConfig.palette?.id}`}
-                style={{
-                  ...(variation?.backgroundColor?.includes('linear-gradient') 
-                    ? { backgroundImage: variation.backgroundColor }
-                    : { backgroundColor: variation?.backgroundColor || '#FFFFFF' })
-                }}
-              >
+              <div className="relative rounded-lg max-w-md w-full aspect-square">
+                {/* Gradient Background Layer (deeper layer, unaffected by eraser) */}
+                {variation?.backgroundColor?.includes('linear-gradient') && (
+                  <div 
+                    className="absolute inset-0 rounded-lg"
+                    style={{ backgroundImage: variation.backgroundColor, zIndex: 1 }}
+                  />
+                )}
+                
+                <div 
+                  className="relative rounded-lg p-12 w-full aspect-square flex items-center justify-center" 
+                  key={`${localConfig.fontWeight}-${localConfig.text}-${localConfig.font?.name}-${localConfig.palette?.id}-${brandNameColor}-${sloganColor}-${iconColor}`}
+                  style={{
+                    zIndex: 2,
+                    ...(!variation?.backgroundColor?.includes('linear-gradient') 
+                      ? { backgroundColor: variation?.backgroundColor || '#FFFFFF' }
+                      : {})
+                  }}
+                >
                 
                 {/* Original Logo Content */}
                 {(() => {
-                  console.log('Preview render with localConfig.fontWeight:', localConfig.fontWeight);
-                  console.log('Preview render with font:', localConfig.font);
                   return renderLogoContent(
                     brandNameColor,
                     localConfig.palette?.colors[0] || '#FFFFFF',
@@ -1095,7 +1165,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 {/* Drawing Canvas Overlay */}
                 <div 
                   ref={canvasRef}
-                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') ? 'cursor-none' : 'cursor-crosshair'}`}
+                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') ? 'cursor-none' : drawingTool === 'eyedropper' ? 'cursor-crosshair' : 'cursor-crosshair'}`}
                   onMouseDown={startDrawing}
                   onMouseMove={continueDrawing}
                   onMouseUp={endDrawing}
@@ -1110,9 +1180,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   }}
                   style={{ 
                     cursor: (drawingTool === 'brush' || drawingTool === 'eraser')
-                      ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${Math.round((brushSize + 2))}' height='${Math.round((brushSize + 2))}' viewBox='0 0 ${brushSize + 2} ${brushSize + 2}'><circle cx='${(brushSize + 2) / 2}' cy='${(brushSize + 2) / 2}' r='${brushSize / 2}' fill='none' stroke='black' stroke-width='1'/></svg>") ${Math.round(((brushSize + 2) / 2))} ${Math.round(((brushSize + 2) / 2))}, crosshair`
+                      ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${Math.round((brushSize + 4))}' height='${Math.round((brushSize + 4))}' viewBox='0 0 ${brushSize + 4} ${brushSize + 4}'><circle cx='${(brushSize + 4) / 2}' cy='${(brushSize + 4) / 2}' r='${brushSize / 2}' fill='none' stroke='white' stroke-width='2'/><circle cx='${(brushSize + 4) / 2}' cy='${(brushSize + 4) / 2}' r='${brushSize / 2}' fill='none' stroke='black' stroke-width='1'/></svg>") ${Math.round(((brushSize + 4) / 2))} ${Math.round(((brushSize + 4) / 2))}, crosshair`
                       : drawingTool === 'line'
-                        ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${Math.round((lineWidth + 2))}' height='${Math.round((lineWidth + 2))}' viewBox='0 0 ${lineWidth + 2} ${lineWidth + 2}'><circle cx='${(lineWidth + 2) / 2}' cy='${(lineWidth + 2) / 2}' r='${lineWidth / 2}' fill='none' stroke='black' stroke-width='1'/></svg>") ${Math.round(((lineWidth + 2) / 2))} ${Math.round(((lineWidth + 2) / 2))}, crosshair`
+                        ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${Math.round((lineWidth + 4))}' height='${Math.round((lineWidth + 4))}' viewBox='0 0 ${lineWidth + 4} ${lineWidth + 4}'><circle cx='${(lineWidth + 4) / 2}' cy='${(lineWidth + 4) / 2}' r='${lineWidth / 2}' fill='none' stroke='white' stroke-width='2'/><circle cx='${(lineWidth + 4) / 2}' cy='${(lineWidth + 4) / 2}' r='${lineWidth / 2}' fill='none' stroke='black' stroke-width='1'/></svg>") ${Math.round(((lineWidth + 4) / 2))} ${Math.round(((lineWidth + 4) / 2))}, crosshair`
+                        : drawingTool === 'eyedropper' ? 'crosshair'
                         : drawingTool === 'box' ? 'copy' : 'default'
                   }}
                 >
@@ -1126,6 +1197,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                    drawingTool === 'box' ? `⬜ Box ${boxWidth}×${boxHeight}px` :
                    drawingTool === 'line' ? `📏 Line ${lineWidth}px` :
                    '✏️ Drawing'}
+                </div>
                 </div>
               </div>
             </div>
@@ -1148,7 +1220,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   <h4 className="text-white font-semibold mb-3">Drawing Tools</h4>
                   
                   {/* Tool Selection */}
-                  <div className="grid grid-cols-2 gap-2 mb-4">
+                  <div className="grid grid-cols-3 gap-2 mb-4">
                     <button
                       onClick={() => setDrawingTool('brush')}
                       className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
@@ -1184,7 +1256,41 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     >
                       📏 Line
                     </button>
+                    <button
+                      onClick={() => setDrawingTool('eyedropper')}
+                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                        drawingTool === 'eyedropper' ? 'bg-teal-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                      }`}
+                    >
+                      <Pipette size={16} />
+                    </button>
                   </div>
+
+                  {/* Eyedropper Tool Settings */}
+                  {drawingTool === 'eyedropper' && sampledColor && (
+                    <div className="bg-white/10 rounded p-3 mb-4">
+                      <label className="block text-white/80 text-sm mb-2">Gesampelte Farbe</label>
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-10 h-8 rounded border border-white/20"
+                          style={{ backgroundColor: sampledColor }}
+                        ></div>
+                        <span className="text-white/60 text-sm">{sampledColor}</span>
+                        <button
+                          onClick={() => {
+                            setBrushColor(sampledColor);
+                            setBoxFillColor(sampledColor);
+                            setBoxStrokeColor(sampledColor);
+                            setLineColor(sampledColor);
+                          }}
+                          className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
+                        >
+                          Verwenden
+                        </button>
+                      </div>
+                      <p className="text-white/60 text-xs mt-2">Klicke auf Elemente im Logo um Farben zu sampeln</p>
+                    </div>
+                  )}
 
                   {/* Tool Settings */}
                   <div className="space-y-3">
@@ -1420,13 +1526,38 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             </button>
                             <button
                               onClick={() => {
-                                // Make the selected box permanent
-                                setBoxes(prev => prev.map(box => 
-                                  box.id === selectedBox 
-                                    ? { ...box, permanent: true, selected: false }
-                                    : box
-                                ));
-                                setSelectedBox(null);
+                                // Convert selected box to stroke and add to drawing layer
+                                const boxToConvert = boxes.find(box => box.id === selectedBox);
+                                if (boxToConvert) {
+                                  const boxStroke: Stroke = {
+                                    id: `box-stroke-${Date.now()}`,
+                                    tool: 'box',
+                                    points: [
+                                      { x: boxToConvert.x, y: boxToConvert.y },
+                                      { x: boxToConvert.x + boxToConvert.width, y: boxToConvert.y + boxToConvert.height }
+                                    ],
+                                    color: boxToConvert.fillColor,
+                                    width: boxToConvert.strokeWidth,
+                                    opacity: boxToConvert.opacity,
+                                    rect: {
+                                      x: boxToConvert.x,
+                                      y: boxToConvert.y,
+                                      width: boxToConvert.width,
+                                      height: boxToConvert.height
+                                    }
+                                  };
+                                  
+                                  // Add box stroke to drawing layer
+                                  setEditLayers(prev => prev.map(layer => 
+                                    layer.id === 'layer-1' 
+                                      ? { ...layer, strokes: [...layer.strokes, boxStroke] }
+                                      : layer
+                                  ));
+                                  
+                                  // Remove box from boxes array
+                                  setBoxes(prev => prev.filter(box => box.id !== selectedBox));
+                                  setSelectedBox(null);
+                                }
                               }}
                               className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
                             >
@@ -1547,9 +1678,13 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                           const selectedFont = fontCategories
                             .flatMap(cat => cat.fonts)
                             .find(font => font.name === e.target.value);
-                          console.log('Font changed:', e.target.value, 'Selected font:', selectedFont);
                           if (selectedFont) {
-                            updateLocalConfig({ font: selectedFont });
+                            // Force update by updating localConfig directly and triggering re-render
+                            setLocalConfig(prev => ({
+                              ...prev,
+                              font: selectedFont
+                            }));
+                            onConfigUpdate({ font: selectedFont });
                           }
                         }}
                         className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white text-sm mb-3"
