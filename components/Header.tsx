@@ -66,8 +66,10 @@ export const Header = () => {
       `}</style>
       <header className="absolute top-0 left-0 w-full p-4 z-10">
       <div className="max-w-7xl mx-auto bg-white/5 backdrop-blur-[1px] rounded-xl border border-white/10 px-6 py-3 flex justify-between items-center navbar-glass">
-      <Link href="/" className="font-bold text-xl text-white">
-        Lola Gen 2.0
+      <Link href="/" className="font-bold text-xl">
+        <span className="bg-gradient-to-r from-yellow-200 via-yellow-600 to-emerald-300 bg-clip-text text-transparent">
+          Lola Gen 2.0
+        </span>
       </Link>
       <div className="flex items-center gap-4">
         {/* Navigation Links */}

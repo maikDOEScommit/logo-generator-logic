@@ -718,10 +718,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   updateConfig({ palette: null });
                   handleBaseColorSelection(palette.colors[0]);
                 }}
-                className={`relative group h-16 rounded-xl border-4 border-white transition-all duration-300 transform hover:scale-110 ${
+                className={`relative group h-16 rounded-xl border-4 transition-all duration-300 transform hover:scale-110 ${
                   selectedBaseColor === palette.colors[0] 
-                    ? `shadow-2xl scale-110 ${colorMode === 'neon' ? 'shadow-white/70 animate-pulse' : 'shadow-white/30'}` 
-                    : 'border-white/80 hover:border-opacity-0'
+                    ? `border-white shadow-2xl scale-110 ${colorMode === 'neon' ? 'shadow-white/70 animate-pulse' : 'shadow-white/30'}` 
+                    : 'border-white/80 hover:border-transparent'
                 } ${colorMode === 'neon' ? 'hover:shadow-glow' : ''}`}
                 style={{
                   backgroundColor: palette.colors[0],
@@ -742,13 +742,6 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   </div>
                 )}
                 
-                
-                {/* Mode switch indicator overlay when regular palette is active */}
-                {config.palette && !selectedBaseColor && (
-                  <div className="absolute inset-0 rounded-xl bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="text-white text-xs font-medium">Zu Grundfarbe</span>
-                  </div>
-                )}
               </button>
             ))}
             </div>
