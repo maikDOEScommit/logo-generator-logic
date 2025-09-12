@@ -651,7 +651,8 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
               {suggestedPalettes.filter(palette => !palette.tags?.includes('intense')).map(palette => (
                 <SelectionCard 
                   key={palette.id} 
-                  isSelected={config.palette?.id === palette.id && !selectedBaseColor} 
+                  isSelected={config.palette?.id === palette.id && !selectedBaseColor}
+                  blackBorders={true}
                   onClick={() => {
                     setSelectedBaseColor(null); // Clear base color when palette is selected
                     updateConfig({ palette });
@@ -691,16 +692,16 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   <button
                     key={mode}
                     onClick={() => setColorMode(mode)}
-                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all duration-300 transform hover:scale-105 ${
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all duration-300 transform hover:scale-105 border-2 ${
                       colorMode === mode
                         ? mode === 'neon' 
-                          ? 'bg-gradient-to-r from-pink-500 to-cyan-500 text-black shadow-lg shadow-pink-500/50 animate-pulse'
+                          ? 'bg-black text-white border-white shadow-lg shadow-white/30 animate-pulse'
                           : mode === 'pastell'
-                          ? 'bg-gradient-to-r from-pink-300 to-blue-300 text-black shadow-lg'
+                          ? 'bg-white/10 text-white border-white shadow-lg shadow-white/20'
                           : mode === 'dunkel'
-                          ? 'bg-gradient-to-r from-gray-700 to-black text-white shadow-lg'
-                          : 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
-                        : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:shadow-lg hover:from-gray-500 hover:to-gray-600'
+                          ? 'bg-black text-white border-white shadow-lg shadow-white/20'
+                          : 'bg-white/20 text-white border-white shadow-lg shadow-white/20'
+                        : 'bg-white/5 text-white/80 border-white/20 hover:bg-white/10 hover:border-white/40 hover:text-white'
                     }`}
                   >
                     {mode.charAt(0).toUpperCase() + mode.slice(1)}
@@ -717,10 +718,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   updateConfig({ palette: null });
                   handleBaseColorSelection(palette.colors[0]);
                 }}
-                className={`relative group h-16 rounded-xl border-2 border-white transition-all duration-300 transform hover:scale-110 ${
+                className={`relative group h-16 rounded-xl border-4 border-white transition-all duration-300 transform hover:scale-110 ${
                   selectedBaseColor === palette.colors[0] 
                     ? `shadow-2xl scale-110 ${colorMode === 'neon' ? 'shadow-white/70 animate-pulse' : 'shadow-white/30'}` 
-                    : 'border-white/60 hover:border-white/80'
+                    : 'border-white/80 hover:border-opacity-0'
                 } ${colorMode === 'neon' ? 'hover:shadow-glow' : ''}`}
                 style={{
                   backgroundColor: palette.colors[0],
