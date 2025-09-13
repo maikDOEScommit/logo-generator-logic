@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
-import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Layers, Pipette } from 'lucide-react';
+import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
-import AdvancedFabricLogoEditor from '@/components/editor/AdvancedFabricLogoEditor';
 
 interface LogoEditorProps {
   config: LogoConfig;
@@ -61,7 +60,6 @@ interface EditLayer {
 
 const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes, variation }: LogoEditorProps) => {
   const [showFullscreenEditor, setShowFullscreenEditor] = useState(false);
-  const [showAdvancedEditor, setShowAdvancedEditor] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [flippedCards, setFlippedCards] = useState<{[key: string]: boolean}>({});
@@ -1108,15 +1106,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             <Edit size={12} /> Edit
           </button>
           <button
-            onClick={() => {
-              console.log('🔥 Pro Button clicked! Setting showAdvancedEditor to true...');
-              setShowAdvancedEditor(true);
-            }}
-            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded text-xs font-medium transition-colors flex-1 max-w-[60px]"
-          >
-            <Layers size={12} /> Pro
-          </button>
-          <button
             onClick={handleSave}
             className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-medium transition-colors flex-1 max-w-[60px]"
           >
@@ -1742,7 +1731,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       <label className="block text-white/80 text-sm mb-1">Font Weight</label>
                       <div className="space-y-2">
                         <div className="grid grid-cols-3 gap-2">
-                          {[300, 400, 500, 600, 700, 800].map(weight => (
+                          {(localConfig.font?.editorWeights || [300, 400, 500, 600, 700, 800]).map(weight => (
                             <button
                               key={weight}
                               onClick={() => {
@@ -2349,17 +2338,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       )}
 
 
-      {/* Advanced Fabric.js Editor */}
-      {showAdvancedEditor && (
-        <>
-          {console.log('🚀 Rendering AdvancedFabricLogoEditor with config:', localConfig)}
-          <AdvancedFabricLogoEditor
-            config={localConfig}
-            onConfigUpdate={updateLocalConfig}
-            onClose={() => setShowAdvancedEditor(false)}
-          />
-        </>
-      )}
     </>
   );
 };

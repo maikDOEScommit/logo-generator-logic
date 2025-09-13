@@ -95,6 +95,19 @@ function getContrastRatio(color1: string, color2: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
+// Helper function to get user-friendly color names
+function getColorName(color: string, paletteColors: string[]): string {
+  if (color === '#FFFFFF') return 'Weiß';
+  if (color === '#000000') return 'Schwarz';
+
+  const index = paletteColors.indexOf(color);
+  if (index === 0) return 'Grundfarbe';
+  if (index === 1) return 'Akzent';
+  if (index === 2) return 'Text';
+
+  return 'Farbe';
+}
+
 // Generate all possible combinations and evaluate them
 function generateRegularPaletteVariations(config: LogoConfig): LogoVariation[] {
   const palette = config.palette;
@@ -220,16 +233,39 @@ function generateRegularPaletteVariations(config: LogoConfig): LogoVariation[] {
     ...gradientBg.slice(0, 4)
   ].sort((a, b) => b.score - a.score);
 
-  // Convert to LogoVariation format
-  return bestCombinations.map((combo, index) => ({
-    id: combo.id,
-    name: `${combo.background.name} (Score: ${combo.score})`,
-    brandNameColor: combo.brandnameColor,
-    iconColor: combo.iconColor,
-    backgroundColor: combo.background.value,
-    sloganColor: combo.brandnameColor, // Use same as brand name for consistency
-    hasGradient: combo.background.type === 'gradient'
-  }));
+  // Convert to LogoVariation format with consistent naming
+  return bestCombinations.map((combo, index) => {
+    let displayName = '';
+
+    // Generate consistent names based on background type
+    if (combo.background.value === '#FFFFFF') {
+      displayName = combo.brandnameColor === combo.iconColor
+        ? `Weiß: Beide ${getColorName(combo.brandnameColor, colors)}`
+        : `Weiß: ${getColorName(combo.brandnameColor, colors)} + ${getColorName(combo.iconColor, colors)}`;
+    } else if (combo.background.value === '#000000') {
+      displayName = combo.brandnameColor === combo.iconColor
+        ? `Schwarz: Beide ${getColorName(combo.brandnameColor, colors)}`
+        : `Schwarz: ${getColorName(combo.brandnameColor, colors)} + ${getColorName(combo.iconColor, colors)}`;
+    } else if (combo.background.type === 'gradient') {
+      displayName = combo.brandnameColor === combo.iconColor
+        ? `${combo.background.name} Gradient: Beide ${getColorName(combo.brandnameColor, colors)}`
+        : `${combo.background.name} Gradient: ${getColorName(combo.brandnameColor, colors)} + ${getColorName(combo.iconColor, colors)}`;
+    } else {
+      displayName = combo.brandnameColor === combo.iconColor
+        ? `${getColorName(combo.background.value, colors)}: Beide ${getColorName(combo.brandnameColor, colors)}`
+        : `${getColorName(combo.background.value, colors)}: ${getColorName(combo.brandnameColor, colors)} + ${getColorName(combo.iconColor, colors)}`;
+    }
+
+    return {
+      id: combo.id,
+      name: displayName,
+      brandNameColor: combo.brandnameColor,
+      iconColor: combo.iconColor,
+      backgroundColor: combo.background.value,
+      sloganColor: combo.brandnameColor, // Use same as brand name for consistency
+      hasGradient: combo.background.type === 'gradient'
+    };
+  });
 }
 
 // Bestimmt die anzuwendende Farbregel basierend auf der Auswahl
