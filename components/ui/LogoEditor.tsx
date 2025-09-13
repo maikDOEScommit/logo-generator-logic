@@ -377,12 +377,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (!svgRef.current) return;
-      
-      const rect = svgRef.current.getBoundingClientRect();
-      const point = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      };
+
+      // Use the helper function for consistent coordinate calculation
+      const point = screenToSVGPoint(e.clientX, e.clientY);
 
       // Handle rotation
       if (isRotating && rotatingBox && rotationStart) {
@@ -514,40 +511,24 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     onConfigUpdate(updates);
   };
 
-  // Drawing functions - Updated for SVG coordinates with viewBox
+  // Helper function to convert screen coordinates to SVG coordinates
+  const screenToSVGPoint = (clientX: number, clientY: number): Point => {
+    const svg = svgRef.current;
+    if (!svg) return { x: 0, y: 0 };
+
+    // Use the browser's built-in SVG coordinate transformation
+    const pt = new DOMPoint(clientX, clientY);
+    const svgPoint = pt.matrixTransform(svg.getScreenCTM()?.inverse());
+
+    return {
+      x: svgPoint.x,
+      y: svgPoint.y
+    };
+  };
+
+  // Drawing functions - Fixed coordinate calculation
   const getPointFromEvent = (e: React.MouseEvent): Point => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-
-    const rect = canvas.getBoundingClientRect();
-    let x = e.clientX - rect.left;
-    let y = e.clientY - rect.top;
-
-    // Convert from DOM coordinates to SVG viewBox coordinates (0-400 range)
-    // The canvas is aspect-square, so width === height
-    const canvasSize = Math.min(rect.width, rect.height); // Use the smaller dimension to ensure aspect ratio
-
-    // Scale coordinates to SVG viewBox (400x400)
-    x = (x / canvasSize) * 400;
-    y = (y / canvasSize) * 400;
-
-    // Adjust coordinates for zoom scaling
-    if (isZoomed) {
-      // When zoomed 2x with CSS transform, the visual content is scaled up 2x, so mouse coordinates need to be scaled down
-      const scaleFactor = 2;
-      const centerX = 200; // Center of 400x400 viewBox
-      const centerY = 200;
-
-      // Convert to relative position from center
-      const relativeX = x - centerX;
-      const relativeY = y - centerY;
-
-      // Scale DOWN the relative position to compensate for visual scaling
-      x = centerX + (relativeX / scaleFactor);
-      y = centerY + (relativeY / scaleFactor);
-    }
-
-    return { x, y };
+    return screenToSVGPoint(e.clientX, e.clientY);
   };
 
   // Convert logo element to canvas strokes - improved version
@@ -1299,12 +1280,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 })));
                 
                 // Start moving immediately
-                const svg = e.currentTarget.ownerSVGElement;
-                if (!svg) return;
-                const rect = svg.getBoundingClientRect();
+                const startPoint = screenToSVGPoint(e.clientX, e.clientY);
                 setMoveStart({
-                  startX: e.clientX - rect.left,
-                  startY: e.clientY - rect.top,
+                  startX: startPoint.x,
+                  startY: startPoint.y,
                   originalBox: { ...box }
                 });
                 setIsMoving(true);
@@ -1336,12 +1315,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     setIsResizing(true);
                     setResizingBox(box.id);
                     setResizeHandle('tl');
-                    const svg = e.currentTarget.ownerSVGElement;
-                    if (!svg) return;
-                    const rect = svg.getBoundingClientRect();
+                    const startPoint = screenToSVGPoint(e.clientX, e.clientY);
                     setResizeStart({
-                      startX: e.clientX - rect.left,
-                      startY: e.clientY - rect.top,
+                      startX: startPoint.x,
+                      startY: startPoint.y,
                       originalBox: { ...box }
                     });
                   }}
@@ -1359,12 +1336,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     setIsResizing(true);
                     setResizingBox(box.id);
                     setResizeHandle('tr');
-                    const svg = e.currentTarget.ownerSVGElement;
-                    if (!svg) return;
-                    const rect = svg.getBoundingClientRect();
+                    const startPoint = screenToSVGPoint(e.clientX, e.clientY);
                     setResizeStart({
-                      startX: e.clientX - rect.left,
-                      startY: e.clientY - rect.top,
+                      startX: startPoint.x,
+                      startY: startPoint.y,
                       originalBox: { ...box }
                     });
                   }}
@@ -1382,12 +1357,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     setIsResizing(true);
                     setResizingBox(box.id);
                     setResizeHandle('bl');
-                    const svg = e.currentTarget.ownerSVGElement;
-                    if (!svg) return;
-                    const rect = svg.getBoundingClientRect();
+                    const startPoint = screenToSVGPoint(e.clientX, e.clientY);
                     setResizeStart({
-                      startX: e.clientX - rect.left,
-                      startY: e.clientY - rect.top,
+                      startX: startPoint.x,
+                      startY: startPoint.y,
                       originalBox: { ...box }
                     });
                   }}
@@ -1405,12 +1378,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     setIsResizing(true);
                     setResizingBox(box.id);
                     setResizeHandle('br');
-                    const svg = e.currentTarget.ownerSVGElement;
-                    if (!svg) return;
-                    const rect = svg.getBoundingClientRect();
+                    const startPoint = screenToSVGPoint(e.clientX, e.clientY);
                     setResizeStart({
-                      startX: e.clientX - rect.left,
-                      startY: e.clientY - rect.top,
+                      startX: startPoint.x,
+                      startY: startPoint.y,
                       originalBox: { ...box }
                     });
                   }}
@@ -1432,11 +1403,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     const svg = e.currentTarget.ownerSVGElement;
                     if (!svg) return;
                     
-                    const rect = svg.getBoundingClientRect();
-                    const point = {
-                      x: e.clientX - rect.left,
-                      y: e.clientY - rect.top
-                    };
+                    const point = screenToSVGPoint(e.clientX, e.clientY);
                     
                     const centerX = box.x + box.width / 2;
                     const centerY = box.y + box.height / 2;
@@ -2228,7 +2195,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   }}
                   onMouseDown={startDrawing}
                   onMouseMove={(e) => {
-                    // Update cursor position for custom cursor display
+                    // Update cursor position for custom cursor display using canvas rect
                     const rect = canvasRef.current?.getBoundingClientRect();
                     if (rect) {
                       setCursorPosition({
@@ -2670,6 +2637,170 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                           <div className="flex items-center justify-between">
                             <span className="text-white/70 text-xs">Slogan Position:</span>
                             <span className="text-white/50 text-xs">x: {Math.round(logoElements.slogan.x)}, y: {Math.round(logoElements.slogan.y)}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Layout Positioning Buttons */}
+                      <div className="mt-4 p-3 bg-black/20 rounded-lg">
+                        <label className="block text-white/80 text-sm mb-3">Standard Layouts</label>
+
+                        {/* Icon Layout Buttons */}
+                        {logoElements.icon && !logoElements.icon.permanent && (
+                          <div className="mb-3">
+                            <span className="text-white/60 text-xs mb-2 block">Icon Position:</span>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    icon: prev.icon ? { ...prev.icon, x: 120, y: 200 } : prev.icon
+                                  }));
+                                }}
+                                className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white text-xs rounded transition-colors"
+                              >
+                                ← Links
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    icon: prev.icon ? { ...prev.icon, x: 280, y: 200 } : prev.icon
+                                  }));
+                                }}
+                                className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white text-xs rounded transition-colors"
+                              >
+                                Rechts →
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    icon: prev.icon ? { ...prev.icon, x: 200, y: 120 } : prev.icon
+                                  }));
+                                }}
+                                className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white text-xs rounded transition-colors"
+                              >
+                                ↑ Oben
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    icon: prev.icon ? { ...prev.icon, x: 200, y: 280 } : prev.icon
+                                  }));
+                                }}
+                                className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white text-xs rounded transition-colors"
+                              >
+                                ↓ Unten
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Brand Layout Buttons */}
+                        {logoElements.brand && !logoElements.brand.permanent && (
+                          <div className="mb-3">
+                            <span className="text-white/60 text-xs mb-2 block">Brand Position:</span>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    brand: prev.brand ? { ...prev.brand, x: 120, y: 200 } : prev.brand
+                                  }));
+                                }}
+                                className="px-3 py-2 bg-green-600/80 hover:bg-green-600 text-white text-xs rounded transition-colors"
+                              >
+                                ← Links
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    brand: prev.brand ? { ...prev.brand, x: 280, y: 200 } : prev.brand
+                                  }));
+                                }}
+                                className="px-3 py-2 bg-green-600/80 hover:bg-green-600 text-white text-xs rounded transition-colors"
+                              >
+                                Rechts →
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    brand: prev.brand ? { ...prev.brand, x: 200, y: 120 } : prev.brand
+                                  }));
+                                }}
+                                className="px-3 py-2 bg-green-600/80 hover:bg-green-600 text-white text-xs rounded transition-colors"
+                              >
+                                ↑ Oben
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    brand: prev.brand ? { ...prev.brand, x: 200, y: 280 } : prev.brand
+                                  }));
+                                }}
+                                className="px-3 py-2 bg-green-600/80 hover:bg-green-600 text-white text-xs rounded transition-colors"
+                              >
+                                ↓ Unten
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Slogan Layout Buttons */}
+                        {logoElements.slogan && !logoElements.slogan.permanent && (
+                          <div className="mb-3">
+                            <span className="text-white/60 text-xs mb-2 block">Slogan Position:</span>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    slogan: prev.slogan ? { ...prev.slogan, x: 120, y: 200 } : prev.slogan
+                                  }));
+                                }}
+                                className="px-3 py-2 bg-purple-600/80 hover:bg-purple-600 text-white text-xs rounded transition-colors"
+                              >
+                                ← Links
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    slogan: prev.slogan ? { ...prev.slogan, x: 280, y: 200 } : prev.slogan
+                                  }));
+                                }}
+                                className="px-3 py-2 bg-purple-600/80 hover:bg-purple-600 text-white text-xs rounded transition-colors"
+                              >
+                                Rechts →
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    slogan: prev.slogan ? { ...prev.slogan, x: 200, y: 120 } : prev.slogan
+                                  }));
+                                }}
+                                className="px-3 py-2 bg-purple-600/80 hover:bg-purple-600 text-white text-xs rounded transition-colors"
+                              >
+                                ↑ Oben
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    slogan: prev.slogan ? { ...prev.slogan, x: 200, y: 280 } : prev.slogan
+                                  }));
+                                }}
+                                className="px-3 py-2 bg-purple-600/80 hover:bg-purple-600 text-white text-xs rounded transition-colors"
+                              >
+                                ↓ Unten
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
