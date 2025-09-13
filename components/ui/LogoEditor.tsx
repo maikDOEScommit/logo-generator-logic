@@ -514,7 +514,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     onConfigUpdate(updates);
   };
 
-  // Drawing functions
+  // Drawing functions - Updated for SVG coordinates with viewBox
   const getPointFromEvent = (e: React.MouseEvent): Point => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
@@ -523,12 +523,20 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     let x = e.clientX - rect.left;
     let y = e.clientY - rect.top;
 
+    // Convert from DOM coordinates to SVG viewBox coordinates (0-400 range)
+    // The canvas is aspect-square, so width === height
+    const canvasSize = Math.min(rect.width, rect.height); // Use the smaller dimension to ensure aspect ratio
+
+    // Scale coordinates to SVG viewBox (400x400)
+    x = (x / canvasSize) * 400;
+    y = (y / canvasSize) * 400;
+
     // Adjust coordinates for zoom scaling
     if (isZoomed) {
       // When zoomed 2x with CSS transform, the visual content is scaled up 2x, so mouse coordinates need to be scaled down
       const scaleFactor = 2;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
+      const centerX = 200; // Center of 400x400 viewBox
+      const centerY = 200;
 
       // Convert to relative position from center
       const relativeX = x - centerX;
