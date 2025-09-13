@@ -73,6 +73,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [brushOpacity, setBrushOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
   const [brushLineCap, setBrushLineCap] = useState<'round' | 'square'>('round'); // Line cap for brush
   const [eraserOpacity, setEraserOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
+  const [eraserMode, setEraserMode] = useState<'brush' | 'line'>('brush'); // Eraser mode: brush or line
   const [boxOpacity, setBoxOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
   const [boxStrokeColor, setBoxStrokeColor] = useState('#000000');
   const [boxFillColor, setBoxFillColor] = useState('#ff0000');
@@ -136,11 +137,12 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const svgRef = useRef<SVGSVGElement>(null);
   const drawingRef = useRef({ drawing: false, startPoint: null as Point | null });
   
-  // Sync local config with props (but preserve user-selected font)
+  // Sync local config with props (but preserve user-selected font and fontWeight)
   useEffect(() => {
     setLocalConfig(prev => ({
       ...config,
-      font: prev?.font || config.font // Preserve selected font
+      font: prev?.font || config.font, // Preserve selected font
+      fontWeight: prev?.fontWeight || config.fontWeight // Preserve selected font weight
     }));
     // Update colors based on the variation or fallback to config colors
     if (variation) {
@@ -340,7 +342,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       return;
     }
     
-    if (drawingTool === 'brush' || drawingTool === 'eraser') {
+    if (drawingTool === 'brush' || (drawingTool === 'eraser' && eraserMode === 'brush')) {
       const newStroke: Stroke = {
         id: `stroke-${Date.now()}`,
         tool: drawingTool,
@@ -355,6 +357,14 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         lineCap: brushLineCap // Use brushLineCap for both brush and eraser
       };
       setCurrentStroke(newStroke);
+      setIsDrawing(true);
+      drawingRef.current.drawing = true;
+    } else if (drawingTool === 'eraser' && eraserMode === 'line') {
+      // Line erasing mode
+      setCurrentLine({
+        start: point,
+        end: point
+      });
       setIsDrawing(true);
       drawingRef.current.drawing = true;
     } else if (drawingTool === 'box') {
@@ -420,7 +430,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       return;
     }
     
-    if ((drawingTool === 'brush' || drawingTool === 'eraser') && currentStroke) {
+    if ((drawingTool === 'brush' || (drawingTool === 'eraser' && eraserMode === 'brush')) && currentStroke) {
       setCurrentStroke({
         ...currentStroke,
         points: [...currentStroke.points, point]
@@ -445,7 +455,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         width: normalizedBox.width,
         height: normalizedBox.height
       });
-    } else if (drawingTool === 'line' && currentLine) {
+    } else if ((drawingTool === 'line' || (drawingTool === 'eraser' && eraserMode === 'line')) && currentLine) {
       setCurrentLine({
         ...currentLine,
         end: point
@@ -509,16 +519,20 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           ? { ...layer, strokes: [...layer.strokes, currentStroke] }
           : layer
       ));
-    } else if (drawingTool === 'line' && currentLine) {
+    } else if ((drawingTool === 'line' || (drawingTool === 'eraser' && eraserMode === 'line')) && currentLine) {
       // Create a line stroke from the current line
       const lineStroke: Stroke = {
         id: `line-${Date.now()}`,
-        tool: 'line',
+        tool: drawingTool === 'eraser' ? 'eraser' : 'line',
         points: [currentLine.start, currentLine.end],
-        color: lineColor,
-        width: lineWidth,
-        opacity: brushOpacity / 10, // Use brush opacity for line tool
-        lineCap: lineCap
+        color: drawingTool === 'eraser' ? 
+          (variation?.backgroundColor?.includes('linear-gradient') 
+            ? '#FFFFFF' 
+            : (variation?.backgroundColor || localConfig.palette?.colors[0] || '#FFFFFF')) 
+          : lineColor,
+        width: drawingTool === 'eraser' ? brushSize : lineWidth,
+        opacity: drawingTool === 'eraser' ? (eraserOpacity / 10) : (brushOpacity / 10),
+        lineCap: drawingTool === 'eraser' ? brushLineCap : lineCap
       };
       
       setEditLayers(prev => prev.map(layer => 
@@ -875,7 +889,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     const isCircleLayout = logoConfig.layout?.id === 'circle-enclosed';
     const dynamicFontSize = getDynamicFontSize(logoConfig.text.length, isCircleLayout);
     
-    console.log('renderLogoContent called with fontWeight:', logoConfig.fontWeight);
     
     if (isCircleLayout && logoConfig.enclosingShape) {
       // For circle layouts: show enclosing shape as background with content inside
@@ -1289,6 +1302,32 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         </button>
                       </div>
                       <p className="text-white/60 text-xs mt-2">Klicke auf Elemente im Logo um Farben zu sampeln</p>
+                    </div>
+                  )}
+
+                  {/* Eraser Mode Settings */}
+                  {drawingTool === 'eraser' && (
+                    <div className="bg-white/10 rounded p-3 mb-4">
+                      <label className="block text-white/80 text-sm mb-2">Eraser-Modus</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => setEraserMode('brush')}
+                          className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                            eraserMode === 'brush' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                          }`}
+                        >
+                          <Brush size={14} />
+                          Brush
+                        </button>
+                        <button
+                          onClick={() => setEraserMode('line')}
+                          className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                            eraserMode === 'line' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                          }`}
+                        >
+                          📏 Line
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -1707,8 +1746,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             <button
                               key={weight}
                               onClick={() => {
-                                console.log('Setting fontWeight to:', weight);
-                                updateLocalConfig({ fontWeight: weight });
+                                setLocalConfig(prev => ({
+                                  ...prev,
+                                  fontWeight: weight
+                                }));
+                                onConfigUpdate({ fontWeight: weight });
                               }}
                               className={`px-3 py-2 rounded border text-xs transition-colors ${
                                 (localConfig.fontWeight || 400) === weight 
