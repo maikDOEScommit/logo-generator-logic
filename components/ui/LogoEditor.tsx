@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
-import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette, Move, Maximize, Expand } from 'lucide-react';
+import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette, Move, Maximize, Expand, Layers, Eye, EyeOff, Plus, ArrowUp, ArrowDown, Trash2, Palette, Type } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
 
 interface LogoEditorProps {
@@ -64,7 +64,11 @@ interface EditLayer {
   id: string;
   name: string;
   visible: boolean;
+  type: 'background' | 'elements' | 'drawing';
   strokes: Stroke[];
+  backgroundColor?: string; // For background layer
+  elements?: (TextElement | IconElement | BoxShape)[]; // For elements layer
+  order: number; // Layer order (higher number = top layer)
 }
 
 // New interfaces for moveable logo elements
@@ -189,14 +193,17 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [currentLine, setCurrentLine] = useState<{ start: Point; end: Point } | null>(null);
   const [currentStroke, setCurrentStroke] = useState<Stroke | null>(null);
   const [editLayers, setEditLayers] = useState<EditLayer[]>([
-    { id: 'layer-1', name: 'Background Layer', visible: true, strokes: [] },
-    { id: 'layer-2', name: 'Elements Layer', visible: true, strokes: [] }
+    { id: 'layer-1', name: 'Background Layer', visible: true, type: 'background', strokes: [], backgroundColor: 'transparent', order: 1 },
+    { id: 'layer-2', name: 'Elements Layer', visible: true, type: 'elements', strokes: [], elements: [], order: 2 },
+    { id: 'layer-3', name: 'Drawing Layer', visible: true, type: 'drawing', strokes: [], order: 3 }
   ]);
-  const [activeLayer, setActiveLayer] = useState<string>('layer-2');
+  const [activeLayer, setActiveLayer] = useState<string>('layer-3');
   
   // Canvas refs
   const canvasRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const initializedRef = useRef<boolean>(false);
+  const variationInitializedRef = useRef<string | null>(null);
   const drawingRef = useRef({ drawing: false, startPoint: null as Point | null });
   
   // Sync local config with props (but preserve user-selected font, fontWeight, and colors)
@@ -207,20 +214,42 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       fontWeight: prev?.fontWeight || config.fontWeight // Preserve selected font weight
     }));
 
-    // Only update colors if they haven't been set by user yet (initial load)
-    // This prevents color picker reset on every config change
-    if (iconColor === '#000000' && brandNameColor === '#000000' && sloganColor === '#000000') {
-      if (variation) {
-        setIconColor(variation.iconColor);
-        setBrandNameColor(variation.brandNameColor);
-        setSloganColor(variation.sloganColor);
-      } else if (config.palette?.colors) {
+    // Initialize colors from variation when a new variation is loaded
+    if (variation && variationInitializedRef.current !== variation.id) {
+      console.log('🎨 Initializing colors from variation:', variation.id, {
+        brandName: variation.brandNameColor,
+        icon: variation.iconColor,
+        slogan: variation.sloganColor,
+        background: variation.backgroundColor
+      });
+      setIconColor(variation.iconColor);
+      setBrandNameColor(variation.brandNameColor);
+      setSloganColor(variation.sloganColor);
+      variationInitializedRef.current = variation.id;
+    } else if (!variation && variationInitializedRef.current !== null) {
+      // Fallback to palette colors when no variation
+      if (config.palette?.colors) {
         setIconColor(config.palette.colors[1] || config.palette.colors[0] || '#000000');
         setBrandNameColor(config.palette.colors[0] || '#000000');
         setSloganColor(config.palette.colors[1] || config.palette.colors[0] || '#000000');
       }
+      variationInitializedRef.current = null;
     }
   }, [config, variation]);
+
+  // Initialize background layer with variation background color
+  useEffect(() => {
+    if (variation && variation.backgroundColor) {
+      console.log('🖼️ Initializing background color from variation:', variation.id, variation.backgroundColor);
+      setEditLayers(prevLayers =>
+        prevLayers.map(layer =>
+          layer.type === 'background'
+            ? { ...layer, backgroundColor: variation.backgroundColor }
+            : layer
+        )
+      );
+    }
+  }, [variation]);
 
   // Sync current font weight with localConfig
   useEffect(() => {
@@ -243,7 +272,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     }
   }, [localConfig.font?.name]);
 
-  // Initialize logo elements based on current config
+  // Initialize logo elements based on current config and layout arrangement
   useEffect(() => {
     const canvasWidth = 400;
     const canvasHeight = 300;
@@ -254,14 +283,41 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       icon?: IconElement;
     } = {};
 
+    // Get layout arrangement from config
+    const layoutArrangement = localConfig.layout?.arrangement || 'icon-top';
+    console.log('🎯 Initializing logo elements with layout:', layoutArrangement);
+
+    // Calculate positions based on layout arrangement
+    let brandX = canvasWidth / 2;
+    let brandY = canvasHeight / 2;
+    let sloganX = canvasWidth / 2;
+    let sloganY = canvasHeight / 2 + 30;
+    let iconX = canvasWidth / 2;
+    let iconY = canvasHeight / 2 - 50;
+
+    // Im Editor immer mittig zentrieren, unabhängig vom ursprünglichen Layout
+    // Kompakte, zentrierte Anordnung für bessere Bearbeitung
+    iconX = canvasWidth / 2;
+    iconY = canvasHeight / 2 - 40;  // Icon oben
+    brandX = canvasWidth / 2;
+    brandY = canvasHeight / 2;      // Brand in der Mitte
+    sloganX = canvasWidth / 2;
+    sloganY = canvasHeight / 2 + 25; // Slogan unten
+
+    console.log('🎯 Logo elements positioned centrally:', {
+      icon: { x: iconX, y: iconY },
+      brand: { x: brandX, y: brandY },
+      slogan: { x: sloganX, y: sloganY }
+    });
+
     // Initialize brand name element
     if (localConfig.text) {
       newElements.brand = {
         id: 'brand-text',
         type: 'brand',
         text: localConfig.text,
-        x: canvasWidth / 2,
-        y: canvasHeight / 2 - 20,
+        x: brandX,
+        y: brandY,
         fontSize: 24,
         fontFamily: localConfig.font?.cssName || 'Inter, sans-serif',
         fontWeight: currentFontWeight,
@@ -280,8 +336,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         id: 'slogan-text',
         type: 'slogan',
         text: localConfig.slogan,
-        x: canvasWidth / 2,
-        y: canvasHeight / 2 + 20,
+        x: sloganX,
+        y: sloganY,
         fontSize: 14,
         fontFamily: localConfig.font?.cssName || 'Inter, sans-serif',
         fontWeight: 300,
@@ -300,8 +356,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         id: 'icon-element',
         type: 'icon',
         icon: localConfig.icon.component,
-        x: canvasWidth / 2,
-        y: canvasHeight / 2 - 60,
+        x: iconX,
+        y: iconY,
         size: 48,
         color: iconColor,
         selected: false,
@@ -312,7 +368,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     }
 
     setLogoElements(newElements);
-  }, [localConfig.text, localConfig.slogan, localConfig.icon, localConfig.font?.cssName, currentFontWeight, brandNameColor, sloganColor, iconColor]);
+  }, [localConfig.text, localConfig.slogan, localConfig.icon, localConfig.layout?.arrangement, localConfig.font?.cssName, currentFontWeight, brandNameColor, sloganColor, iconColor]);
 
   // Global mouse events for rotation, resize, and move
   useEffect(() => {
@@ -466,7 +522,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
     // Adjust coordinates for zoom scaling
     if (isZoomed) {
-      // When zoomed 2x, the content is scaled but the mouse coordinates need to be scaled down
+      // When zoomed 2x with CSS transform, the visual content is scaled up 2x, so mouse coordinates need to be scaled down
       const scaleFactor = 2;
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
@@ -475,7 +531,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       const relativeX = x - centerX;
       const relativeY = y - centerY;
 
-      // Scale down the relative position
+      // Scale DOWN the relative position to compensate for visual scaling
       x = centerX + (relativeX / scaleFactor);
       y = centerY + (relativeY / scaleFactor);
     }
@@ -1020,8 +1076,25 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         className="absolute inset-0 w-full h-full"
         style={{ zIndex: 10 }}
       >
+        {/* Render background layers first */}
+        {editLayers
+          .filter(layer => layer.visible && layer.type === 'background' && layer.backgroundColor && layer.backgroundColor !== 'transparent')
+          .sort((a, b) => a.order - b.order) // Sort by order, lowest first (bottom layer first)
+          .map(layer => (
+            <rect
+              key={`bg-${layer.id}`}
+              x="0"
+              y="0"
+              width="100%"
+              height="100%"
+              fill={layer.backgroundColor}
+            />
+          ))}
+
         {/* Render existing strokes */}
-        {editLayers.map(layer => 
+        {editLayers
+          .sort((a, b) => a.order - b.order) // Sort by order, lowest first
+          .map(layer =>
           layer.visible && layer.strokes.map(stroke => {
             if (stroke.tool === 'box' && stroke.rect) {
               const centerX = stroke.rect.x + stroke.rect.width / 2;
@@ -1115,7 +1188,62 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             }
           })
         )}
-        
+
+        {/* Render elements from layers */}
+        {editLayers
+          .filter(layer => layer.visible && layer.type === 'elements' && layer.elements)
+          .sort((a, b) => a.order - b.order)
+          .map(layer =>
+            layer.elements!.map(element => {
+              if (element.type === 'brand' || element.type === 'slogan') {
+                const textElement = element as TextElement;
+                return (
+                  <text
+                    key={textElement.id}
+                    x={textElement.x}
+                    y={textElement.y}
+                    textAnchor={textElement.textAlign === 'left' ? 'start' : textElement.textAlign === 'right' ? 'end' : 'middle'}
+                    dominantBaseline="middle"
+                    fontSize={textElement.fontSize}
+                    fontFamily={textElement.fontFamily}
+                    fontWeight={textElement.fontWeight}
+                    fill={textElement.color}
+                    transform={`rotate(${textElement.rotation} ${textElement.x} ${textElement.y})`}
+                    opacity={textElement.opacity}
+                    style={{ pointerEvents: 'all', userSelect: 'none' }}
+                  >
+                    {textElement.text}
+                  </text>
+                );
+              } else if (element.type === 'icon') {
+                const iconElement = element as IconElement;
+                return (
+                  <g
+                    key={iconElement.id}
+                    transform={`translate(${iconElement.x - iconElement.size/2}, ${iconElement.y - iconElement.size/2}) rotate(${iconElement.rotation} ${iconElement.size/2} ${iconElement.size/2})`}
+                    opacity={iconElement.opacity}
+                    style={{ pointerEvents: 'all' }}
+                  >
+                    <foreignObject
+                      width={iconElement.size}
+                      height={iconElement.size}
+                      style={{ overflow: 'visible' }}
+                    >
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <iconElement.icon
+                          size={iconElement.size}
+                          color={iconElement.color}
+                        />
+                      </div>
+                    </foreignObject>
+                  </g>
+                );
+              }
+              return null;
+            })
+          )
+        }
+
         {/* Render boxes */}
         {boxes.map(box => (
           <g key={box.id} transform={`rotate(${box.rotation} ${box.x + box.width/2} ${box.y + box.height/2})`}>
@@ -1670,6 +1798,176 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     setShowSaveModal(true);
   };
 
+  // Layer management functions
+  const addLayer = (type: 'background' | 'elements' | 'drawing') => {
+    const newId = `layer-${Date.now()}`;
+    const maxOrder = Math.max(...editLayers.map(l => l.order));
+    const newLayer: EditLayer = {
+      id: newId,
+      name: `${type.charAt(0).toUpperCase() + type.slice(1)} Layer`,
+      visible: true,
+      type,
+      strokes: [],
+      order: maxOrder + 1
+    };
+
+    if (type === 'background') {
+      newLayer.backgroundColor = '#ffffff';
+    } else if (type === 'elements') {
+      newLayer.elements = [];
+    }
+
+    setEditLayers(prev => [...prev, newLayer]);
+    setActiveLayer(newId);
+  };
+
+  const deleteLayer = (layerId: string) => {
+    if (editLayers.length <= 1) return; // Don't delete if it's the only layer
+
+    setEditLayers(prev => prev.filter(layer => layer.id !== layerId));
+
+    // If we're deleting the active layer, switch to another layer
+    if (activeLayer === layerId) {
+      const remainingLayers = editLayers.filter(layer => layer.id !== layerId);
+      setActiveLayer(remainingLayers[0]?.id || '');
+    }
+  };
+
+  const moveLayerUp = (layerId: string) => {
+    setEditLayers(prev => {
+      const layer = prev.find(l => l.id === layerId);
+      if (!layer) return prev;
+
+      const layersAbove = prev.filter(l => l.order > layer.order);
+      if (layersAbove.length === 0) return prev; // Already at top
+
+      const nextLayer = layersAbove.reduce((min, l) => l.order < min.order ? l : min);
+
+      return prev.map(l => {
+        if (l.id === layerId) return { ...l, order: nextLayer.order };
+        if (l.id === nextLayer.id) return { ...l, order: layer.order };
+        return l;
+      });
+    });
+  };
+
+  const moveLayerDown = (layerId: string) => {
+    setEditLayers(prev => {
+      const layer = prev.find(l => l.id === layerId);
+      if (!layer) return prev;
+
+      const layersBelow = prev.filter(l => l.order < layer.order);
+      if (layersBelow.length === 0) return prev; // Already at bottom
+
+      const nextLayer = layersBelow.reduce((max, l) => l.order > max.order ? l : max);
+
+      return prev.map(l => {
+        if (l.id === layerId) return { ...l, order: nextLayer.order };
+        if (l.id === nextLayer.id) return { ...l, order: layer.order };
+        return l;
+      });
+    });
+  };
+
+  const updateLayerBackgroundColor = (layerId: string, color: string) => {
+    setEditLayers(prev => prev.map(layer =>
+      layer.id === layerId ? { ...layer, backgroundColor: color } : layer
+    ));
+  };
+
+
+  // Initialize elements when the fullscreen editor is opened or variation changes
+  useEffect(() => {
+    if (showFullscreenEditor) {
+      // Use current editLayers state directly
+      const elementsLayer = editLayers.find(l => l.type === 'elements');
+      const backgroundLayer = editLayers.find(l => l.type === 'background');
+
+      if (!elementsLayer) {
+        return;
+      }
+
+      const elements: (TextElement | IconElement)[] = [];
+
+      // Get colors from variation or fallback to palette/defaults
+      const brandNameColor = variation?.brandNameColor || localConfig.palette?.colors[1] || '#000000';
+      const sloganColor = variation?.sloganColor || localConfig.palette?.colors[1] || '#000000';
+      const iconColor = variation?.iconColor || localConfig.palette?.colors[1] || '#000000';
+
+      // Add brand text element - center it properly in the canvas (384px is typical max-w-2xl width)
+      if (localConfig.text) {
+        const brandElement: TextElement = {
+          id: 'brand-text',
+          type: 'brand',
+          text: localConfig.text,
+          x: 192, // Center of typical 384px canvas
+          y: 160, // Center Y position
+          fontSize: 28,
+          fontFamily: localConfig.font?.name || 'Inter, sans-serif',
+          fontWeight: localConfig.fontWeight || 700,
+          color: brandNameColor,
+          selected: false,
+          permanent: false,
+          rotation: 0,
+          textAlign: 'center',
+          opacity: 1.0
+        };
+        elements.push(brandElement);
+      }
+
+      // Add slogan text element
+      if (localConfig.slogan) {
+        const sloganElement: TextElement = {
+          id: 'slogan-text',
+          type: 'slogan',
+          text: localConfig.slogan,
+          x: 192, // Center in canvas
+          y: 200, // Below brand text
+          fontSize: 14,
+          fontFamily: localConfig.font?.name || 'Inter, sans-serif',
+          fontWeight: 400,
+          color: sloganColor,
+          selected: false,
+          permanent: false,
+          rotation: 0,
+          textAlign: 'center',
+          opacity: 0.8
+        };
+        elements.push(sloganElement);
+      }
+
+      // Add icon element
+      if (localConfig.icon) {
+        const iconElement: IconElement = {
+          id: 'logo-icon',
+          type: 'icon',
+          icon: localConfig.icon.component,
+          x: 120, // Left of center
+          y: 170, // Center Y
+          size: 40,
+          color: iconColor,
+          selected: false,
+          permanent: false,
+          rotation: 0,
+          opacity: 1.0
+        };
+        elements.push(iconElement);
+      }
+
+      // Update the layers
+      setEditLayers(prev => prev.map(layer => {
+        if (layer.id === elementsLayer.id) {
+          return { ...layer, elements };
+        }
+        // Also update background layer with variation background color
+        if (layer.id === backgroundLayer?.id && variation?.backgroundColor) {
+          return { ...layer, backgroundColor: variation.backgroundColor };
+        }
+        return layer;
+      }));
+    }
+  }, [showFullscreenEditor, variation, localConfig]);
+
   const handleTrueFullscreen = () => {
     setIsTrueFullscreen(true);
     // Use HTML5 Fullscreen API
@@ -1872,19 +2170,23 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   />
                 )}
                 
-                <div 
-                  className="relative rounded-lg p-12 w-full aspect-square flex items-center justify-center" 
+                <div
+                  className="relative rounded-lg p-12 w-full aspect-square flex items-center justify-center"
                   key={`logo-preview-${currentFontWeight}-${fontWeightUpdateKey}-${forceRender}-${localConfig.text}-${localConfig.font?.name}`}
                   style={{
                     zIndex: 2,
-                    ...(!variation?.backgroundColor?.includes('linear-gradient') 
-                      ? { backgroundColor: variation?.backgroundColor || '#FFFFFF' }
-                      : {})
+                    // Für Gradienten: Transparent bleiben, damit der Gradient darunter sichtbar ist
+                    // Für normale Farben: Hintergrundfarbe setzen
+                    backgroundColor: variation?.backgroundColor?.includes('linear-gradient')
+                      ? 'transparent'
+                      : (variation?.backgroundColor || editLayers.find(l => l.type === 'background')?.backgroundColor || 'transparent')
                   }}
                 >
                 
-                {/* Original Logo Content */}
-                {renderedLogo}
+                {/* Original Logo Content - Hidden to show SVG elements instead */}
+                <div style={{ opacity: 0, pointerEvents: 'none' }}>
+                  {renderedLogo}
+                </div>
                 
                 {/* Drawing Canvas Overlay */}
                 <div
@@ -1984,7 +2286,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             </div>
 
             {/* Editor Controls Side */}
-            <div className="w-96 p-8 overflow-y-auto bg-gradient-to-b from-gray-800/50 to-gray-900/80 backdrop-blur-sm">
+            <div className="w-[430px] p-8 overflow-y-auto bg-gradient-to-b from-gray-800/50 to-gray-900/80 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
                 <div>
                   <h3 className="text-white font-bold text-2xl mb-1">Edit Logo</h3>
@@ -2064,31 +2366,124 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   </div>
 
                   {/* Layer Selection */}
-                  <div className="bg-white/10 rounded p-3 mb-4">
-                    <h5 className="text-white/80 font-medium text-sm mb-2">Ebenen (Layers)</h5>
-                    <div className="space-y-2">
-                      {editLayers.map((layer) => (
+                  <div className="bg-white/5 rounded-xl mb-6 overflow-hidden border border-white/10">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                      <div className="flex items-center gap-2">
+                        <Layers className="w-4 h-4 text-white" />
+                        <span className="font-semibold text-white">Layers</span>
+                      </div>
+                      <div className="flex gap-2">
                         <button
-                          key={layer.id}
-                          onClick={() => setActiveLayer(layer.id)}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded text-sm transition-colors ${
-                            activeLayer === layer.id ? 'bg-blue-600 text-white' : 'bg-white/5 text-white/80 hover:bg-white/10'
-                          }`}
+                          onClick={() => addLayer('drawing')}
+                          className="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs flex items-center gap-1"
                         >
-                          <span className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${layer.visible ? 'bg-green-400' : 'bg-gray-400'}`}></div>
-                            {layer.name}
-                          </span>
-                          <span className="text-xs opacity-60">
-                            {layer.strokes.length} {layer.strokes.length === 1 ? 'Stroke' : 'Strokes'}
-                          </span>
+                          <Plus className="w-3 h-3" /> Drawing
                         </button>
+                        <button
+                          onClick={() => addLayer('elements')}
+                          className="px-2 py-1 bg-purple-600 hover:bg-purple-700 rounded text-xs flex items-center gap-1"
+                        >
+                          <Type className="w-3 h-3" /> Elements
+                        </button>
+                        <button
+                          onClick={() => addLayer('background')}
+                          className="px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-xs flex items-center gap-1"
+                        >
+                          <Palette className="w-3 h-3" /> Background
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-3 space-y-2">
+                      {editLayers
+                        .sort((a, b) => b.order - a.order) // Sort by order, highest first (top layer first)
+                        .map((layer) => (
+                        <div
+                          key={layer.id}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all ${
+                            activeLayer === layer.id
+                              ? "bg-gray-700 border-blue-500"
+                              : "bg-gray-700/50 border-transparent hover:bg-gray-700"
+                          }`}
+                          onClick={() => setActiveLayer(layer.id)}
+                        >
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditLayers(prev => prev.map(l =>
+                                l.id === layer.id ? { ...l, visible: !l.visible } : l
+                              ));
+                            }}
+                          >
+                            {layer.visible ? (
+                              <Eye className="w-4 h-4 text-white" />
+                            ) : (
+                              <EyeOff className="w-4 h-4 text-gray-500" />
+                            )}
+                          </button>
+                          <span className="flex-1 text-sm text-white">{layer.name}</span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveLayerUp(layer.id);
+                              }}
+                              className="p-1 hover:bg-gray-600 rounded"
+                            >
+                              <ArrowUp className="w-3 h-3 text-white" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveLayerDown(layer.id);
+                              }}
+                              className="p-1 hover:bg-gray-600 rounded"
+                            >
+                              <ArrowDown className="w-3 h-3 text-white" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteLayer(layer.id);
+                              }}
+                              className="p-1 hover:bg-gray-600 rounded text-red-400"
+                              disabled={editLayers.length === 1}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
                       ))}
                     </div>
-                    <p className="text-white/50 text-xs mt-2">
-                      Ebene 1: Hintergrund (Platzierte Elemente) • Ebene 2: Zeichnungen
-                    </p>
                   </div>
+
+                  {/* Background Color Selector - Show when background layer is selected */}
+                  {editLayers.find(l => l.id === activeLayer)?.type === 'background' && (
+                    <div className="bg-white/5 rounded-xl mb-6 overflow-hidden border border-white/10">
+                      <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10">
+                        <Palette className="w-4 h-4 text-white" />
+                        <span className="font-semibold text-white">Background Color</span>
+                      </div>
+                      <div className="p-4">
+                        <input
+                          type="color"
+                          value={editLayers.find(l => l.id === activeLayer)?.backgroundColor || '#ffffff'}
+                          onChange={(e) => updateLayerBackgroundColor(activeLayer, e.target.value)}
+                          className="w-full h-12 rounded-lg border border-white/20 bg-transparent"
+                        />
+                        <div className="mt-3 grid grid-cols-6 gap-2">
+                          {['#ffffff', '#f3f4f6', '#e5e7eb', '#d1d5db', '#9ca3af', '#6b7280', '#374151', '#111827', '#000000'].map(color => (
+                            <button
+                              key={color}
+                              onClick={() => updateLayerBackgroundColor(activeLayer, color)}
+                              className="w-8 h-8 rounded border-2 border-white/20 hover:border-white/40 transition-colors"
+                              style={{ backgroundColor: color }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Eyedropper Tool Settings */}
                   {drawingTool === 'eyedropper' && sampledColor && (

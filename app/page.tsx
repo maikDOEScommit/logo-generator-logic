@@ -342,8 +342,28 @@ export default function LogoGeneratorPage() {
 
   // TEMP: Random Logo Generator for Testing
   const generateRandomLogo = () => {
-    // Get random industry
-    const randomIndustry = industries[Math.floor(Math.random() * industries.length)].id;
+    try {
+      console.log('🎲 Random Logo Generator called');
+
+    // Safety check - make sure industries is available (it's an object, not an array)
+    if (!industries || typeof industries !== 'object') {
+      console.error('Industries not available for random generation');
+      return;
+    }
+
+    const industryKeys = Object.keys(industries);
+    if (industryKeys.length === 0) {
+      console.error('No industries found');
+      return;
+    }
+
+    console.log('✅ Industries available:', industryKeys.length, 'items');
+
+    // Get random industry key
+    const randomIndustryKey = industryKeys[Math.floor(Math.random() * industryKeys.length)];
+    const randomIndustry = randomIndustryKey; // Use the key directly as the industry ID
+
+    console.log('🏭 Selected random industry:', randomIndustry);
 
     // Get random personalities (1-2 random ones)
     const allPersonalities = ['innovative', 'professional', 'creative', 'reliable', 'energetic', 'elegant'];
@@ -351,18 +371,46 @@ export default function LogoGeneratorPage() {
       .sort(() => 0.5 - Math.random())
       .slice(0, Math.floor(Math.random() * 2) + 1);
 
+    console.log('🎯 Selected personalities:', randomPersonalities);
+
     // Generate random suggestions based on industry
+    console.log('🔍 Calling getInitialSuggestions with:', randomIndustry, randomPersonalities);
     const randomSuggestions = getInitialSuggestions(randomIndustry, randomPersonalities);
+    console.log('📋 Received suggestions:', randomSuggestions);
+
+    // Safety checks for suggestions (only check what's actually available)
+    if (!randomSuggestions ||
+        !randomSuggestions.suggestedIcons?.length ||
+        !randomSuggestions.suggestedPalettes?.length ||
+        !randomSuggestions.suggestedFonts?.length) {
+      console.error('Insufficient suggestions for random generation:', randomSuggestions);
+      return;
+    }
 
     // Pick random elements from suggestions
     const randomIcon = randomSuggestions.suggestedIcons[Math.floor(Math.random() * randomSuggestions.suggestedIcons.length)];
-    const randomLayout = randomSuggestions.suggestedLayouts[Math.floor(Math.random() * randomSuggestions.suggestedLayouts.length)];
+
+    // Create a simple layout manually since suggestedLayouts doesn't exist
+    const layouts = [
+      { id: 'horizontal', name: 'Horizontal' },
+      { id: 'vertical', name: 'Vertical' },
+      { id: 'stacked', name: 'Stacked' },
+      { id: 'icon-left', name: 'Icon Left' }
+    ];
+    const randomLayout = layouts[Math.floor(Math.random() * layouts.length)];
+
     const randomPalette = randomSuggestions.suggestedPalettes[Math.floor(Math.random() * randomSuggestions.suggestedPalettes.length)];
     const randomFont = randomSuggestions.suggestedFonts[Math.floor(Math.random() * randomSuggestions.suggestedFonts.length)];
 
-    // Generate random brand name
-    const brandNames = ['TechFlow', 'Quantum', 'Nova Labs', 'Apex Pro', 'Vista Digital', 'Fusion Co', 'Stellar Inc', 'Prime Labs'];
-    const randomBrandName = brandNames[Math.floor(Math.random() * brandNames.length)];
+    console.log('🎯 Selected random elements:', {
+      icon: randomIcon?.id || 'unknown',
+      layout: randomLayout.id,
+      palette: randomPalette?.name || 'unknown',
+      font: randomFont?.name || 'unknown'
+    });
+
+    // Use fixed brand name "Random" for testing
+    const randomBrandName = 'Random';
 
     // Generate random slogan
     const slogans = ['Innovation Simplified', 'Your Success Partner', 'Beyond Expectations', 'Excellence Delivered', 'Future Forward', 'Quality First'];
@@ -381,22 +429,47 @@ export default function LogoGeneratorPage() {
       enclosingShape: null
     });
 
-    // Skip all animations and go directly to results
+    // Use the same logic as handleLogoCreation to show loading screen
+    console.log('🔄 Starting logo creation flow...');
+
+    // Exit hero section and prepare for loading
     setExitHeroSection(true);
     setShowPreviewPanel(true);
     setShowTopBorder(true);
     setShowLeftBorder(true);
     setShowStartedText(true);
-    setShowLogoPreview(true);
-    setHideStartedText(true);
 
-    // Set all sections as visible
-    setVisibleSections([0, 1, 2, 3, 4]);
-
-    // Scroll to results after short delay
     setTimeout(() => {
-      scrollToSection('section-4');
-    }, 500);
+      // Show loading screen
+      console.log('📺 Showing loading screen...');
+      setShowLoadingScreen(true);
+
+      setTimeout(() => {
+        // Hide loading screen and show results after 3 seconds
+        console.log('✅ Hiding loading screen and showing results...');
+        setShowLoadingScreen(false);
+
+        // Create the new results section (section 4)
+        const nextSection = 4;
+        if (!visibleSections.includes(nextSection)) {
+          setVisibleSections([...visibleSections, nextSection]);
+        }
+
+        // Show logo preview
+        setShowLogoPreview(true);
+        setHideStartedText(true);
+
+        // Scroll to the new results section
+        scrollToSection(`section-${nextSection}`);
+
+        console.log('🎯 Scrolling to results section...');
+        console.log('✅ Random logo generation completed successfully');
+      }, 3000); // 3 second loading screen
+    }, 1000); // Wait for exit animation
+    } catch (error) {
+      console.error('❌ Error in generateRandomLogo:', error);
+      console.error('Error stack:', error.stack);
+    }
   };
 
   return (
