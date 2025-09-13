@@ -64,7 +64,7 @@ interface EditLayer {
   id: string;
   name: string;
   visible: boolean;
-  type: 'background' | 'elements' | 'drawing';
+  type: 'background' | 'logo' | 'elements' | 'drawing';
   strokes: Stroke[];
   backgroundColor?: string; // For background layer
   elements?: (TextElement | IconElement | BoxShape)[]; // For elements layer
@@ -194,10 +194,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [currentStroke, setCurrentStroke] = useState<Stroke | null>(null);
   const [editLayers, setEditLayers] = useState<EditLayer[]>([
     { id: 'layer-1', name: 'Background Layer', visible: true, type: 'background', strokes: [], backgroundColor: 'transparent', order: 1 },
-    { id: 'layer-2', name: 'Elements Layer', visible: true, type: 'elements', strokes: [], elements: [], order: 2 },
-    { id: 'layer-3', name: 'Drawing Layer', visible: true, type: 'drawing', strokes: [], order: 3 }
+    { id: 'layer-2', name: 'Logo Layer', visible: true, type: 'logo', strokes: [], elements: [], order: 2 },
+    { id: 'layer-3', name: 'Elements Layer', visible: true, type: 'elements', strokes: [], elements: [], order: 3 },
+    { id: 'layer-4', name: 'Drawing Layer', visible: true, type: 'drawing', strokes: [], order: 4 }
   ]);
-  const [activeLayer, setActiveLayer] = useState<string>('layer-3');
+  const [activeLayer, setActiveLayer] = useState<string>('layer-4');
   
   // Canvas refs
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -1474,8 +1475,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           />
         )}
 
-        {/* Render logo elements */}
-        {logoElements.brand && (
+        {/* Render logo elements - controlled by Logo Layer visibility */}
+        {logoElements.brand && editLayers.find(l => l.type === 'logo')?.visible && (
           <text
             x={logoElements.brand.x}
             y={logoElements.brand.y}
@@ -1497,7 +1498,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           </text>
         )}
 
-        {logoElements.slogan && (
+        {logoElements.slogan && editLayers.find(l => l.type === 'logo')?.visible && (
           <text
             x={logoElements.slogan.x}
             y={logoElements.slogan.y}
@@ -1519,7 +1520,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           </text>
         )}
 
-        {logoElements.icon && (
+        {logoElements.icon && editLayers.find(l => l.type === 'logo')?.visible && (
           <g
             transform={`translate(${logoElements.icon.x - logoElements.icon.size/2}, ${logoElements.icon.y - logoElements.icon.size/2}) rotate(${logoElements.icon.rotation} ${logoElements.icon.size/2} ${logoElements.icon.size/2})`}
             className={drawingTool === 'move' && !logoElements.icon.permanent ? 'cursor-move' : 'cursor-default'}
@@ -2185,11 +2186,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       : (variation?.backgroundColor || editLayers.find(l => l.type === 'background')?.backgroundColor || 'transparent')
                   }}
                 >
-                
-                {/* Original Logo Content - Hidden to show SVG elements instead */}
-                <div style={{ opacity: 0, pointerEvents: 'none' }}>
-                  {renderedLogo}
-                </div>
                 
                 {/* Drawing Canvas Overlay */}
                 <div
