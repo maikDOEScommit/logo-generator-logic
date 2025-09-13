@@ -1097,7 +1097,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   return (
     <>
       {/* Menu Panel - slides up from bottom on hover */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-white/20 rounded-b-lg p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-200 z-10 shadow-xl">
+      <div className="absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-white/20 rounded-b-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-xl">
         <div className="flex gap-1 justify-center">
           <button
             onClick={handleEdit}
