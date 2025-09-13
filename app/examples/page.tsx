@@ -153,7 +153,7 @@ export default function ExamplesPage() {
       <motion.div
         key={logo.name}
         variants={itemVariants}
-        className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-2xl group"
+        className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 border border-gray-200 hover:border-gray-300 transition-all duration-300 hover:scale-105 hover:shadow-2xl group shadow-lg"
       >
         <div className="bg-white rounded-xl p-8 mb-6 flex items-center justify-center min-h-[200px] shadow-xl">
           {logo.layout === 'horizontal' ? (
@@ -204,12 +204,12 @@ export default function ExamplesPage() {
             {logo.colors.map((color, i) => (
               <div
                 key={i}
-                className="w-8 h-8 rounded-full border-2 border-white/20"
+                className="w-8 h-8 rounded-full border-2 border-gray-200 shadow-sm"
                 style={{ backgroundColor: color }}
               />
             ))}
           </div>
-          <span className="text-white/60 text-sm font-medium">{logo.industry}</span>
+          <span className="text-gray-600 text-sm font-medium">{logo.industry}</span>
           <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
             <button className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:scale-105 transition-transform">
               Create Similar
@@ -221,7 +221,7 @@ export default function ExamplesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <Header />
       
       {/* Hero Section */}
@@ -232,10 +232,10 @@ export default function ExamplesPage() {
         transition={{ duration: 0.6 }}
       >
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-6 leading-tight py-2">
+          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-6 leading-tight py-2">
             Logo Examples
           </h1>
-          <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-4xl mx-auto">
+          <p className="text-xl md:text-2xl text-gray-700 mb-12 max-w-4xl mx-auto">
             Get inspired by our collection of professional logos created with Lola Gen 2.0. 
             From tech startups to cozy cafes, find the perfect style for your brand.
           </p>
@@ -258,7 +258,7 @@ export default function ExamplesPage() {
                 className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
                   selectedFilter === industry.filter
                     ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+                    : 'bg-white/80 text-gray-700 hover:bg-white hover:text-gray-900 shadow-sm'
                 }`}
               >
                 {industry.name}
@@ -290,19 +290,19 @@ export default function ExamplesPage() {
         transition={{ duration: 0.6, delay: 0.4 }}
       >
         <div className="max-w-6xl mx-auto">
-          <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-12 border border-white/20">
+          <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-12 border border-gray-200 shadow-xl">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
               <div>
-                <h3 className="text-4xl font-bold text-white mb-2">50,000+</h3>
-                <p className="text-white/70">Logos Created</p>
+                <h3 className="text-4xl font-bold text-gray-800 mb-2">50,000+</h3>
+                <p className="text-gray-600">Logos Created</p>
               </div>
               <div>
-                <h3 className="text-4xl font-bold text-white mb-2">4.9/5</h3>
-                <p className="text-white/70">Customer Rating</p>
+                <h3 className="text-4xl font-bold text-gray-800 mb-2">4.9/5</h3>
+                <p className="text-gray-600">Customer Rating</p>
               </div>
               <div>
-                <h3 className="text-4xl font-bold text-white mb-2">100+</h3>
-                <p className="text-white/70">Industries Served</p>
+                <h3 className="text-4xl font-bold text-gray-800 mb-2">100+</h3>
+                <p className="text-gray-600">Industries Served</p>
               </div>
             </div>
           </div>
@@ -317,11 +317,11 @@ export default function ExamplesPage() {
         transition={{ duration: 0.6, delay: 0.6 }}
       >
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-lg rounded-2xl p-12 border border-white/20">
-            <h2 className="text-4xl font-bold text-white mb-4">
+          <div className="bg-gradient-to-r from-blue-100/80 to-purple-100/80 backdrop-blur-lg rounded-2xl p-12 border border-gray-200 shadow-xl">
+            <h2 className="text-4xl font-bold text-gray-800 mb-4">
               Ready to create your logo?
             </h2>
-            <p className="text-xl text-white/80 mb-8">
+            <p className="text-xl text-gray-700 mb-8">
               Join thousands of businesses who trust Lola Gen 2.0 for their branding needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -331,7 +331,7 @@ export default function ExamplesPage() {
                 </button>
               </Link>
               <Link href="/pricing">
-                <button className="bg-white/20 hover:bg-white/30 text-white px-8 py-4 rounded-xl text-lg font-bold transition-all transform hover:scale-105 backdrop-blur-sm">
+                <button className="bg-white/80 hover:bg-white text-gray-800 px-8 py-4 rounded-xl text-lg font-bold transition-all transform hover:scale-105 border border-gray-300 shadow-md">
                   View Pricing
                 </button>
               </Link>

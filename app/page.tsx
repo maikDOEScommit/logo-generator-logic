@@ -535,23 +535,23 @@ export default function LogoGeneratorPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                  <div className="bg-white/5 rounded-lg p-4 relative">
-                    {/* 10% black overlay */}
-                    <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
+                  <div className={`${isDarkMode ? 'bg-transparent' : 'bg-white/5'} rounded-lg p-4 relative`}>
+                    {/* 10% black overlay - only in dark mode */}
+                    <div className={`absolute inset-0 rounded-lg ${isDarkMode ? 'bg-transparent' : 'bg-black/10'}`}></div>
                     <div className="relative z-10">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className={`font-bold ${isDarkMode ? 'text-black' : 'text-white'}`}>Design Quality</h3>
-                        <span className="text-2xl font-bold text-white">82/100</span>
+                        <span className={`text-2xl font-bold ${isDarkMode ? 'text-black' : 'text-white'}`}>82/100</span>
                       </div>
-                      <div className="w-full h-2 bg-white/10 rounded-full mb-3">
+                      <div className={`w-full h-2 rounded-full mb-3 ${isDarkMode ? 'bg-black/10' : 'bg-white/10'}`}>
                         <div
-                          className="h-2 rounded-full bg-white transition-all duration-500"
+                          className={`h-2 rounded-full transition-all duration-500 ${isDarkMode ? 'bg-black' : 'bg-white'}`}
                           style={{ width: "82%" }}
                         />
                       </div>
-                      <div className="mt-4 pt-4 border-t border-white/10">
+                      <div className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-black/10' : 'border-white/10'}`}>
                         <h4 className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-black' : 'text-white'}`}>Improvement suggestions:</h4>
-                        <ul className="text-xs text-white/70 space-y-1">
+                        <ul className={`text-xs space-y-1 ${isDarkMode ? 'text-black/70' : 'text-white/70'}`}>
                           <li className="flex items-start gap-2">
                             <span className="text-primary mt-0.5">•</span>
                             Wählen Sie eine klassische Schriftart und professionelle Farben für mehr Zeitlosigkeit
@@ -576,9 +576,9 @@ export default function LogoGeneratorPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
                 >
-                  <div className="bg-white/5 rounded-lg p-4 relative">
-                    {/* 10% black overlay */}
-                    <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
+                  <div className={`${isDarkMode ? 'bg-transparent' : 'bg-white/5'} rounded-lg p-4 relative`}>
+                    {/* 10% black overlay - only in dark mode */}
+                    <div className={`absolute inset-0 rounded-lg ${isDarkMode ? 'bg-transparent' : 'bg-black/10'}`}></div>
                     <div className="relative z-10">
                       <h3 className={`font-bold mb-4 ${isDarkMode ? 'text-black' : 'text-white'}`}>Typography Style</h3>
                       <div className="space-y-3">
@@ -586,10 +586,10 @@ export default function LogoGeneratorPage() {
                           <button
                             key={category.name}
                             onClick={() => setSelectedFontCategory(category.name)}
-                            className="typography-style-button w-full p-4 rounded-lg border text-left transition-all duration-300 transform hover:scale-[1.02] text-white/80"
+                            className={`typography-style-button w-full p-4 rounded-lg border text-left transition-all duration-300 transform hover:scale-[1.02] ${isDarkMode ? 'text-black/80' : 'text-white/80'}`}
                           >
                             <div className="font-semibold text-sm mb-2">{category.name}</div>
-                            <div className="text-xs text-white/60 leading-relaxed">
+                            <div className={`text-xs leading-relaxed ${isDarkMode ? 'text-black/60' : 'text-white/60'}`}>
                               {category.name === 'Modern' && 'Clean, minimalist fonts for tech companies'}
                               {category.name === 'Elegant' && 'Sophisticated script fonts for luxury brands'}
                               {category.name === 'Bold' && 'Strong, impactful fonts for dynamic companies'}

@@ -109,6 +109,8 @@
     color: white !important;
   }
 
+
+
   /* FORCE: SVG icons in light mode should always be black for visibility */
   html:not(.dark) svg,
   html:not(.dark) button svg {

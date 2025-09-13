@@ -177,6 +177,20 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
   const [colorMode, setColorMode] = useState<'grundton' | 'pastell' | 'neon' | 'dunkel'>('grundton');
   const [selectedColorCombo, setSelectedColorCombo] = useState<string | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  useEffect(() => {
+    const checkTheme = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    };
+    checkTheme();
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    return () => observer.disconnect();
+  }, []);
   const [visibleIconCount, setVisibleIconCount] = useState<number>(24);
   const [selectedBaseColor, setSelectedBaseColor] = useState<string | null>(null);
   const [selectedColorOption, setSelectedColorOption] = useState<string | null>(null);
@@ -351,7 +365,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   No, text only
                 </button>
               </div>
-              <div className="text-xs text-white/60 relative inline-block">                <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>                <span className="relative z-10">Rule 2: Memorability - Simple symbols are remembered better</span>              </div>
+              <div className={`text-xs relative inline-block ${isDarkMode ? 'text-white/60' : 'text-black/70'}`}>                <div className={`absolute inset-0 rounded px-2 -mx-2 ${isDarkMode ? 'bg-black/10' : 'bg-transparent'}`}></div>                <span className="relative z-10">Rule 2: Memorability - Simple symbols are remembered better</span>              </div>
             </motion.div>
           </div>
         </div>
@@ -529,7 +543,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                     </div>
                   ))}
                 </div>
-                <div className="text-xs text-white/60 text-center mt-8 relative inline-block mx-auto">                  <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>                  <span className="relative z-10">Rule 3: Timelessness - Classic fonts outlast trends</span>                </div>
+                <div className={`text-xs text-center mt-8 relative inline-block mx-auto ${isDarkMode ? 'text-white/60' : 'text-black/70'}`}>                  <div className={`absolute inset-0 rounded px-2 -mx-2 ${isDarkMode ? 'bg-black/10' : 'bg-transparent'}`}></div>                  <span className="relative z-10">Rule 3: Timelessness - Classic fonts outlast trends</span>                </div>
               </motion.div>
             </div>
           </div>
@@ -605,7 +619,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   </div>
                 )}
                 
-                  <div className="text-xs text-white/60 relative inline-block">                  <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>                  <span className="relative z-10">Rule 4: Scalability - Standard layouts work at any size</span>                  </div>
+                  <div className={`text-xs relative inline-block ${isDarkMode ? 'text-white/60' : 'text-black/70'}`}>                  <div className={`absolute inset-0 rounded px-2 -mx-2 ${isDarkMode ? 'bg-black/10' : 'bg-transparent'}`}></div>                  <span className="relative z-10">Rule 4: Scalability - Standard layouts work at any size</span>                  </div>
                 </div>
               </motion.div>
             </div>
@@ -616,10 +630,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
               <Section title="Choose a Color Palette" helpText="Rule 9: Smart Color Choice - Colors convey emotions and brand values">
         {/* Brand Personality Selection */}
         <div className="col-span-full mb-6 relative">
-          {/* 10% black overlay */}
-          <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
-          <div className="relative z-10 p-4 bg-white/5 rounded-lg border border-white/10">
-            <label className="block text-lg font-bold mb-3 text-white">Brand Personality (max. 2)</label>
+          {/* 10% black overlay - only in dark mode */}
+          <div className={`absolute inset-0 rounded-lg ${isDarkMode ? 'bg-black/10' : 'bg-transparent'}`}></div>
+          <div className={`relative z-10 p-4 rounded-lg ${isDarkMode ? 'bg-white/5 border border-white/10' : 'bg-transparent border-transparent'}`}>
+            <label className={`block text-lg font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-black'}`}>Brand Personality (max. 2)</label>
             <div className="space-y-3 mb-3">
               {/* First row: 3 shortest buttons */}
               <div className="grid grid-cols-3 gap-3">
@@ -649,10 +663,16 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   ))}
               </div>
             </div>
-            <div className="text-xs text-white/50 relative inline-block">
-              <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>
-              <span className="relative z-10">Rule 6: Relevance - These traits influence color palette suggestions</span>
-            </div>
+            {isDarkMode ? (
+              <div className="text-xs text-white/50 relative inline-block">
+                <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>
+                <span className="relative z-10">Rule 6: Relevance - These traits influence color palette suggestions</span>
+              </div>
+            ) : (
+              <div className="text-xs text-black/70 relative inline-block">
+                <span>Rule 6: Relevance - These traits influence color palette suggestions</span>
+              </div>
+            )}
           </div>
         </div>
         
