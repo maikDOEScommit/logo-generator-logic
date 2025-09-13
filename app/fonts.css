@@ -127,10 +127,11 @@
 }
 @font-face {
   font-family: "Satisfy";
-  src: url("/assets/fonts/elegant/Satisfy/satisfy-regular.woff2")
-      format("woff2"),
-    url("/assets/fonts/elegant/Satisfy/satisfy-regular.woff") format("woff");
-  font-weight: 400;
+  src: url("/assets/fonts/elegant/Satisfy/satisfy-variablefont_wght.woff2")
+      format("woff2-variations"),
+    url("/assets/fonts/elegant/Satisfy/satisfy-variablefont_wght.woff")
+      format("woff-variations");
+  font-weight: 400 700;
   font-style: normal;
   font-display: swap;
 }

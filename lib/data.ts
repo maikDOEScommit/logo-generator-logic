@@ -34,6 +34,11 @@ function createSilverGradient(): string {
 // =================================================================
 // DATEN-ARCHITEKTUR
 // Dies ist die "Single Source of Truth" für alle Design-Optionen.
+//
+// WICHTIGE REGEL:
+// - generationWeights: Nur für die initiale Logo-Generierung (meist 400 als Standard)
+// - editorWeights: Alle verfügbaren Gewichte für die Editoren - User sollen im Editor
+//   keine Blockaden haben und individuell alle verfügbaren font-weights der variable fonts nutzen können
 // =================================================================
 
 // 1. FARBPALETTEN
@@ -71,12 +76,12 @@ export const fontCategories: FontCategory[] = [
   {
     name: "Modern",
     fonts: [
-      { name: "Montserrat", cssName: "'Montserrat'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700] },
-      { name: "Nunito", cssName: "'Nunito'", isVariable: true, generationWeights: [400, 700], editorWeights: [300, 400, 600, 700, 800] },
-      { name: "Open Sans", cssName: "'Open Sans'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 600, 700] },
-      { name: "Plus Jakarta Sans", cssName: "'Plus Jakarta Sans'", isVariable: true, generationWeights: [400, 700], editorWeights: [300, 400, 500, 600, 700] },
-      { name: "Raleway", cssName: "'Raleway'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700, 800] },
-      { name: "Rubik", cssName: "'Rubik'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700] },
+      { name: "Montserrat", cssName: "'Montserrat'", isVariable: true, generationWeights: [400, 600], editorWeights: [100, 200, 300, 400, 500, 600, 700, 800, 900] },
+      { name: "Nunito", cssName: "'Nunito'", isVariable: true, generationWeights: [400, 700], editorWeights: [200, 300, 400, 500, 600, 700, 800, 900, 1000] },
+      { name: "Open Sans", cssName: "'Open Sans'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700, 800] },
+      { name: "Plus Jakarta Sans", cssName: "'Plus Jakarta Sans'", isVariable: true, generationWeights: [400, 700], editorWeights: [200, 300, 400, 500, 600, 700, 800] },
+      { name: "Raleway", cssName: "'Raleway'", isVariable: true, generationWeights: [400, 600], editorWeights: [100, 200, 300, 400, 500, 600, 700, 800, 900] },
+      { name: "Rubik", cssName: "'Rubik'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700, 800, 900] },
     ]
   },
   {
@@ -87,7 +92,7 @@ export const fontCategories: FontCategory[] = [
       { name: "Great Vibes", cssName: "'Great Vibes'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
       { name: "Kaushan Script", cssName: "'Kaushan Script'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
       { name: "Sacramento", cssName: "'Sacramento'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
-      { name: "Satisfy", cssName: "'Satisfy'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
+      { name: "Satisfy", cssName: "'Satisfy'", isVariable: true, generationWeights: [400, 700], editorWeights: [400, 500, 600, 700] },
     ]
   },
   {
@@ -98,7 +103,7 @@ export const fontCategories: FontCategory[] = [
       { name: "Bebas Neue", cssName: "'Bebas Neue'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
       { name: "Bungee", cssName: "'Bungee'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
       { name: "Fjalla One", cssName: "'Fjalla One'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
-      { name: "Oswald", cssName: "'Oswald'", isVariable: true, generationWeights: [500, 700], editorWeights: [400, 500, 600, 700] },
+      { name: "Oswald", cssName: "'Oswald'", isVariable: true, generationWeights: [400, 700], editorWeights: [200, 300, 400, 500, 600, 700] },
     ]
   },
   {
@@ -107,8 +112,8 @@ export const fontCategories: FontCategory[] = [
       { name: "Abril Fatface", cssName: "'Abril Fatface'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
       { name: "Alfa Slab One", cssName: "'Alfa Slab One'", isVariable: false, generationWeights: [400, 400], editorWeights: [400] },
       { name: "Cinzel", cssName: "'Cinzel'", isVariable: true, generationWeights: [400, 700], editorWeights: [400, 500, 600, 700, 800, 900] },
-      { name: "Merriweather", cssName: "'Merriweather'", isVariable: true, generationWeights: [400, 700], editorWeights: [300, 400, 700, 900] },
-      { name: "Petrona", cssName: "'Petrona'", isVariable: true, generationWeights: [400, 600], editorWeights: [300, 400, 500, 600, 700] },
+      { name: "Merriweather", cssName: "'Merriweather'", isVariable: true, generationWeights: [400, 700], editorWeights: [300, 400, 500, 600, 700, 800, 900] },
+      { name: "Petrona", cssName: "'Petrona'", isVariable: true, generationWeights: [400, 600], editorWeights: [100, 200, 300, 400, 500, 600, 700, 800, 900] },
       { name: "Playfair Display", cssName: "'Playfair Display'", isVariable: true, generationWeights: [400, 700], editorWeights: [400, 500, 600, 700, 800, 900] },
     ]
   },

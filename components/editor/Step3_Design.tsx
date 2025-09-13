@@ -330,7 +330,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   onClick={() => {
                     setWantsIcon(true);
                   }}
-                  className="flex-1 bg-black text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-black/25 active:scale-95"
+                  className="flex-1 bg-black !text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-black/25 active:scale-95"
                 >
                   Yes, show me icons
                 </button>
@@ -886,7 +886,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 if (onLogoCreate) onLogoCreate();
               }}
               disabled={!config.layout || !config.palette || (config.layout?.type === 'enclosed' && !config.enclosingShape)}
-              className="w-full bg-black text-white font-bold py-2.5 px-6 rounded-xl shadow-xl shadow-black/30 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl hover:shadow-black/40 hover:rotate-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group border border-white/20"
+              className="w-full bg-black !text-white font-bold py-2.5 px-6 rounded-xl shadow-xl shadow-black/30 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl hover:shadow-black/40 hover:rotate-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group border border-white/20"
             >
               <span className="relative z-10">Create Logo</span>
               <div className="absolute inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

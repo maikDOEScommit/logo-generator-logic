@@ -70,7 +70,11 @@ export const Header = () => {
         <span className="bg-gradient-to-r from-yellow-200 via-yellow-600 to-emerald-300 bg-clip-text text-transparent relative z-10">
           Lola Gen 2.0
         </span>
-        <div className="absolute -inset-y-2 -inset-x-4 bg-black/90 rounded-lg pointer-events-none border-[0.6px] border-solid border-white"></div>
+        <div className={`absolute -inset-y-2 -inset-x-4 rounded-lg pointer-events-none border-[0.6px] border-solid ${
+          isDarkMode
+            ? 'bg-black/90 border-white'
+            : 'bg-white/90 border-gray-300'
+        }`}></div>
       </Link>
       <div className="flex items-center gap-4">
         {/* Navigation Links */}
@@ -105,10 +109,10 @@ export const Header = () => {
         <SignedOut>
           <div className="flex items-center gap-2">
             <SignInButton mode="modal">
-              <button className="text-sm font-medium hover:text-primary transition-colors">Sign In</button>
+              <button className={`text-sm font-medium transition-all duration-300 ${!isDarkMode ? 'text-white hover:text-black hover:scale-110' : 'hover:text-primary'}`}>Sign In</button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="bg-black text-white px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:bg-transparent hover:text-black hover:scale-[1.15] active:scale-95 border border-black">Sign Up</button>
+              <button className="bg-black !text-white px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:bg-transparent hover:!text-white hover:scale-[1.15] active:scale-95 border border-black">Sign Up</button>
             </SignUpButton>
           </div>
         </SignedOut>

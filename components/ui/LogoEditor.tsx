@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
 import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
@@ -79,6 +79,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [brandNameColor, setBrandNameColor] = useState(config.palette?.colors[1] || '#000000');
   const [sloganColor, setSloganColor] = useState(config.palette?.colors[1] || '#000000');
   const [sampledColor, setSampledColor] = useState<string | null>(null);
+  const [currentFontWeight, setCurrentFontWeight] = useState(config.fontWeight || 400);
+  const [fontWeightUpdateKey, setFontWeightUpdateKey] = useState(0);
+  const [forceRender, setForceRender] = useState(0);
   
   // Box drawing state
   const [boxes, setBoxes] = useState<BoxShape[]>([]);
@@ -153,6 +156,28 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       setSloganColor(config.palette?.colors[1] || '#000000');
     }
   }, [config, variation]);
+
+  // Sync current font weight with localConfig
+  useEffect(() => {
+    if (localConfig.fontWeight !== currentFontWeight) {
+      console.log('FontWeight sync: localConfig.fontWeight=', localConfig.fontWeight, 'currentFontWeight=', currentFontWeight);
+      setCurrentFontWeight(localConfig.fontWeight || 400);
+    }
+  }, [localConfig.fontWeight]);
+
+  // Reset font weight when font changes to ensure valid weight
+  useEffect(() => {
+    if (localConfig.font?.editorWeights && localConfig.font.editorWeights.length > 0) {
+      // If current weight is not available in new font, use first available weight
+      if (!localConfig.font.editorWeights.includes(currentFontWeight)) {
+        const newWeight = localConfig.font.editorWeights[0];
+        setCurrentFontWeight(newWeight);
+        setLocalConfig(prev => ({ ...prev, fontWeight: newWeight }));
+        onConfigUpdate({ fontWeight: newWeight });
+      }
+    }
+  }, [localConfig.font?.name]);
+
 
   // Global mouse events for rotation, resize, and move
   useEffect(() => {
@@ -286,24 +311,90 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const sampleColor = (point: Point, e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     let sampledColor: string | null = null;
-    
-    // Try to get color from clicked element
-    if (target) {
-      // Check for SVG elements
-      if (target.tagName === 'text' || target.tagName === 'tspan') {
-        const fill = target.getAttribute('fill') || window.getComputedStyle(target).fill;
-        if (fill && fill !== 'none') {
+
+    // Try to get color from clicked element and its parent elements
+    let currentElement = target;
+    let attempts = 0;
+
+    while (currentElement && attempts < 10) {
+      // Check for SVG elements (text, paths, icons)
+      if (currentElement.tagName === 'text' || currentElement.tagName === 'tspan') {
+        const fill = currentElement.getAttribute('fill') || window.getComputedStyle(currentElement).fill;
+        if (fill && fill !== 'none' && fill !== 'inherit') {
           sampledColor = fill;
+          break;
         }
       }
-      
-      // Check for icon color (from React components)
-      const computedStyle = window.getComputedStyle(target);
-      if (computedStyle.color && computedStyle.color !== 'rgba(0, 0, 0, 0)') {
+
+      // Check for SVG paths (icons)
+      if (currentElement.tagName === 'path' || currentElement.tagName === 'svg') {
+        const fill = currentElement.getAttribute('fill') || currentElement.getAttribute('color');
+        const stroke = currentElement.getAttribute('stroke');
+        if (fill && fill !== 'none' && fill !== 'inherit' && fill !== 'currentColor') {
+          sampledColor = fill;
+          break;
+        }
+        if (stroke && stroke !== 'none' && stroke !== 'inherit') {
+          sampledColor = stroke;
+          break;
+        }
+      }
+
+      // Check computed styles
+      const computedStyle = window.getComputedStyle(currentElement);
+
+      // Try color property (for text and icons)
+      if (computedStyle.color && computedStyle.color !== 'rgba(0, 0, 0, 0)' && computedStyle.color !== 'rgb(0, 0, 0)') {
         sampledColor = computedStyle.color;
+        break;
+      }
+
+      // Try background-color
+      if (computedStyle.backgroundColor && computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' && computedStyle.backgroundColor !== 'transparent') {
+        sampledColor = computedStyle.backgroundColor;
+        break;
+      }
+
+      // Try fill property
+      if (computedStyle.fill && computedStyle.fill !== 'none' && computedStyle.fill !== 'inherit') {
+        sampledColor = computedStyle.fill;
+        break;
+      }
+
+      // Check for custom CSS properties that might contain colors
+      const customProps = ['--brand-color', '--icon-color', '--text-color'];
+      for (const prop of customProps) {
+        const value = computedStyle.getPropertyValue(prop);
+        if (value && value.trim()) {
+          sampledColor = value.trim();
+          break;
+        }
+      }
+
+      if (sampledColor) break;
+
+      currentElement = currentElement.parentElement as HTMLElement;
+      attempts++;
+    }
+
+    // Special handling for specific logo elements by checking classes or data attributes
+    if (!sampledColor && target.closest('.logo-text-preview')) {
+      sampledColor = brandNameColor;
+    } else if (!sampledColor && target.closest('[data-icon]')) {
+      sampledColor = iconColor;
+    }
+
+    // Drawing elements color sampling
+    if (!sampledColor) {
+      // Check if we clicked on a drawn stroke
+      const svgElement = target.closest('svg');
+      if (svgElement && target.tagName === 'path') {
+        const strokeColor = target.getAttribute('stroke');
+        const fillColor = target.getAttribute('fill');
+        sampledColor = strokeColor || fillColor;
       }
     }
-    
+
     // If no specific element color found, sample background
     if (!sampledColor) {
       if (variation?.backgroundColor?.includes('linear-gradient')) {
@@ -314,10 +405,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         sampledColor = brandNameColor; // Final fallback
       }
     }
-    
-    // Convert rgb to hex if needed
+
+    // Convert rgb/rgba to hex if needed
     if (sampledColor?.startsWith('rgb')) {
-      const rgbMatch = sampledColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      const rgbMatch = sampledColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
       if (rgbMatch) {
         const r = parseInt(rgbMatch[1]);
         const g = parseInt(rgbMatch[2]);
@@ -325,7 +416,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         sampledColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
       }
     }
-    
+
     // Set the sampled color and update brush color
     setSampledColor(sampledColor);
     setBrushColor(sampledColor || '#000000');
@@ -1029,6 +1120,25 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     }
   };
 
+  // Memoized logo rendering to ensure re-render on fontWeight change
+  const renderedLogo = useMemo(() => {
+    console.log('Memoized logo render - fontWeight:', currentFontWeight, 'forceRender:', forceRender);
+    return renderLogoContent(
+      brandNameColor,
+      localConfig.palette?.colors[0] || '#FFFFFF',
+      localConfig.font || { cssName: 'Inter, sans-serif', name: 'Inter' },
+      {
+        ...localConfig,
+        text: localConfig.text || 'Your Logo',
+        fontWeight: currentFontWeight,
+        icon: localConfig.icon,
+        layout: localConfig.layout,
+        enclosingShape: localConfig.enclosingShape
+      },
+      sloganColor
+    );
+  }, [currentFontWeight, forceRender, localConfig.text, localConfig.font?.name, brandNameColor, sloganColor, localConfig.icon, localConfig.layout]);
+
   const handleEdit = () => {
     setShowFullscreenEditor(true);
   };
@@ -1126,7 +1236,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-full max-h-[90vh] flex">
             {/* Logo Preview Side with Drawing Canvas */}
             <div className="flex-1 p-8 flex items-center justify-center border-r border-white/20">
-              <div className="relative rounded-lg max-w-md w-full aspect-square">
+              <div className="relative rounded-lg max-w-2xl w-full aspect-square">
                 {/* Gradient Background Layer (deeper layer, unaffected by eraser) */}
                 {variation?.backgroundColor?.includes('linear-gradient') && (
                   <div 
@@ -1137,7 +1247,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 
                 <div 
                   className="relative rounded-lg p-12 w-full aspect-square flex items-center justify-center" 
-                  key={`${localConfig.fontWeight}-${localConfig.text}-${localConfig.font?.name}-${localConfig.palette?.id}-${brandNameColor}-${sloganColor}-${iconColor}`}
+                  key={`logo-preview-${currentFontWeight}-${fontWeightUpdateKey}-${forceRender}-${localConfig.text}-${localConfig.font?.name}`}
                   style={{
                     zIndex: 2,
                     ...(!variation?.backgroundColor?.includes('linear-gradient') 
@@ -1147,22 +1257,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 >
                 
                 {/* Original Logo Content */}
-                {(() => {
-                  return renderLogoContent(
-                    brandNameColor,
-                    localConfig.palette?.colors[0] || '#FFFFFF',
-                    localConfig.font || { cssName: 'Inter, sans-serif', name: 'Inter' }, // Use actual font from config
-                    {
-                      ...localConfig,
-                      text: localConfig.text || 'Your Logo',
-                      fontWeight: localConfig.fontWeight || 400,
-                      icon: localConfig.icon,
-                      layout: localConfig.layout,
-                      enclosingShape: localConfig.enclosingShape
-                    },
-                    sloganColor
-                  );
-                })()}
+                {renderedLogo}
                 
                 {/* Drawing Canvas Overlay */}
                 <div 
@@ -1707,12 +1802,14 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             .flatMap(cat => cat.fonts)
                             .find(font => font.name === e.target.value);
                           if (selectedFont) {
-                            // Force update by updating localConfig directly and triggering re-render
+                            // Create a new font object to ensure reference change
+                            const newFont = { ...selectedFont };
+                            // Keep current fontWeight, don't reset it
                             setLocalConfig(prev => ({
                               ...prev,
-                              font: selectedFont
+                              font: newFont
                             }));
-                            onConfigUpdate({ font: selectedFont });
+                            onConfigUpdate({ font: newFont });
                           }
                         }}
                         className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white text-sm mb-3"
@@ -1730,31 +1827,90 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       
                       <label className="block text-white/80 text-sm mb-1">Font Weight</label>
                       <div className="space-y-2">
-                        <div className="grid grid-cols-3 gap-2">
-                          {(localConfig.font?.editorWeights || [300, 400, 500, 600, 700, 800]).map(weight => (
-                            <button
-                              key={weight}
-                              onClick={() => {
-                                setLocalConfig(prev => ({
-                                  ...prev,
-                                  fontWeight: weight
-                                }));
-                                onConfigUpdate({ fontWeight: weight });
-                              }}
-                              className={`px-3 py-2 rounded border text-xs transition-colors ${
-                                (localConfig.fontWeight || 400) === weight 
-                                  ? 'border-blue-500 bg-blue-500/20 text-white' 
-                                  : 'border-white/20 hover:border-white/40 text-white/80'
-                              }`}
-                            >
-                              {weight === 300 ? 'Light' : 
-                               weight === 400 ? 'Regular' :
-                               weight === 500 ? 'Medium' :
-                               weight === 600 ? 'SemiBold' :
-                               weight === 700 ? 'Bold' : 'ExtraBold'}
-                            </button>
-                          ))}
-                        </div>
+                        {(() => {
+                          // Get available weights for current font
+                          let availableWeights = [400]; // default fallback
+
+                          if (localConfig.font?.editorWeights && localConfig.font.editorWeights.length > 0) {
+                            // Use font's defined editor weights
+                            availableWeights = localConfig.font.editorWeights;
+                          } else {
+                            // Fallback: find font in fontCategories for weights
+                            const fontFromCategories = fontCategories
+                              .flatMap(cat => cat.fonts)
+                              .find(font => font.name === localConfig.font?.name);
+
+                            if (fontFromCategories?.editorWeights && fontFromCategories.editorWeights.length > 0) {
+                              availableWeights = fontFromCategories.editorWeights;
+                            } else if (localConfig.font?.isVariable) {
+                              // Default variable font weights
+                              availableWeights = [100, 200, 300, 400, 500, 600, 700, 800, 900];
+                            }
+                          }
+
+                          console.log('Font:', localConfig.font?.name, 'Available weights:', availableWeights, 'Current:', currentFontWeight);
+
+                          const minWeight = Math.min(...availableWeights);
+                          const maxWeight = Math.max(...availableWeights);
+
+                          const getWeightName = (weight: number) => {
+                            switch (weight) {
+                              case 100: return 'Thin';
+                              case 200: return 'ExtraLight';
+                              case 300: return 'Light';
+                              case 400: return 'Regular';
+                              case 500: return 'Medium';
+                              case 600: return 'SemiBold';
+                              case 700: return 'Bold';
+                              case 800: return 'ExtraBold';
+                              case 900: return 'Black';
+                              case 1000: return 'Ultra Black';
+                              default: return weight.toString();
+                            }
+                          };
+
+                          // Round current weight to nearest available weight
+                          const clampedWeight = Math.max(minWeight, Math.min(maxWeight, currentFontWeight));
+
+                          return (
+                            <div className="bg-white/5 rounded-lg p-3">
+                              <div className="flex items-center gap-3 mb-2">
+                                <span className="text-xs text-white/60 min-w-[60px]">Weight:</span>
+                                <input
+                                  type="range"
+                                  min={minWeight}
+                                  max={maxWeight}
+                                  step="100"
+                                  value={clampedWeight}
+                                  onChange={(e) => {
+                                    const selectedWeight = parseInt(e.target.value);
+                                    console.log('Slider changed to:', selectedWeight);
+                                    setCurrentFontWeight(selectedWeight);
+                                    setFontWeightUpdateKey(prev => prev + 1);
+                                    setForceRender(prev => prev + 1);
+                                    setLocalConfig(prev => ({
+                                      ...prev,
+                                      fontWeight: selectedWeight
+                                    }));
+                                    onConfigUpdate({ fontWeight: selectedWeight });
+                                  }}
+                                  className="flex-1 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                                />
+                                <span className="text-sm text-white min-w-[80px] text-right">
+                                  {getWeightName(clampedWeight)}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-xs text-white/40 px-1">
+                                <span>{getWeightName(minWeight)}</span>
+                                <span className="text-white/60">{clampedWeight}</span>
+                                <span>{getWeightName(maxWeight)}</span>
+                              </div>
+                              <div className="text-xs text-white/40 mt-1">
+                                Available: {availableWeights.join(', ')}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>

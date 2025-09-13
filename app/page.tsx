@@ -32,7 +32,25 @@ export default function LogoGeneratorPage() {
   const [showStartedText, setShowStartedText] = useState(false); // Control "Let's get started" text visibility
   const [hideStartedText, setHideStartedText] = useState(false); // Control hiding "Let's get started" text
   const [selectedFontCategory, setSelectedFontCategory] = useState<string | null>(null);
-  
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Monitor theme changes
+  useEffect(() => {
+    const checkTheme = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    };
+
+    checkTheme(); // Check initial theme
+
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   // New states for enhanced UX animations
   const [showTopBorder, setShowTopBorder] = useState(false); // Control horizontal border-top animation
   const [showLeftBorder, setShowLeftBorder] = useState(false); // Control vertical border-left animation
@@ -388,7 +406,7 @@ export default function LogoGeneratorPage() {
                 </p>
                 <button
                   onClick={() => handleSectionNext(0)}
-                  className="bg-black text-white font-bold px-8 py-4 rounded-lg shadow-xl shadow-black/30 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl hover:shadow-black/40 hover:rotate-1 active:scale-95 relative overflow-hidden group"
+                  className="bg-black !text-white font-bold px-8 py-4 rounded-lg shadow-xl shadow-black/30 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl hover:shadow-black/40 hover:rotate-1 active:scale-95 relative overflow-hidden group"
                 >
                   <span className="relative z-10">
                     Create Brand!
@@ -500,7 +518,7 @@ export default function LogoGeneratorPage() {
                     <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
                     <div className="relative z-10">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-bold text-black">Design Quality</h3>
+                        <h3 className={`font-bold ${isDarkMode ? 'text-black' : 'text-white'}`}>Design Quality</h3>
                         <span className="text-2xl font-bold text-white">82/100</span>
                       </div>
                       <div className="w-full h-2 bg-white/10 rounded-full mb-3">
@@ -510,7 +528,7 @@ export default function LogoGeneratorPage() {
                         />
                       </div>
                       <div className="mt-4 pt-4 border-t border-white/10">
-                        <h4 className="text-sm font-semibold text-black mb-2">Improvement suggestions:</h4>
+                        <h4 className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-black' : 'text-white'}`}>Improvement suggestions:</h4>
                         <ul className="text-xs text-white/70 space-y-1">
                           <li className="flex items-start gap-2">
                             <span className="text-primary mt-0.5">•</span>
@@ -540,7 +558,7 @@ export default function LogoGeneratorPage() {
                     {/* 10% black overlay */}
                     <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
                     <div className="relative z-10">
-                      <h3 className="font-bold text-black mb-4">Typography Style</h3>
+                      <h3 className={`font-bold mb-4 ${isDarkMode ? 'text-black' : 'text-white'}`}>Typography Style</h3>
                       <div className="space-y-3">
                         {fontCategories.map((category) => (
                           <button
@@ -652,8 +670,8 @@ export default function LogoGeneratorPage() {
           className={`p-8 md:p-12 sticky top-0 flex flex-col ${visibleSections.includes(4) ? 'hidden' : 'md:block hidden'} relative ${expandPreviewPanel ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
           style={{
             background: `linear-gradient(to right, rgba(8, 12, 20, 0.02), rgba(8, 12, 20, 0.1875))`,
-            height: '100vh',
-            minHeight: '100vh'
+            height: 'calc(100vh + 8rem)',
+            minHeight: 'calc(100vh + 8rem)'
           }}
         >
           {/* Horizontal Border-Top Animation - starts after panel slides in, fills right to left */}
@@ -673,7 +691,7 @@ export default function LogoGeneratorPage() {
           {showLeftBorder && (
             <motion.div
               initial={{ height: 0 }}
-              animate={{ height: '100vh' }}
+              animate={{ height: 'calc(100vh + 8rem)' }}
               transition={{ duration: 0.45, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 overflow-hidden rounded-t-[14px]"
               style={{
@@ -686,7 +704,7 @@ export default function LogoGeneratorPage() {
           {showFinalBorder && (
             <motion.div
               initial={{ height: 0 }}
-              animate={{ height: '100vh' }}
+              animate={{ height: 'calc(100vh + 8rem)' }}
               transition={{ duration: 0.45, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 overflow-hidden rounded-t-[14px]"
               style={{
@@ -762,7 +780,7 @@ export default function LogoGeneratorPage() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: '100%', opacity: 0 }}
                                 transition={{ duration: 0.5, delay: 0.2 }}
-                                className="block text-black my-6"
+                                className={`block my-6 ${isDarkMode ? 'text-black' : 'text-white'}`}
                               >
                                 get
                               </motion.span>
@@ -803,7 +821,7 @@ export default function LogoGeneratorPage() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: '100%', opacity: 0 }}
                                 transition={{ duration: 0.5, delay: 0.2 }}
-                                className="block text-black my-4"
+                                className={`block my-4 ${isDarkMode ? 'text-black' : 'text-white'}`}
                               >
                                 50 seconds
                               </motion.span>
@@ -853,7 +871,7 @@ export default function LogoGeneratorPage() {
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: '100%', opacity: 0 }}
                                 transition={{ duration: 0.5, delay: 0.4 }}
-                                className="block text-black animate-pulse"
+                                className={`block animate-pulse ${isDarkMode ? 'text-black' : 'text-white'}`}
                                 style={{
                                   animation: 'gradient-pulse 2s ease-in-out infinite alternate'
                                 }}
