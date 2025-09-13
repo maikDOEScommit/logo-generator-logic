@@ -536,8 +536,8 @@ export default function LogoGeneratorPage() {
                   transition={{ duration: 0.5, delay: 0.2 }}
                 >
                   <div className={`${isDarkMode ? 'bg-transparent' : 'bg-white/5'} rounded-lg p-4 relative`}>
-                    {/* 10% black overlay - only in dark mode */}
-                    <div className={`absolute inset-0 rounded-lg ${isDarkMode ? 'bg-transparent' : 'bg-black/10'}`}></div>
+                    {/* 10% black and 50% transparent overlay - only in dark mode */}
+                    <div className={`absolute inset-0 rounded-lg ${isDarkMode ? 'bg-black/10 opacity-50' : 'bg-black/10'}`}></div>
                     <div className="relative z-10">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className={`font-bold ${isDarkMode ? 'text-black' : 'text-white'}`}>Design Quality</h3>
@@ -577,8 +577,8 @@ export default function LogoGeneratorPage() {
                   transition={{ duration: 0.5, delay: 0.4 }}
                 >
                   <div className={`${isDarkMode ? 'bg-transparent' : 'bg-white/5'} rounded-lg p-4 relative`}>
-                    {/* 10% black overlay - only in dark mode */}
-                    <div className={`absolute inset-0 rounded-lg ${isDarkMode ? 'bg-transparent' : 'bg-black/10'}`}></div>
+                    {/* 10% black and 50% transparent overlay - only in dark mode */}
+                    <div className={`absolute inset-0 rounded-lg ${isDarkMode ? 'bg-black/10 opacity-50' : 'bg-black/10'}`}></div>
                     <div className="relative z-10">
                       <h3 className={`font-bold mb-4 ${isDarkMode ? 'text-black' : 'text-white'}`}>Typography Style</h3>
                       <div className="space-y-3">
@@ -692,8 +692,8 @@ export default function LogoGeneratorPage() {
           className={`p-8 md:p-12 sticky top-0 flex flex-col ${visibleSections.includes(4) ? 'hidden' : 'md:block hidden'} relative ${expandPreviewPanel ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
           style={{
             background: `linear-gradient(to right, rgba(8, 12, 20, 0.02), rgba(8, 12, 20, 0.1875))`,
-            height: 'calc(100vh + 8rem)',
-            minHeight: 'calc(100vh + 8rem)'
+            height: 'calc((100vh + 8rem) * 0.88)',
+            minHeight: 'calc((100vh + 8rem) * 0.88)'
           }}
         >
           {/* Horizontal Border-Top Animation - starts after panel slides in, fills right to left */}
@@ -713,7 +713,7 @@ export default function LogoGeneratorPage() {
           {showLeftBorder && (
             <motion.div
               initial={{ height: 0 }}
-              animate={{ height: 'calc(100vh + 8rem)' }}
+              animate={{ height: 'calc((100vh + 8rem) * 0.88)' }}
               transition={{ duration: 0.45, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 overflow-hidden rounded-t-[14px]"
               style={{
@@ -726,7 +726,7 @@ export default function LogoGeneratorPage() {
           {showFinalBorder && (
             <motion.div
               initial={{ height: 0 }}
-              animate={{ height: 'calc(100vh + 8rem)' }}
+              animate={{ height: 'calc((100vh + 8rem) * 0.88)' }}
               transition={{ duration: 0.45, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 overflow-hidden rounded-t-[14px]"
               style={{
@@ -738,7 +738,7 @@ export default function LogoGeneratorPage() {
           {visibleSections.includes(1) && showStartedText && !showLeftBorder && (
             <motion.div
               initial={{ height: 0 }}
-              animate={{ height: '100vh' }}
+              animate={{ height: 'calc(100vh * 0.88)' }}
               transition={{ duration: 0.45, delay: 0.1125, ease: "easeOut" }}
               className="absolute left-0 top-0 w-2 overflow-hidden rounded-t-[14px]"
               style={{

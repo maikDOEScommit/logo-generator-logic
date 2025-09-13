@@ -120,18 +120,20 @@ export const Header = () => {
                   borderColor: 'black'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.color = 'black';
-                  e.target.style.backgroundColor = 'transparent';
-                  const span = e.target.querySelector('span');
+                  const target = e.target as HTMLElement;
+                  target.style.color = 'black';
+                  target.style.backgroundColor = 'transparent';
+                  const span = target.querySelector('span') as HTMLSpanElement;
                   if (span) {
                     // In light mode: black text on hover, in dark mode: white text on hover
                     span.style.color = isDarkMode ? 'white' : 'black';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.color = 'white';
-                  e.target.style.backgroundColor = 'black';
-                  const span = e.target.querySelector('span');
+                  const target = e.target as HTMLElement;
+                  target.style.color = 'white';
+                  target.style.backgroundColor = 'black';
+                  const span = target.querySelector('span') as HTMLSpanElement;
                   if (span) span.style.color = 'white';
                 }}
               >

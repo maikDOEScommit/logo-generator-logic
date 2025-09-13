@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
-import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette } from 'lucide-react';
+import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette, Move } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
 
 interface LogoEditorProps {
@@ -59,6 +59,33 @@ interface EditLayer {
   strokes: Stroke[];
 }
 
+// New interfaces for moveable logo elements
+interface TextElement {
+  id: string;
+  type: 'brand' | 'slogan';
+  text: string;
+  x: number;
+  y: number;
+  fontSize: number;
+  fontFamily: string;
+  fontWeight: number;
+  color: string;
+  selected: boolean;
+  permanent: boolean; // If true, element cannot be moved
+}
+
+interface IconElement {
+  id: string;
+  type: 'icon';
+  icon: any; // Lucide icon component
+  x: number;
+  y: number;
+  size: number;
+  color: string;
+  selected: boolean;
+  permanent: boolean; // If true, element cannot be moved
+}
+
 const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes, variation }: LogoEditorProps) => {
   const [showFullscreenEditor, setShowFullscreenEditor] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
@@ -67,7 +94,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [localConfig, setLocalConfig] = useState<LogoConfig>(config);
   
   // Drawing tool states
-  const [drawingTool, setDrawingTool] = useState<'brush' | 'eraser' | 'box' | 'line' | 'eyedropper'>('brush');
+  const [drawingTool, setDrawingTool] = useState<'brush' | 'eraser' | 'box' | 'line' | 'eyedropper' | 'move'>('brush');
   const [brushSize, setBrushSize] = useState(10);
   const [brushOpacity, setBrushOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
   const [brushLineCap, setBrushLineCap] = useState<'round' | 'square'>('round'); // Line cap for brush
@@ -80,9 +107,26 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [brandNameColor, setBrandNameColor] = useState(config.palette?.colors[1] || '#000000');
   const [sloganColor, setSloganColor] = useState(config.palette?.colors[1] || '#000000');
   const [sampledColor, setSampledColor] = useState<string | null>(null);
+
+  // Logo elements that can be moved like boxes
+  const [logoElements, setLogoElements] = useState<{
+    brand?: TextElement;
+    slogan?: TextElement;
+    icon?: IconElement;
+  }>({});
+  const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  const [isMovingElement, setIsMovingElement] = useState(false);
+  const [movingElement, setMovingElement] = useState<string | null>(null);
+  const [elementMoveStart, setElementMoveStart] = useState<{
+    startX: number;
+    startY: number;
+    originalElement: TextElement | IconElement;
+  } | null>(null);
   const [currentFontWeight, setCurrentFontWeight] = useState(config.fontWeight || 400);
   const [fontWeightUpdateKey, setFontWeightUpdateKey] = useState(0);
   const [forceRender, setForceRender] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number } | null>(null);
   
   // Box drawing state
   const [boxes, setBoxes] = useState<BoxShape[]>([]);
@@ -183,6 +227,68 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     }
   }, [localConfig.font?.name]);
 
+  // Initialize logo elements based on current config
+  useEffect(() => {
+    const canvasWidth = 400;
+    const canvasHeight = 300;
+
+    const newElements: {
+      brand?: TextElement;
+      slogan?: TextElement;
+      icon?: IconElement;
+    } = {};
+
+    // Initialize brand name element
+    if (localConfig.text) {
+      newElements.brand = {
+        id: 'brand-text',
+        type: 'brand',
+        text: localConfig.text,
+        x: canvasWidth / 2,
+        y: canvasHeight / 2 - 20,
+        fontSize: 24,
+        fontFamily: localConfig.font?.cssName || 'Inter, sans-serif',
+        fontWeight: currentFontWeight,
+        color: brandNameColor,
+        selected: false,
+        permanent: false,
+      };
+    }
+
+    // Initialize slogan element
+    if (localConfig.slogan) {
+      newElements.slogan = {
+        id: 'slogan-text',
+        type: 'slogan',
+        text: localConfig.slogan,
+        x: canvasWidth / 2,
+        y: canvasHeight / 2 + 20,
+        fontSize: 14,
+        fontFamily: localConfig.font?.cssName || 'Inter, sans-serif',
+        fontWeight: 300,
+        color: sloganColor,
+        selected: false,
+        permanent: false,
+      };
+    }
+
+    // Initialize icon element
+    if (localConfig.icon) {
+      newElements.icon = {
+        id: 'icon-element',
+        type: 'icon',
+        icon: localConfig.icon.component,
+        x: canvasWidth / 2,
+        y: canvasHeight / 2 - 60,
+        size: 48,
+        color: iconColor,
+        selected: false,
+        permanent: false,
+      };
+    }
+
+    setLogoElements(newElements);
+  }, [localConfig.text, localConfig.slogan, localConfig.icon, localConfig.font?.cssName, currentFontWeight, brandNameColor, sloganColor, iconColor]);
 
   // Global mouse events for rotation, resize, and move
   useEffect(() => {
@@ -259,9 +365,27 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           y: originalBox.y + deltaY
         };
 
-        setBoxes(prev => prev.map(box => 
+        setBoxes(prev => prev.map(box =>
           box.id === movingBox ? newBox : box
         ));
+      }
+
+      // Handle moving logo elements
+      if (isMovingElement && movingElement && elementMoveStart) {
+        const deltaX = point.x - elementMoveStart.startX;
+        const deltaY = point.y - elementMoveStart.startY;
+        const originalElement = elementMoveStart.originalElement;
+
+        const newElement = {
+          ...originalElement,
+          x: originalElement.x + deltaX,
+          y: originalElement.y + deltaY
+        };
+
+        setLogoElements(prev => ({
+          ...prev,
+          [movingElement]: newElement
+        }));
       }
     };
 
@@ -282,9 +406,14 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         setMovingBox(null);
         setMoveStart(null);
       }
+      if (isMovingElement) {
+        setIsMovingElement(false);
+        setMovingElement(null);
+        setElementMoveStart(null);
+      }
     };
 
-    if (isRotating || isResizing || isMoving) {
+    if (isRotating || isResizing || isMoving || isMovingElement) {
       document.addEventListener('mousemove', handleGlobalMouseMove);
       document.addEventListener('mouseup', handleGlobalMouseUp);
     }
@@ -293,7 +422,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       document.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [isRotating, rotatingBox, rotationStart, isResizing, resizingBox, resizeHandle, resizeStart, isMoving, movingBox, moveStart]);
+  }, [isRotating, rotatingBox, rotationStart, isResizing, resizingBox, resizeHandle, resizeStart, isMoving, movingBox, moveStart, isMovingElement, movingElement, elementMoveStart]);
   
   // Update function that updates both local state and calls parent
   const updateLocalConfig = (updates: Partial<LogoConfig>) => {
@@ -306,11 +435,145 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const getPointFromEvent = (e: React.MouseEvent): Point => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
-    
+
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     return { x, y };
+  };
+
+  // Convert logo element to canvas strokes - improved version
+  const convertElementToStrokes = (element: TextElement | IconElement): Stroke[] => {
+    const strokes: Stroke[] = [];
+
+    if (element.type === 'brand' || element.type === 'slogan') {
+      const textElement = element as TextElement;
+      // Create a more detailed text representation using multiple techniques
+      const textWidth = textElement.text.length * (textElement.fontSize * 0.6);
+      const textHeight = textElement.fontSize;
+
+      // Create text outline instead of filled text to avoid background coloring
+      const strokeWidth = Math.max(2, textElement.fontSize / 8);
+
+      // Create text outline by drawing the border
+      const outlinePoints = [
+        // Top line
+        { x: textElement.x - textWidth/2, y: textElement.y - textHeight/2 },
+        { x: textElement.x + textWidth/2, y: textElement.y - textHeight/2 },
+        // Right line
+        { x: textElement.x + textWidth/2, y: textElement.y - textHeight/2 },
+        { x: textElement.x + textWidth/2, y: textElement.y + textHeight/2 },
+        // Bottom line
+        { x: textElement.x + textWidth/2, y: textElement.y + textHeight/2 },
+        { x: textElement.x - textWidth/2, y: textElement.y + textHeight/2 },
+        // Left line
+        { x: textElement.x - textWidth/2, y: textElement.y + textHeight/2 },
+        { x: textElement.x - textWidth/2, y: textElement.y - textHeight/2 }
+      ];
+
+      // Create outline strokes
+      for (let i = 0; i < outlinePoints.length; i += 2) {
+        if (i + 1 < outlinePoints.length) {
+          strokes.push({
+            id: `text-outline-${textElement.id}-${i/2}`,
+            tool: 'brush',
+            points: [outlinePoints[i], outlinePoints[i + 1]],
+            color: textElement.color,
+            width: strokeWidth,
+            opacity: 1,
+            lineCap: 'round'
+          });
+        }
+      }
+
+      // Add a few internal strokes to suggest text, but not fill completely
+      const internalStrokes = 3;
+      for (let i = 0; i < internalStrokes; i++) {
+        const y = textElement.y - textHeight/4 + (i * textHeight/6);
+        strokes.push({
+          id: `text-internal-${textElement.id}-${i}`,
+          tool: 'brush',
+          points: [
+            { x: textElement.x - textWidth/3, y },
+            { x: textElement.x + textWidth/3, y }
+          ],
+          color: textElement.color,
+          width: strokeWidth * 0.7,
+          opacity: 0.8,
+          lineCap: 'round'
+        });
+      }
+    } else if (element.type === 'icon') {
+      const iconElement = element as IconElement;
+      // Create icon outline instead of filled to avoid background coloring
+      const radius = iconElement.size / 2;
+      const strokeWidth = Math.max(2, radius / 8);
+
+      // Create circle outline only
+      const circlePoints: Point[] = [];
+      const pointCount = Math.max(16, Math.ceil(radius * 0.5));
+
+      for (let i = 0; i < pointCount; i++) {
+        const angle = (2 * Math.PI * i) / pointCount;
+        const x = iconElement.x + radius * Math.cos(angle);
+        const y = iconElement.y + radius * Math.sin(angle);
+        circlePoints.push({ x, y });
+      }
+      circlePoints.push(circlePoints[0]); // Close the circle
+
+      strokes.push({
+        id: `icon-outline-${iconElement.id}`,
+        tool: 'brush',
+        points: circlePoints,
+        color: iconElement.color,
+        width: strokeWidth,
+        opacity: 1,
+        lineCap: 'round'
+      });
+
+      // Add some internal detail lines to suggest an icon without filling
+      const detailLines = 4;
+      for (let i = 0; i < detailLines; i++) {
+        const angle = (Math.PI * 2 * i) / detailLines;
+        const innerRadius = radius * 0.2;
+        const outerRadius = radius * 0.8;
+
+        strokes.push({
+          id: `icon-detail-${iconElement.id}-${i}`,
+          tool: 'brush',
+          points: [
+            {
+              x: iconElement.x + innerRadius * Math.cos(angle),
+              y: iconElement.y + innerRadius * Math.sin(angle)
+            },
+            {
+              x: iconElement.x + outerRadius * Math.cos(angle),
+              y: iconElement.y + outerRadius * Math.sin(angle)
+            }
+          ],
+          color: iconElement.color,
+          width: strokeWidth * 0.8,
+          opacity: 0.9,
+          lineCap: 'round'
+        });
+      }
+
+      // Add center dot
+      strokes.push({
+        id: `icon-center-${iconElement.id}`,
+        tool: 'brush',
+        points: [
+          { x: iconElement.x, y: iconElement.y },
+          { x: iconElement.x + 0.1, y: iconElement.y }
+        ],
+        color: iconElement.color,
+        width: strokeWidth,
+        opacity: 1,
+        lineCap: 'round'
+      });
+    }
+
+    return strokes;
   };
 
   const sampleColor = async (point: Point, e: React.MouseEvent) => {
@@ -481,10 +744,82 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
   const startDrawing = (e: React.MouseEvent) => {
     const point = getPointFromEvent(e);
-    
+
     if (drawingTool === 'eyedropper') {
       // Sample color at clicked position
       sampleColor(point, e);
+      return;
+    }
+
+    if (drawingTool === 'move') {
+      // Check if we're clicking on any logo elements
+      let clickedElement: string | null = null;
+      let clickedElementObj: TextElement | IconElement | null = null;
+
+      // Check icon
+      if (logoElements.icon) {
+        const icon = logoElements.icon;
+        const distance = Math.sqrt(
+          Math.pow(point.x - icon.x, 2) + Math.pow(point.y - icon.y, 2)
+        );
+        if (distance <= icon.size) {
+          clickedElement = 'icon';
+          clickedElementObj = icon;
+        }
+      }
+
+      // Check brand text
+      if (!clickedElement && logoElements.brand) {
+        const brand = logoElements.brand;
+        // Approximate text bounds (this is a simple hit detection)
+        const textWidth = brand.text.length * (brand.fontSize * 0.6);
+        const textHeight = brand.fontSize;
+
+        if (
+          point.x >= brand.x - textWidth / 2 &&
+          point.x <= brand.x + textWidth / 2 &&
+          point.y >= brand.y - textHeight / 2 &&
+          point.y <= brand.y + textHeight / 2
+        ) {
+          clickedElement = 'brand';
+          clickedElementObj = brand;
+        }
+      }
+
+      // Check slogan text
+      if (!clickedElement && logoElements.slogan) {
+        const slogan = logoElements.slogan;
+        const textWidth = slogan.text.length * (slogan.fontSize * 0.6);
+        const textHeight = slogan.fontSize;
+
+        if (
+          point.x >= slogan.x - textWidth / 2 &&
+          point.x <= slogan.x + textWidth / 2 &&
+          point.y >= slogan.y - textHeight / 2 &&
+          point.y <= slogan.y + textHeight / 2
+        ) {
+          clickedElement = 'slogan';
+          clickedElementObj = slogan;
+        }
+      }
+
+      if (clickedElement && clickedElementObj) {
+        // Don't allow moving permanent elements
+        if (clickedElementObj.permanent) {
+          console.log('🔒 Cannot move permanent element:', clickedElement);
+          return;
+        }
+
+        setSelectedElement(clickedElement);
+        setIsMovingElement(true);
+        setMovingElement(clickedElement);
+        setElementMoveStart({
+          startX: point.x,
+          startY: point.y,
+          originalElement: clickedElementObj
+        });
+        console.log('🖱️ Started dragging logo element:', clickedElement, 'at', point);
+      }
       return;
     }
     
@@ -541,18 +876,18 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   };
 
   const continueDrawing = (e: React.MouseEvent) => {
-    if (!drawingRef.current.drawing && !isRotating && !isResizing && !isMoving) return;
-    
+    if (!drawingRef.current.drawing && !isRotating && !isResizing && !isMoving && !isMovingElement) return;
+
     const point = getPointFromEvent(e);
-    
+
     // Handle rotation
     if (isRotating && rotatingBox && rotationStart) {
       const currentAngle = Math.atan2(point.y - rotationStart.centerY, point.x - rotationStart.centerX);
       const angleDifference = currentAngle - rotationStart.startAngle;
       const newRotation = rotationStart.initialRotation + (angleDifference * 180 / Math.PI);
-      
-      setBoxes(prev => prev.map(box => 
-        box.id === rotatingBox 
+
+      setBoxes(prev => prev.map(box =>
+        box.id === rotatingBox
           ? { ...box, rotation: newRotation }
           : box
       ));
@@ -610,6 +945,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   };
 
   const endDrawing = (e: React.MouseEvent) => {
+
     // Handle rotation end
     if (isRotating) {
       setIsRotating(false);
@@ -617,7 +953,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       setRotationStart(null);
       return;
     }
-    
+
     // Handle resize end
     if (isResizing) {
       setIsResizing(false);
@@ -626,7 +962,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       setResizeStart(null);
       return;
     }
-    
+
     // Handle move end
     if (isMoving) {
       setIsMoving(false);
@@ -1021,6 +1357,88 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             strokeDasharray="5,5"
           />
         )}
+
+        {/* Render logo elements */}
+        {logoElements.brand && (
+          <text
+            x={logoElements.brand.x}
+            y={logoElements.brand.y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize={logoElements.brand.fontSize}
+            fontFamily={logoElements.brand.fontFamily}
+            fontWeight={logoElements.brand.fontWeight}
+            fill={logoElements.brand.color}
+            className={drawingTool === 'move' && !logoElements.brand.permanent ? 'cursor-move' : 'cursor-default'}
+            style={{
+              userSelect: 'none',
+              pointerEvents: (drawingTool === 'move' && !logoElements.brand.permanent) ? 'all' : 'none',
+              opacity: logoElements.brand.permanent ? 1 : 0.9
+            }}
+          >
+            {logoElements.brand.text}
+          </text>
+        )}
+
+        {logoElements.slogan && (
+          <text
+            x={logoElements.slogan.x}
+            y={logoElements.slogan.y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize={logoElements.slogan.fontSize}
+            fontFamily={logoElements.slogan.fontFamily}
+            fontWeight={logoElements.slogan.fontWeight}
+            fill={logoElements.slogan.color}
+            className={drawingTool === 'move' && !logoElements.slogan.permanent ? 'cursor-move' : 'cursor-default'}
+            style={{
+              userSelect: 'none',
+              pointerEvents: (drawingTool === 'move' && !logoElements.slogan.permanent) ? 'all' : 'none',
+              opacity: logoElements.slogan.permanent ? 1 : 0.9
+            }}
+          >
+            {logoElements.slogan.text}
+          </text>
+        )}
+
+        {logoElements.icon && (
+          <g
+            transform={`translate(${logoElements.icon.x - logoElements.icon.size/2}, ${logoElements.icon.y - logoElements.icon.size/2})`}
+            className={drawingTool === 'move' && !logoElements.icon.permanent ? 'cursor-move' : 'cursor-default'}
+            style={{
+              pointerEvents: (drawingTool === 'move' && !logoElements.icon.permanent) ? 'all' : 'none',
+              opacity: logoElements.icon.permanent ? 1 : 0.9
+            }}
+          >
+            <foreignObject
+              width={logoElements.icon.size}
+              height={logoElements.icon.size}
+              style={{ overflow: 'visible' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+                <logoElements.icon.icon
+                  size={logoElements.icon.size}
+                  color={logoElements.icon.color}
+                  style={{ pointerEvents: 'none' }}
+                />
+              </div>
+            </foreignObject>
+          </g>
+        )}
+
+        {/* Selection indicators for logo elements */}
+        {selectedElement && logoElements[selectedElement as keyof typeof logoElements] && (
+          <circle
+            cx={logoElements[selectedElement as keyof typeof logoElements]!.x}
+            cy={logoElements[selectedElement as keyof typeof logoElements]!.y}
+            r="25"
+            fill="none"
+            stroke="blue"
+            strokeWidth="2"
+            strokeDasharray="5,5"
+            style={{ pointerEvents: 'none' }}
+          />
+        )}
       </svg>
     );
   };
@@ -1057,12 +1475,18 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           {/* Content in center */}
           <div className="relative z-10 flex flex-col items-center">
             {logoConfig.icon && (
-              <logoConfig.icon.component size={32} color={iconColor} className="mb-2" />
+              <logoConfig.icon.component
+                size={32}
+                color={iconColor}
+                className="mb-2"
+                style={{
+                }}
+              />
             )}
             <div className="flex flex-col items-center text-center max-w-full px-4">
-              <span 
+              <span
                 className="logo-text-preview"
-                style={{ 
+                style={{
                   fontSize: dynamicFontSize,
                   fontFamily: font.cssName,
                   fontWeight: logoConfig.fontWeight || 400,
@@ -1071,17 +1495,20 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   maxWidth: '100%',
-                  display: 'block'
+                  display: 'block',
                 }}
                 title={`FontWeight: ${logoConfig.fontWeight || 400}`}
               >
                 {logoConfig.text || 'Your Logo'}
               </span>
               {logoConfig.slogan && (
-                <span className="text-sm font-normal opacity-80 mt-1 max-w-full truncate" style={{ 
-                  fontWeight: 300,
-                  color: sloganColorParam || textColor
-                }}>
+                <span
+                  className="text-sm font-normal opacity-80 mt-1 max-w-full truncate"
+                  style={{
+                    fontWeight: 300,
+                    color: sloganColorParam || textColor,
+                  }}
+                >
                   {logoConfig.slogan}
                 </span>
               )}
@@ -1103,46 +1530,70 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             {isTextFirst ? (
               <>
                 <div className="flex flex-col items-center text-center justify-center">
-                  <span className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis" style={{ 
-                    fontSize: dynamicFontSize,
-                    fontFamily: font.cssName,
-                    fontWeight: logoConfig.fontWeight || 400,
-                    color: textColor
-                  }}>
+                  <span
+                    className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis"
+                    style={{
+                      fontSize: dynamicFontSize,
+                      fontFamily: font.cssName,
+                      fontWeight: logoConfig.fontWeight || 400,
+                      color: textColor,
+                        }}
+                  >
                     {logoConfig.text || 'Your Logo'}
                   </span>
                   {logoConfig.slogan && (
-                    <span className="text-base font-normal opacity-80 mt-1 truncate" style={{ 
-                      fontWeight: 300,
-                      color: sloganColorParam || textColor
-                    }}>
+                    <span
+                      className="text-base font-normal opacity-80 mt-1 truncate"
+                      style={{
+                        fontWeight: 300,
+                        color: sloganColorParam || textColor,
+                          }}
+                    >
                       {logoConfig.slogan}
                     </span>
                   )}
                 </div>
                 {logoConfig.icon && (
-                  <logoConfig.icon.component size={48} color={iconColor} className="flex-shrink-0" />
+                  <logoConfig.icon.component
+                    size={48}
+                    color={iconColor}
+                    className="flex-shrink-0"
+                    style={{
+                        }}
+                  />
                 )}
               </>
             ) : (
               <>
                 {logoConfig.icon && (
-                  <logoConfig.icon.component size={48} color={iconColor} className="flex-shrink-0" />
+                  <logoConfig.icon.component
+                    size={48}
+                    color={iconColor}
+                    className="flex-shrink-0"
+                    style={{
+                        }}
+                  />
                 )}
                 <div className="flex flex-col items-center text-center justify-center">
-                  <span className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis" style={{ 
-                    fontSize: dynamicFontSize,
-                    fontFamily: font.cssName,
-                    fontWeight: logoConfig.fontWeight || 400,
-                    color: textColor
-                  }}>
+                  <span
+                    className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis"
+                    style={{
+                      fontSize: dynamicFontSize,
+                      fontFamily: font.cssName,
+                      fontWeight: logoConfig.fontWeight || 400,
+                      color: textColor,
+                        }}
+                  >
                     {logoConfig.text || 'Your Logo'}
                   </span>
                   {logoConfig.slogan && (
-                    <span className="text-base font-normal opacity-80 mt-1 truncate" style={{ 
-                      fontWeight: 300,
-                      color: sloganColorParam || textColor
-                    }}>
+                    <span
+                      className="text-base font-normal opacity-80 mt-1 truncate"
+                      style={{
+                        fontWeight: 300,
+                        color: sloganColorParam || textColor,
+                          }}
+                    >
                       {logoConfig.slogan}
                     </span>
                   )}
@@ -1156,22 +1607,34 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         return (
           <div className="flex flex-col items-center">
             {logoConfig.icon && (
-              <logoConfig.icon.component size={48} color={iconColor} className="mb-2" />
+              <logoConfig.icon.component
+                size={48}
+                color={iconColor}
+                className="mb-2"
+                style={{
+                }}
+              />
             )}
             <div className="flex flex-col items-center text-center w-full max-w-full px-4">
-              <span className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis max-w-full" style={{ 
-                fontSize: dynamicFontSize,
-                fontFamily: font.cssName,
-                fontWeight: logoConfig.fontWeight || 400,
-                color: textColor
-              }}>
+              <span
+                className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
+                style={{
+                  fontSize: dynamicFontSize,
+                  fontFamily: font.cssName,
+                  fontWeight: logoConfig.fontWeight || 400,
+                  color: textColor,
+                }}
+              >
                 {logoConfig.text || 'Your Logo'}
               </span>
               {logoConfig.slogan && (
-                <span className="text-base font-normal opacity-80 mt-1 max-w-full truncate" style={{ 
-                  fontWeight: 300,
-                  color: sloganColorParam || textColor
-                }}>
+                <span
+                  className="text-base font-normal opacity-80 mt-1 max-w-full truncate"
+                  style={{
+                    fontWeight: 300,
+                    color: sloganColorParam || textColor,
+                  }}
+                >
                   {logoConfig.slogan}
                 </span>
               )}
@@ -1297,8 +1760,29 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-full max-h-[90vh] flex">
             {/* Logo Preview Side with Drawing Canvas */}
-            <div className="flex-1 p-8 flex items-center justify-center border-r border-white/20">
-              <div className="relative rounded-lg max-w-2xl w-full aspect-square">
+            <div className="flex-1 p-8 flex flex-col items-center justify-center border-r border-white/20">
+              {/* Zoom Controls */}
+              <div className="absolute top-4 left-4 z-50">
+                <button
+                  onClick={() => setIsZoomed(!isZoomed)}
+                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                    isZoomed
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                      : 'bg-white/10 hover:bg-white/20 text-white/80'
+                  }`}
+                >
+                  {isZoomed ? '1x' : '2x'} Zoom
+                </button>
+              </div>
+
+              <div
+                className={`relative rounded-lg max-w-2xl w-full aspect-square transition-transform duration-300 ${
+                  isZoomed ? 'transform scale-[2] origin-center' : ''
+                }`}
+                style={{
+                  transformOrigin: 'center center'
+                }}
+              >
                 {/* Gradient Background Layer (deeper layer, unaffected by eraser) */}
                 {variation?.backgroundColor?.includes('linear-gradient') && (
                   <div 
@@ -1322,13 +1806,41 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 {renderedLogo}
                 
                 {/* Drawing Canvas Overlay */}
-                <div 
+                <div
                   ref={canvasRef}
-                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') ? 'cursor-none' : drawingTool === 'eyedropper' ? 'cursor-crosshair' : 'cursor-crosshair'}`}
+                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') ? 'cursor-none' : drawingTool === 'eyedropper' ? 'cursor-crosshair' : drawingTool === 'move' ? 'cursor-move' : 'cursor-crosshair'}`}
+                  style={{
+                    ...(isZoomed && {
+                      cursor: drawingTool === 'brush' ? 'none' :
+                              drawingTool === 'eraser' ? 'none' :
+                              drawingTool === 'line' ? 'none' :
+                              drawingTool === 'eyedropper' ? `url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='16' cy='16' r='2' fill='white' stroke='black' stroke-width='1'/%3E%3C/svg%3E") 16 16, crosshair` :
+                              drawingTool === 'move' ? 'move' : 'crosshair'
+                    })
+                  }}
                   onMouseDown={startDrawing}
-                  onMouseMove={continueDrawing}
+                  onMouseMove={(e) => {
+                    // Update cursor position for custom cursor display
+                    const rect = canvasRef.current?.getBoundingClientRect();
+                    if (rect) {
+                      setCursorPosition({
+                        x: e.clientX - rect.left,
+                        y: e.clientY - rect.top
+                      });
+                    }
+                    continueDrawing(e);
+                  }}
                   onMouseUp={endDrawing}
-                  onMouseLeave={endDrawing}
+                  onMouseLeave={(e) => {
+                    setCursorPosition(null);
+                    endDrawing(e);
+                  }}
+                  onMouseEnter={() => {
+                    // Initialize cursor position when entering canvas
+                    if ((drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line')) {
+                      // Cursor will be updated on first mouse move
+                    }
+                  }}
                   onDoubleClick={() => {
                     // Drop any box that's currently being moved
                     if (isMoving && movingBox) {
@@ -1336,14 +1848,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       setMovingBox(null);
                       setMoveStart(null);
                     }
-                  }}
-                  style={{ 
-                    cursor: (drawingTool === 'brush' || drawingTool === 'eraser')
-                      ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${Math.round((brushSize + 4))}' height='${Math.round((brushSize + 4))}' viewBox='0 0 ${brushSize + 4} ${brushSize + 4}'><circle cx='${(brushSize + 4) / 2}' cy='${(brushSize + 4) / 2}' r='${brushSize / 2}' fill='none' stroke='white' stroke-width='2'/><circle cx='${(brushSize + 4) / 2}' cy='${(brushSize + 4) / 2}' r='${brushSize / 2}' fill='none' stroke='black' stroke-width='1'/></svg>") ${Math.round(((brushSize + 4) / 2))} ${Math.round(((brushSize + 4) / 2))}, crosshair`
-                      : drawingTool === 'line'
-                        ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${Math.round((lineWidth + 4))}' height='${Math.round((lineWidth + 4))}' viewBox='0 0 ${lineWidth + 4} ${lineWidth + 4}'><circle cx='${(lineWidth + 4) / 2}' cy='${(lineWidth + 4) / 2}' r='${lineWidth / 2}' fill='none' stroke='white' stroke-width='2'/><circle cx='${(lineWidth + 4) / 2}' cy='${(lineWidth + 4) / 2}' r='${lineWidth / 2}' fill='none' stroke='black' stroke-width='1'/></svg>") ${Math.round(((lineWidth + 4) / 2))} ${Math.round(((lineWidth + 4) / 2))}, crosshair`
-                        : drawingTool === 'eyedropper' ? 'crosshair'
-                        : drawingTool === 'box' ? 'copy' : 'default'
                   }}
                 >
                   {renderDrawingLayers()}
@@ -1353,10 +1857,47 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 <div className="absolute top-2 right-2 bg-gray-800/80 text-white px-2 py-1 rounded text-xs">
                   {drawingTool === 'brush' ? `🖌️ Brush ${brushSize}px` :
                    drawingTool === 'eraser' ? `🧽 Eraser ${brushSize}px` :
-                   drawingTool === 'box' ? `⬜ Box ${boxWidth}×${boxHeight}px` :
+                   drawingTool === 'box' ? `⬜ Box` :
                    drawingTool === 'line' ? `📏 Line ${lineWidth}px` :
+                   drawingTool === 'eyedropper' ? `🎨 Pipette` :
+                   drawingTool === 'move' ? `↔️ Move Elements` :
                    '✏️ Drawing'}
+                  {isZoomed && <span className="ml-2 text-blue-400">2x</span>}
                 </div>
+
+                {/* Custom Cursor Overlay for Brush/Eraser tools with Zoom scaling */}
+                {cursorPosition && (drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') && (
+                  <div
+                    className="absolute pointer-events-none"
+                    style={{
+                      left: cursorPosition.x,
+                      top: cursorPosition.y,
+                      transform: 'translate(-50%, -50%)',
+                      zIndex: 100
+                    }}
+                  >
+                    <div
+                      className={`border-2 border-white shadow-lg rounded-full ${
+                        drawingTool === 'brush' ? 'bg-black/20' :
+                        drawingTool === 'eraser' ? 'bg-white/30' : 'bg-blue-500/30'
+                      }`}
+                      style={{
+                        width: `${(drawingTool === 'line' ? lineWidth : brushSize) * (isZoomed ? 2 : 1)}px`,
+                        height: `${(drawingTool === 'line' ? lineWidth : brushSize) * (isZoomed ? 2 : 1)}px`,
+                        borderColor: drawingTool === 'eraser' ? '#ff6b6b' : drawingTool === 'line' ? '#3b82f6' : '#000'
+                      }}
+                    />
+                    {/* Center dot */}
+                    <div
+                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full"
+                      style={{
+                        width: `${2 * (isZoomed ? 2 : 1)}px`,
+                        height: `${2 * (isZoomed ? 2 : 1)}px`,
+                        boxShadow: '0 0 2px black'
+                      }}
+                    />
+                  </div>
+                )}
                 </div>
               </div>
             </div>
@@ -1423,6 +1964,15 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     >
                       <Pipette size={16} />
                     </button>
+                    <button
+                      onClick={() => setDrawingTool('move')}
+                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                        drawingTool === 'move' ? 'bg-green-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                      }`}
+                    >
+                      <Move size={16} />
+                      Move
+                    </button>
                   </div>
 
                   {/* Eyedropper Tool Settings */}
@@ -1448,6 +1998,102 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         </button>
                       </div>
                       <p className="text-white/60 text-xs mt-2">Klicke auf Elemente im Logo um Farben zu sampeln</p>
+                    </div>
+                  )}
+
+                  {/* Move Tool Settings */}
+                  {drawingTool === 'move' && (
+                    <div className="bg-white/10 rounded p-3 mb-4">
+                      <label className="block text-white/80 text-sm mb-2">Element Position</label>
+                      <p className="text-white/60 text-xs mb-3">Klicke und ziehe Icon, Brand Name oder Slogan um sie zu verschieben</p>
+
+                      <div className="space-y-2">
+                        {logoElements.icon && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-white/70 text-xs">Icon Position:</span>
+                            <span className="text-white/50 text-xs">x: {Math.round(logoElements.icon.x)}, y: {Math.round(logoElements.icon.y)}</span>
+                          </div>
+                        )}
+                        {logoElements.brand && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-white/70 text-xs">Brand Position:</span>
+                            <span className="text-white/50 text-xs">x: {Math.round(logoElements.brand.x)}, y: {Math.round(logoElements.brand.y)}</span>
+                          </div>
+                        )}
+                        {logoElements.slogan && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-white/70 text-xs">Slogan Position:</span>
+                            <span className="text-white/50 text-xs">x: {Math.round(logoElements.slogan.x)}, y: {Math.round(logoElements.slogan.y)}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Place Here buttons */}
+                      <div className="space-y-2 mt-3">
+                        {logoElements.icon && !logoElements.icon.permanent && (
+                          <button
+                            onClick={() => {
+                              setLogoElements(prev => ({
+                                ...prev,
+                                icon: prev.icon ? { ...prev.icon, permanent: true, selected: false } : prev.icon
+                              }));
+                              setSelectedElement(null);
+                              console.log('🎯 Icon placed permanently as SVG element');
+                            }}
+                            className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition-colors"
+                          >
+                            Place Icon Here!
+                          </button>
+                        )}
+                        {logoElements.brand && !logoElements.brand.permanent && (
+                          <button
+                            onClick={() => {
+                              setLogoElements(prev => ({
+                                ...prev,
+                                brand: prev.brand ? { ...prev.brand, permanent: true, selected: false } : prev.brand
+                              }));
+                              setSelectedElement(null);
+                              console.log('🎯 Brand placed permanently as SVG element');
+                            }}
+                            className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition-colors"
+                          >
+                            Place Brand Here!
+                          </button>
+                        )}
+                        {logoElements.slogan && !logoElements.slogan.permanent && (
+                          <button
+                            onClick={() => {
+                              setLogoElements(prev => ({
+                                ...prev,
+                                slogan: prev.slogan ? { ...prev.slogan, permanent: true, selected: false } : prev.slogan
+                              }));
+                              setSelectedElement(null);
+                              console.log('🎯 Slogan placed permanently as SVG element');
+                            }}
+                            className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition-colors"
+                          >
+                            Place Slogan Here!
+                          </button>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          const canvasWidth = 400;
+                          const canvasHeight = 300;
+
+                          setLogoElements(prev => ({
+                            ...prev,
+                            icon: prev.icon ? { ...prev.icon, x: canvasWidth / 2, y: canvasHeight / 2 - 60, permanent: false } : prev.icon,
+                            brand: prev.brand ? { ...prev.brand, x: canvasWidth / 2, y: canvasHeight / 2 - 20, permanent: false } : prev.brand,
+                            slogan: prev.slogan ? { ...prev.slogan, x: canvasWidth / 2, y: canvasHeight / 2 + 20, permanent: false } : prev.slogan
+                          }));
+                          setSelectedElement(null);
+                        }}
+                        className="w-full mt-3 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-colors"
+                      >
+                        Reset Positions
+                      </button>
                     </div>
                   )}
 
