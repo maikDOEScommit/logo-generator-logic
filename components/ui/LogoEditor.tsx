@@ -34,6 +34,7 @@ interface Stroke {
   opacity: number; // 0-1 scale for SVG opacity
   lineCap?: 'round' | 'square'; // For line tool
   rect?: { x: number; y: number; width: number; height: number };
+  rotation?: number; // Preserve rotation for placed boxes
 }
 
 interface BoxShape {
@@ -680,6 +681,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         {editLayers.map(layer => 
           layer.visible && layer.strokes.map(stroke => {
             if (stroke.tool === 'box' && stroke.rect) {
+              const centerX = stroke.rect.x + stroke.rect.width / 2;
+              const centerY = stroke.rect.y + stroke.rect.height / 2;
+              const rotation = stroke.rotation || 0;
+
               return (
                 <rect
                   key={stroke.id}
@@ -691,6 +696,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   stroke={stroke.color}
                   strokeWidth={stroke.width}
                   opacity={stroke.opacity}
+                  transform={`rotate(${rotation} ${centerX} ${centerY})`}
                 />
               );
             } else if (stroke.tool === 'line' && stroke.points.length >= 2) {
@@ -1662,6 +1668,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                     color: boxToConvert.fillColor,
                                     width: boxToConvert.strokeWidth,
                                     opacity: boxToConvert.opacity,
+                                    rotation: boxToConvert.rotation, // Preserve rotation state
                                     rect: {
                                       x: boxToConvert.x,
                                       y: boxToConvert.y,
