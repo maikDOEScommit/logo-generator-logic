@@ -18,7 +18,7 @@ import Step2_Branding from '@/components/editor/Step2_Branding';
 import Step3_Design from '@/components/editor/Step3_Design';
 import LogoPreview from '@/components/preview/LogoPreview';
 import MockupPreview from '@/components/preview/MockupPreview';
-import { fontCategories } from '@/lib/data';
+import { fontCategories, colorPalettes, availableIcons, industries } from '@/lib/data';
 
 
 // === MAIN PAGE COMPONENT ===
@@ -313,31 +313,90 @@ export default function LogoGeneratorPage() {
     // Logo creation is now triggered when user has selected all required elements
     // The config state already contains the selected icon, layout, and palette
     console.log('Creating logo with config:', config);
-    
+
     setExitThirdText(true);
-    
+
     setTimeout(() => {
       // Show loading screen after third text exits
       setShowLoadingScreen(true);
-      
+
       setTimeout(() => {
         // Hide loading screen and show results after 3 seconds
         setShowLoadingScreen(false);
-        
+
         // Create the new results section (section 4)
         const nextSection = 4;
         if (!visibleSections.includes(nextSection)) {
           setVisibleSections([...visibleSections, nextSection]);
         }
-        
+
         // Show logo preview
         setShowLogoPreview(true);
         setHideStartedText(true);
-        
+
         // Scroll to the new results section
         scrollToSection(`section-${nextSection}`);
       }, 3000); // 3 second loading screen
     }, 1000); // Wait for text exit animation
+  };
+
+  // TEMP: Random Logo Generator for Testing
+  const generateRandomLogo = () => {
+    // Get random industry
+    const randomIndustry = industries[Math.floor(Math.random() * industries.length)].id;
+
+    // Get random personalities (1-2 random ones)
+    const allPersonalities = ['innovative', 'professional', 'creative', 'reliable', 'energetic', 'elegant'];
+    const randomPersonalities = allPersonalities
+      .sort(() => 0.5 - Math.random())
+      .slice(0, Math.floor(Math.random() * 2) + 1);
+
+    // Generate random suggestions based on industry
+    const randomSuggestions = getInitialSuggestions(randomIndustry, randomPersonalities);
+
+    // Pick random elements from suggestions
+    const randomIcon = randomSuggestions.suggestedIcons[Math.floor(Math.random() * randomSuggestions.suggestedIcons.length)];
+    const randomLayout = randomSuggestions.suggestedLayouts[Math.floor(Math.random() * randomSuggestions.suggestedLayouts.length)];
+    const randomPalette = randomSuggestions.suggestedPalettes[Math.floor(Math.random() * randomSuggestions.suggestedPalettes.length)];
+    const randomFont = randomSuggestions.suggestedFonts[Math.floor(Math.random() * randomSuggestions.suggestedFonts.length)];
+
+    // Generate random brand name
+    const brandNames = ['TechFlow', 'Quantum', 'Nova Labs', 'Apex Pro', 'Vista Digital', 'Fusion Co', 'Stellar Inc', 'Prime Labs'];
+    const randomBrandName = brandNames[Math.floor(Math.random() * brandNames.length)];
+
+    // Generate random slogan
+    const slogans = ['Innovation Simplified', 'Your Success Partner', 'Beyond Expectations', 'Excellence Delivered', 'Future Forward', 'Quality First'];
+    const randomSlogan = slogans[Math.floor(Math.random() * slogans.length)];
+
+    // Set all the random data
+    setIndustry(randomIndustry);
+    setSelectedPersonalities(randomPersonalities);
+    setConfig({
+      text: randomBrandName,
+      slogan: randomSlogan,
+      icon: randomIcon,
+      layout: randomLayout,
+      palette: randomPalette,
+      font: randomFont,
+      enclosingShape: null
+    });
+
+    // Skip all animations and go directly to results
+    setExitHeroSection(true);
+    setShowPreviewPanel(true);
+    setShowTopBorder(true);
+    setShowLeftBorder(true);
+    setShowStartedText(true);
+    setShowLogoPreview(true);
+    setHideStartedText(true);
+
+    // Set all sections as visible
+    setVisibleSections([0, 1, 2, 3, 4]);
+
+    // Scroll to results after short delay
+    setTimeout(() => {
+      scrollToSection('section-4');
+    }, 500);
   };
 
   return (
@@ -414,6 +473,21 @@ export default function LogoGeneratorPage() {
                   <div className="absolute inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-100%] group-hover:translate-x-[100%] group-hover:transition-transform group-hover:duration-700"></div>
                 </button>
+
+                {/* TEMP: Quick Testing Button */}
+                <button
+                  onClick={generateRandomLogo}
+                  className="mt-4 bg-red-600 !text-white font-bold px-6 py-3 rounded-lg shadow-lg shadow-red-600/30 transition-all duration-300 transform hover:scale-105 hover:bg-red-700 active:scale-95 text-sm"
+                  style={{
+                    fontSize: '14px',
+                    opacity: 0.8
+                  }}
+                >
+                  🎲 Quick Test: Random Logo
+                </button>
+                <p className="text-xs text-white/50 mt-2">
+                  ⚡ For development testing only - skips to final result
+                </p>
               </motion.div>
             )}
           </AnimatePresence>

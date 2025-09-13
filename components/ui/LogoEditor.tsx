@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
-import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette, Move } from 'lucide-react';
+import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette, Move, Maximize, Expand } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
 
 interface LogoEditorProps {
@@ -101,6 +101,7 @@ interface IconElement {
 
 const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes, variation }: LogoEditorProps) => {
   const [showFullscreenEditor, setShowFullscreenEditor] = useState(false);
+  const [isTrueFullscreen, setIsTrueFullscreen] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [flippedCards, setFlippedCards] = useState<{[key: string]: boolean}>({});
@@ -188,8 +189,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [currentLine, setCurrentLine] = useState<{ start: Point; end: Point } | null>(null);
   const [currentStroke, setCurrentStroke] = useState<Stroke | null>(null);
   const [editLayers, setEditLayers] = useState<EditLayer[]>([
-    { id: 'layer-1', name: 'Drawing Layer', visible: true, strokes: [] }
+    { id: 'layer-1', name: 'Background Layer', visible: true, strokes: [] },
+    { id: 'layer-2', name: 'Elements Layer', visible: true, strokes: [] }
   ]);
+  const [activeLayer, setActiveLayer] = useState<string>('layer-2');
   
   // Canvas refs
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -458,8 +461,25 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
+
+    // Adjust coordinates for zoom scaling
+    if (isZoomed) {
+      // When zoomed 2x, the content is scaled but the mouse coordinates need to be scaled down
+      const scaleFactor = 2;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      // Convert to relative position from center
+      const relativeX = x - centerX;
+      const relativeY = y - centerY;
+
+      // Scale down the relative position
+      x = centerX + (relativeX / scaleFactor);
+      y = centerY + (relativeY / scaleFactor);
+    }
+
     return { x, y };
   };
 
@@ -602,165 +622,75 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
     let sampledColor: string | null = null;
 
-    // METHOD 1: Try pixel sampling from canvas if possible
     try {
       const canvasElement = canvasRef.current;
       if (canvasElement) {
-        // Create a temporary canvas to capture the rendered content
-        const tempCanvas = document.createElement('canvas');
-        const ctx = tempCanvas.getContext('2d');
+        // Create a temporary canvas to capture the SVG content
+        const svgElement = svgRef.current;
+        if (svgElement) {
+          const tempCanvas = document.createElement('canvas');
+          const ctx = tempCanvas.getContext('2d');
 
-        if (ctx) {
-          // Set canvas size to match the preview area
-          tempCanvas.width = canvasElement.offsetWidth;
-          tempCanvas.height = canvasElement.offsetHeight;
+          if (ctx) {
+            // Set canvas size to match the preview area
+            tempCanvas.width = canvasElement.offsetWidth;
+            tempCanvas.height = canvasElement.offsetHeight;
 
-          // Try to draw the current view to canvas (this might not work due to CORS)
-          try {
-            // Alternative approach: use html2canvas-like functionality
-            const rect = canvasElement.getBoundingClientRect();
+            // Create an image from the SVG
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
 
-            // For now, let's use a different approach - check elements at the coordinates
-            const elementsAtPoint = document.elementsFromPoint(
-              rect.left + point.x,
-              rect.top + point.y
-            );
+            const img = new Image();
+            img.onload = () => {
+              try {
+                ctx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
 
-            console.log('📍 Elements at click point:', elementsAtPoint);
+                // Get pixel data at the clicked point
+                const imageData = ctx.getImageData(Math.floor(point.x), Math.floor(point.y), 1, 1);
+                const [r, g, b, a] = imageData.data;
 
-            // Iterate through elements to find colors
-            for (const element of elementsAtPoint) {
-              console.log('🔍 Checking element:', element.tagName, element.className);
-
-              // Check SVG elements first (drawn elements)
-              if (element.tagName === 'rect') {
-                const fill = element.getAttribute('fill');
-                const stroke = element.getAttribute('stroke');
-                if (fill && fill !== 'none') {
-                  sampledColor = fill;
-                  console.log('📦 Found rect fill:', sampledColor);
-                  break;
-                } else if (stroke && stroke !== 'none') {
-                  sampledColor = stroke;
-                  console.log('📦 Found rect stroke:', sampledColor);
-                  break;
+                if (a > 0) { // Only if pixel is not transparent
+                  sampledColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+                  console.log('✅ Sampled pixel color:', sampledColor, `rgba(${r}, ${g}, ${b}, ${a})`);
+                } else {
+                  console.log('⚪ Clicked on transparent pixel');
                 }
-              } else if (element.tagName === 'path') {
-                const fill = element.getAttribute('fill');
-                const stroke = element.getAttribute('stroke');
-                if (fill && fill !== 'none' && fill !== 'currentColor') {
-                  sampledColor = fill;
-                  console.log('🖌️ Found path fill:', sampledColor);
-                  break;
-                } else if (stroke && stroke !== 'none') {
-                  sampledColor = stroke;
-                  console.log('🖌️ Found path stroke:', sampledColor);
-                  break;
+
+                // Set the sampled color and update brush color
+                if (sampledColor) {
+                  setSampledColor(sampledColor);
+                  setBrushColor(sampledColor);
+                } else {
+                  // Fallback to current brush color
+                  setSampledColor(brushColor);
                 }
-              } else if (element.tagName === 'line') {
-                const stroke = element.getAttribute('stroke');
-                if (stroke && stroke !== 'none') {
-                  sampledColor = stroke;
-                  console.log('📏 Found line stroke:', sampledColor);
-                  break;
-                }
+              } catch (error) {
+                console.log('⚠️ Failed to sample pixel:', error);
+                setSampledColor(brushColor);
+              } finally {
+                URL.revokeObjectURL(url);
               }
+            };
 
-              // Check for text elements
-              const computedStyle = window.getComputedStyle(element);
-              if (element.textContent && element.textContent.trim()) {
-                if (computedStyle.color && computedStyle.color !== 'rgba(0, 0, 0, 0)') {
-                  sampledColor = computedStyle.color;
-                  console.log('📝 Found text color:', sampledColor, 'from element:', element.textContent.substring(0, 20));
-                  break;
-                }
-              }
+            img.onerror = () => {
+              console.log('⚠️ Failed to load SVG image');
+              URL.revokeObjectURL(url);
+              setSampledColor(brushColor);
+            };
 
-              // Check for background colors
-              if (computedStyle.backgroundColor && computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' && computedStyle.backgroundColor !== 'transparent') {
-                sampledColor = computedStyle.backgroundColor;
-                console.log('🎨 Found background color:', sampledColor);
-                break;
-              }
-            }
-          } catch (canvasError) {
-            console.log('⚠️ Canvas sampling failed:', canvasError);
+            img.src = url;
+            return; // Exit early, color will be set in onload callback
           }
         }
       }
     } catch (error) {
-      console.log('⚠️ Pixel sampling failed:', error);
+      console.log('⚠️ SVG pixel sampling failed:', error);
     }
 
-    // METHOD 2: Fallback to state-based detection
-    if (!sampledColor) {
-      console.log('🔄 Using state-based fallback detection');
-
-      // Check drawn boxes from state
-      const clickedBox = boxes.find(box =>
-        point.x >= box.x &&
-        point.x <= box.x + box.width &&
-        point.y >= box.y &&
-        point.y <= box.y + box.height
-      );
-      if (clickedBox) {
-        sampledColor = clickedBox.fillColor || clickedBox.strokeColor;
-        console.log('📦 Found state box color:', sampledColor);
-      }
-
-      // Check drawn strokes from state
-      if (!sampledColor) {
-        for (const layer of editLayers) {
-          if (!layer.visible) continue;
-          for (const stroke of layer.strokes) {
-            if (stroke.tool === 'box' && stroke.rect) {
-              if (point.x >= stroke.rect.x && point.x <= stroke.rect.x + stroke.rect.width &&
-                  point.y >= stroke.rect.y && point.y <= stroke.rect.y + stroke.rect.height) {
-                sampledColor = stroke.color;
-                console.log('🎨 Found stroke box color:', sampledColor);
-                break;
-              }
-            } else if (stroke.tool === 'brush' || stroke.tool === 'line') {
-              // Simple proximity check for strokes
-              for (const strokePoint of stroke.points) {
-                const distance = Math.sqrt(Math.pow(point.x - strokePoint.x, 2) + Math.pow(point.y - strokePoint.y, 2));
-                if (distance <= (stroke.width / 2 + 5)) { // Add some tolerance
-                  sampledColor = stroke.color;
-                  console.log('🖌️ Found stroke color:', sampledColor);
-                  break;
-                }
-              }
-              if (sampledColor) break;
-            }
-          }
-          if (sampledColor) break;
-        }
-      }
-
-      // Use current logo colors as fallback
-      if (!sampledColor) {
-        sampledColor = brandNameColor; // Default fallback
-        console.log('🏷️ Using brand name color as final fallback:', sampledColor);
-      }
-    }
-
-    // Convert rgb/rgba to hex if needed
-    if (sampledColor?.startsWith('rgb')) {
-      const rgbMatch = sampledColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
-      if (rgbMatch) {
-        const r = parseInt(rgbMatch[1]);
-        const g = parseInt(rgbMatch[2]);
-        const b = parseInt(rgbMatch[3]);
-        sampledColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-        console.log('🔄 Converted to hex:', sampledColor);
-      }
-    }
-
-    console.log('✅ Final sampled color:', sampledColor);
-
-    // Set the sampled color and update brush color
-    setSampledColor(sampledColor);
-    setBrushColor(sampledColor || '#000000');
+    // Fallback: use current brush color
+    console.log('🔄 Using brush color as fallback:', brushColor);
+    setSampledColor(brushColor);
   };
 
   const startDrawing = (e: React.MouseEvent) => {
@@ -1017,8 +947,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       });
     } else if (currentStroke) {
       // Add brush/eraser stroke to current layer
-      setEditLayers(prev => prev.map(layer => 
-        layer.id === 'layer-1' 
+      setEditLayers(prev => prev.map(layer =>
+        layer.id === activeLayer
           ? { ...layer, strokes: [...layer.strokes, currentStroke] }
           : layer
       ));
@@ -1038,8 +968,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         lineCap: drawingTool === 'eraser' ? brushLineCap : lineCap
       };
       
-      setEditLayers(prev => prev.map(layer => 
-        layer.id === 'layer-1' 
+      setEditLayers(prev => prev.map(layer =>
+        layer.id === activeLayer
           ? { ...layer, strokes: [...layer.strokes, lineStroke] }
           : layer
       ));
@@ -1069,8 +999,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   };
 
   const undoLastStroke = () => {
-    setEditLayers(prev => prev.map(layer => 
-      layer.id === 'layer-1' 
+    setEditLayers(prev => prev.map(layer =>
+      layer.id === activeLayer
         ? { ...layer, strokes: layer.strokes.slice(0, -1) }
         : layer
     ));
@@ -1730,11 +1660,57 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
   const handleEdit = () => {
     setShowFullscreenEditor(true);
+    // Automatically switch to fullscreen mode
+    setTimeout(() => {
+      handleTrueFullscreen();
+    }, 100);
   };
 
   const handleSave = () => {
     setShowSaveModal(true);
   };
+
+  const handleTrueFullscreen = () => {
+    setIsTrueFullscreen(true);
+    // Use HTML5 Fullscreen API
+    const element = document.documentElement;
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if ((element as any).webkitRequestFullscreen) {
+      (element as any).webkitRequestFullscreen();
+    } else if ((element as any).msRequestFullscreen) {
+      (element as any).msRequestFullscreen();
+    }
+  };
+
+  const handleExitFullscreen = () => {
+    setIsTrueFullscreen(false);
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if ((document as any).webkitExitFullscreen) {
+      (document as any).webkitExitFullscreen();
+    } else if ((document as any).msExitFullscreen) {
+      (document as any).msExitFullscreen();
+    }
+  };
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = !!(document.fullscreenElement || (document as any).webkitFullscreenElement || (document as any).msFullscreenElement);
+      setIsTrueFullscreen(isCurrentlyFullscreen);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   const handleSaveOption = (option: string) => {
     console.log('Selected save option:', option, 'for logo:', config);
@@ -1795,6 +1771,17 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
   return (
     <>
+      {/* Permanent Fullscreen Button - Top Left */}
+      <div className="absolute top-2 left-2 z-20">
+        <button
+          onClick={() => setShowFullscreenEditor(true)}
+          className="p-2 bg-black/60 hover:bg-black/80 text-white rounded-lg backdrop-blur-sm border border-white/20 hover:border-white/40 transition-all duration-200 hover:scale-105"
+          title="Open Fullscreen Editor"
+        >
+          <Maximize size={16} />
+        </button>
+      </div>
+
       {/* Menu Panel - slides up from bottom on hover */}
       <div className="absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-white/20 rounded-b-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-xl">
         <div className="flex gap-1 justify-center">
@@ -1803,6 +1790,12 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors flex-1 max-w-[60px]"
           >
             <Edit size={12} /> Edit
+          </button>
+          <button
+            onClick={() => setShowFullscreenEditor(true)}
+            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-medium transition-colors flex-1 max-w-[70px]"
+          >
+            <Maximize size={12} /> Full
           </button>
           <button
             onClick={handleSave}
@@ -1822,11 +1815,13 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       {/* Fullscreen Editor Modal */}
       {showFullscreenEditor && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-full max-h-[90vh] flex">
+          <div className={`bg-gray-900 w-full h-full flex ${
+            isTrueFullscreen ? 'rounded-none max-w-none max-h-none' : 'rounded-lg max-w-6xl max-h-[90vh]'
+          }`}>
             {/* Logo Preview Side with Drawing Canvas */}
             <div className="flex-1 p-8 flex flex-col items-center justify-center border-r border-white/20">
-              {/* Zoom Controls */}
-              <div className="absolute top-4 left-4 z-50">
+              {/* Zoom and Fullscreen Controls */}
+              <div className="absolute top-4 left-4 z-50 flex gap-2">
                 <button
                   onClick={() => setIsZoomed(!isZoomed)}
                   className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
@@ -1837,6 +1832,28 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 >
                   {isZoomed ? '1x' : '2x'} Zoom
                 </button>
+                <button
+                  onClick={isTrueFullscreen ? handleExitFullscreen : handleTrueFullscreen}
+                  className="px-3 py-2 rounded text-sm font-medium transition-colors bg-white/10 hover:bg-white/20 text-white/80"
+                >
+                  {isTrueFullscreen ? (
+                    <>
+                      <X size={16} /> Exit FS
+                    </>
+                  ) : (
+                    <>
+                      <Expand size={16} /> Fullscreen
+                    </>
+                  )}
+                </button>
+                {!isTrueFullscreen && (
+                  <button
+                    onClick={() => setShowFullscreenEditor(false)}
+                    className="px-3 py-2 rounded text-sm font-medium transition-colors bg-red-500/20 hover:bg-red-500/30 text-white/80 border border-red-400/30"
+                  >
+                    <X size={16} /> Close
+                  </button>
+                )}
               </div>
 
               <div
@@ -1967,21 +1984,28 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             </div>
 
             {/* Editor Controls Side */}
-            <div className="w-80 p-6 overflow-y-auto">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-white font-bold text-lg">Edit Logo</h3>
+            <div className="w-96 p-8 overflow-y-auto bg-gradient-to-b from-gray-800/50 to-gray-900/80 backdrop-blur-sm">
+              <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+                <div>
+                  <h3 className="text-white font-bold text-2xl mb-1">Edit Logo</h3>
+                  <p className="text-white/60 text-sm">Professional editing tools</p>
+                </div>
                 <button
                   onClick={() => setShowFullscreenEditor(false)}
-                  className="text-white/60 hover:text-white text-xl"
+                  className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+                  title="Close Editor"
                 >
-                  ×
+                  <X size={20} />
                 </button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 {/* Drawing Tools Section */}
-                <div>
-                  <h4 className="text-white font-semibold mb-3">Drawing Tools</h4>
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
+                  <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+                    <Brush size={20} className="text-blue-400" />
+                    Drawing Tools
+                  </h4>
                   
                   {/* Tool Selection */}
                   <div className="grid grid-cols-3 gap-2 mb-4">
@@ -2037,6 +2061,33 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       <Move size={16} />
                       Move
                     </button>
+                  </div>
+
+                  {/* Layer Selection */}
+                  <div className="bg-white/10 rounded p-3 mb-4">
+                    <h5 className="text-white/80 font-medium text-sm mb-2">Ebenen (Layers)</h5>
+                    <div className="space-y-2">
+                      {editLayers.map((layer) => (
+                        <button
+                          key={layer.id}
+                          onClick={() => setActiveLayer(layer.id)}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded text-sm transition-colors ${
+                            activeLayer === layer.id ? 'bg-blue-600 text-white' : 'bg-white/5 text-white/80 hover:bg-white/10'
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${layer.visible ? 'bg-green-400' : 'bg-gray-400'}`}></div>
+                            {layer.name}
+                          </span>
+                          <span className="text-xs opacity-60">
+                            {layer.strokes.length} {layer.strokes.length === 1 ? 'Stroke' : 'Strokes'}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-white/50 text-xs mt-2">
+                      Ebene 1: Hintergrund (Platzierte Elemente) • Ebene 2: Zeichnungen
+                    </p>
                   </div>
 
                   {/* Eyedropper Tool Settings */}
@@ -2114,7 +2165,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                   iconSize: iconElement.size
                                 };
 
-                                // Add icon stroke to drawing layer
+                                // Add icon stroke to background layer (layer-1)
                                 setEditLayers(prev => prev.map(layer =>
                                   layer.id === 'layer-1'
                                     ? { ...layer, strokes: [...layer.strokes, iconStroke] }
@@ -2158,7 +2209,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                   textAlign: brandElement.textAlign
                                 };
 
-                                // Add brand stroke to drawing layer
+                                // Add brand stroke to background layer (layer-1)
                                 setEditLayers(prev => prev.map(layer =>
                                   layer.id === 'layer-1'
                                     ? { ...layer, strokes: [...layer.strokes, brandStroke] }
@@ -2202,7 +2253,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                   textAlign: sloganElement.textAlign
                                 };
 
-                                // Add slogan stroke to drawing layer
+                                // Add slogan stroke to background layer (layer-1)
                                 setEditLayers(prev => prev.map(layer =>
                                   layer.id === 'layer-1'
                                     ? { ...layer, strokes: [...layer.strokes, sloganStroke] }
@@ -2707,7 +2758,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                     }
                                   };
 
-                                  // Add box stroke to drawing layer
+                                  // Add box stroke to background layer (layer-1)
                                   setEditLayers(prev => prev.map(layer =>
                                     layer.id === 'layer-1'
                                       ? { ...layer, strokes: [...layer.strokes, boxStroke] }
@@ -2750,8 +2801,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 </div>
 
                 {/* Text Section */}
-                <div>
-                  <h4 className="text-white font-semibold mb-3">Text</h4>
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
+                  <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+                    <User size={20} className="text-purple-400" />
+                    Text
+                  </h4>
                   <div className="space-y-3">
                     <div>
                       <label className="block text-white/80 text-sm mb-1">Brand Name</label>
@@ -2928,8 +2982,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 </div>
 
                 {/* Icon Section */}
-                <div>
-                  <h4 className="text-white font-semibold mb-3">Icon</h4>
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
+                  <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+                    <Star size={20} className="text-yellow-400" />
+                    Icon
+                  </h4>
                   <div className="grid grid-cols-6 gap-2 mb-3">
                     <button
                       onClick={() => updateLocalConfig({ icon: null })}

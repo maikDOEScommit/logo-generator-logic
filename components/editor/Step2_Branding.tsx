@@ -85,7 +85,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
                 delay: 0.6,
                 clipPath: { duration: 1.5, ease: "easeOut" }
               }}
-              className="w-screen -mx-4 md:-mx-8 lg:-mx-12"
+              className="w-screen -mx-4 md:-mx-8 lg:-mx-12 xl:-mx-24 2xl:-mx-32"
             >
               <AnimatedWaves />
             </motion.div>
