@@ -471,10 +471,6 @@ export default function LogoGeneratorPage() {
             >
               <div className="w-full max-w-2xl">
                 <div className="space-y-12">
-                  <div className="flex items-center gap-2">
-                    <button onClick={handleUndo} disabled={true} className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-500/30 transition-colors border border-emerald-300/30"><Undo2 size={16}/> Undo</button>
-                    <button onClick={handleRedo} disabled={true} className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-500/30 transition-colors border border-emerald-300/30"><Redo2 size={16}/> Redo</button>
-                  </div>
                   <Step3_Design
                     config={config}
                     updateConfig={updateConfig}
@@ -505,6 +501,32 @@ export default function LogoGeneratorPage() {
                 <div>
                   <h2 className="text-4xl font-bold text-white mb-4">Your Logo is Ready!</h2>
                   <p className="text-xl text-white/70 mb-6">Here are your generated logo variations</p>
+
+                  {/* Undo/Redo Buttons for Icon Re-selection */}
+                  <div className="flex items-center gap-2 mb-6">
+                    <button
+                      onClick={() => {
+                        // Scroll back to icon selection (section 3)
+                        document.getElementById('section-3')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Reset selected icon to allow re-selection
+                        updateConfig({ icon: null });
+                      }}
+                      className={`flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-lg hover:bg-emerald-500/30 transition-colors border border-emerald-300/30 ${!isDarkMode ? '!text-white/90' : ''}`}
+                    >
+                      <Undo2 size={16}/> Change Icon
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Scroll back to typography/layout selection
+                        document.getElementById('section-3')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Reset layout/font to allow re-selection
+                        updateConfig({ layout: null, font: null });
+                      }}
+                      className={`flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-lg hover:bg-emerald-500/30 transition-colors border border-emerald-300/30 ${!isDarkMode ? '!text-white/90' : ''}`}
+                    >
+                      <Redo2 size={16}/> Change Layout
+                    </button>
+                  </div>
                 </div>
 
                 {/* Design Quality */}

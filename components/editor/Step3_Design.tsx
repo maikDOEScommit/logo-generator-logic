@@ -453,7 +453,22 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
       {/* All remaining sections - Only shown after icon decision is made */}
       {wantsIcon !== null && (
         <>
-          <div data-section="typography" className="h-screen flex items-center justify-center -mt-36">
+          <div data-section="typography" className="h-screen flex items-center justify-center -mt-36 relative">
+            {/* Back Button - Top Left Corner */}
+            <button
+              onClick={() => {
+                // Reset icon selection and go back to icon section
+                updateConfig({ icon: null });
+                setWantsIcon(true);
+                // Scroll back to icon selection
+                setTimeout(() => {
+                  document.querySelector('[data-section="icons"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+              }}
+              className="absolute top-8 left-8 px-4 py-2 bg-black/30 hover:bg-black/50 text-white/80 hover:text-white rounded-xl transition-all duration-300 text-sm font-medium z-30 backdrop-blur-sm border border-white/20 hover:border-white/40 shadow-lg"
+            >
+              ← Back to Icons
+            </button>
             <div className="w-full max-w-2xl text-center">
               <motion.div
                 className="w-full"
@@ -759,15 +774,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 <div className="flex justify-around items-stretch gap-4 mb-4">
                   <button
                     onClick={() => handleColorOptionChange('base-only')}
-                    className={`relative group flex-1 min-h-[6rem] rounded-lg border-4 transition-all duration-300 transform hover:scale-105 cursor-pointer overflow-hidden ${
-                      selectedColorOption === 'base-only'
-                        ? 'border-white shadow-2xl scale-105 shadow-white/30'
-                        : 'border-white/20 hover:border-white/40'
+                    className={`color-mode-button group flex-1 min-h-[6rem] cursor-pointer ${
+                      selectedColorOption === 'base-only' ? 'selected' : ''
                     }`}
-                    style={{
-                      background: `rgba(255, 255, 255, 0.2)`,
-                      boxShadow: '0 4px 15px rgba(255, 255, 255, 0.1)'
-                    }}
                   >
                     {/* Animated borders similar to brand personality buttons */}
                     <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>

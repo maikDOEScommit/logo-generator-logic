@@ -109,10 +109,34 @@ export const Header = () => {
         <SignedOut>
           <div className="flex items-center gap-2">
             <SignInButton mode="modal">
-              <button className={`text-sm font-medium transition-all duration-300 ${!isDarkMode ? 'text-white hover:text-black hover:scale-110' : 'hover:text-primary'}`}>Sign In</button>
+              <button className={`signin-btn text-sm font-medium transition-all duration-300 ${!isDarkMode ? 'hover:scale-110' : 'hover:text-primary'}`}>Sign In</button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="bg-black !text-white px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:bg-transparent hover:!text-white hover:scale-[1.15] active:scale-95 border border-black">Sign Up</button>
+              <button
+                className="signup-btn bg-black px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:scale-[1.15] active:scale-95 border border-black hover:bg-transparent hover:text-black"
+                style={{
+                  color: 'white',
+                  backgroundColor: 'black',
+                  borderColor: 'black'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = 'black';
+                  e.target.style.backgroundColor = 'transparent';
+                  const span = e.target.querySelector('span');
+                  if (span) {
+                    // In light mode: black text on hover, in dark mode: white text on hover
+                    span.style.color = isDarkMode ? 'white' : 'black';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = 'white';
+                  e.target.style.backgroundColor = 'black';
+                  const span = e.target.querySelector('span');
+                  if (span) span.style.color = 'white';
+                }}
+              >
+                <span className="signup-text" style={{ color: 'white', textShadow: 'none' }}>Sign Up</span>
+              </button>
             </SignUpButton>
           </div>
         </SignedOut>

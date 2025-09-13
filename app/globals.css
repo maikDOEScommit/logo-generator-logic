@@ -34,39 +34,79 @@
 
 /* Light Mode Text and Input Fixes */
 @layer utilities {
-  /* Make all text dark in light mode - BUT EXCLUDE buttons with dark backgrounds */
-  html:not(.dark) h1:not(button *),
-  html:not(.dark) h2:not(button *),
-  html:not(.dark) h3:not(button *),
-  html:not(.dark) h4:not(button *),
-  html:not(.dark) h5:not(button *),
-  html:not(.dark) h6:not(button *),
-  html:not(.dark) p:not(button *),
-  html:not(.dark) span:not(button *),
-  html:not(.dark) div:not(button *),
-  html:not(.dark) label:not(button *),
-  html:not(.dark) .text-white:not(button):not(button *) {
+  /* Make all text dark in light mode - BUT EXCLUDE Sign Up button */
+  html:not(.dark) h1:not(button *):not(.signup-btn *),
+  html:not(.dark) h2:not(button *):not(.signup-btn *),
+  html:not(.dark) h3:not(button *):not(.signup-btn *),
+  html:not(.dark) h4:not(button *):not(.signup-btn *),
+  html:not(.dark) h5:not(button *):not(.signup-btn *),
+  html:not(.dark) h6:not(button *):not(.signup-btn *),
+  html:not(.dark) p:not(button *):not(.signup-btn *),
+  html:not(.dark) span:not(button *):not(.signup-btn *),
+  html:not(.dark) div:not(button *):not(.signup-btn *),
+  html:not(.dark) label:not(button *):not(.signup-btn *),
+  html:not(.dark) .text-white:not(.signup-btn):not(.signup-btn *):not(button):not(button *) {
     color: theme('colors.gray.900') !important;
   }
 
-  /* FORCE: Light mode buttons with dark backgrounds MUST have white text - EXCEPT sign in on hover */
-  html:not(.dark) button[class*="bg-black"],
-  html:not(.dark) button[class*="bg-black"] *,
+  /* FORCE: Light mode buttons with dark backgrounds MUST have white text */
+  html:not(.dark) button[class*="bg-black"]:not(.signin-btn),
+  html:not(.dark) button[class*="bg-black"]:not(.signin-btn) *,
   html:not(.dark) button[class*="bg-gray"],
   html:not(.dark) button[class*="bg-gray"] *,
   html:not(.dark) button[class*="bg-emerald"],
   html:not(.dark) button[class*="bg-emerald"] *,
   html:not(.dark) button[class*="emerald-500/20"],
-  html:not(.dark) button[class*="emerald-500/20"] *,
-  html:not(.dark) .navbar-glass button:not(:hover),
-  html:not(.dark) .navbar-glass button:not(:hover) * {
+  html:not(.dark) button[class*="emerald-500/20"] * {
     color: white !important;
     text-shadow: none !important;
   }
 
-  /* Allow sign in button to be black on hover */
-  html:not(.dark) .navbar-glass button:hover {
+  /* SPECIFIC: Sign In button should be black in light mode */
+  html:not(.dark) .signin-btn {
     color: black !important;
+  }
+
+  html:not(.dark) .signin-btn:hover {
+    color: black !important;
+  }
+
+  /* ABSOLUTE PRIORITY: Sign Up button MUST have white text */
+  .signup-btn,
+  .signup-btn *,
+  html:not(.dark) .signup-btn,
+  html:not(.dark) .signup-btn *,
+  .dark .signup-btn,
+  .dark .signup-btn * {
+    color: white !important;
+    background-color: black !important;
+    text-shadow: none !important;
+  }
+
+  .signup-btn:hover,
+  .signup-btn:hover *,
+  html:not(.dark) .signup-btn:hover,
+  html:not(.dark) .signup-btn:hover *,
+  .dark .signup-btn:hover,
+  .dark .signup-btn:hover * {
+    color: black !important;
+    background-color: transparent !important;
+  }
+
+  /* ABSOLUTE FORCE: Sign Up text MUST be white always except on hover */
+  .signup-text {
+    color: white !important;
+    text-shadow: none !important;
+  }
+
+  /* Sign Up button hover text should be black in light mode */
+  html:not(.dark) .signup-btn:hover .signup-text {
+    color: black !important;
+  }
+
+  /* Sign Up button hover text should stay white in dark mode */
+  .dark .signup-btn:hover .signup-text {
+    color: white !important;
   }
 
   /* FORCE: SVG icons in light mode should always be black for visibility */
@@ -165,25 +205,44 @@
     box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15) !important;
   }
 
-  /* 4. Brand personality buttons: 10% black overlay that disappears on hover */
+  /* 4. Brand personality buttons: 10% black background treatment */
+  html:not(.dark) .brand-personality-container {
+    background: rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  }
+
+  html:not(.dark) .brand-personality-container:hover {
+    background: transparent !important;
+  }
+
+  html:not(.dark) .brand-personality-btn {
+    background: transparent !important;
+    color: rgb(75, 85, 99) !important;
+  }
+
+  /* Remove the old overlay system */
   html:not(.dark) .brand-personality-container::before,
   html:not(.dark) [class*="brand-personality"]::before,
   html:not(.dark) button[class*="personality"]::before,
   html:not(.dark) .pastel-glass-container::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: inherit;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+    display: none !important;
   }
 
-  html:not(.dark) .brand-personality-container:hover::before,
-  html:not(.dark) [class*="brand-personality"]:hover::before,
-  html:not(.dark) button[class*="personality"]:hover::before,
-  html:not(.dark) .pastel-glass-container:hover::before {
-    opacity: 0;
+  /* Preview and Mockups text - Dark gray in light mode */
+  html:not(.dark) button:has-text("Preview"),
+  html:not(.dark) button:has-text("Mockups") {
+    color: rgb(75, 85, 99) !important;
+  }
+
+  /* More specific selectors for tab buttons */
+  html:not(.dark) .flex.border-b button[class*="text-yellow-100"],
+  html:not(.dark) .flex.border-b button[class*="text-yellow-200"] {
+    color: rgb(75, 85, 99) !important;
+  }
+
+  html:not(.dark) .flex.border-b button[class*="text-yellow-100"]:hover,
+  html:not(.dark) .flex.border-b button[class*="text-yellow-200"]:hover {
+    color: rgb(59, 130, 246) !important;
   }
 
   /* Ensure personality buttons have relative positioning for overlay */
@@ -245,6 +304,323 @@
     border: 2px solid rgb(110, 231, 183) !important;
     box-shadow: 0 0 0 1px rgba(110, 231, 183, 0.3) !important;
     outline: none !important;
+  }
+
+  /* "No, text only" button should have black text in light mode */
+  html:not(.dark) button:has-text("No, text only"),
+  html:not(.dark) button[class*="bg-white/10"]:contains("No, text only") {
+    color: black !important;
+  }
+
+  /* More specific selector for "No, text only" button */
+  html:not(.dark) .flex.gap-4 button:nth-child(2) {
+    color: black !important;
+  }
+
+  /* Footer styling for light mode */
+  html:not(.dark) footer {
+    background: linear-gradient(135deg,
+      rgba(254, 240, 138, 0.1) 0%,
+      rgba(189, 183, 107, 0.08) 25%,
+      rgba(110, 231, 183, 0.1) 50%,
+      rgba(255, 255, 255, 0.95) 100%
+    ) !important;
+    border-top: 1px solid rgba(110, 231, 183, 0.3) !important;
+    backdrop-filter: blur(10px) !important;
+  }
+
+  html:not(.dark) footer h3,
+  html:not(.dark) footer h4,
+  html:not(.dark) footer p,
+  html:not(.dark) footer span,
+  html:not(.dark) footer a {
+    color: theme('colors.gray.800') !important;
+  }
+
+  html:not(.dark) footer a:hover {
+    color: rgb(110, 231, 183) !important;
+  }
+
+  /* Footer gradient text for brand name in light mode */
+  html:not(.dark) footer .bg-gradient-to-r.from-blue-400.to-purple-400 {
+    background: linear-gradient(to right,
+      rgb(110, 231, 183),
+      rgb(189, 183, 107)
+    ) !important;
+    background-clip: text !important;
+    -webkit-background-clip: text !important;
+  }
+
+  /* Footer icons in light mode */
+  html:not(.dark) footer svg {
+    color: theme('colors.gray.700') !important;
+  }
+
+  /* Footer social buttons in light mode */
+  html:not(.dark) footer .bg-white\/5 {
+    background: rgba(110, 231, 183, 0.1) !important;
+    border: 1px solid rgba(110, 231, 183, 0.2) !important;
+  }
+
+  html:not(.dark) footer .bg-white\/5:hover {
+    background: rgba(110, 231, 183, 0.2) !important;
+    border: 1px solid rgba(110, 231, 183, 0.4) !important;
+    transform: scale(1.1) !important;
+  }
+
+  /* Footer gradient hover lines */
+  html:not(.dark) footer .bg-gradient-to-r.from-blue-400.to-purple-400.group-hover\:w-4 {
+    background: linear-gradient(to right,
+      rgb(110, 231, 183),
+      rgb(189, 183, 107)
+    ) !important;
+  }
+
+  /* Color Mode Selection Buttons (base-only, add-white, add-black) - Modern styling */
+  .color-mode-button {
+    position: relative;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+  }
+
+  .color-mode-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    padding: 2px;
+    background: linear-gradient(135deg,
+      rgb(254, 240, 138) 0%,
+      rgb(189, 183, 107) 25%,
+      rgb(110, 231, 183) 50%,
+      rgb(255, 255, 255) 100%
+    );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask-composite: xor;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .color-mode-button:hover::before {
+    opacity: 1;
+  }
+
+  .color-mode-button.selected {
+    background: rgba(110, 231, 183, 0.15);
+    border: 2px solid rgb(110, 231, 183);
+    box-shadow: 0 8px 32px rgba(110, 231, 183, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: scale(1.02) translateY(-2px);
+  }
+
+  .color-mode-button:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transform: scale(1.05) translateY(-4px);
+    box-shadow: 0 12px 40px rgba(255, 255, 255, 0.1);
+  }
+
+  /* Light mode styling for color mode buttons */
+  html:not(.dark) .color-mode-button {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(110, 231, 183, 0.2);
+    box-shadow: 0 4px 20px rgba(110, 231, 183, 0.1);
+  }
+
+  html:not(.dark) .color-mode-button.selected {
+    background: rgba(110, 231, 183, 0.1);
+    border: 2px solid rgb(110, 231, 183);
+    box-shadow: 0 8px 32px rgba(110, 231, 183, 0.25);
+  }
+
+  html:not(.dark) .color-mode-button:hover {
+    background: rgba(255, 255, 255, 1);
+    border: 2px solid rgba(110, 231, 183, 0.4);
+    box-shadow: 0 12px 40px rgba(110, 231, 183, 0.2);
+  }
+
+  /* Text styling inside color mode buttons */
+  .color-mode-button .text-white {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  html:not(.dark) .color-mode-button .text-white {
+    color: rgb(75, 85, 99) !important;
+    text-shadow: none;
+  }
+
+  /* Auto-style existing color option buttons with onClick handleColorOptionChange */
+  button[onclick*="handleColorOptionChange"],
+  button[class*="min-h-\[6rem\]"][class*="border-4"] {
+    position: relative;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 2px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px !important;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1) !important;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1) !important;
+  }
+
+  button[onclick*="handleColorOptionChange"]::before,
+  button[class*="min-h-\[6rem\]"][class*="border-4"]::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    padding: 2px;
+    background: linear-gradient(135deg,
+      rgb(254, 240, 138) 0%,
+      rgb(189, 183, 107) 25%,
+      rgb(110, 231, 183) 50%,
+      rgb(255, 255, 255) 100%
+    );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask-composite: xor;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  button[onclick*="handleColorOptionChange"]:hover::before,
+  button[class*="min-h-\[6rem\]"][class*="border-4"]:hover::before {
+    opacity: 1;
+  }
+
+  /* Selected state for color option buttons */
+  button[onclick*="handleColorOptionChange"][class*="border-white"][class*="shadow-2xl"],
+  button[class*="min-h-\[6rem\]"][class*="scale-105"] {
+    background: rgba(110, 231, 183, 0.15) !important;
+    border: 2px solid rgb(110, 231, 183) !important;
+    box-shadow: 0 8px 32px rgba(110, 231, 183, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    transform: scale(1.02) translateY(-2px) !important;
+  }
+
+  /* Hover effects */
+  button[onclick*="handleColorOptionChange"]:hover,
+  button[class*="min-h-\[6rem\]"][class*="border-4"]:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    transform: scale(1.05) translateY(-4px) !important;
+    box-shadow: 0 12px 40px rgba(255, 255, 255, 0.15) !important;
+  }
+
+  /* Light mode styling for these buttons */
+  html:not(.dark) button[onclick*="handleColorOptionChange"],
+  html:not(.dark) button[class*="min-h-\[6rem\]"][class*="border-4"] {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 2px solid rgba(110, 231, 183, 0.2) !important;
+    box-shadow: 0 4px 20px rgba(110, 231, 183, 0.1) !important;
+  }
+
+  html:not(.dark) button[onclick*="handleColorOptionChange"][class*="border-white"][class*="shadow-2xl"],
+  html:not(.dark) button[class*="min-h-\[6rem\]"][class*="scale-105"] {
+    background: rgba(110, 231, 183, 0.1) !important;
+    border: 2px solid rgb(110, 231, 183) !important;
+    box-shadow: 0 8px 32px rgba(110, 231, 183, 0.25) !important;
+  }
+
+  html:not(.dark) button[onclick*="handleColorOptionChange"]:hover,
+  html:not(.dark) button[class*="min-h-\[6rem\]"][class*="border-4"]:hover {
+    background: rgba(255, 255, 255, 1) !important;
+    border: 2px solid rgba(110, 231, 183, 0.4) !important;
+    box-shadow: 0 12px 40px rgba(110, 231, 183, 0.2) !important;
+  }
+
+  /* Grundton/Pastell/Neon/Dunkel buttons modern styling for light mode */
+  html:not(.dark) button[onclick*="setColorMode"],
+  html:not(.dark) button:has-text("Grundton"),
+  html:not(.dark) button:has-text("Pastell"),
+  html:not(.dark) button:has-text("Neon"),
+  html:not(.dark) button:has-text("Dunkel") {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 2px solid rgba(0, 0, 0, 0.1) !important;
+    color: black !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+    position: relative;
+    overflow: hidden;
+    font-weight: 600 !important;
+  }
+
+  /* Gradient border animation for these buttons */
+  html:not(.dark) button[onclick*="setColorMode"]::before,
+  html:not(.dark) button:has-text("Grundton")::before,
+  html:not(.dark) button:has-text("Pastell")::before,
+  html:not(.dark) button:has-text("Neon")::before,
+  html:not(.dark) button:has-text("Dunkel")::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg,
+      rgb(254, 240, 138) 0%,
+      rgb(189, 183, 107) 25%,
+      rgb(110, 231, 183) 50%,
+      rgb(255, 255, 255) 100%
+    );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask-composite: xor;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  html:not(.dark) button[onclick*="setColorMode"]:hover::before,
+  html:not(.dark) button:has-text("Grundton"):hover::before,
+  html:not(.dark) button:has-text("Pastell"):hover::before,
+  html:not(.dark) button:has-text("Neon"):hover::before,
+  html:not(.dark) button:has-text("Dunkel"):hover::before {
+    opacity: 1;
+  }
+
+  /* Selected state for these buttons in light mode */
+  html:not(.dark) button[onclick*="setColorMode"][class*="bg-white"],
+  html:not(.dark) button[onclick*="setColorMode"][class*="bg-black"],
+  html:not(.dark) button[onclick*="setColorMode"][class*="shadow-lg"] {
+    background: rgba(110, 231, 183, 0.15) !important;
+    border: 2px solid rgb(110, 231, 183) !important;
+    color: black !important;
+    box-shadow: 0 8px 32px rgba(110, 231, 183, 0.2) !important;
+    transform: scale(1.05) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Hover effects for these buttons */
+  html:not(.dark) button[onclick*="setColorMode"]:hover,
+  html:not(.dark) button:has-text("Grundton"):hover,
+  html:not(.dark) button:has-text("Pastell"):hover,
+  html:not(.dark) button:has-text("Neon"):hover,
+  html:not(.dark) button:has-text("Dunkel"):hover {
+    background: rgba(255, 255, 255, 1) !important;
+    border: 2px solid rgba(110, 231, 183, 0.4) !important;
+    color: black !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 8px 32px rgba(110, 231, 183, 0.15) !important;
+  }
+
+  /* Industry section buttons (12 buttons) - 10% black background in light mode */
+  html:not(.dark) [class*="Section"] [class*="SelectionCard"],
+  html:not(.dark) .grid.grid-cols-2.md\:grid-cols-3.lg\:grid-cols-4 > div,
+  html:not(.dark) div[class*="industry"] {
+    background: rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  }
+
+  html:not(.dark) [class*="Section"] [class*="SelectionCard"]:hover,
+  html:not(.dark) .grid.grid-cols-2.md\:grid-cols-3.lg\:grid-cols-4 > div:hover,
+  html:not(.dark) div[class*="industry"]:hover {
+    background: transparent !important;
   }
 
   /* Fix input styles for light mode */
