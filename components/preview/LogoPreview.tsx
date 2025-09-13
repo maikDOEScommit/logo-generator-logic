@@ -19,9 +19,12 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
   
   // State for individual logo editing
   const [logoConfigs, setLogoConfigs] = useState<{ [key: string]: LogoConfig }>({});
-  
+
   // State for advanced editor
   const [showAdvancedEditor, setShowAdvancedEditor] = useState(false);
+
+  // State for current font per variation
+  const [currentFontIndex, setCurrentFontIndex] = useState<{[key: string]: number}>({});
   
   // Helper to get individual logo config or fallback to main config
   const getLogoConfig = (logoId: string): LogoConfig => {
@@ -82,6 +85,28 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
     if (textLength <= 16) return `${baseSize * 0.7}rem`;
     if (textLength <= 20) return `${baseSize * 0.6}rem`;
     return `${baseSize * 0.5}rem`;
+  };
+
+  // Helper functions for font switching
+  const getCurrentFont = (variationId: string) => {
+    const fontIndex = currentFontIndex[variationId] || 0;
+    return fontsToDisplay[fontIndex] || fontsToDisplay[0];
+  };
+
+  const switchFont = (variationId: string, direction: 'prev' | 'next') => {
+    const currentIndex = currentFontIndex[variationId] || 0;
+    let newIndex;
+
+    if (direction === 'next') {
+      newIndex = (currentIndex + 1) % fontsToDisplay.length;
+    } else {
+      newIndex = currentIndex === 0 ? fontsToDisplay.length - 1 : currentIndex - 1;
+    }
+
+    setCurrentFontIndex(prev => ({
+      ...prev,
+      [variationId]: newIndex
+    }));
   };
 
   // Helper function to render logo variations with new color logic
@@ -451,33 +476,121 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
     console.log('Saving logo config:', { text, icon, layout, palette });
   };
 
-  // Show advanced editor if enabled
+  // Show advanced editor as full-screen modal if enabled
   if (showAdvancedEditor) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-2xl text-white">Advanced Logo Editor</h3>
-          <button
-            onClick={() => setShowAdvancedEditor(false)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
-          >
-            <Eye className="w-4 h-4" />
-            Back to Preview
-          </button>
+      <>
+        <div className="space-y-8">
+          <div className="flex items-center justify-between">
+            <h3 className="text-2xl text-white">Generated Logos: {selectedFontCategory} Category</h3>
+            <button
+              onClick={() => setShowAdvancedEditor(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            >
+              <Edit3 className="w-4 h-4" />
+              Advanced Editor
+            </button>
+          </div>
+
+          {/* Show variations with font switchers */}
+          <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-4">
+            {logoVariations.map((variation, variationIndex) => {
+              const currentFont = getCurrentFont(variation.id);
+              const logoConfigKey = `${currentFont.name}-${variation.id}`;
+
+              return (
+                <div key={variation.id} className="flex flex-col">
+                  <h5 className="font-medium mb-2 text-white text-sm h-10 flex items-center">{variation.name}</h5>
+                  <div
+                    className="border border-white/20 rounded-lg group relative w-full flex-1"
+                    style={{
+                      ...(variation.backgroundColor.includes('linear-gradient')
+                        ? { backgroundImage: variation.backgroundColor }
+                        : { backgroundColor: variation.backgroundColor })
+                    }}
+                  >
+                    <div
+                      key={`${currentFont.name}-${variation.id}-${getLogoConfig(logoConfigKey).fontWeight || 400}-${getLogoConfig(logoConfigKey).text || 'default'}`}
+                      id={`logo-${currentFont.name.replace(/\s+/g, '-')}-${variation.id}-${variationIndex}`}
+                      className="text-4xl text-center p-6 rounded flex items-center justify-center gap-2 w-full min-h-[140px]"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'visible',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <div className="flex items-center justify-center w-full" style={{ overflow: 'visible' }}>
+                        {renderLogoVariation(variation, currentFont, getLogoConfig(logoConfigKey))}
+                      </div>
+                    </div>
+                    <LogoEditor
+                      config={{
+                        ...getLogoConfig(logoConfigKey),
+                        font: currentFont,
+                        fontWeight: currentFont.generationWeights[0] || 400,
+                      }}
+                      variation={variation}
+                      onConfigUpdate={(newConfig) => updateLogoConfig(logoConfigKey, newConfig)}
+                      availableIcons={availableIcons}
+                      availablePalettes={availablePalettes}
+                    />
+                  </div>
+
+                  {/* Font Switcher */}
+                  <div className="flex items-center justify-center gap-3 mt-2">
+                    <button
+                      onClick={() => switchFont(variation.id, 'prev')}
+                      className="flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                      disabled={fontsToDisplay.length <= 1}
+                    >
+                      <span className="text-sm">‹</span>
+                    </button>
+                    <div className="text-center min-w-[120px]">
+                      <div className="text-white text-xs font-medium">{currentFont.name}</div>
+                      <div className="text-white/60 text-xs">
+                        {(currentFontIndex[variation.id] || 0) + 1} / {fontsToDisplay.length}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => switchFont(variation.id, 'next')}
+                      className="flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                      disabled={fontsToDisplay.length <= 1}
+                    >
+                      <span className="text-sm">›</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
-          <AdvancedLogoEditor
-            config={config}
-            onConfigUpdate={(newConfig) => {
-              // Update the main config when changes are made in advanced editor
-              console.log('Advanced editor config update:', newConfig);
-            }}
-            onExport={(svg, format) => {
-              console.log(`Exported ${format}:`, svg.substring(0, 100) + '...');
-            }}
-          />
+
+        {/* Full-screen Advanced Editor Modal */}
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50">
+          <div className="h-full w-full">
+            <AdvancedLogoEditor
+              config={config}
+              onConfigUpdate={(newConfig) => {
+                // Update the main config when changes are made in advanced editor
+                console.log('Advanced editor config update:', newConfig);
+              }}
+              onExport={(svg, format) => {
+                console.log(`Exported ${format}:`, svg.substring(0, 100) + '...');
+              }}
+            />
+            {/* Close button */}
+            <button
+              onClick={() => setShowAdvancedEditor(false)}
+              className="absolute top-4 right-4 z-10 flex items-center gap-2 px-4 py-2 bg-gray-800/90 hover:bg-gray-700 text-white rounded-lg transition-colors backdrop-blur-sm"
+            >
+              <Eye className="w-4 h-4" />
+              Back to Preview
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -494,57 +607,79 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
         </button>
       </div>
       
-      {/* Show all fonts from the selected category with new variation logic */}
-      {fontsToDisplay.map((font, fontIndex) => (
-        <div key={font.name} className="space-y-4 pb-8 border-b border-white/10 last:border-b-0">
-          <h4 className="text-xl font-semibold text-white">{font.name}</h4>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-4">
-            {/* Render variations based on color rules */}
-            {logoVariations.map((variation, variationIndex) => (
-              <div key={`${font.name}-${variation.id}`} className="flex flex-col">
-                <h5 className="font-medium mb-2 text-white text-sm h-10 flex items-center">{variation.name}</h5>
+      {/* Show variations with font switchers */}
+      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-4">
+        {logoVariations.map((variation, variationIndex) => {
+          const currentFont = getCurrentFont(variation.id);
+          const logoConfigKey = `${currentFont.name}-${variation.id}`;
+
+          return (
+            <div key={variation.id} className="flex flex-col">
+              <h5 className="font-medium mb-2 text-white text-sm h-10 flex items-center">{variation.name}</h5>
+              <div
+                className="border border-white/20 rounded-lg group relative w-full flex-1"
+                style={{
+                  ...(variation.backgroundColor.includes('linear-gradient')
+                    ? { backgroundImage: variation.backgroundColor }
+                    : { backgroundColor: variation.backgroundColor })
+                }}
+              >
                 <div
-                  className="border border-white/20 rounded-lg group relative w-full flex-1"
+                  key={`${currentFont.name}-${variation.id}-${getLogoConfig(logoConfigKey).fontWeight || 400}-${getLogoConfig(logoConfigKey).text || 'default'}`}
+                  id={`logo-${currentFont.name.replace(/\s+/g, '-')}-${variation.id}-${variationIndex}`}
+                  className="text-4xl text-center p-6 rounded flex items-center justify-center gap-2 w-full min-h-[140px]"
                   style={{
-                    ...(variation.backgroundColor.includes('linear-gradient')
-                      ? { backgroundImage: variation.backgroundColor }
-                      : { backgroundColor: variation.backgroundColor })
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'visible',
+                    boxSizing: 'border-box'
                   }}
                 >
-                  <div
-                    key={`${font.name}-${variation.id}-${getLogoConfig(`${font.name}-${variation.id}`).fontWeight || 400}-${getLogoConfig(`${font.name}-${variation.id}`).text || 'default'}`}
-                    id={`logo-${font.name.replace(/\s+/g, '-')}-${variation.id}-${fontIndex}`}
-                    className="text-4xl text-center p-6 rounded flex items-center justify-center gap-2 w-full min-h-[140px]"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      overflow: 'visible',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <div className="flex items-center justify-center w-full" style={{ overflow: 'visible' }}>
-                      {renderLogoVariation(variation, font, getLogoConfig(`${font.name}-${variation.id}`))}
-                    </div>
+                  <div className="flex items-center justify-center w-full" style={{ overflow: 'visible' }}>
+                    {renderLogoVariation(variation, currentFont, getLogoConfig(logoConfigKey))}
                   </div>
-                  <LogoEditor
-                    config={{
-                      ...getLogoConfig(`${font.name}-${variation.id}`),
-                      font: font, // Ensure the correct font is used
-                      fontWeight: font.generationWeights[0] || 400,
-                    }}
-                    variation={variation} // Pass the specific variation with its colors
-                    onConfigUpdate={(newConfig) => updateLogoConfig(`${font.name}-${variation.id}`, newConfig)}
-                    availableIcons={availableIcons}
-                    availablePalettes={availablePalettes}
-                  />
                 </div>
+                <LogoEditor
+                  config={{
+                    ...getLogoConfig(logoConfigKey),
+                    font: currentFont,
+                    fontWeight: currentFont.generationWeights[0] || 400,
+                  }}
+                  variation={variation}
+                  onConfigUpdate={(newConfig) => updateLogoConfig(logoConfigKey, newConfig)}
+                  availableIcons={availableIcons}
+                  availablePalettes={availablePalettes}
+                />
               </div>
-            ))}
-          </div>
-        </div>
-      ))}
+
+              {/* Font Switcher */}
+              <div className="flex items-center justify-center gap-3 mt-2">
+                <button
+                  onClick={() => switchFont(variation.id, 'prev')}
+                  className="flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                  disabled={fontsToDisplay.length <= 1}
+                >
+                  <span className="text-sm">‹</span>
+                </button>
+                <div className="text-center min-w-[120px]">
+                  <div className="text-white text-xs font-medium">{currentFont.name}</div>
+                  <div className="text-white/60 text-xs">
+                    {(currentFontIndex[variation.id] || 0) + 1} / {fontsToDisplay.length}
+                  </div>
+                </div>
+                <button
+                  onClick={() => switchFont(variation.id, 'next')}
+                  className="flex items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                  disabled={fontsToDisplay.length <= 1}
+                >
+                  <span className="text-sm">›</span>
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
     </div>
   );
