@@ -73,9 +73,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [brushLineCap, setBrushLineCap] = useState<'round' | 'square'>('round'); // Line cap for brush
   const [eraserOpacity, setEraserOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
   const [eraserMode, setEraserMode] = useState<'brush' | 'line'>('brush'); // Eraser mode: brush or line
-  const [boxOpacity, setBoxOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
+  const [boxOpacity, setBoxOpacity] = useState(5); // 1-10 scale, 5 = 50% opacity (was 10)
   const [boxStrokeColor, setBoxStrokeColor] = useState('#000000');
-  const [boxFillColor, setBoxFillColor] = useState('#ff0000');
+  const [boxFillColor, setBoxFillColor] = useState('#000000'); // Changed from red to black
   const [iconColor, setIconColor] = useState(config.palette?.colors[1] || '#000000');
   const [brandNameColor, setBrandNameColor] = useState(config.palette?.colors[1] || '#000000');
   const [sloganColor, setSloganColor] = useState(config.palette?.colors[1] || '#000000');
@@ -139,22 +139,26 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const svgRef = useRef<SVGSVGElement>(null);
   const drawingRef = useRef({ drawing: false, startPoint: null as Point | null });
   
-  // Sync local config with props (but preserve user-selected font and fontWeight)
+  // Sync local config with props (but preserve user-selected font, fontWeight, and colors)
   useEffect(() => {
     setLocalConfig(prev => ({
       ...config,
       font: prev?.font || config.font, // Preserve selected font
       fontWeight: prev?.fontWeight || config.fontWeight // Preserve selected font weight
     }));
-    // Update colors based on the variation or fallback to config colors
-    if (variation) {
-      setIconColor(variation.iconColor);
-      setBrandNameColor(variation.brandNameColor);
-      setSloganColor(variation.sloganColor);
-    } else {
-      setIconColor(config.palette?.colors[1] || '#000000');
-      setBrandNameColor(config.palette?.colors[1] || '#000000');
-      setSloganColor(config.palette?.colors[1] || '#000000');
+
+    // Only update colors if they haven't been set by user yet (initial load)
+    // This prevents color picker reset on every config change
+    if (iconColor === '#000000' && brandNameColor === '#000000' && sloganColor === '#000000') {
+      if (variation) {
+        setIconColor(variation.iconColor);
+        setBrandNameColor(variation.brandNameColor);
+        setSloganColor(variation.sloganColor);
+      } else if (config.palette?.colors) {
+        setIconColor(config.palette.colors[1] || config.palette.colors[0] || '#000000');
+        setBrandNameColor(config.palette.colors[0] || '#000000');
+        setSloganColor(config.palette.colors[1] || config.palette.colors[0] || '#000000');
+      }
     }
   }, [config, variation]);
 
@@ -309,101 +313,150 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     return { x, y };
   };
 
-  const sampleColor = (point: Point, e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
+  const sampleColor = async (point: Point, e: React.MouseEvent) => {
+    console.log('🎨 Pipette sampling at point:', point);
+
     let sampledColor: string | null = null;
 
-    // Try to get color from clicked element and its parent elements
-    let currentElement = target;
-    let attempts = 0;
+    // METHOD 1: Try pixel sampling from canvas if possible
+    try {
+      const canvasElement = canvasRef.current;
+      if (canvasElement) {
+        // Create a temporary canvas to capture the rendered content
+        const tempCanvas = document.createElement('canvas');
+        const ctx = tempCanvas.getContext('2d');
 
-    while (currentElement && attempts < 10) {
-      // Check for SVG elements (text, paths, icons)
-      if (currentElement.tagName === 'text' || currentElement.tagName === 'tspan') {
-        const fill = currentElement.getAttribute('fill') || window.getComputedStyle(currentElement).fill;
-        if (fill && fill !== 'none' && fill !== 'inherit') {
-          sampledColor = fill;
-          break;
+        if (ctx) {
+          // Set canvas size to match the preview area
+          tempCanvas.width = canvasElement.offsetWidth;
+          tempCanvas.height = canvasElement.offsetHeight;
+
+          // Try to draw the current view to canvas (this might not work due to CORS)
+          try {
+            // Alternative approach: use html2canvas-like functionality
+            const rect = canvasElement.getBoundingClientRect();
+
+            // For now, let's use a different approach - check elements at the coordinates
+            const elementsAtPoint = document.elementsFromPoint(
+              rect.left + point.x,
+              rect.top + point.y
+            );
+
+            console.log('📍 Elements at click point:', elementsAtPoint);
+
+            // Iterate through elements to find colors
+            for (const element of elementsAtPoint) {
+              console.log('🔍 Checking element:', element.tagName, element.className);
+
+              // Check SVG elements first (drawn elements)
+              if (element.tagName === 'rect') {
+                const fill = element.getAttribute('fill');
+                const stroke = element.getAttribute('stroke');
+                if (fill && fill !== 'none') {
+                  sampledColor = fill;
+                  console.log('📦 Found rect fill:', sampledColor);
+                  break;
+                } else if (stroke && stroke !== 'none') {
+                  sampledColor = stroke;
+                  console.log('📦 Found rect stroke:', sampledColor);
+                  break;
+                }
+              } else if (element.tagName === 'path') {
+                const fill = element.getAttribute('fill');
+                const stroke = element.getAttribute('stroke');
+                if (fill && fill !== 'none' && fill !== 'currentColor') {
+                  sampledColor = fill;
+                  console.log('🖌️ Found path fill:', sampledColor);
+                  break;
+                } else if (stroke && stroke !== 'none') {
+                  sampledColor = stroke;
+                  console.log('🖌️ Found path stroke:', sampledColor);
+                  break;
+                }
+              } else if (element.tagName === 'line') {
+                const stroke = element.getAttribute('stroke');
+                if (stroke && stroke !== 'none') {
+                  sampledColor = stroke;
+                  console.log('📏 Found line stroke:', sampledColor);
+                  break;
+                }
+              }
+
+              // Check for text elements
+              const computedStyle = window.getComputedStyle(element);
+              if (element.textContent && element.textContent.trim()) {
+                if (computedStyle.color && computedStyle.color !== 'rgba(0, 0, 0, 0)') {
+                  sampledColor = computedStyle.color;
+                  console.log('📝 Found text color:', sampledColor, 'from element:', element.textContent.substring(0, 20));
+                  break;
+                }
+              }
+
+              // Check for background colors
+              if (computedStyle.backgroundColor && computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' && computedStyle.backgroundColor !== 'transparent') {
+                sampledColor = computedStyle.backgroundColor;
+                console.log('🎨 Found background color:', sampledColor);
+                break;
+              }
+            }
+          } catch (canvasError) {
+            console.log('⚠️ Canvas sampling failed:', canvasError);
+          }
         }
       }
-
-      // Check for SVG paths (icons)
-      if (currentElement.tagName === 'path' || currentElement.tagName === 'svg') {
-        const fill = currentElement.getAttribute('fill') || currentElement.getAttribute('color');
-        const stroke = currentElement.getAttribute('stroke');
-        if (fill && fill !== 'none' && fill !== 'inherit' && fill !== 'currentColor') {
-          sampledColor = fill;
-          break;
-        }
-        if (stroke && stroke !== 'none' && stroke !== 'inherit') {
-          sampledColor = stroke;
-          break;
-        }
-      }
-
-      // Check computed styles
-      const computedStyle = window.getComputedStyle(currentElement);
-
-      // Try color property (for text and icons)
-      if (computedStyle.color && computedStyle.color !== 'rgba(0, 0, 0, 0)' && computedStyle.color !== 'rgb(0, 0, 0)') {
-        sampledColor = computedStyle.color;
-        break;
-      }
-
-      // Try background-color
-      if (computedStyle.backgroundColor && computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' && computedStyle.backgroundColor !== 'transparent') {
-        sampledColor = computedStyle.backgroundColor;
-        break;
-      }
-
-      // Try fill property
-      if (computedStyle.fill && computedStyle.fill !== 'none' && computedStyle.fill !== 'inherit') {
-        sampledColor = computedStyle.fill;
-        break;
-      }
-
-      // Check for custom CSS properties that might contain colors
-      const customProps = ['--brand-color', '--icon-color', '--text-color'];
-      for (const prop of customProps) {
-        const value = computedStyle.getPropertyValue(prop);
-        if (value && value.trim()) {
-          sampledColor = value.trim();
-          break;
-        }
-      }
-
-      if (sampledColor) break;
-
-      currentElement = currentElement.parentElement as HTMLElement;
-      attempts++;
+    } catch (error) {
+      console.log('⚠️ Pixel sampling failed:', error);
     }
 
-    // Special handling for specific logo elements by checking classes or data attributes
-    if (!sampledColor && target.closest('.logo-text-preview')) {
-      sampledColor = brandNameColor;
-    } else if (!sampledColor && target.closest('[data-icon]')) {
-      sampledColor = iconColor;
-    }
-
-    // Drawing elements color sampling
+    // METHOD 2: Fallback to state-based detection
     if (!sampledColor) {
-      // Check if we clicked on a drawn stroke
-      const svgElement = target.closest('svg');
-      if (svgElement && target.tagName === 'path') {
-        const strokeColor = target.getAttribute('stroke');
-        const fillColor = target.getAttribute('fill');
-        sampledColor = strokeColor || fillColor;
-      }
-    }
+      console.log('🔄 Using state-based fallback detection');
 
-    // If no specific element color found, sample background
-    if (!sampledColor) {
-      if (variation?.backgroundColor?.includes('linear-gradient')) {
-        sampledColor = '#FFFFFF'; // Fallback for gradients
-      } else if (variation?.backgroundColor) {
-        sampledColor = variation.backgroundColor;
-      } else {
-        sampledColor = brandNameColor; // Final fallback
+      // Check drawn boxes from state
+      const clickedBox = boxes.find(box =>
+        point.x >= box.x &&
+        point.x <= box.x + box.width &&
+        point.y >= box.y &&
+        point.y <= box.y + box.height
+      );
+      if (clickedBox) {
+        sampledColor = clickedBox.fillColor || clickedBox.strokeColor;
+        console.log('📦 Found state box color:', sampledColor);
+      }
+
+      // Check drawn strokes from state
+      if (!sampledColor) {
+        for (const layer of editLayers) {
+          if (!layer.visible) continue;
+          for (const stroke of layer.strokes) {
+            if (stroke.tool === 'box' && stroke.rect) {
+              if (point.x >= stroke.rect.x && point.x <= stroke.rect.x + stroke.rect.width &&
+                  point.y >= stroke.rect.y && point.y <= stroke.rect.y + stroke.rect.height) {
+                sampledColor = stroke.color;
+                console.log('🎨 Found stroke box color:', sampledColor);
+                break;
+              }
+            } else if (stroke.tool === 'brush' || stroke.tool === 'line') {
+              // Simple proximity check for strokes
+              for (const strokePoint of stroke.points) {
+                const distance = Math.sqrt(Math.pow(point.x - strokePoint.x, 2) + Math.pow(point.y - strokePoint.y, 2));
+                if (distance <= (stroke.width / 2 + 5)) { // Add some tolerance
+                  sampledColor = stroke.color;
+                  console.log('🖌️ Found stroke color:', sampledColor);
+                  break;
+                }
+              }
+              if (sampledColor) break;
+            }
+          }
+          if (sampledColor) break;
+        }
+      }
+
+      // Use current logo colors as fallback
+      if (!sampledColor) {
+        sampledColor = brandNameColor; // Default fallback
+        console.log('🏷️ Using brand name color as final fallback:', sampledColor);
       }
     }
 
@@ -415,8 +468,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         const g = parseInt(rgbMatch[2]);
         const b = parseInt(rgbMatch[3]);
         sampledColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+        console.log('🔄 Converted to hex:', sampledColor);
       }
     }
+
+    console.log('✅ Final sampled color:', sampledColor);
 
     // Set the sampled color and update brush color
     setSampledColor(sampledColor);
@@ -1639,20 +1695,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         <label className="block text-white/80 text-sm mb-3">Box Controls</label>
                         
                         <div className="space-y-2">
-                          <label className="block text-white/60 text-xs mb-1">Rotate Selected Box</label>
                           <div className="flex gap-2">
-                            <button
-                              onClick={() => rotateSelectedBox(-15)}
-                              className="px-3 py-1 bg-white/10 text-white/80 rounded text-xs hover:bg-white/20 transition-colors"
-                            >
-                              ↺ -15°
-                            </button>
-                            <button
-                              onClick={() => rotateSelectedBox(15)}
-                              className="px-3 py-1 bg-white/10 text-white/80 rounded text-xs hover:bg-white/20 transition-colors"
-                            >
-                              ↻ +15°
-                            </button>
                             <button
                               onClick={() => {
                                 // Convert selected box to stroke and add to drawing layer
@@ -1676,14 +1719,14 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                       height: boxToConvert.height
                                     }
                                   };
-                                  
+
                                   // Add box stroke to drawing layer
-                                  setEditLayers(prev => prev.map(layer => 
-                                    layer.id === 'layer-1' 
+                                  setEditLayers(prev => prev.map(layer =>
+                                    layer.id === 'layer-1'
                                       ? { ...layer, strokes: [...layer.strokes, boxStroke] }
                                       : layer
                                   ));
-                                  
+
                                   // Remove box from boxes array
                                   setBoxes(prev => prev.filter(box => box.id !== selectedBox));
                                   setSelectedBox(null);
@@ -1698,32 +1741,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       </div>
                     )}
 
-                    {drawingTool === 'box' && (
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">Box Width</label>
-                          <input
-                            type="number"
-                            min="10"
-                            max="200"
-                            value={boxWidth}
-                            onChange={(e) => setBoxWidth(parseInt(e.target.value) || 50)}
-                            className="w-full px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">Box Height</label>
-                          <input
-                            type="number"
-                            min="10"
-                            max="200"
-                            value={boxHeight}
-                            onChange={(e) => setBoxHeight(parseInt(e.target.value) || 50)}
-                            className="w-full px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
-                          />
-                        </div>
-                      </div>
-                    )}
                     
                     {/* Drawing Actions */}
                     <div className="flex gap-2">
@@ -1954,8 +1971,14 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         type="color"
                         value={iconColor}
                         onChange={(e) => {
-                          setIconColor(e.target.value);
-                          // Note: iconColor is managed separately from LogoConfig
+                          const newIconColor = e.target.value;
+                          setIconColor(newIconColor);
+                          // Update localConfig to trigger re-render
+                          setLocalConfig(prev => ({
+                            ...prev,
+                            iconColor: newIconColor
+                          }));
+                          setForceRender(prev => prev + 1);
                         }}
                         className="w-8 h-6 rounded border border-white/20 cursor-pointer"
                       />
@@ -1975,7 +1998,18 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       {availablePalettes.slice(0, 12).map(palette => (
                         <button
                           key={palette.id}
-                          onClick={() => updateLocalConfig({ palette })}
+                          onClick={() => {
+                            updateLocalConfig({ palette });
+                            // Update color picker states with palette colors
+                            if (palette.colors.length > 0) {
+                              setBrandNameColor(palette.colors[0]);
+                              if (palette.colors.length > 1) {
+                                setIconColor(palette.colors[1]);
+                                setSloganColor(palette.colors[1]);
+                              }
+                            }
+                            setForceRender(prev => prev + 1);
+                          }}
                           className={`p-2 rounded border transition-colors ${
                             localConfig.palette?.id === palette.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
                           }`}
