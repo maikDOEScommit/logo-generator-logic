@@ -974,6 +974,80 @@ export default function LogoGeneratorPage() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Professional Design Section */}
+      <section className="relative py-20 px-4 md:px-8 lg:px-12" style={{
+        borderTop: '0.5px solid transparent',
+        borderImage: 'linear-gradient(90deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%) 1'
+      }}>
+        {/* 10% Black Overlay */}
+        <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className={`text-4xl md:text-5xl font-bold mb-8 ${isDarkMode ? 'text-black' : 'text-black'}`}>
+              Still something missing?
+            </h2>
+            <p className={`text-xl mb-12 max-w-2xl mx-auto ${isDarkMode ? 'text-black/80' : 'text-gray-700'}`}>
+              Perfect your brand with a professional designer who will fine-tune every detail to match your vision.
+            </p>
+
+            <motion.button
+              whileHover={{ scale: 1.08, rotate: 2, y: -8 }}
+              whileTap={{ scale: 0.92 }}
+              className="group relative px-12 py-6 text-xl font-bold rounded-2xl shadow-2xl transition-all duration-500 overflow-hidden text-black"
+              style={{
+                background: 'linear-gradient(135deg, rgb(254, 240, 138) 0%, rgb(189, 183, 107) 25%, rgb(110, 231, 183) 50%, rgb(255, 255, 255) 100%)',
+                boxShadow: '0 20px 40px rgba(110, 231, 183, 0.3), 0 0 0 1px rgba(110, 231, 183, 0.2)'
+              }}
+            >
+              {/* Animated gradient overlay */}
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700"
+                style={{
+                  background: 'linear-gradient(135deg, rgb(110, 231, 183) 0%, rgb(255, 255, 255) 25%, rgb(254, 240, 138) 50%, rgb(189, 183, 107) 100%)'
+                }}
+              />
+
+              {/* Morphing border effect */}
+              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110" style={{
+                background: 'linear-gradient(45deg, rgb(254, 240, 138), rgb(189, 183, 107), rgb(110, 231, 183), rgb(255, 255, 255))',
+                padding: '3px',
+                mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                maskComposite: 'xor',
+                WebkitMaskComposite: 'xor'
+              }} />
+
+              {/* Ultra-modern shine sweep */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-1000 translate-x-[-200%] group-hover:translate-x-[200%] skew-x-12" />
+
+              {/* Particle effect */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700">
+                <div className="absolute top-2 left-4 w-1 h-1 bg-white/60 rounded-full animate-pulse" />
+                <div className="absolute top-6 right-8 w-1.5 h-1.5 bg-white/40 rounded-full animate-ping" style={{ animationDelay: '0.3s' }} />
+                <div className="absolute bottom-3 left-12 w-1 h-1 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '0.6s' }} />
+                <div className="absolute bottom-6 right-6 w-2 h-2 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0.9s' }} />
+              </div>
+
+              <span className="relative z-10 flex items-center justify-center gap-3 group-hover:scale-105 transition-transform duration-300">
+                Complete Your Brand with a Pro
+                <span className="text-2xl font-black text-gray-800 group-hover:text-black transition-colors duration-300">
+                  $49
+                </span>
+              </span>
+            </motion.button>
+
+            <p className={`text-sm mt-6 ${isDarkMode ? 'text-white/60' : 'text-gray-500'}`}>
+              ✨ Professional refinement • 🎨 Custom adjustments • 🚀 Ready in 24-48 hours
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
       <Footer />
       <LoadingScreen isVisible={showLoadingScreen} />
     </>
