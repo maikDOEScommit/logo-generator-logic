@@ -27,7 +27,7 @@ interface Point {
 
 interface Stroke {
   id: string;
-  tool: 'brush' | 'eraser' | 'box' | 'line' | 'eyedropper';
+  tool: 'brush' | 'eraser' | 'box' | 'line' | 'eyedropper' | 'text' | 'icon';
   points: Point[];
   color: string;
   width: number;
@@ -35,6 +35,14 @@ interface Stroke {
   lineCap?: 'round' | 'square'; // For line tool
   rect?: { x: number; y: number; width: number; height: number };
   rotation?: number; // Preserve rotation for placed boxes
+  // Element-specific properties
+  text?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  fontWeight?: number;
+  textAlign?: 'left' | 'center' | 'right';
+  iconComponent?: any;
+  iconSize?: number;
 }
 
 interface BoxShape {
@@ -1119,6 +1127,47 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   style={{ pointerEvents: 'none' }}
                 />
               );
+            } else if (stroke.tool === 'text' && stroke.points.length >= 1) {
+              return (
+                <text
+                  key={stroke.id}
+                  x={stroke.points[0].x}
+                  y={stroke.points[0].y}
+                  textAnchor={stroke.textAlign === 'left' ? 'start' : stroke.textAlign === 'right' ? 'end' : 'middle'}
+                  dominantBaseline="middle"
+                  fontSize={stroke.fontSize || 16}
+                  fontFamily={stroke.fontFamily || 'Inter, sans-serif'}
+                  fontWeight={stroke.fontWeight || 400}
+                  fill={stroke.color}
+                  transform={`rotate(${stroke.rotation || 0} ${stroke.points[0].x} ${stroke.points[0].y})`}
+                  opacity={stroke.opacity}
+                  style={{ pointerEvents: 'all', userSelect: 'none' }}
+                >
+                  {stroke.text || ''}
+                </text>
+              );
+            } else if (stroke.tool === 'icon' && stroke.points.length >= 1 && stroke.iconComponent) {
+              return (
+                <g
+                  key={stroke.id}
+                  transform={`translate(${stroke.points[0].x - (stroke.iconSize || 24)/2}, ${stroke.points[0].y - (stroke.iconSize || 24)/2}) rotate(${stroke.rotation || 0} ${(stroke.iconSize || 24)/2} ${(stroke.iconSize || 24)/2})`}
+                  opacity={stroke.opacity}
+                  style={{ pointerEvents: 'all' }}
+                >
+                  <foreignObject
+                    width={stroke.iconSize || 24}
+                    height={stroke.iconSize || 24}
+                    style={{ overflow: 'visible' }}
+                  >
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <stroke.iconComponent
+                        size={stroke.iconSize || 24}
+                        color={stroke.color}
+                      />
+                    </div>
+                  </foreignObject>
+                </g>
+              );
             } else {
               return (
                 <path
@@ -2048,12 +2097,38 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         {logoElements.icon && !logoElements.icon.permanent && (
                           <button
                             onClick={() => {
-                              setLogoElements(prev => ({
-                                ...prev,
-                                icon: prev.icon ? { ...prev.icon, permanent: true, selected: false } : prev.icon
-                              }));
-                              setSelectedElement(null);
-                              console.log('🎯 Icon placed permanently as SVG element');
+                              const iconElement = logoElements.icon;
+                              if (iconElement) {
+                                // Create a stroke representing the icon
+                                const iconStroke: Stroke = {
+                                  id: `icon-stroke-${Date.now()}`,
+                                  tool: 'icon',
+                                  points: [
+                                    { x: iconElement.x, y: iconElement.y }
+                                  ],
+                                  color: iconElement.color,
+                                  width: 1,
+                                  opacity: iconElement.opacity,
+                                  rotation: iconElement.rotation,
+                                  iconComponent: iconElement.icon,
+                                  iconSize: iconElement.size
+                                };
+
+                                // Add icon stroke to drawing layer
+                                setEditLayers(prev => prev.map(layer =>
+                                  layer.id === 'layer-1'
+                                    ? { ...layer, strokes: [...layer.strokes, iconStroke] }
+                                    : layer
+                                ));
+
+                                // Remove icon from logoElements
+                                setLogoElements(prev => ({
+                                  ...prev,
+                                  icon: undefined
+                                }));
+                                setSelectedElement(null);
+                                console.log('🎯 Icon placed as canvas stroke for tool interaction');
+                              }
                             }}
                             className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition-colors"
                           >
@@ -2063,12 +2138,41 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         {logoElements.brand && !logoElements.brand.permanent && (
                           <button
                             onClick={() => {
-                              setLogoElements(prev => ({
-                                ...prev,
-                                brand: prev.brand ? { ...prev.brand, permanent: true, selected: false } : prev.brand
-                              }));
-                              setSelectedElement(null);
-                              console.log('🎯 Brand placed permanently as SVG element');
+                              const brandElement = logoElements.brand;
+                              if (brandElement) {
+                                // Create a stroke representing the brand text
+                                const brandStroke: Stroke = {
+                                  id: `brand-stroke-${Date.now()}`,
+                                  tool: 'text',
+                                  points: [
+                                    { x: brandElement.x, y: brandElement.y }
+                                  ],
+                                  color: brandElement.color,
+                                  width: 1,
+                                  opacity: brandElement.opacity,
+                                  rotation: brandElement.rotation,
+                                  text: brandElement.text,
+                                  fontSize: brandElement.fontSize,
+                                  fontFamily: brandElement.fontFamily,
+                                  fontWeight: brandElement.fontWeight,
+                                  textAlign: brandElement.textAlign
+                                };
+
+                                // Add brand stroke to drawing layer
+                                setEditLayers(prev => prev.map(layer =>
+                                  layer.id === 'layer-1'
+                                    ? { ...layer, strokes: [...layer.strokes, brandStroke] }
+                                    : layer
+                                ));
+
+                                // Remove brand from logoElements
+                                setLogoElements(prev => ({
+                                  ...prev,
+                                  brand: undefined
+                                }));
+                                setSelectedElement(null);
+                                console.log('🎯 Brand placed as canvas stroke for tool interaction');
+                              }
                             }}
                             className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition-colors"
                           >
@@ -2078,12 +2182,41 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         {logoElements.slogan && !logoElements.slogan.permanent && (
                           <button
                             onClick={() => {
-                              setLogoElements(prev => ({
-                                ...prev,
-                                slogan: prev.slogan ? { ...prev.slogan, permanent: true, selected: false } : prev.slogan
-                              }));
-                              setSelectedElement(null);
-                              console.log('🎯 Slogan placed permanently as SVG element');
+                              const sloganElement = logoElements.slogan;
+                              if (sloganElement) {
+                                // Create a stroke representing the slogan text
+                                const sloganStroke: Stroke = {
+                                  id: `slogan-stroke-${Date.now()}`,
+                                  tool: 'text',
+                                  points: [
+                                    { x: sloganElement.x, y: sloganElement.y }
+                                  ],
+                                  color: sloganElement.color,
+                                  width: 1,
+                                  opacity: sloganElement.opacity,
+                                  rotation: sloganElement.rotation,
+                                  text: sloganElement.text,
+                                  fontSize: sloganElement.fontSize,
+                                  fontFamily: sloganElement.fontFamily,
+                                  fontWeight: sloganElement.fontWeight,
+                                  textAlign: sloganElement.textAlign
+                                };
+
+                                // Add slogan stroke to drawing layer
+                                setEditLayers(prev => prev.map(layer =>
+                                  layer.id === 'layer-1'
+                                    ? { ...layer, strokes: [...layer.strokes, sloganStroke] }
+                                    : layer
+                                ));
+
+                                // Remove slogan from logoElements
+                                setLogoElements(prev => ({
+                                  ...prev,
+                                  slogan: undefined
+                                }));
+                                setSelectedElement(null);
+                                console.log('🎯 Slogan placed as canvas stroke for tool interaction');
+                              }
                             }}
                             className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition-colors"
                           >
