@@ -717,26 +717,38 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
         
         {/* Solid Color Bar - 21 intensive colors in horizontal layout */}
         <div className="col-span-full mt-6 relative">
-          {/* 10% black overlay under entire basic color section */}
-          <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
+          {/* 10% black overlay under entire basic color section - only in dark mode */}
+          <div className={`absolute inset-0 rounded-lg ${isDarkMode ? 'bg-black/10' : 'bg-transparent'}`}></div>
           <div className="relative z-10 p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xl font-bold text-white">Choose Basic Color</h3>
+              <h3 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-black'}`}>Choose Basic Color</h3>
               <div className="flex gap-2">
                 {(['grundton', 'pastell', 'neon', 'dunkel'] as const).map((mode) => (
                   <button
                     key={mode}
                     onClick={() => setColorMode(mode)}
                     className={`px-4 py-2 rounded-lg font-bold text-sm transition-all duration-300 transform hover:scale-105 border-2 ${
-                      colorMode === mode
-                        ? mode === 'neon' 
-                          ? 'bg-black text-white border-white shadow-lg shadow-white/30 animate-pulse'
-                          : mode === 'pastell'
-                          ? 'bg-white/10 text-white border-white shadow-lg shadow-white/20'
-                          : mode === 'dunkel'
-                          ? 'bg-black text-white border-white shadow-lg shadow-white/20'
-                          : 'bg-white/20 text-white border-white shadow-lg shadow-white/20'
-                        : 'bg-white/5 text-white/80 border-white/20 hover:bg-white/10 hover:border-white/40 hover:text-white'
+                      isDarkMode
+                        ? // Dark Mode Styles (Original)
+                          colorMode === mode
+                            ? mode === 'neon'
+                              ? 'bg-black text-white border-white shadow-lg shadow-white/30 animate-pulse'
+                              : mode === 'pastell'
+                              ? 'bg-white/10 text-white border-white shadow-lg shadow-white/20'
+                              : mode === 'dunkel'
+                              ? 'bg-black text-white border-white shadow-lg shadow-white/20'
+                              : 'bg-white/20 text-white border-white shadow-lg shadow-white/20'
+                            : 'bg-white/5 text-white/80 border-white/20 hover:bg-white/10 hover:border-white/40 hover:text-white'
+                        : // Light Mode Styles (New Modern Design)
+                          colorMode === mode
+                            ? mode === 'neon'
+                              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-300 shadow-lg shadow-purple-400/40 animate-pulse'
+                              : mode === 'pastell'
+                              ? 'bg-gradient-to-r from-blue-100 to-purple-100 text-gray-800 border-blue-300 shadow-lg shadow-blue-200/50'
+                              : mode === 'dunkel'
+                              ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-400 shadow-lg shadow-gray-500/40'
+                              : 'bg-gradient-to-r from-emerald-400 to-cyan-400 text-white border-emerald-300 shadow-lg shadow-emerald-400/40'
+                            : 'bg-white/80 text-gray-700 border-gray-300 hover:bg-white hover:border-gray-400 hover:text-gray-900 shadow-md'
                     }`}
                   >
                     {mode.charAt(0).toUpperCase() + mode.slice(1)}
