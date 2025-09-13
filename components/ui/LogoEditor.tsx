@@ -1675,7 +1675,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             value={brandNameColor}
                             onChange={(e) => {
                               setBrandNameColor(e.target.value);
-                              updateLocalConfig({ brandNameColor: e.target.value });
+                              // Note: brandNameColor is managed separately from LogoConfig
                             }}
                             className="w-8 h-6 rounded border border-white/20 cursor-pointer"
                           />
@@ -1700,7 +1700,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             value={sloganColor}
                             onChange={(e) => {
                               setSloganColor(e.target.value);
-                              updateLocalConfig({ sloganColor: e.target.value });
+                              // Note: sloganColor is managed separately from LogoConfig
                             }}
                             className="w-8 h-6 rounded border border-white/20 cursor-pointer"
                           />
@@ -1803,7 +1803,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         value={iconColor}
                         onChange={(e) => {
                           setIconColor(e.target.value);
-                          updateLocalConfig({ iconColor: e.target.value });
+                          // Note: iconColor is managed separately from LogoConfig
                         }}
                         className="w-8 h-6 rounded border border-white/20 cursor-pointer"
                       />

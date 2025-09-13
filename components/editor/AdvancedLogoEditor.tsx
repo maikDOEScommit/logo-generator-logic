@@ -62,6 +62,7 @@ interface BoxShape {
   color: string;
   fillOpacity: number;
   strokeWidth: number;
+  rotation?: number;
 }
 
 interface LogoLayer {
@@ -78,6 +79,7 @@ interface LogoLayer {
     y: number;
     color: string;
     size: number;
+    fontWeight?: number;
   };
 }
 
@@ -102,6 +104,7 @@ export default function AdvancedLogoEditor({
   const [brushColor, setBrushColor] = useState(config.palette?.colors[1] || '#6b7cff');
   const [boxColor, setBoxColor] = useState('#ff6b6b');
   const [brushWidth, setBrushWidth] = useState(8);
+  const [boxRotation, setBoxRotation] = useState(0);
   const [showIconList, setShowIconList] = useState(false);
   
   // Text editing
@@ -145,7 +148,8 @@ export default function AdvancedLogoEditor({
           x: canvasWidth / 2,
           y: config.icon ? canvasHeight / 2 + 40 : canvasHeight / 2,
           color: config.palette?.colors[1] || '#000000',
-          size: 48
+          size: 48,
+          fontWeight: config.fontWeight || 600
         }
       });
     }
@@ -205,6 +209,24 @@ export default function AdvancedLogoEditor({
     }
   }, [config.fontWeight]);
 
+  // Update font weight in all text layers when fontWeight changes
+  useEffect(() => {
+    setLayers(prevLayers =>
+      prevLayers.map(layer => {
+        if (layer.type === 'logo-element' && layer.logoElement?.type === 'text') {
+          return {
+            ...layer,
+            logoElement: {
+              ...layer.logoElement,
+              fontWeight: fontWeight
+            }
+          };
+        }
+        return layer;
+      })
+    );
+  }, [fontWeight]);
+
   // Responsive scaling
   useEffect(() => {
     const resize = () => {
@@ -242,7 +264,8 @@ export default function AdvancedLogoEditor({
               x: canvasWidth / 2,
               y: canvasHeight / 2,
               color: brushColor,
-              size: 24
+              size: 24,
+              fontWeight: fontWeight
             }
           }
       )
@@ -323,7 +346,8 @@ export default function AdvancedLogoEditor({
         height: 0,
         color: boxColor,
         fillOpacity: 1.0,
-        strokeWidth: 2
+        strokeWidth: 2,
+        rotation: boxRotation
       });
     } else if (tool === 'move') {
       // Simple move tool - for now just set dragging state
@@ -351,7 +375,8 @@ export default function AdvancedLogoEditor({
       setCurrentBox({
         ...currentBox,
         width: width,
-        height: height
+        height: height,
+        rotation: boxRotation
       });
     } else if (isDragging && tool === 'move') {
       // Move tool logic - placeholder for now
@@ -456,8 +481,10 @@ export default function AdvancedLogoEditor({
           if (layer.boxes) {
             const boxStr = layer.boxes
               .map(
-                (box) =>
-                  `\n      <rect x="${box.x}" y="${box.y}" width="${Math.abs(box.width)}" height="${Math.abs(box.height)}" fill="${box.color}" fill-opacity="${box.fillOpacity}" stroke="${box.color}" stroke-width="${box.strokeWidth}"/>`
+                (box) => {
+                  const transform = box.rotation ? ` transform="rotate(${box.rotation} ${box.x + Math.abs(box.width)/2} ${box.y + Math.abs(box.height)/2})"` : '';
+                  return `\n      <rect x="${box.x}" y="${box.y}" width="${Math.abs(box.width)}" height="${Math.abs(box.height)}" fill="${box.color}" fill-opacity="${box.fillOpacity}" stroke="${box.color}" stroke-width="${box.strokeWidth}"${transform}/>`;
+                }
               )
               .join("");
             content += boxStr;
@@ -469,7 +496,7 @@ export default function AdvancedLogoEditor({
         if (layer.type === 'logo-element' && layer.logoElement) {
           const elem = layer.logoElement;
           if (elem.type === 'text') {
-            return `<text x="${elem.x}" y="${elem.y}" font-size="${elem.size}" fill="${elem.color}" text-anchor="middle" dominant-baseline="central">${elem.content}</text>`;
+            return `<text x="${elem.x}" y="${elem.y}" font-size="${elem.size}" fill="${elem.color}" font-weight="${elem.fontWeight || config.fontWeight || 600}" text-anchor="middle" dominant-baseline="central">${elem.content}</text>`;
           }
         }
         
@@ -611,6 +638,7 @@ export default function AdvancedLogoEditor({
                     fillOpacity={box.fillOpacity}
                     stroke={box.color}
                     strokeWidth={box.strokeWidth}
+                    transform={box.rotation ? `rotate(${box.rotation} ${box.x + Math.abs(box.width)/2} ${box.y + Math.abs(box.height)/2})` : undefined}
                   />
                 ))}
               </g>
@@ -630,7 +658,7 @@ export default function AdvancedLogoEditor({
                   textAnchor="middle"
                   dominantBaseline="central"
                   fontFamily={config.font?.cssName || 'Arial'}
-                  fontWeight={config.fontWeight || 600}
+                  fontWeight={elem.fontWeight || config.fontWeight || 600}
                 >
                   {elem.content}
                 </text>
@@ -693,6 +721,7 @@ export default function AdvancedLogoEditor({
             fillOpacity={1.0}
             stroke={currentBox.color}
             strokeWidth={2}
+            transform={currentBox.rotation ? `rotate(${currentBox.rotation} ${currentBox.x + Math.abs(currentBox.width)/2} ${currentBox.y + Math.abs(currentBox.height)/2})` : undefined}
           />
         )}
       </svg>
@@ -792,6 +821,20 @@ export default function AdvancedLogoEditor({
               className="w-20"
             />
             <span className="text-sm w-6 text-center">{brushWidth}</span>
+          </div>
+
+          {/* Box rotation */}
+          <div className="flex items-center gap-2 px-3 py-2 bg-gray-700 rounded-lg">
+            <span className="text-sm">Rotation:</span>
+            <input
+              type="range"
+              min={0}
+              max={360}
+              value={boxRotation}
+              onChange={(e) => setBoxRotation(parseInt(e.target.value))}
+              className="w-20"
+            />
+            <span className="text-sm w-8 text-center">{boxRotation}°</span>
           </div>
         </div>
 

@@ -751,57 +751,122 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           
           {/* Intelligente Farbkombinations-Optionen - Nur zeigen wenn eine Grundfarbe gewählt wurde */}
           {selectedBaseColor && (
-            <div className="mt-4 p-4 bg-white/5 rounded-lg border border-white/10">
-              <h4 className="text-sm font-bold text-white mb-3">Zusatzfarbe wählen (optional):</h4>
-              <div className="grid grid-cols-3 gap-3">
-                <button
-                  onClick={() => handleColorOptionChange('base-only')}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
-                    selectedColorOption === 'base-only' 
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
-                      : 'bg-white/10 hover:bg-white/20 text-white'
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="w-6 h-4 rounded-sm" style={{ backgroundColor: selectedBaseColor }}></div>
-                    <span>Nur Grundfarbe</span>
-                    <span className="text-xs opacity-75">(ohne Zusatz)</span>
-                  </div>
-                </button>
-                <button
-                  onClick={() => handleColorOptionChange('add-white')}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
-                    selectedColorOption === 'add-white' 
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
-                      : 'bg-white/10 hover:bg-white/20 text-white'
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="flex gap-1">
-                      <div className="w-3 h-4 rounded-sm" style={{ backgroundColor: selectedBaseColor }}></div>
-                      <div className="w-3 h-4 rounded-sm bg-white"></div>
+            <div className="col-span-full mt-6 relative">
+              {/* 10% black overlay */}
+              <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
+              <div className="relative z-10 p-4">
+                <h3 className="text-xl font-bold text-white mb-4">Zusatzfarbe wählen (optional)</h3>
+                <div className="flex justify-around items-stretch gap-4 mb-4">
+                  <button
+                    onClick={() => handleColorOptionChange('base-only')}
+                    className={`relative group flex-1 min-h-[6rem] rounded-lg border-4 transition-all duration-300 transform hover:scale-105 cursor-pointer overflow-hidden ${
+                      selectedColorOption === 'base-only'
+                        ? 'border-white shadow-2xl scale-105 shadow-white/30'
+                        : 'border-white/20 hover:border-white/40'
+                    }`}
+                    style={{
+                      background: `rgba(255, 255, 255, 0.2)`,
+                      boxShadow: '0 4px 15px rgba(255, 255, 255, 0.1)'
+                    }}
+                  >
+                    {/* Animated borders similar to brand personality buttons */}
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
+
+                    <div className="relative z-10 w-full h-full bg-none border-none cursor-pointer color-white text-sm font-medium transition-transform duration-300 group-hover:scale-115 p-4 flex flex-col items-center justify-center gap-2 text-center">
+                      <div className="w-8 h-6 rounded-lg shadow-md border border-white/20" style={{ backgroundColor: selectedBaseColor }}></div>
+                      <span className="font-semibold text-white">Nur Grundfarbe</span>
+                      <span className="text-xs text-white/75">(monochrom)</span>
                     </div>
-                    <span>+ Weiß</span>
-                    <span className="text-xs opacity-75">(2 Varianten)</span>
-                  </div>
-                </button>
-                <button
-                  onClick={() => handleColorOptionChange('add-black')}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-all transform hover:scale-105 ${
-                    selectedColorOption === 'add-black' 
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-purple-500/25' 
-                      : 'bg-white/10 hover:bg-white/20 text-white'
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="flex gap-1">
-                      <div className="w-3 h-4 rounded-sm" style={{ backgroundColor: selectedBaseColor }}></div>
-                      <div className="w-3 h-4 rounded-sm bg-black"></div>
+
+                    {selectedColorOption === 'base-only' && (
+                      <div className="absolute top-2 right-2 text-white rounded-full p-1 z-20"
+                        style={{
+                          transform: 'scale(0.88)',
+                          background: 'linear-gradient(135deg, #15803d 0%, #5eead4 50%, #22c55e 100%)'
+                        }}>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => handleColorOptionChange('add-white')}
+                    className={`relative group flex-1 min-h-[6rem] rounded-lg border-4 transition-all duration-300 transform hover:scale-105 cursor-pointer overflow-hidden ${
+                      selectedColorOption === 'add-white'
+                        ? 'border-white shadow-2xl scale-105 shadow-white/30'
+                        : 'border-white/20 hover:border-white/40'
+                    }`}
+                    style={{
+                      background: `rgba(255, 255, 255, 0.2)`,
+                      boxShadow: '0 4px 15px rgba(255, 255, 255, 0.1)'
+                    }}
+                  >
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
+
+                    <div className="relative z-10 w-full h-full bg-none border-none cursor-pointer color-white text-sm font-medium transition-transform duration-300 group-hover:scale-115 p-4 flex flex-col items-center justify-center gap-2 text-center">
+                      <div className="flex gap-1">
+                        <div className="w-4 h-6 rounded-lg shadow-md border border-white/20" style={{ backgroundColor: selectedBaseColor }}></div>
+                        <div className="w-4 h-6 rounded-lg shadow-md bg-white border border-gray-200"></div>
+                      </div>
+                      <span className="font-semibold text-white">+ Weiß</span>
+                      <span className="text-xs text-white/75">(2 Farben)</span>
                     </div>
-                    <span>+ Schwarz</span>
-                    <span className="text-xs opacity-75">(2 Varianten)</span>
-                  </div>
-                </button>
+
+                    {selectedColorOption === 'add-white' && (
+                      <div className="absolute top-2 right-2 text-white rounded-full p-1 z-20"
+                        style={{
+                          transform: 'scale(0.88)',
+                          background: 'linear-gradient(135deg, #15803d 0%, #5eead4 50%, #22c55e 100%)'
+                        }}>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => handleColorOptionChange('add-black')}
+                    className={`relative group flex-1 min-h-[6rem] rounded-lg border-4 transition-all duration-300 transform hover:scale-105 cursor-pointer overflow-hidden ${
+                      selectedColorOption === 'add-black'
+                        ? 'border-white shadow-2xl scale-105 shadow-white/30'
+                        : 'border-white/20 hover:border-white/40'
+                    }`}
+                    style={{
+                      background: `rgba(255, 255, 255, 0.2)`,
+                      boxShadow: '0 4px 15px rgba(255, 255, 255, 0.1)'
+                    }}
+                  >
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
+
+                    <div className="relative z-10 w-full h-full bg-none border-none cursor-pointer color-white text-sm font-medium transition-transform duration-300 group-hover:scale-115 p-4 flex flex-col items-center justify-center gap-2 text-center">
+                      <div className="flex gap-1">
+                        <div className="w-4 h-6 rounded-lg shadow-md border border-white/20" style={{ backgroundColor: selectedBaseColor }}></div>
+                        <div className="w-4 h-6 rounded-lg shadow-md bg-black border border-gray-600"></div>
+                      </div>
+                      <span className="font-semibold text-white">+ Schwarz</span>
+                      <span className="text-xs text-white/75">(2 Farben)</span>
+                    </div>
+
+                    {selectedColorOption === 'add-black' && (
+                      <div className="absolute top-2 right-2 text-white rounded-full p-1 z-20"
+                        style={{
+                          transform: 'scale(0.88)',
+                          background: 'linear-gradient(135deg, #15803d 0%, #5eead4 50%, #22c55e 100%)'
+                        }}>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+                </div>
+                <div className="text-xs text-white/60 text-center relative inline-block w-full">
+                  <div className="absolute inset-0 bg-black/10 rounded px-2 -mx-2"></div>
+                  <span className="relative z-10">Diese Optionen erstellen professionelle Farbkombinationen basierend auf Ihrer Grundfarbe</span>
+                </div>
               </div>
             </div>
           )}
