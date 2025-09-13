@@ -511,19 +511,30 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     onConfigUpdate(updates);
   };
 
-  // Helper function to convert screen coordinates to SVG coordinates
+  // Helper function to convert screen coordinates to SVG coordinates with zoom correction
   const screenToSVGPoint = (clientX: number, clientY: number): Point => {
     const svg = svgRef.current;
     if (!svg) return { x: 0, y: 0 };
 
-    // Use the browser's built-in SVG coordinate transformation
-    const pt = new DOMPoint(clientX, clientY);
-    const svgPoint = pt.matrixTransform(svg.getScreenCTM()?.inverse());
+    // Get SVG bounding rectangle (this will be larger when zoomed due to CSS transform)
+    const rect = svg.getBoundingClientRect();
 
-    return {
-      x: svgPoint.x,
-      y: svgPoint.y
-    };
+    // Calculate mouse position relative to SVG element
+    let x = clientX - rect.left;
+    let y = clientY - rect.top;
+
+    // The key insight from asd.md: when zoomed, we need to adjust coordinates
+    // Our CSS transform scales the container by 2x, so the SVG is visually 2x larger
+    // but the viewBox remains 400x400, so we need to account for this scaling
+
+    const scaleX = 400 / rect.width;   // Scale factor from DOM to SVG coordinates
+    const scaleY = 400 / rect.height;
+
+    // Convert DOM coordinates to SVG viewBox coordinates
+    x = x * scaleX;
+    y = y * scaleY;
+
+    return { x, y };
   };
 
   // Drawing functions - Fixed coordinate calculation
@@ -2183,25 +2194,28 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 {/* Drawing Canvas Overlay */}
                 <div
                   ref={canvasRef}
-                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') ? 'cursor-none' : drawingTool === 'eyedropper' ? 'cursor-crosshair' : drawingTool === 'move' ? 'cursor-move' : 'cursor-crosshair'}`}
+                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') && !isZoomed ? 'cursor-none' : drawingTool === 'eyedropper' ? 'cursor-crosshair' : drawingTool === 'move' ? 'cursor-move' : 'cursor-crosshair'}`}
                   style={{
-                    ...(isZoomed && {
-                      cursor: drawingTool === 'brush' ? 'none' :
-                              drawingTool === 'eraser' ? 'none' :
-                              drawingTool === 'line' ? 'none' :
-                              drawingTool === 'eyedropper' ? `url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='16' cy='16' r='2' fill='white' stroke='black' stroke-width='1'/%3E%3C/svg%3E") 16 16, crosshair` :
-                              drawingTool === 'move' ? 'move' : 'crosshair'
-                    })
+                    cursor: isZoomed && drawingTool === 'brush' ?
+                            `url("data:image/svg+xml,%3Csvg width='${Math.max(brushSize * 2, 16)}' height='${Math.max(brushSize * 2, 16)}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${Math.max(brushSize, 8)}' cy='${Math.max(brushSize, 8)}' r='${Math.max(brushSize/2, 4)}' fill='rgba(0,0,0,0.2)' stroke='white' stroke-width='2'/%3E%3Ccircle cx='${Math.max(brushSize, 8)}' cy='${Math.max(brushSize, 8)}' r='1' fill='white'/%3E%3C/svg%3E") ${Math.max(brushSize, 8)} ${Math.max(brushSize, 8)}, crosshair` :
+                            isZoomed && drawingTool === 'eraser' ?
+                            `url("data:image/svg+xml,%3Csvg width='${Math.max(brushSize * 2, 16)}' height='${Math.max(brushSize * 2, 16)}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${Math.max(brushSize, 8)}' cy='${Math.max(brushSize, 8)}' r='${Math.max(brushSize/2, 4)}' fill='rgba(255,255,255,0.3)' stroke='%23ff6b6b' stroke-width='2'/%3E%3Ccircle cx='${Math.max(brushSize, 8)}' cy='${Math.max(brushSize, 8)}' r='1' fill='white'/%3E%3C/svg%3E") ${Math.max(brushSize, 8)} ${Math.max(brushSize, 8)}, crosshair` :
+                            isZoomed && drawingTool === 'line' ? 'none' :
+                            isZoomed && drawingTool === 'eyedropper' ? `url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='16' cy='16' r='2' fill='white' stroke='black' stroke-width='1'/%3E%3C/svg%3E") 16 16, crosshair` :
+                            isZoomed && drawingTool === 'move' ? 'move' : undefined
                   }}
                   onMouseDown={startDrawing}
                   onMouseMove={(e) => {
-                    // Update cursor position for custom cursor display using canvas rect
-                    const rect = canvasRef.current?.getBoundingClientRect();
-                    if (rect) {
-                      setCursorPosition({
-                        x: e.clientX - rect.left,
-                        y: e.clientY - rect.top
-                      });
+                    // Update cursor position for custom cursor display
+                    // Nur bei nicht-gezoomten Brush/Eraser Tools
+                    if (!isZoomed && (drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line')) {
+                      const rect = canvasRef.current?.getBoundingClientRect();
+                      if (rect) {
+                        setCursorPosition({
+                          x: e.clientX - rect.left,
+                          y: e.clientY - rect.top
+                        });
+                      }
                     }
                     continueDrawing(e);
                   }}
@@ -2240,15 +2254,15 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   {isZoomed && <span className="ml-2 text-blue-400">2x</span>}
                 </div>
 
-                {/* Custom Cursor Overlay for Brush/Eraser tools with Zoom scaling */}
-                {cursorPosition && (drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') && (
+                {/* Custom Cursor Overlay - nur zeigen wenn NICHT gezoomt */}
+                {cursorPosition && (drawingTool === 'brush' || drawingTool === 'eraser') && !isZoomed && (
                   <div
                     className="absolute pointer-events-none"
                     style={{
                       left: cursorPosition.x,
                       top: cursorPosition.y,
                       transform: 'translate(-50%, -50%)',
-                      zIndex: 100
+                      zIndex: 1000
                     }}
                   >
                     <div
@@ -2257,22 +2271,23 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         drawingTool === 'eraser' ? 'bg-white/30' : 'bg-blue-500/30'
                       }`}
                       style={{
-                        width: `${(drawingTool === 'line' ? lineWidth : brushSize) * (isZoomed ? 2 : 1)}px`,
-                        height: `${(drawingTool === 'line' ? lineWidth : brushSize) * (isZoomed ? 2 : 1)}px`,
-                        borderColor: drawingTool === 'eraser' ? '#ff6b6b' : drawingTool === 'line' ? '#3b82f6' : '#000'
+                        width: `${brushSize}px`,
+                        height: `${brushSize}px`,
+                        borderColor: drawingTool === 'eraser' ? '#ff6b6b' : '#000'
                       }}
                     />
                     {/* Center dot */}
                     <div
                       className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full"
                       style={{
-                        width: `${2 * (isZoomed ? 2 : 1)}px`,
-                        height: `${2 * (isZoomed ? 2 : 1)}px`,
+                        width: `2px`,
+                        height: `2px`,
                         boxShadow: '0 0 2px black'
                       }}
                     />
                   </div>
                 )}
+
                 </div>
               </div>
             </div>
