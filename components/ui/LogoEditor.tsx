@@ -64,7 +64,7 @@ interface EditLayer {
   id: string;
   name: string;
   visible: boolean;
-  type: 'background' | 'logo' | 'elements' | 'drawing';
+  type: 'background' | 'logo' | 'custom';
   strokes: Stroke[];
   backgroundColor?: string; // For background layer
   elements?: (TextElement | IconElement | BoxShape)[]; // For elements layer
@@ -145,6 +145,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [forceRender, setForceRender] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number } | null>(null);
+  const [newLayerName, setNewLayerName] = useState('');
+  const [showLayerInput, setShowLayerInput] = useState(false);
   
   // Box drawing state
   const [boxes, setBoxes] = useState<BoxShape[]>([]);
@@ -194,11 +196,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [currentStroke, setCurrentStroke] = useState<Stroke | null>(null);
   const [editLayers, setEditLayers] = useState<EditLayer[]>([
     { id: 'layer-1', name: 'Background Layer', visible: true, type: 'background', strokes: [], backgroundColor: 'transparent', order: 1 },
-    { id: 'layer-2', name: 'Logo Layer', visible: true, type: 'logo', strokes: [], elements: [], order: 2 },
-    { id: 'layer-3', name: 'Elements Layer', visible: true, type: 'elements', strokes: [], elements: [], order: 3 },
-    { id: 'layer-4', name: 'Drawing Layer', visible: true, type: 'drawing', strokes: [], order: 4 }
+    { id: 'layer-2', name: 'Logo Layer', visible: true, type: 'logo', strokes: [], elements: [], order: 2 }
   ]);
-  const [activeLayer, setActiveLayer] = useState<string>('layer-4');
+  const [activeLayer, setActiveLayer] = useState<string>('layer-2');
   
   // Canvas refs
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -1796,23 +1796,18 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   };
 
   // Layer management functions
-  const addLayer = (type: 'background' | 'elements' | 'drawing') => {
+  const addCustomLayer = (name: string = 'New Layer') => {
     const newId = `layer-${Date.now()}`;
     const maxOrder = Math.max(...editLayers.map(l => l.order));
     const newLayer: EditLayer = {
       id: newId,
-      name: `${type.charAt(0).toUpperCase() + type.slice(1)} Layer`,
+      name: name,
       visible: true,
-      type,
+      type: 'custom',
       strokes: [],
+      elements: [],
       order: maxOrder + 1
     };
-
-    if (type === 'background') {
-      newLayer.backgroundColor = '#ffffff';
-    } else if (type === 'elements') {
-      newLayer.elements = [];
-    }
 
     setEditLayers(prev => [...prev, newLayer]);
     setActiveLayer(newId);
@@ -2457,6 +2452,61 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                           </div>
                         </div>
                       ))}
+
+                      {/* Add New Layer Button */}
+                      {!showLayerInput ? (
+                        <div className="px-3 pb-2">
+                          <button
+                            onClick={() => setShowLayerInput(true)}
+                            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 border-dashed border-gray-600 hover:border-gray-500 text-gray-400 hover:text-gray-300 transition-all"
+                          >
+                            <Plus className="w-4 h-4" />
+                            New Layer
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="px-3 pb-2">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={newLayerName}
+                              onChange={(e) => setNewLayerName(e.target.value)}
+                              placeholder="Layer name"
+                              className="flex-1 px-2 py-1 text-sm bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  addCustomLayer(newLayerName || 'New Layer');
+                                  setNewLayerName('');
+                                  setShowLayerInput(false);
+                                } else if (e.key === 'Escape') {
+                                  setNewLayerName('');
+                                  setShowLayerInput(false);
+                                }
+                              }}
+                            />
+                            <button
+                              onClick={() => {
+                                addCustomLayer(newLayerName || 'New Layer');
+                                setNewLayerName('');
+                                setShowLayerInput(false);
+                              }}
+                              className="p-1 text-green-400 hover:text-green-300 transition-colors"
+                            >
+                              <Check className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setNewLayerName('');
+                                setShowLayerInput(false);
+                              }}
+                              className="p-1 text-gray-400 hover:text-gray-300 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
