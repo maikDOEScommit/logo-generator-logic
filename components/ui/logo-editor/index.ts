@@ -7,3 +7,5 @@ export { LayerManagementPanel } from './LayerManagementPanel';
 export { ZoomViewControls } from './ZoomViewControls';
 export { BackgroundSettingsPanel } from './BackgroundSettingsPanel';
 export { ExportPanel } from './ExportPanel';
+export { PurchaseModal } from './PurchaseModal';
+export { SaveModal } from './SaveModal';
