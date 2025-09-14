@@ -49,6 +49,7 @@ interface Stroke {
 
 interface BoxShape {
   id: string;
+  type: 'box';
   x: number;
   y: number;
   width: number;
@@ -856,6 +857,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     } else if (drawingTool === 'box') {
       const newBox: BoxShape = {
         id: `box-${Date.now()}`,
+        type: 'box',
         x: point.x,
         y: point.y,
         width: 0,

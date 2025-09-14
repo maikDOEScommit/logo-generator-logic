@@ -5,9 +5,9 @@ import React from 'react';
 import { Point } from '../ui/LogoEditor';
 
 export interface LogoElements {
-  brand: any | null;
-  slogan: any | null;
-  icon: any | null;
+  brand?: any | null;
+  slogan?: any | null;
+  icon?: any | null;
 }
 
 export interface EditLayer {
