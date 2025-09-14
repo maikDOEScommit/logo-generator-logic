@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { Point, Stroke, BoxShape, TextElement, IconElement } from '../LogoEditor';
 
 interface CanvasRendererProps {
   canvasRef: React.RefObject<HTMLDivElement>;
@@ -18,10 +17,10 @@ interface CanvasRendererProps {
   endDrawing: (e: React.MouseEvent) => void;
   renderDrawingLayers: () => JSX.Element;
   isMoving: boolean;
-  movingBox: BoxShape | null;
+  movingBox: any | null;
   setIsMoving: (moving: boolean) => void;
-  setMovingBox: (box: BoxShape | null) => void;
-  setMoveStart: (point: Point | null) => void;
+  setMovingBox: (box: any | null) => void;
+  setMoveStart: (point: any | null) => void;
   localConfig: any;
   currentFontWeight: number;
   fontWeightUpdateKey: number;

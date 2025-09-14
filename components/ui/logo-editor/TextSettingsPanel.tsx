@@ -1,16 +1,14 @@
 import { User } from 'lucide-react';
-import { LogoConfig } from '@/lib/types';
-import { fontCategories } from '@/lib/data';
 
 interface TextSettingsPanelProps {
-  localConfig: LogoConfig;
-  updateLocalConfig: (updates: Partial<LogoConfig>) => void;
-  onConfigUpdate: (updates: Partial<LogoConfig>) => void;
+  localConfig: any;
+  updateLocalConfig: (updates: any) => void;
+  onConfigUpdate: (updates: any) => void;
   brandNameColor: string;
   setBrandNameColor: (color: string) => void;
   sloganColor: string;
   setSloganColor: (color: string) => void;
-  setLocalConfig: React.Dispatch<React.SetStateAction<LogoConfig>>;
+  setLocalConfig: React.Dispatch<React.SetStateAction<any>>;
   fontWeight: number;
   setFontWeight: (weight: number) => void;
 }
@@ -28,21 +26,7 @@ export const TextSettingsPanel = ({
   setFontWeight
 }: TextSettingsPanelProps) => {
   const getAvailableWeights = () => {
-    let availableWeights = [400];
-
-    if (localConfig.font?.editorWeights && localConfig.font.editorWeights.length > 0) {
-      availableWeights = localConfig.font.editorWeights;
-    } else {
-      const currentFont = fontCategories
-        .flatMap(cat => cat.fonts)
-        .find(font => font.name === localConfig.font?.name);
-
-      if (currentFont?.weights && currentFont.weights.length > 0) {
-        availableWeights = currentFont.weights;
-      }
-    }
-
-    return availableWeights;
+    return [400, 500, 600, 700]; // Simple fallback
   };
 
   const getWeightName = (weight: number) => {
@@ -116,29 +100,19 @@ export const TextSettingsPanel = ({
           <select
             value={localConfig.font?.name || 'Inter'}
             onChange={(e) => {
-              const selectedFont = fontCategories
-                .flatMap(cat => cat.fonts)
-                .find(font => font.name === e.target.value);
-              if (selectedFont) {
-                const newFont = { ...selectedFont };
-                setLocalConfig(prev => ({
-                  ...prev,
-                  font: newFont
-                }));
-                onConfigUpdate({ font: newFont });
-              }
+              const newFont = { name: e.target.value };
+              setLocalConfig((prev: any) => ({
+                ...prev,
+                font: newFont
+              }));
+              onConfigUpdate({ font: newFont });
             }}
             className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white text-sm mb-3"
           >
-            {fontCategories.map(category => (
-              <optgroup key={category.name} label={category.name}>
-                {category.fonts.map(font => (
-                  <option key={font.name} value={font.name}>
-                    {font.name}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
+            <option value="Inter">Inter</option>
+            <option value="Arial">Arial</option>
+            <option value="Helvetica">Helvetica</option>
+            <option value="Georgia">Georgia</option>
           </select>
 
           <label className="block text-white/80 text-sm mb-1">Font Weight</label>

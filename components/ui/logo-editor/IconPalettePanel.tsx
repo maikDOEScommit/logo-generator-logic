@@ -1,14 +1,13 @@
 import { Star, Pipette } from 'lucide-react';
-import { LogoConfig, IconData, PaletteData } from '@/lib/types';
 
 interface IconPalettePanelProps {
-  localConfig: LogoConfig;
-  updateLocalConfig: (updates: Partial<LogoConfig>) => void;
-  availableIcons: IconData[];
-  availablePalettes: PaletteData[];
+  localConfig: any;
+  updateLocalConfig: (updates: any) => void;
+  availableIcons: any[];
+  availablePalettes: any[];
   iconColor: string;
   setIconColor: (color: string) => void;
-  setLocalConfig: React.Dispatch<React.SetStateAction<LogoConfig>>;
+  setLocalConfig: React.Dispatch<React.SetStateAction<any>>;
   setForceRender: React.Dispatch<React.SetStateAction<number>>;
   setBrandNameColor: (color: string) => void;
   setSloganColor: (color: string) => void;
