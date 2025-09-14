@@ -64,7 +64,7 @@ interface EditLayer {
   id: string;
   name: string;
   visible: boolean;
-  type: 'background' | 'logo' | 'custom';
+  type: 'background' | 'original' | 'logo' | 'custom' | 'elements';
   strokes: Stroke[];
   backgroundColor?: string; // For background layer
   elements?: (TextElement | IconElement | BoxShape)[]; // For elements layer
@@ -112,7 +112,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [localConfig, setLocalConfig] = useState<LogoConfig>(config);
   
   // Drawing tool states
-  const [drawingTool, setDrawingTool] = useState<'brush' | 'eraser' | 'box' | 'line' | 'eyedropper' | 'move'>('brush');
+  const [drawingTool, setDrawingTool] = useState<'brush' | 'eraser' | 'box' | 'line' | 'eyedropper' | 'move' | 'place'>('brush');
   const [brushSize, setBrushSize] = useState(10);
   const [brushOpacity, setBrushOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
   const [brushLineCap, setBrushLineCap] = useState<'round' | 'square'>('round'); // Line cap for brush
@@ -133,6 +133,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     icon?: IconElement;
   }>({});
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  const [selectedElementToPlace, setSelectedElementToPlace] = useState<'brand' | 'slogan' | 'icon' | 'box' | null>(null);
   const [isMovingElement, setIsMovingElement] = useState(false);
   const [movingElement, setMovingElement] = useState<string | null>(null);
   const [elementMoveStart, setElementMoveStart] = useState<{
@@ -195,6 +196,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [currentLine, setCurrentLine] = useState<{ start: Point; end: Point } | null>(null);
   const [currentStroke, setCurrentStroke] = useState<Stroke | null>(null);
   const [editLayers, setEditLayers] = useState<EditLayer[]>([
+    { id: 'layer-0', name: 'Original Background', visible: true, type: 'original', strokes: [], backgroundColor: 'transparent', order: 0 },
     { id: 'layer-1', name: 'Background Layer', visible: true, type: 'background', strokes: [], backgroundColor: 'transparent', order: 1 },
     { id: 'layer-2', name: 'Logo Layer', visible: true, type: 'logo', strokes: [], elements: [], order: 2 }
   ]);
@@ -238,16 +240,20 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     }
   }, [config, variation]);
 
-  // Initialize background layer with variation background color
+  // Initialize background layers with variation background color
   useEffect(() => {
     if (variation && variation.backgroundColor) {
       console.log('🖼️ Initializing background color from variation:', variation.id, variation.backgroundColor);
       setEditLayers(prevLayers =>
-        prevLayers.map(layer =>
-          layer.type === 'background'
-            ? { ...layer, backgroundColor: variation.backgroundColor }
-            : layer
-        )
+        prevLayers.map(layer => {
+          if (layer.type === 'original') {
+            return { ...layer, backgroundColor: variation.backgroundColor };
+          }
+          if (layer.type === 'background') {
+            return { ...layer, backgroundColor: variation.backgroundColor };
+          }
+          return layer;
+        })
       );
     }
   }, [variation]);
@@ -680,77 +686,160 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const sampleColor = async (point: Point, e: React.MouseEvent) => {
     console.log('🎨 Pipette sampling at point:', point);
 
-    let sampledColor: string | null = null;
-
     try {
-      const canvasElement = canvasRef.current;
-      if (canvasElement) {
-        // Create a temporary canvas to capture the SVG content
-        const svgElement = svgRef.current;
-        if (svgElement) {
-          const tempCanvas = document.createElement('canvas');
-          const ctx = tempCanvas.getContext('2d');
+      let sampledColor: string | null = null;
 
-          if (ctx) {
-            // Set canvas size to match the preview area
-            tempCanvas.width = canvasElement.offsetWidth;
-            tempCanvas.height = canvasElement.offsetHeight;
+      // Method 1: Check logo elements directly by position
+      console.log('🔍 Checking logo elements at point:', point);
 
-            // Create an image from the SVG
-            const svgData = new XMLSerializer().serializeToString(svgElement);
-            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-            const url = URL.createObjectURL(svgBlob);
+      // Check if point hits brand text element
+      if (logoElements.brand) {
+        const brand = logoElements.brand;
+        const textWidth = brand.text.length * (brand.fontSize * 0.6); // Approximate text width
+        const textHeight = brand.fontSize;
 
-            const img = new Image();
-            img.onload = () => {
-              try {
-                ctx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
+        if (point.x >= brand.x - textWidth/2 && point.x <= brand.x + textWidth/2 &&
+            point.y >= brand.y - textHeight/2 && point.y <= brand.y + textHeight/2) {
+          sampledColor = brand.color;
+          console.log('✅ Sampled brand text color:', sampledColor);
+        }
+      }
 
-                // Get pixel data at the clicked point
-                const imageData = ctx.getImageData(Math.floor(point.x), Math.floor(point.y), 1, 1);
-                const [r, g, b, a] = imageData.data;
+      // Check if point hits slogan text element
+      if (!sampledColor && logoElements.slogan) {
+        const slogan = logoElements.slogan;
+        const textWidth = slogan.text.length * (slogan.fontSize * 0.6);
+        const textHeight = slogan.fontSize;
 
-                if (a > 0) { // Only if pixel is not transparent
-                  sampledColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-                  console.log('✅ Sampled pixel color:', sampledColor, `rgba(${r}, ${g}, ${b}, ${a})`);
-                } else {
-                  console.log('⚪ Clicked on transparent pixel');
-                }
+        if (point.x >= slogan.x - textWidth/2 && point.x <= slogan.x + textWidth/2 &&
+            point.y >= slogan.y - textHeight/2 && point.y <= slogan.y + textHeight/2) {
+          sampledColor = slogan.color;
+          console.log('✅ Sampled slogan text color:', sampledColor);
+        }
+      }
 
-                // Set the sampled color and update brush color
-                if (sampledColor) {
-                  setSampledColor(sampledColor);
-                  setBrushColor(sampledColor);
-                } else {
-                  // Fallback to current brush color
-                  setSampledColor(brushColor);
-                }
-              } catch (error) {
-                console.log('⚠️ Failed to sample pixel:', error);
-                setSampledColor(brushColor);
-              } finally {
-                URL.revokeObjectURL(url);
-              }
-            };
+      // Check if point hits icon element
+      if (!sampledColor && logoElements.icon) {
+        const icon = logoElements.icon;
+        const iconBounds = {
+          left: icon.x - icon.size/2,
+          right: icon.x + icon.size/2,
+          top: icon.y - icon.size/2,
+          bottom: icon.y + icon.size/2
+        };
 
-            img.onerror = () => {
-              console.log('⚠️ Failed to load SVG image');
-              URL.revokeObjectURL(url);
-              setSampledColor(brushColor);
-            };
+        if (point.x >= iconBounds.left && point.x <= iconBounds.right &&
+            point.y >= iconBounds.top && point.y <= iconBounds.bottom) {
+          sampledColor = icon.color;
+          console.log('✅ Sampled icon color:', sampledColor);
+        }
+      }
 
-            img.src = url;
-            return; // Exit early, color will be set in onload callback
+      // Check if point hits any boxes
+      if (!sampledColor) {
+        for (const box of boxes) {
+          if (point.x >= box.x && point.x <= box.x + box.width &&
+              point.y >= box.y && point.y <= box.y + box.height) {
+            sampledColor = box.fillColor !== 'transparent' ? box.fillColor : box.strokeColor;
+            console.log('✅ Sampled box color:', sampledColor, 'from box:', box.id);
+            break;
           }
         }
       }
+
+      // Check background layers
+      if (!sampledColor) {
+        const backgroundLayers = editLayers.filter(layer =>
+          (layer.type === 'background' || layer.type === 'original') &&
+          layer.visible &&
+          layer.backgroundColor &&
+          layer.backgroundColor !== 'transparent'
+        );
+
+        if (backgroundLayers.length > 0) {
+          const topBackground = backgroundLayers.sort((a, b) => b.order - a.order)[0];
+          const bgColor = topBackground.backgroundColor!;
+
+          if (bgColor.includes('linear-gradient')) {
+            // Extract first color from gradient
+            const colorMatch = bgColor.match(/#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}|rgb\([^)]+\)/);
+            if (colorMatch) {
+              sampledColor = convertToHex(colorMatch[0]);
+              console.log('✅ Sampled gradient background color:', sampledColor);
+            }
+          } else {
+            sampledColor = bgColor;
+            console.log('✅ Sampled background color:', sampledColor);
+          }
+        }
+      }
+
+      // Method 2: Fallback to DOM sampling if no logical hit
+      if (!sampledColor) {
+        console.log('🔍 Fallback: Using DOM element sampling...');
+        const elementsUnderPoint = document.elementsFromPoint(e.clientX, e.clientY);
+
+        for (const element of elementsUnderPoint) {
+          if (element instanceof SVGTextElement) {
+            const fill = element.getAttribute('fill');
+            if (fill && fill !== 'none' && !fill.includes('url(')) {
+              sampledColor = fill;
+              console.log('✅ DOM sampled SVG text color:', sampledColor);
+              break;
+            }
+          }
+          else if (element instanceof SVGElement && element.tagName.toLowerCase() === 'path') {
+            const fill = element.getAttribute('fill');
+            if (fill && fill !== 'none' && !fill.includes('url(')) {
+              sampledColor = fill;
+              console.log('✅ DOM sampled SVG path color:', sampledColor);
+              break;
+            }
+          }
+          else if (element instanceof SVGRectElement) {
+            const fill = element.getAttribute('fill');
+            if (fill && fill !== 'none' && !fill.includes('url(')) {
+              sampledColor = fill;
+              console.log('✅ DOM sampled SVG rect color:', sampledColor);
+              break;
+            }
+          }
+        }
+      }
+
+      // Set the sampled color if found
+      if (sampledColor) {
+        sampledColor = convertToHex(sampledColor) || sampledColor;
+        setSampledColor(sampledColor);
+        setBrushColor(sampledColor);
+        console.log('🎯 Final sampled color:', sampledColor);
+        return;
+      }
+
     } catch (error) {
-      console.log('⚠️ SVG pixel sampling failed:', error);
+      console.error('❌ Error in sampleColor:', error);
     }
 
     // Fallback: use current brush color
-    console.log('🔄 Using brush color as fallback:', brushColor);
+    console.log('🔄 No color found, using brush color as fallback:', brushColor);
     setSampledColor(brushColor);
+  };
+
+  // Helper function to convert rgb/rgba colors to hex
+  const convertToHex = (color: string): string | null => {
+    if (color.startsWith('#')) {
+      return color.toUpperCase();
+    }
+
+    if (color.startsWith('rgb')) {
+      const matches = color.match(/\d+/g);
+      if (matches && matches.length >= 3) {
+        const [r, g, b] = matches.map(Number);
+        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toUpperCase();
+      }
+    }
+
+    return null;
   };
 
   const startDrawing = (e: React.MouseEvent) => {
@@ -833,7 +922,52 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       }
       return;
     }
-    
+
+    if (drawingTool === 'place') {
+      // Place selected element at clicked position
+      if (selectedElementToPlace) {
+        switch (selectedElementToPlace) {
+          case 'brand':
+            if (logoElements.brand) {
+              setLogoElements(prev => ({
+                ...prev,
+                brand: { ...prev.brand!, x: point.x, y: point.y }
+              }));
+            }
+            break;
+          case 'slogan':
+            if (logoElements.slogan) {
+              setLogoElements(prev => ({
+                ...prev,
+                slogan: { ...prev.slogan!, x: point.x, y: point.y }
+              }));
+            }
+            break;
+          case 'icon':
+            if (logoElements.icon) {
+              setLogoElements(prev => ({
+                ...prev,
+                icon: { ...prev.icon!, x: point.x, y: point.y }
+              }));
+            }
+            break;
+          case 'box':
+            if (selectedBox) {
+              setBoxes(prev => prev.map(box =>
+                box.id === selectedBox
+                  ? { ...box, x: point.x - box.width/2, y: point.y - box.height/2 }
+                  : box
+              ));
+              console.log(`📍 Placed box ${selectedBox} at position:`, point);
+            }
+            break;
+        }
+        // Reset after placing
+        setSelectedElementToPlace(null);
+      }
+      return;
+    }
+
     if (drawingTool === 'brush' || (drawingTool === 'eraser' && eraserMode === 'brush')) {
       const newStroke: Stroke = {
         id: `stroke-${Date.now()}`,
@@ -1085,7 +1219,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         {editLayers
           .filter(layer =>
             layer.visible &&
-            layer.type === 'background' &&
+            (layer.type === 'background' || layer.type === 'original') &&
             layer.backgroundColor &&
             layer.backgroundColor !== 'transparent' &&
             !layer.backgroundColor.includes('linear-gradient')
@@ -2148,6 +2282,17 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   transformOrigin: 'center center'
                 }}
               >
+                {/* Original Background Layer (deepest layer) */}
+                {editLayers.find(l => l.type === 'original')?.backgroundColor?.includes('linear-gradient') && (
+                  <div
+                    className="absolute inset-0 rounded-lg"
+                    style={{
+                      backgroundImage: editLayers.find(l => l.type === 'original')?.backgroundColor || '',
+                      zIndex: 0
+                    }}
+                  />
+                )}
+
                 {/* Gradient Background Layer (deeper layer, unaffected by eraser) */}
                 {((variation?.backgroundColor?.includes('linear-gradient')) ||
                   (editLayers.find(l => l.type === 'background')?.backgroundColor?.includes('linear-gradient'))) && (
@@ -2170,16 +2315,17 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     // Für Gradienten: Transparent bleiben, damit der Gradient darunter sichtbar ist
                     // Für normale Farben: Hintergrundfarbe setzen
                     backgroundColor: (variation?.backgroundColor?.includes('linear-gradient') ||
-                                     editLayers.find(l => l.type === 'background')?.backgroundColor?.includes('linear-gradient'))
+                                     editLayers.find(l => l.type === 'background')?.backgroundColor?.includes('linear-gradient') ||
+                                     editLayers.find(l => l.type === 'original')?.backgroundColor?.includes('linear-gradient'))
                       ? 'transparent'
-                      : (variation?.backgroundColor || editLayers.find(l => l.type === 'background')?.backgroundColor || 'transparent')
+                      : (variation?.backgroundColor || editLayers.find(l => l.type === 'background')?.backgroundColor || editLayers.find(l => l.type === 'original')?.backgroundColor || 'transparent')
                   }}
                 >
                 
                 {/* Drawing Canvas Overlay */}
                 <div
                   ref={canvasRef}
-                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') && !isZoomed ? 'cursor-none' : drawingTool === 'eyedropper' ? 'cursor-crosshair' : drawingTool === 'move' ? 'cursor-move' : 'cursor-crosshair'}`}
+                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') && !isZoomed ? 'cursor-none' : drawingTool === 'eyedropper' ? 'cursor-crosshair' : drawingTool === 'move' ? 'cursor-move' : drawingTool === 'place' ? 'cursor-pointer' : 'cursor-crosshair'}`}
                   style={{
                     cursor: isZoomed && drawingTool === 'brush' ?
                             `url("data:image/svg+xml,%3Csvg width='${Math.max(brushSize * 2, 16)}' height='${Math.max(brushSize * 2, 16)}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${Math.max(brushSize, 8)}' cy='${Math.max(brushSize, 8)}' r='${Math.max(brushSize/2, 4)}' fill='rgba(0,0,0,0.2)' stroke='white' stroke-width='2'/%3E%3Ccircle cx='${Math.max(brushSize, 8)}' cy='${Math.max(brushSize, 8)}' r='1' fill='white'/%3E%3C/svg%3E") ${Math.max(brushSize, 8)} ${Math.max(brushSize, 8)}, crosshair` :
@@ -2235,6 +2381,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                    drawingTool === 'line' ? `📏 Line ${lineWidth}px` :
                    drawingTool === 'eyedropper' ? `🎨 Pipette` :
                    drawingTool === 'move' ? `↔️ Move Elements` :
+                   drawingTool === 'place' ? `📍 Place Here` :
                    '✏️ Drawing'}
                   {isZoomed && <span className="ml-2 text-blue-400">2x</span>}
                 </div>
@@ -2278,7 +2425,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             </div>
 
             {/* Editor Controls Side */}
-            <div className="w-[430px] p-8 overflow-y-auto bg-gradient-to-b from-gray-800/50 to-gray-900/80 backdrop-blur-sm">
+            <div className="w-[456px] p-6 overflow-y-auto bg-gradient-to-b from-gray-800/50 to-gray-900/80 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
                 <div>
                   <h3 className="text-white font-bold text-2xl mb-1">Edit Logo</h3>
@@ -2293,7 +2440,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 </button>
               </div>
 
-              <div className="space-y-8">
+              <div className="flex gap-4 h-full">
+                {/* Main Column (70%) */}
+                <div className="flex-[0.7] space-y-6 overflow-y-auto">
                 {/* Drawing Tools Section */}
                 <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
                   <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
@@ -2302,7 +2451,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   </h4>
                   
                   {/* Tool Selection */}
-                  <div className="grid grid-cols-3 gap-2 mb-4">
+                  <div className="grid grid-cols-4 gap-2 mb-4">
                     <button
                       onClick={() => setDrawingTool('brush')}
                       className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
@@ -2355,6 +2504,14 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       <Move size={16} />
                       Move
                     </button>
+                    <button
+                      onClick={() => setDrawingTool('place')}
+                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                        drawingTool === 'place' ? 'bg-indigo-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                      }`}
+                    >
+                      📍 Place
+                    </button>
                   </div>
 
                   {/* Layer Selection */}
@@ -2363,26 +2520,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       <div className="flex items-center gap-2">
                         <Layers className="w-4 h-4 text-white" />
                         <span className="font-semibold text-white">Layers</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => addLayer('drawing')}
-                          className="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs flex items-center gap-1"
-                        >
-                          <Plus className="w-3 h-3" /> Drawing
-                        </button>
-                        <button
-                          onClick={() => addLayer('elements')}
-                          className="px-2 py-1 bg-purple-600 hover:bg-purple-700 rounded text-xs flex items-center gap-1"
-                        >
-                          <Type className="w-3 h-3" /> Elements
-                        </button>
-                        <button
-                          onClick={() => addLayer('background')}
-                          className="px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-xs flex items-center gap-1"
-                        >
-                          <Palette className="w-3 h-3" /> Background
-                        </button>
                       </div>
                     </div>
 
@@ -2504,8 +2641,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     </div>
                   </div>
 
-                  {/* Background Color Selector - Show when background layer is selected */}
-                  {editLayers.find(l => l.id === activeLayer)?.type === 'background' && (
+                  {/* Background Color Selector - Show when background or original layer is selected */}
+                  {(editLayers.find(l => l.id === activeLayer)?.type === 'background' || editLayers.find(l => l.id === activeLayer)?.type === 'original') && (
                     <div className="bg-white/5 rounded-xl mb-6 overflow-hidden border border-white/10">
                       <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10">
                         <Palette className="w-4 h-4 text-white" />
@@ -2516,16 +2653,32 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                           const currentBg = editLayers.find(l => l.id === activeLayer)?.backgroundColor || '#ffffff';
                           const isGradient = currentBg.includes('linear-gradient');
 
-                          // Extract colors from gradient if present
+                          // Extract colors and direction from gradient if present
                           let gradientColor1 = '#ff6b6b';
                           let gradientColor2 = '#4ecdc4';
+                          let gradientColor3 = '#a855f7';
+                          let gradientDirection = 135;
+                          let use3Colors = false;
                           let solidColor = '#ffffff';
 
                           if (isGradient) {
+                            // Extract direction
+                            const directionMatch = currentBg.match(/linear-gradient\((\d+)deg/);
+                            if (directionMatch) {
+                              gradientDirection = parseInt(directionMatch[1]);
+                            }
+
+                            // Extract colors
                             const matches = currentBg.match(/#[0-9a-f]{6}/gi);
-                            if (matches && matches.length >= 2) {
-                              gradientColor1 = matches[0];
-                              gradientColor2 = matches[1];
+                            if (matches) {
+                              if (matches.length >= 2) {
+                                gradientColor1 = matches[0];
+                                gradientColor2 = matches[1];
+                              }
+                              if (matches.length >= 3) {
+                                gradientColor3 = matches[2];
+                                use3Colors = true;
+                              }
                             }
                           } else {
                             solidColor = currentBg;
@@ -2546,7 +2699,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                   Solid Color
                                 </button>
                                 <button
-                                  onClick={() => updateLayerBackgroundColor(activeLayer, `linear-gradient(135deg, ${gradientColor1} 0%, ${gradientColor2} 100%)`)}
+                                  onClick={() => updateLayerBackgroundColor(activeLayer, `linear-gradient(${gradientDirection}deg, ${gradientColor1} 0%, ${gradientColor2} 100%)`)}
                                   className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
                                     isGradient
                                       ? 'bg-blue-600 text-white'
@@ -2560,30 +2713,89 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                               {/* Gradient Controls */}
                               {isGradient ? (
                                 <div className="space-y-4">
+                                  {/* Gradient Direction */}
                                   <div className="flex items-center gap-3">
-                                    <span className="text-white/70 text-sm w-16">Color 1:</span>
+                                    <span className="text-white/70 text-sm w-20">Direction:</span>
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="360"
+                                      value={gradientDirection}
+                                      onChange={(e) => {
+                                        const newDirection = parseInt(e.target.value);
+                                        const gradientStr = use3Colors
+                                          ? `linear-gradient(${newDirection}deg, ${gradientColor1} 0%, ${gradientColor2} 50%, ${gradientColor3} 100%)`
+                                          : `linear-gradient(${newDirection}deg, ${gradientColor1} 0%, ${gradientColor2} 100%)`;
+                                        updateLayerBackgroundColor(activeLayer, gradientStr);
+                                      }}
+                                      className="flex-1 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                                    />
+                                    <span className="text-white/70 text-sm w-12">{gradientDirection}°</span>
+                                  </div>
+
+                                  {/* 3-Color Toggle */}
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-white/70 text-sm w-20">Colors:</span>
+                                    <button
+                                      onClick={() => {
+                                        const gradientStr = use3Colors
+                                          ? `linear-gradient(${gradientDirection}deg, ${gradientColor1} 0%, ${gradientColor2} 100%)`
+                                          : `linear-gradient(${gradientDirection}deg, ${gradientColor1} 0%, ${gradientColor2} 50%, ${gradientColor3} 100%)`;
+                                        updateLayerBackgroundColor(activeLayer, gradientStr);
+                                      }}
+                                      className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                                        use3Colors
+                                          ? 'bg-purple-600 text-white'
+                                          : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                      }`}
+                                    >
+                                      {use3Colors ? '3 Colors' : '2 Colors'}
+                                    </button>
+                                  </div>
+
+                                  {/* Color Controls */}
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-white/70 text-sm w-20">Color 1:</span>
                                     <input
                                       type="color"
                                       value={gradientColor1}
                                       onChange={(e) => {
-                                        const newGradient = `linear-gradient(135deg, ${e.target.value} 0%, ${gradientColor2} 100%)`;
-                                        updateLayerBackgroundColor(activeLayer, newGradient);
+                                        const gradientStr = use3Colors
+                                          ? `linear-gradient(${gradientDirection}deg, ${e.target.value} 0%, ${gradientColor2} 50%, ${gradientColor3} 100%)`
+                                          : `linear-gradient(${gradientDirection}deg, ${e.target.value} 0%, ${gradientColor2} 100%)`;
+                                        updateLayerBackgroundColor(activeLayer, gradientStr);
                                       }}
                                       className="flex-1 h-10 rounded border border-white/20 bg-transparent"
                                     />
                                   </div>
                                   <div className="flex items-center gap-3">
-                                    <span className="text-white/70 text-sm w-16">Color 2:</span>
+                                    <span className="text-white/70 text-sm w-20">Color 2:</span>
                                     <input
                                       type="color"
                                       value={gradientColor2}
                                       onChange={(e) => {
-                                        const newGradient = `linear-gradient(135deg, ${gradientColor1} 0%, ${e.target.value} 100%)`;
-                                        updateLayerBackgroundColor(activeLayer, newGradient);
+                                        const gradientStr = use3Colors
+                                          ? `linear-gradient(${gradientDirection}deg, ${gradientColor1} 0%, ${e.target.value} 50%, ${gradientColor3} 100%)`
+                                          : `linear-gradient(${gradientDirection}deg, ${gradientColor1} 0%, ${e.target.value} 100%)`;
+                                        updateLayerBackgroundColor(activeLayer, gradientStr);
                                       }}
                                       className="flex-1 h-10 rounded border border-white/20 bg-transparent"
                                     />
                                   </div>
+                                  {use3Colors && (
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-white/70 text-sm w-20">Color 3:</span>
+                                      <input
+                                        type="color"
+                                        value={gradientColor3}
+                                        onChange={(e) => {
+                                          const gradientStr = `linear-gradient(${gradientDirection}deg, ${gradientColor1} 0%, ${gradientColor2} 50%, ${e.target.value} 100%)`;
+                                          updateLayerBackgroundColor(activeLayer, gradientStr);
+                                        }}
+                                        className="flex-1 h-10 rounded border border-white/20 bg-transparent"
+                                      />
+                                    </div>
+                                  )}
 
                                   {/* Gradient Presets */}
                                   <div>
@@ -2643,29 +2855,86 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     </div>
                   )}
 
-                  {/* Eyedropper Tool Settings */}
-                  {drawingTool === 'eyedropper' && sampledColor && (
+
+                  {/* Place Tool Settings */}
+                  {drawingTool === 'place' && (
                     <div className="bg-white/10 rounded p-3 mb-4">
-                      <label className="block text-white/80 text-sm mb-2">Gesampelte Farbe</label>
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-10 h-8 rounded border border-white/20"
-                          style={{ backgroundColor: sampledColor }}
-                        ></div>
-                        <span className="text-white/60 text-sm">{sampledColor}</span>
-                        <button
-                          onClick={() => {
-                            setBrushColor(sampledColor);
-                            setBoxFillColor(sampledColor);
-                            setBoxStrokeColor(sampledColor);
-                            setLineColor(sampledColor);
-                          }}
-                          className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
-                        >
-                          Verwenden
-                        </button>
+                      <label className="block text-white/80 text-sm mb-2">Select Element to Place</label>
+                      <p className="text-white/60 text-xs mb-3">Wähle ein Element aus und klicke dann im Logo, um es zu positionieren</p>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        {logoElements.brand && (
+                          <button
+                            onClick={() => setSelectedElementToPlace('brand')}
+                            className={`px-3 py-2 rounded text-sm transition-colors ${
+                              selectedElementToPlace === 'brand'
+                                ? 'bg-indigo-600 text-white'
+                                : 'bg-white/10 text-white/70 hover:bg-white/20'
+                            }`}
+                          >
+                            📝 Brand Name
+                          </button>
+                        )}
+                        {logoElements.slogan && (
+                          <button
+                            onClick={() => setSelectedElementToPlace('slogan')}
+                            className={`px-3 py-2 rounded text-sm transition-colors ${
+                              selectedElementToPlace === 'slogan'
+                                ? 'bg-indigo-600 text-white'
+                                : 'bg-white/10 text-white/70 hover:bg-white/20'
+                            }`}
+                          >
+                            💬 Slogan
+                          </button>
+                        )}
+                        {logoElements.icon && (
+                          <button
+                            onClick={() => setSelectedElementToPlace('icon')}
+                            className={`px-3 py-2 rounded text-sm transition-colors ${
+                              selectedElementToPlace === 'icon'
+                                ? 'bg-indigo-600 text-white'
+                                : 'bg-white/10 text-white/70 hover:bg-white/20'
+                            }`}
+                          >
+                            🎯 Icon
+                          </button>
+                        )}
+                        {/* Show all boxes */}
+                        {boxes.length > 0 && (
+                          <div className="col-span-2">
+                            <label className="block text-white/80 text-xs mb-2">Available Boxes</label>
+                            <div className="grid grid-cols-2 gap-1">
+                              {boxes.map((box) => (
+                                <button
+                                  key={box.id}
+                                  onClick={() => {
+                                    setSelectedElementToPlace('box');
+                                    setSelectedBox(box.id);
+                                  }}
+                                  className={`px-2 py-1 rounded text-xs transition-colors ${
+                                    selectedElementToPlace === 'box' && selectedBox === box.id
+                                      ? 'bg-indigo-600 text-white'
+                                      : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                  }`}
+                                >
+                                  ⬜ Box {boxes.indexOf(box) + 1}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-white/60 text-xs mt-2">Klicke auf Elemente im Logo um Farben zu sampeln</p>
+
+                      {selectedElementToPlace && (
+                        <div className="mt-3 p-2 bg-indigo-600/20 rounded border border-indigo-400/30">
+                          <p className="text-indigo-300 text-xs">
+                            📍 {selectedElementToPlace === 'brand' ? 'Brand Name' :
+                                 selectedElementToPlace === 'slogan' ? 'Slogan' :
+                                 selectedElementToPlace === 'icon' ? 'Icon' :
+                                 selectedElementToPlace === 'box' ? `Box ${selectedBox ? boxes.findIndex(b => b.id === selectedBox) + 1 : ''}` : 'Element'} ausgewählt - Klicke im Logo um zu platzieren
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -3516,8 +3785,227 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       </button>
                     </div>
                   </div>
+
+                  {/* Tool Settings Section */}
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/10 backdrop-blur-sm">
+                    <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+                      <span className="text-gray-400">🛠️</span>
+                      Tool Settings
+                    </h4>
+
+                    {/* Tool-specific settings */}
+                    {(drawingTool === 'brush' || drawingTool === 'eraser') && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">
+                            {drawingTool === 'brush' ? 'Brush Color' : 'Eraser Color'}
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={brushColor}
+                              onChange={(e) => setBrushColor(e.target.value)}
+                              className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                            />
+                            <span className="text-white/50 text-xs">{brushColor}</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">
+                            Size: {brushSize}px
+                          </label>
+                          <input
+                            type="range"
+                            min="1"
+                            max="50"
+                            value={brushSize}
+                            onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                            className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">
+                            Opacity: {drawingTool === 'brush' ? brushOpacity : eraserOpacity}/10
+                          </label>
+                          <input
+                            type="range"
+                            min="1"
+                            max="10"
+                            value={drawingTool === 'brush' ? brushOpacity : eraserOpacity}
+                            onChange={(e) => {
+                              if (drawingTool === 'brush') {
+                                setBrushOpacity(parseInt(e.target.value));
+                              } else {
+                                setEraserOpacity(parseInt(e.target.value));
+                              }
+                            }}
+                            className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {drawingTool === 'line' && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">Line Color</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={lineColor}
+                              onChange={(e) => setLineColor(e.target.value)}
+                              className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                            />
+                            <span className="text-white/50 text-xs">{lineColor}</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">Width: {lineWidth}px</label>
+                          <input
+                            type="range"
+                            min="1"
+                            max="20"
+                            value={lineWidth}
+                            onChange={(e) => setLineWidth(parseInt(e.target.value))}
+                            className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {drawingTool === 'box' && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">Fill Color</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={boxFillColor}
+                              onChange={(e) => setBoxFillColor(e.target.value)}
+                              className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                            />
+                            <span className="text-white/50 text-xs">{boxFillColor}</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">Stroke Color</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={boxStrokeColor}
+                              onChange={(e) => setBoxStrokeColor(e.target.value)}
+                              className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                            />
+                            <span className="text-white/50 text-xs">{boxStrokeColor}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {drawingTool === 'place' && (
+                      <div className="space-y-3">
+                        <label className="block text-white/80 text-sm mb-2">Select Element to Place</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {logoElements.brand && (
+                            <button
+                              onClick={() => setSelectedElementToPlace('brand')}
+                              className={`px-2 py-1 rounded text-xs transition-colors ${
+                                selectedElementToPlace === 'brand'
+                                  ? 'bg-indigo-600 text-white'
+                                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+                              }`}
+                            >
+                              📝 Brand
+                            </button>
+                          )}
+                          {logoElements.slogan && (
+                            <button
+                              onClick={() => setSelectedElementToPlace('slogan')}
+                              className={`px-2 py-1 rounded text-xs transition-colors ${
+                                selectedElementToPlace === 'slogan'
+                                  ? 'bg-indigo-600 text-white'
+                                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+                              }`}
+                            >
+                              💬 Slogan
+                            </button>
+                          )}
+                          {logoElements.icon && (
+                            <button
+                              onClick={() => setSelectedElementToPlace('icon')}
+                              className={`px-2 py-1 rounded text-xs transition-colors ${
+                                selectedElementToPlace === 'icon'
+                                  ? 'bg-indigo-600 text-white'
+                                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+                              }`}
+                            >
+                              🎯 Icon
+                            </button>
+                          )}
+                          {boxes.length > 0 && boxes.map((box, index) => (
+                            <button
+                              key={box.id}
+                              onClick={() => {
+                                setSelectedElementToPlace('box');
+                                setSelectedBox(box.id);
+                              }}
+                              className={`px-2 py-1 rounded text-xs transition-colors ${
+                                selectedElementToPlace === 'box' && selectedBox === box.id
+                                  ? 'bg-indigo-600 text-white'
+                                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+                              }`}
+                            >
+                              ⬜ Box {index + 1}
+                            </button>
+                          ))}
+                        </div>
+                        {selectedElementToPlace && (
+                          <p className="text-indigo-300 text-xs mt-2">
+                            📍 Click in logo to place {selectedElementToPlace}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {drawingTool === 'eyedropper' && sampledColor && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-white/80 text-sm mb-2">Sampled Color</label>
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="w-12 h-12 rounded border border-white/20"
+                              style={{ backgroundColor: sampledColor }}
+                            />
+                            <div className="flex-1">
+                              <code className="text-white text-sm">{sampledColor}</code>
+                              <div className="flex gap-1 mt-1">
+                                <button
+                                  onClick={() => navigator.clipboard.writeText(sampledColor)}
+                                  className="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-white rounded text-xs"
+                                >
+                                  Copy
+                                </button>
+                                <button
+                                  onClick={() => setBrushColor(sampledColor)}
+                                  className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs"
+                                >
+                                  Use
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
+                {/* Side Column (30%) */}
+                <div className="flex-[0.3] space-y-4 overflow-y-auto">
                 {/* Text Section */}
                 <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
                   <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
@@ -3749,6 +4237,104 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   </div>
                 </div>
 
+                {/* Advanced Eyedropper Section */}
+                {drawingTool === 'eyedropper' && (
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/10 backdrop-blur-sm mb-6">
+                    <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+                      <Pipette size={20} className="text-teal-400" />
+                      Color Picker
+                    </h4>
+
+                    <div className="space-y-4">
+                      {/* Instructions */}
+                      <div className="bg-teal-600/10 rounded-lg p-3 border border-teal-400/20">
+                        <p className="text-teal-300 text-sm">
+                          🎨 Klicke auf beliebige Elemente im Logo um deren Farbe zu sampeln
+                        </p>
+                      </div>
+
+                      {/* Sampled Color Display */}
+                      {sampledColor && (
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-white/80 text-sm mb-2">Gesampelte Farbe</label>
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="w-16 h-16 rounded-lg border-2 border-white/20 shadow-lg"
+                                style={{ backgroundColor: sampledColor }}
+                              ></div>
+                              <div className="flex-1 space-y-2">
+                                <div className="bg-white/10 rounded px-3 py-2 border border-white/20">
+                                  <code className="text-white font-mono text-sm">{sampledColor}</code>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => navigator.clipboard.writeText(sampledColor)}
+                                    className="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-white rounded text-xs transition-colors"
+                                  >
+                                    Copy
+                                  </button>
+                                  <button
+                                    onClick={() => setBrushColor(sampledColor)}
+                                    className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-colors"
+                                  >
+                                    → Brush
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Advanced Color Controls */}
+                          <div>
+                            <label className="block text-white/80 text-sm mb-2">Fine-tune Color</label>
+                            <input
+                              type="color"
+                              value={sampledColor}
+                              onChange={(e) => {
+                                setSampledColor(e.target.value);
+                                setBrushColor(e.target.value);
+                              }}
+                              className="w-full h-12 rounded-lg border border-white/20 cursor-pointer bg-transparent"
+                            />
+                          </div>
+
+                          {/* Apply to Elements */}
+                          <div>
+                            <label className="block text-white/80 text-sm mb-2">Apply to Tools</label>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() => setBrushColor(sampledColor)}
+                                className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded text-xs transition-colors"
+                              >
+                                🖌️ Brush
+                              </button>
+                              <button
+                                onClick={() => setLineColor(sampledColor)}
+                                className="px-3 py-2 bg-orange-600/80 hover:bg-orange-600 text-white rounded text-xs transition-colors"
+                              >
+                                📏 Line
+                              </button>
+                              <button
+                                onClick={() => setBoxFillColor(sampledColor)}
+                                className="px-3 py-2 bg-purple-600/80 hover:bg-purple-600 text-white rounded text-xs transition-colors"
+                              >
+                                ⬜ Box Fill
+                              </button>
+                              <button
+                                onClick={() => setBoxStrokeColor(sampledColor)}
+                                className="px-3 py-2 bg-green-600/80 hover:bg-green-600 text-white rounded text-xs transition-colors"
+                              >
+                                📦 Box Stroke
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Colors Section */}
                 <div>
                   <h4 className="text-white font-semibold mb-3">Colors</h4>
@@ -3804,6 +4390,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 >
                   Purchase
                 </button>
+              </div>
+                </div>
               </div>
             </div>
           </div>
