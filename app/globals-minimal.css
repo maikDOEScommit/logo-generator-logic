@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-900 text-white min-h-screen;
+  }
+
+  .dark {
+    @apply bg-gray-900 text-white;
+  }
+
+  html:not(.dark) {
+    @apply bg-white text-gray-900;
+  }
+
+  html:not(.dark) body {
+    @apply bg-white text-gray-900;
+  }
+}
+
+@layer utilities {
+  .text-white\/80 {
+    color: rgb(255 255 255 / 0.8);
+  }
+
+  .text-white\/60 {
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  .bg-white\/5 {
+    background-color: rgb(255 255 255 / 0.05);
+  }
+
+  .bg-white\/10 {
+    background-color: rgb(255 255 255 / 0.1);
+  }
+
+  .border-white\/20 {
+    border-color: rgb(255 255 255 / 0.2);
+  }
+}

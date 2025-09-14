@@ -18,7 +18,8 @@ import Step2_Branding from '@/components/editor/Step2_Branding';
 import Step3_Design from '@/components/editor/Step3_Design';
 import LogoPreview from '@/components/preview/LogoPreview';
 import MockupPreview from '@/components/preview/MockupPreview';
-import { fontCategories, colorPalettes, availableIcons, industries } from '@/lib/data';
+import { fontCategories, colorPalettes, industries, layouts } from '@/lib/data';
+import { availableIcons } from '@/lib/suggestionEngine';
 
 
 // === MAIN PAGE COMPONENT ===
@@ -397,10 +398,24 @@ export default function LogoGeneratorPage() {
       { id: 'stacked', name: 'Stacked' },
       { id: 'icon-left', name: 'Icon Left' }
     ];
-    const randomLayout = layouts[Math.floor(Math.random() * layouts.length)];
+    const randomLayoutBase = layouts[Math.floor(Math.random() * layouts.length)];
+    const randomLayout = {
+      ...randomLayoutBase,
+      type: 'standard' as const,
+      arrangement: 'icon-left' as const
+    };
 
     const randomPalette = randomSuggestions.suggestedPalettes[Math.floor(Math.random() * randomSuggestions.suggestedPalettes.length)];
-    const randomFont = randomSuggestions.suggestedFonts[Math.floor(Math.random() * randomSuggestions.suggestedFonts.length)];
+    const randomFontData = randomSuggestions.suggestedFonts[Math.floor(Math.random() * randomSuggestions.suggestedFonts.length)];
+
+    // Convert FontData to FontInfo format
+    const randomFont = {
+      name: randomFontData.name,
+      cssName: randomFontData.name,
+      isVariable: false,
+      generationWeights: [400, 700] as [number, number],
+      editorWeights: [400, 500, 600, 700]
+    };
 
     console.log('🎯 Selected random elements:', {
       icon: randomIcon?.id || 'unknown',
@@ -468,7 +483,7 @@ export default function LogoGeneratorPage() {
     }, 1000); // Wait for exit animation
     } catch (error) {
       console.error('❌ Error in generateRandomLogo:', error);
-      console.error('Error stack:', error.stack);
+      console.error('Error stack:', error instanceof Error ? error.stack : String(error));
     }
   };
 

@@ -3,3 +3,7 @@ export { ToolSettingsPanel } from './ToolSettingsPanel';
 export { TextSettingsPanel } from './TextSettingsPanel';
 export { IconPalettePanel } from './IconPalettePanel';
 export { CanvasRenderer } from './CanvasRenderer';
+export { LayerManagementPanel } from './LayerManagementPanel';
+export { ZoomViewControls } from './ZoomViewControls';
+export { BackgroundSettingsPanel } from './BackgroundSettingsPanel';
+export { ExportPanel } from './ExportPanel';

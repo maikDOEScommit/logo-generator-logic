@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark/Light Mode Styles */
+@layer base {
+  /* Ensure body has dark theme styles by default */
+  body {
+    @apply bg-gray-900 text-white;
+  }
+
+  /* Dark Mode (Default) */
+  .dark {
+    @apply bg-gray-900 text-white;
+  }
+
+  /* Light Mode */
+  html:not(.dark) {
+    --bg-primary: theme('colors.white');
+    --bg-secondary: theme('colors.gray.100');
+    --text-primary: theme('colors.gray.900');
+    --text-secondary: theme('colors.gray.600');
+    --border-color: theme('colors.gray.200');
+    --bg-gradient-light: #FFFFFF; /* Change blue parts to white in light mode */
+  }
+
+  /* Base transitions for smooth theme switching */
+  * {
+    transition-property: background-color, border-color, color;
+    transition-duration: 200ms;
+    transition-timing-function: ease-in-out;
+  }
+}
+
+/* Light Mode Text and Input Fixes */
+@layer utilities {
+  /* Make all text dark in light mode - BUT EXCLUDE Sign Up button */
+  html:not(.dark) h1:not(button *):not(.signup-btn *),
+  html:not(.dark) h2:not(button *):not(.signup-btn *),
+  html:not(.dark) h3:not(button *):not(.signup-btn *),
+  html:not(.dark) h4:not(button *):not(.signup-btn *),
+  html:not(.dark) h5:not(button *):not(.signup-btn *),
+  html:not(.dark) h6:not(button *):not(.signup-btn *),
+  html:not(.dark) p:not(button *):not(.signup-btn *),
+  html:not(.dark) span:not(button *):not(.signup-btn *),
+  html:not(.dark) div:not(button *):not(.signup-btn *),
+  html:not(.dark) label:not(button *):not(.signup-btn *),
+  html:not(.dark) .text-white:not(.signup-btn):not(.signup-btn *):not(button):not(button *) {
+    color: theme('colors.gray.900') !important;
+  }
+
+  /* Fix input styles for light mode */
+  html:not(.dark) input {
+    background-color: theme('colors.white') !important;
+    border: 1px solid theme('colors.gray.300') !important;
+    color: theme('colors.gray.900') !important;
+  }
+
+  html:not(.dark) input::placeholder {
+    color: theme('colors.gray.500') !important;
+  }
+
+  /* Dark mode input placeholders - completely white */
+  .dark input::placeholder {
+    color: theme('colors.white') !important;
+  }
+
+  /* Fix white icons in light mode - make them black */
+  html:not(.dark) svg {
+    color: theme('colors.gray.900') !important;
+  }
+}
+
+body {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  position: relative;
+}
+
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}

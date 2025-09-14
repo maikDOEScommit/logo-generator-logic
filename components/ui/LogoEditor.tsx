@@ -3,7 +3,7 @@ import { LogoConfig, IconData, PaletteData } from '@/lib/types';
 import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette, Move, Maximize, Expand, Layers, Eye, EyeOff, Plus, ArrowUp, ArrowDown, Trash2, Palette, Type } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
 import { usePipetteTool } from './PipetteTool';
-import { DrawingToolsPanel, ToolSettingsPanel, TextSettingsPanel, IconPalettePanel } from './logo-editor';
+import { DrawingToolsPanel, ToolSettingsPanel, TextSettingsPanel, IconPalettePanel, LayerManagementPanel, ZoomViewControls, BackgroundSettingsPanel, ExportPanel } from './logo-editor';
 
 interface LogoEditorProps {
   config: LogoConfig;
@@ -2100,41 +2100,16 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           }`}>
             {/* Logo Preview Side with Drawing Canvas */}
             <div className="flex-1 p-8 flex flex-col items-center justify-center border-r border-white/20">
-              {/* Zoom and Fullscreen Controls */}
-              <div className="absolute top-4 left-4 z-50 flex gap-2">
-                <button
-                  onClick={() => setIsZoomed(!isZoomed)}
-                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                    isZoomed
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                      : 'bg-white/10 hover:bg-white/20 text-white/80'
-                  }`}
-                >
-                  {isZoomed ? '1x' : '2x'} Zoom
-                </button>
-                <button
-                  onClick={isTrueFullscreen ? handleExitFullscreen : handleTrueFullscreen}
-                  className="px-3 py-2 rounded text-sm font-medium transition-colors bg-white/10 hover:bg-white/20 text-white/80"
-                >
-                  {isTrueFullscreen ? (
-                    <>
-                      <X size={16} /> Exit FS
-                    </>
-                  ) : (
-                    <>
-                      <Expand size={16} /> Fullscreen
-                    </>
-                  )}
-                </button>
-                {!isTrueFullscreen && (
-                  <button
-                    onClick={() => setShowFullscreenEditor(false)}
-                    className="px-3 py-2 rounded text-sm font-medium transition-colors bg-red-500/20 hover:bg-red-500/30 text-white/80 border border-red-400/30"
-                  >
-                    <X size={16} /> Close
-                  </button>
-                )}
-              </div>
+              {/* Zoom and View Controls */}
+              <ZoomViewControls
+                isZoomed={isZoomed}
+                setIsZoomed={setIsZoomed}
+                isTrueFullscreen={isTrueFullscreen}
+                handleTrueFullscreen={handleTrueFullscreen}
+                handleExitFullscreen={handleExitFullscreen}
+                onCloseEditor={() => setShowFullscreenEditor(false)}
+                showCloseButton={!isTrueFullscreen}
+              />
 
               <div
                 className={`relative rounded-lg max-w-2xl w-full aspect-square transition-transform duration-300 ${
@@ -4236,23 +4211,41 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   </div>
 
                 </div>
+
+                {/* Layer Management Panel */}
+                <LayerManagementPanel
+                  editLayers={editLayers}
+                  activeLayer={activeLayer}
+                  setActiveLayer={setActiveLayer}
+                  setEditLayers={setEditLayers}
+                  addCustomLayer={addCustomLayer}
+                  deleteLayer={deleteLayer}
+                  moveLayerUp={moveLayerUp}
+                  moveLayerDown={moveLayerDown}
+                  updateLayerBackgroundColor={updateLayerBackgroundColor}
+                  showLayerInput={showLayerInput}
+                  setShowLayerInput={setShowLayerInput}
+                  newLayerName={newLayerName}
+                  setNewLayerName={setNewLayerName}
+                />
+
+                {/* Background Settings Panel */}
+                <BackgroundSettingsPanel
+                  editLayers={editLayers}
+                  updateLayerBackgroundColor={updateLayerBackgroundColor}
+                  variation={variation}
+                  availablePalettes={availablePalettes}
+                  onConfigUpdate={onConfigUpdate}
+                />
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-2 mt-8 pt-6 border-t border-white/20">
-                <button
-                  onClick={handleSave}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded font-medium transition-colors"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={handlePurchase}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded font-medium transition-colors"
-                >
-                  Purchase
-                </button>
-              </div>
+              {/* Export Panel */}
+              <ExportPanel
+                onSave={handleSave}
+                onPurchase={handlePurchase}
+                showPurchaseButton={true}
+                showDownloadOptions={false}
+              />
                 </div>
               </div>
             </div>

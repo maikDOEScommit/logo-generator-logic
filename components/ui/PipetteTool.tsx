@@ -2,7 +2,11 @@
 'use client';
 
 import React from 'react';
-import { Point } from '../ui/LogoEditor';
+// Point interface definition
+interface Point {
+  x: number;
+  y: number;
+}
 
 export interface LogoElements {
   brand?: any | null;

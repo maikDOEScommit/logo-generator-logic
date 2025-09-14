@@ -77,7 +77,7 @@ export const IconPalettePanel = ({
               onChange={(e) => {
                 const newIconColor = e.target.value;
                 setIconColor(newIconColor);
-                setLocalConfig(prev => ({
+                setLocalConfig((prev: any) => ({
                   ...prev,
                   iconColor: newIconColor
                 }));
@@ -228,7 +228,7 @@ export const IconPalettePanel = ({
                     }`}
                   >
                     <div className="flex gap-1 h-4 mb-1">
-                      {palette.colors.map((color, i) => (
+                      {palette.colors.map((color: string, i: number) => (
                         <div key={i} className="flex-1 rounded-sm" style={{ backgroundColor: color }}></div>
                       ))}
                     </div>

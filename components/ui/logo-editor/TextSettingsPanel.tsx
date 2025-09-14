@@ -123,7 +123,7 @@ export const TextSettingsPanel = ({
                 onClick={() => {
                   setFontWeight(weight);
                   const updatedFont = { ...localConfig.font!, fontWeight: weight };
-                  setLocalConfig(prev => ({ ...prev, font: updatedFont }));
+                  setLocalConfig((prev: any) => ({ ...prev, font: updatedFont }));
                   onConfigUpdate({ font: updatedFont });
                 }}
                 className={`w-full px-3 py-2 rounded text-sm text-left transition-colors ${
