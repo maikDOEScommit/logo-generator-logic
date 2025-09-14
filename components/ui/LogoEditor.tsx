@@ -4,6 +4,7 @@ import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileIma
 import { fontCategories } from '@/lib/data';
 import { usePipetteTool } from './PipetteTool';
 import { DrawingToolsPanel, ToolSettingsPanel, TextSettingsPanel, IconPalettePanel, LayerManagementPanel, ZoomViewControls, BackgroundSettingsPanel, ExportPanel, PurchaseModal, SaveModal } from './logo-editor';
+import { LayerManager } from './LayerManager';
 
 interface LogoEditorProps {
   config: LogoConfig;
@@ -2278,8 +2279,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
               </div>
 
               <div className="flex gap-4 h-full">
-                {/* Main Column (70%) */}
-                <div className="flex-[0.7] space-y-6 overflow-y-auto">
+                {/* Main Column (55%) */}
+                <div className="flex-[0.55] space-y-6 overflow-y-auto">
                 {/* Drawing Tools Section */}
                 <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
                   <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
@@ -2351,132 +2352,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     </button>
                   </div>
 
-                  {/* Layer Selection */}
-                  <div className="bg-white/5 rounded-xl mb-6 overflow-hidden border border-white/10">
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-                      <div className="flex items-center gap-2">
-                        <Layers className="w-4 h-4 text-white" />
-                        <span className="font-semibold text-white">Layers</span>
-                      </div>
-                    </div>
 
-                    <div className="p-3 space-y-2">
-                      {editLayers
-                        .sort((a, b) => b.order - a.order) // Sort by order, highest first (top layer first)
-                        .map((layer) => (
-                        <div
-                          key={layer.id}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all ${
-                            activeLayer === layer.id
-                              ? "bg-gray-700 border-blue-500"
-                              : "bg-gray-700/50 border-transparent hover:bg-gray-700"
-                          }`}
-                          onClick={() => setActiveLayer(layer.id)}
-                        >
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditLayers(prev => prev.map(l =>
-                                l.id === layer.id ? { ...l, visible: !l.visible } : l
-                              ));
-                            }}
-                          >
-                            {layer.visible ? (
-                              <Eye className="w-4 h-4 text-white" />
-                            ) : (
-                              <EyeOff className="w-4 h-4 text-gray-500" />
-                            )}
-                          </button>
-                          <span className="flex-1 text-sm text-white">{layer.name}</span>
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                moveLayerUp(layer.id);
-                              }}
-                              className="p-1 hover:bg-gray-600 rounded"
-                            >
-                              <ArrowUp className="w-3 h-3 text-white" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                moveLayerDown(layer.id);
-                              }}
-                              className="p-1 hover:bg-gray-600 rounded"
-                            >
-                              <ArrowDown className="w-3 h-3 text-white" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteLayer(layer.id);
-                              }}
-                              className="p-1 hover:bg-gray-600 rounded text-red-400"
-                              disabled={editLayers.length === 1}
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-
-                      {/* Add New Layer Button */}
-                      {!showLayerInput ? (
-                        <div className="px-3 pb-2">
-                          <button
-                            onClick={() => setShowLayerInput(true)}
-                            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 border-dashed border-gray-600 hover:border-gray-500 text-gray-400 hover:text-gray-300 transition-all"
-                          >
-                            <Plus className="w-4 h-4" />
-                            New Layer
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="px-3 pb-2">
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={newLayerName}
-                              onChange={(e) => setNewLayerName(e.target.value)}
-                              placeholder="Layer name"
-                              className="flex-1 px-2 py-1 text-sm bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400"
-                              autoFocus
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  addCustomLayer(newLayerName || 'New Layer');
-                                  setNewLayerName('');
-                                  setShowLayerInput(false);
-                                } else if (e.key === 'Escape') {
-                                  setNewLayerName('');
-                                  setShowLayerInput(false);
-                                }
-                              }}
-                            />
-                            <button
-                              onClick={() => {
-                                addCustomLayer(newLayerName || 'New Layer');
-                                setNewLayerName('');
-                                setShowLayerInput(false);
-                              }}
-                              className="p-1 text-green-400 hover:text-green-300 transition-colors"
-                            >
-                              <Check className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setNewLayerName('');
-                                setShowLayerInput(false);
-                              }}
-                              className="p-1 text-gray-400 hover:text-gray-300 transition-colors"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
 
                   {/* Background Color Selector - Show when background or original layer is selected */}
                   {(editLayers.find(l => l.id === activeLayer)?.type === 'background' || editLayers.find(l => l.id === activeLayer)?.type === 'original') && (
@@ -3841,8 +3717,22 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   </div>
                 </div>
 
-                {/* Side Column (30%) */}
-                <div className="flex-[0.3] space-y-4 overflow-y-auto">
+                {/* Layer Manager Column (20%) */}
+                <div className="flex-[0.2] space-y-4 overflow-y-auto">
+                  <LayerManager
+                    editLayers={editLayers}
+                    activeLayer={activeLayer}
+                    onActiveLayerChange={setActiveLayer}
+                    onLayersChange={setEditLayers}
+                    onMoveLayerUp={moveLayerUp}
+                    onMoveLayerDown={moveLayerDown}
+                    onDeleteLayer={deleteLayer}
+                    onAddCustomLayer={addCustomLayer}
+                  />
+                </div>
+
+                {/* Settings Column (25%) */}
+                <div className="flex-[0.25] space-y-4 overflow-y-auto">
                 {/* Text Section */}
                 <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
                   <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
