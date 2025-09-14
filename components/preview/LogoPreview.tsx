@@ -483,13 +483,6 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
         <div className="space-y-8">
           <div className="flex items-center justify-between">
             <h3 className="text-2xl text-white">Generated Logos: {selectedFontCategory} Category</h3>
-            <button
-              onClick={() => setShowAdvancedEditor(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-            >
-              <Edit3 className="w-4 h-4" />
-              Advanced Editor
-            </button>
           </div>
 
           {/* Show variations with font switchers */}
@@ -598,13 +591,6 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl text-white">Generated Logos: {selectedFontCategory} Category</h3>
-        <button
-          onClick={() => setShowAdvancedEditor(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-        >
-          <Edit3 className="w-4 h-4" />
-          Advanced Editor
-        </button>
       </div>
       
       {/* Show variations with font switchers */}

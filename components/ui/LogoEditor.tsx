@@ -2077,25 +2077,19 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         <div className="flex gap-1 justify-center">
           <button
             onClick={handleEdit}
-            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors flex-1 max-w-[60px]"
+            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors flex-1"
           >
             <Edit size={12} /> Edit
           </button>
           <button
-            onClick={() => setShowFullscreenEditor(true)}
-            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-medium transition-colors flex-1 max-w-[70px]"
-          >
-            <Maximize size={12} /> Full
-          </button>
-          <button
             onClick={handleSave}
-            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-medium transition-colors flex-1 max-w-[60px]"
+            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-medium transition-colors flex-1"
           >
             <Save size={12} /> Save
           </button>
           <button
             onClick={handlePurchase}
-            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded text-xs font-medium transition-colors flex-1 max-w-[60px]"
+            className="flex items-center justify-center gap-1 px-1.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded text-xs font-medium transition-colors flex-1"
           >
             <ShoppingCart size={12} /> Buy
           </button>
