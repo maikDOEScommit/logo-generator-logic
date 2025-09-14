@@ -3,6 +3,7 @@ import { LogoConfig, IconData, PaletteData } from '@/lib/types';
 import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette, Move, Maximize, Expand, Layers, Eye, EyeOff, Plus, ArrowUp, ArrowDown, Trash2, Palette, Type } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
 import { usePipetteTool } from './PipetteTool';
+import { DrawingToolsPanel, ToolSettingsPanel, TextSettingsPanel, IconPalettePanel } from './logo-editor';
 
 interface LogoEditorProps {
   config: LogoConfig;
