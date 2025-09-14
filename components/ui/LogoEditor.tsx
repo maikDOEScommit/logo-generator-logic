@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
 import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette, Move, Maximize, Expand, Layers, Eye, EyeOff, Plus, ArrowUp, ArrowDown, Trash2, Palette, Type } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
+import { usePipetteTool } from './PipetteTool';
 
 interface LogoEditorProps {
   config: LogoConfig;
@@ -201,7 +202,22 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     { id: 'layer-2', name: 'Logo Layer', visible: true, type: 'logo', strokes: [], elements: [], order: 2 }
   ]);
   const [activeLayer, setActiveLayer] = useState<string>('layer-2');
-  
+
+  // PipetteTool integration
+  const handleColorSampled = (color: string | null) => {
+    setSampledColor(color);
+    if (color) {
+      setBrushColor(color);
+    }
+  };
+
+  const { sampleColor: pipetteSampleColor } = usePipetteTool({
+    logoElements,
+    editLayers,
+    boxes,
+    onColorSampled: handleColorSampled
+  });
+
   // Canvas refs
   const canvasRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -683,171 +699,14 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     return strokes;
   };
 
-  const sampleColor = async (point: Point, e: React.MouseEvent) => {
-    console.log('🎨 Pipette sampling at point:', point);
-
-    try {
-      let sampledColor: string | null = null;
-
-      // Method 1: Check logo elements directly by position
-      console.log('🔍 Checking logo elements at point:', point);
-
-      // Check if point hits brand text element
-      if (logoElements.brand) {
-        const brand = logoElements.brand;
-        const textWidth = brand.text.length * (brand.fontSize * 0.6); // Approximate text width
-        const textHeight = brand.fontSize;
-
-        if (point.x >= brand.x - textWidth/2 && point.x <= brand.x + textWidth/2 &&
-            point.y >= brand.y - textHeight/2 && point.y <= brand.y + textHeight/2) {
-          sampledColor = brand.color;
-          console.log('✅ Sampled brand text color:', sampledColor);
-        }
-      }
-
-      // Check if point hits slogan text element
-      if (!sampledColor && logoElements.slogan) {
-        const slogan = logoElements.slogan;
-        const textWidth = slogan.text.length * (slogan.fontSize * 0.6);
-        const textHeight = slogan.fontSize;
-
-        if (point.x >= slogan.x - textWidth/2 && point.x <= slogan.x + textWidth/2 &&
-            point.y >= slogan.y - textHeight/2 && point.y <= slogan.y + textHeight/2) {
-          sampledColor = slogan.color;
-          console.log('✅ Sampled slogan text color:', sampledColor);
-        }
-      }
-
-      // Check if point hits icon element
-      if (!sampledColor && logoElements.icon) {
-        const icon = logoElements.icon;
-        const iconBounds = {
-          left: icon.x - icon.size/2,
-          right: icon.x + icon.size/2,
-          top: icon.y - icon.size/2,
-          bottom: icon.y + icon.size/2
-        };
-
-        if (point.x >= iconBounds.left && point.x <= iconBounds.right &&
-            point.y >= iconBounds.top && point.y <= iconBounds.bottom) {
-          sampledColor = icon.color;
-          console.log('✅ Sampled icon color:', sampledColor);
-        }
-      }
-
-      // Check if point hits any boxes
-      if (!sampledColor) {
-        for (const box of boxes) {
-          if (point.x >= box.x && point.x <= box.x + box.width &&
-              point.y >= box.y && point.y <= box.y + box.height) {
-            sampledColor = box.fillColor !== 'transparent' ? box.fillColor : box.strokeColor;
-            console.log('✅ Sampled box color:', sampledColor, 'from box:', box.id);
-            break;
-          }
-        }
-      }
-
-      // Check background layers
-      if (!sampledColor) {
-        const backgroundLayers = editLayers.filter(layer =>
-          (layer.type === 'background' || layer.type === 'original') &&
-          layer.visible &&
-          layer.backgroundColor &&
-          layer.backgroundColor !== 'transparent'
-        );
-
-        if (backgroundLayers.length > 0) {
-          const topBackground = backgroundLayers.sort((a, b) => b.order - a.order)[0];
-          const bgColor = topBackground.backgroundColor!;
-
-          if (bgColor.includes('linear-gradient')) {
-            // Extract first color from gradient
-            const colorMatch = bgColor.match(/#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}|rgb\([^)]+\)/);
-            if (colorMatch) {
-              sampledColor = convertToHex(colorMatch[0]);
-              console.log('✅ Sampled gradient background color:', sampledColor);
-            }
-          } else {
-            sampledColor = bgColor;
-            console.log('✅ Sampled background color:', sampledColor);
-          }
-        }
-      }
-
-      // Method 2: Fallback to DOM sampling if no logical hit
-      if (!sampledColor) {
-        console.log('🔍 Fallback: Using DOM element sampling...');
-        const elementsUnderPoint = document.elementsFromPoint(e.clientX, e.clientY);
-
-        for (const element of elementsUnderPoint) {
-          if (element instanceof SVGTextElement) {
-            const fill = element.getAttribute('fill');
-            if (fill && fill !== 'none' && !fill.includes('url(')) {
-              sampledColor = fill;
-              console.log('✅ DOM sampled SVG text color:', sampledColor);
-              break;
-            }
-          }
-          else if (element instanceof SVGElement && element.tagName.toLowerCase() === 'path') {
-            const fill = element.getAttribute('fill');
-            if (fill && fill !== 'none' && !fill.includes('url(')) {
-              sampledColor = fill;
-              console.log('✅ DOM sampled SVG path color:', sampledColor);
-              break;
-            }
-          }
-          else if (element instanceof SVGRectElement) {
-            const fill = element.getAttribute('fill');
-            if (fill && fill !== 'none' && !fill.includes('url(')) {
-              sampledColor = fill;
-              console.log('✅ DOM sampled SVG rect color:', sampledColor);
-              break;
-            }
-          }
-        }
-      }
-
-      // Set the sampled color if found
-      if (sampledColor) {
-        sampledColor = convertToHex(sampledColor) || sampledColor;
-        setSampledColor(sampledColor);
-        setBrushColor(sampledColor);
-        console.log('🎯 Final sampled color:', sampledColor);
-        return;
-      }
-
-    } catch (error) {
-      console.error('❌ Error in sampleColor:', error);
-    }
-
-    // Fallback: use current brush color
-    console.log('🔄 No color found, using brush color as fallback:', brushColor);
-    setSampledColor(brushColor);
-  };
-
-  // Helper function to convert rgb/rgba colors to hex
-  const convertToHex = (color: string): string | null => {
-    if (color.startsWith('#')) {
-      return color.toUpperCase();
-    }
-
-    if (color.startsWith('rgb')) {
-      const matches = color.match(/\d+/g);
-      if (matches && matches.length >= 3) {
-        const [r, g, b] = matches.map(Number);
-        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toUpperCase();
-      }
-    }
-
-    return null;
-  };
+  
 
   const startDrawing = (e: React.MouseEvent) => {
     const point = getPointFromEvent(e);
 
     if (drawingTool === 'eyedropper') {
-      // Sample color at clicked position
-      sampleColor(point, e);
+      // Use PipetteTool to sample color
+      pipetteSampleColor(point, e);
       return;
     }
 
