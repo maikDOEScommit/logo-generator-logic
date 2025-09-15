@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { LogoConfig, IconData, PaletteData } from '@/lib/types';
 import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette, Move, Maximize, Expand, Layers, Eye, EyeOff, Plus, ArrowUp, ArrowDown, Trash2, Palette, Type } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
@@ -182,6 +182,34 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   // Line tool states (similar to box)
   const [lines, setLines] = useState<LineShape[]>([]);
   const [selectedLine, setSelectedLine] = useState<string | null>(null);
+
+  // Icon set states
+  const [selectedIconSet, setSelectedIconSet] = useState<string | null>(null);
+  const [currentIconPage, setCurrentIconPage] = useState(0);
+
+  // Define 19 icon sets based on available icons
+  const iconSets = [
+    { id: 'business', name: 'Business', icons: availableIcons.filter(icon => ['Briefcase', 'Award', 'TrendingUp', 'Users', 'Globe'].includes(icon.id)) },
+    { id: 'tech', name: 'Technology', icons: availableIcons.filter(icon => ['Zap', 'Monitor', 'Cpu', 'Code', 'Database'].includes(icon.id)) },
+    { id: 'design', name: 'Design', icons: availableIcons.filter(icon => ['Palette', 'Brush', 'Layers', 'Eye', 'Type'].includes(icon.id)) },
+    { id: 'communication', name: 'Communication', icons: availableIcons.filter(icon => ['MessageSquare', 'Phone', 'Mail', 'Send', 'Bell'].includes(icon.id)) },
+    { id: 'media', name: 'Media', icons: availableIcons.filter(icon => ['Camera', 'Video', 'Music', 'Image', 'FileImage'].includes(icon.id)) },
+    { id: 'transport', name: 'Transport', icons: availableIcons.filter(icon => ['Car', 'Plane', 'Ship', 'Truck', 'Bike'].includes(icon.id)) },
+    { id: 'food', name: 'Food & Drink', icons: availableIcons.filter(icon => ['Coffee', 'Pizza', 'Apple', 'Utensils', 'Wine'].includes(icon.id)) },
+    { id: 'sports', name: 'Sports', icons: availableIcons.filter(icon => ['Activity', 'Target', 'Trophy', 'Dumbbell', 'Football'].includes(icon.id)) },
+    { id: 'health', name: 'Health', icons: availableIcons.filter(icon => ['Heart', 'Plus', 'Shield', 'Thermometer', 'Stethoscope'].includes(icon.id)) },
+    { id: 'education', name: 'Education', icons: availableIcons.filter(icon => ['Book', 'GraduationCap', 'School', 'Pencil', 'Calculator'].includes(icon.id)) },
+    { id: 'shopping', name: 'Shopping', icons: availableIcons.filter(icon => ['ShoppingCart', 'ShoppingBag', 'CreditCard', 'DollarSign', 'Tag'].includes(icon.id)) },
+    { id: 'home', name: 'Home & Garden', icons: availableIcons.filter(icon => ['Home', 'Bed', 'Sofa', 'TreePine', 'Flower'].includes(icon.id)) },
+    { id: 'travel', name: 'Travel', icons: availableIcons.filter(icon => ['MapPin', 'Compass', 'Luggage', 'Tent', 'Mountain'].includes(icon.id)) },
+    { id: 'security', name: 'Security', icons: availableIcons.filter(icon => ['Lock', 'Key', 'Shield', 'EyeOff', 'UserCheck'].includes(icon.id)) },
+    { id: 'finance', name: 'Finance', icons: availableIcons.filter(icon => ['DollarSign', 'CreditCard', 'PiggyBank', 'TrendingUp', 'BarChart'].includes(icon.id)) },
+    { id: 'social', name: 'Social', icons: availableIcons.filter(icon => ['Users', 'Share', 'ThumbsUp', 'MessageCircle', 'UserPlus'].includes(icon.id)) },
+    { id: 'weather', name: 'Weather', icons: availableIcons.filter(icon => ['Sun', 'Moon', 'Cloud', 'CloudRain', 'Snowflake'].includes(icon.id)) },
+    { id: 'office', name: 'Office', icons: availableIcons.filter(icon => ['FileText', 'Folder', 'Printer', 'Clipboard', 'Archive'].includes(icon.id)) },
+    { id: 'general', name: 'All Icons', icons: availableIcons }
+  ].filter(set => set.icons.length > 0); // Only include sets that have icons
+
   const [brushColor, setBrushColor] = useState('#000000');
   const [boxWidth, setBoxWidth] = useState(50);
   const [boxHeight, setBoxHeight] = useState(50);
@@ -3074,10 +3102,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   {/* Move Tool Settings */}
                   {drawingTool === 'move' && (
                     <div className="bg-white/10 rounded p-1 mb-4">
-                      <label className="block text-white/80 text-sm mb-2">Element Controls</label>
+                      <div className="w-[60%]">
+                        <label className="block text-white/80 text-sm mb-2">Element Controls</label>
 
-                      {/* Element Control Sliders - Just like Brush Tool */}
-                      <div className="space-y-3 mb-4">
+                        {/* Element Control Sliders - Just like Brush Tool */}
+                        <div className="space-y-3 mb-4">
                         {/* Rotation Slider */}
                         <div>
                           <label className="block text-white/80 text-sm mb-1">
@@ -3277,6 +3306,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             </div>
                           </div>
                         )}
+                        </div>
                       </div>
 
                       <p className="text-white/60 text-xs mb-3">Klicke und ziehe Icon, Brand Name oder Slogan um sie zu verschieben</p>
@@ -3969,27 +3999,99 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       className="w-8 h-6 rounded border border-white/20 cursor-pointer ml-auto"
                     />
                   </h4>
-                  <div className="grid grid-cols-6 gap-1 mb-2">
-                    <button
-                      onClick={() => updateLocalConfig({ icon: null })}
-                      className={`p-1.5 rounded border transition-colors ${
-                        !localConfig.icon ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
-                      }`}
-                    >
-                      <span className="text-white/60 text-[10px]">None</span>
-                    </button>
-                    {availableIcons.slice(0, 17).map(icon => (
+                  {!selectedIconSet ? (
+                    // Show icon sets selection
+                    <div className="grid grid-cols-3 gap-2 mb-2">
                       <button
-                        key={icon.id}
-                        onClick={() => updateLocalConfig({ icon })}
-                        className={`p-1.5 rounded border transition-colors ${
-                          localConfig.icon?.id === icon.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+                        onClick={() => updateLocalConfig({ icon: null })}
+                        className={`p-2 rounded border transition-colors flex flex-col items-center ${
+                          !localConfig.icon ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
                         }`}
                       >
-                        <icon.component size={16} color="white" className="mx-auto" />
+                        <span className="text-white/60 text-xs">None</span>
                       </button>
-                    ))}
-                  </div>
+                      {iconSets.slice(0, 18).map(set => (
+                        <button
+                          key={set.id}
+                          onClick={() => {
+                            setSelectedIconSet(set.id);
+                            setCurrentIconPage(0);
+                          }}
+                          className="p-2 rounded border border-white/20 hover:border-white/40 transition-colors flex flex-col items-center"
+                        >
+                          {set.icons[0] && React.createElement(set.icons[0].component, { size: 16, color: "white", className: "mb-1" })}
+                          <span className="text-white/70 text-xs text-center">{set.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    // Show icons from selected set in 3x6 grid
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <button
+                          onClick={() => setSelectedIconSet(null)}
+                          className="text-white/60 hover:text-white text-xs flex items-center gap-1"
+                        >
+                          ← Back to sets
+                        </button>
+                        <span className="text-white/70 text-xs">
+                          {iconSets.find(s => s.id === selectedIconSet)?.name}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-6 gap-1 mb-2">
+                        {(() => {
+                          const selectedSet = iconSets.find(s => s.id === selectedIconSet);
+                          if (!selectedSet) return null;
+
+                          const startIndex = currentIconPage * 18;
+                          const endIndex = Math.min(startIndex + 18, selectedSet.icons.length);
+                          const pageIcons = selectedSet.icons.slice(startIndex, endIndex);
+
+                          return (
+                            <>
+                              <button
+                                onClick={() => updateLocalConfig({ icon: null })}
+                                className={`p-1.5 rounded border transition-colors ${
+                                  !localConfig.icon ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+                                }`}
+                              >
+                                <span className="text-white/60 text-[10px]">None</span>
+                              </button>
+                              {pageIcons.map(icon => (
+                                <button
+                                  key={icon.id}
+                                  onClick={() => updateLocalConfig({ icon })}
+                                  className={`p-1.5 rounded border transition-colors ${
+                                    localConfig.icon?.id === icon.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+                                  }`}
+                                >
+                                  <icon.component size={16} color="white" className="mx-auto" />
+                                </button>
+                              ))}
+                            </>
+                          );
+                        })()}
+                      </div>
+
+                      {(() => {
+                        const selectedSet = iconSets.find(s => s.id === selectedIconSet);
+                        if (!selectedSet) return null;
+
+                        const totalPages = Math.ceil(selectedSet.icons.length / 18);
+                        const hasNextPage = currentIconPage < totalPages - 1;
+
+                        return hasNextPage ? (
+                          <button
+                            onClick={() => setCurrentIconPage(prev => prev + 1)}
+                            className="w-full p-2 rounded border border-white/20 hover:border-white/40 text-white/70 hover:text-white text-xs transition-colors"
+                          >
+                            Show next 18 icons
+                          </button>
+                        ) : null;
+                      })()}
+                    </div>
+                  )}
                 </div>
 
 
