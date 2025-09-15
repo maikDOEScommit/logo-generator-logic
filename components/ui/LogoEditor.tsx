@@ -2346,7 +2346,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   {/* Tool Selection Grid Layout */}
                   <div className="grid grid-cols-5 gap-2">
                     {/* Tool Icons - Left Column (1/5 width) */}
-                    <div className="col-span-2 grid grid-cols-2 gap-1">
+                    <div className="col-span-1 grid grid-cols-1 gap-1">
                       <button
                         onClick={() => setDrawingTool('brush')}
                         className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
@@ -2397,8 +2397,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       </button>
                     </div>
 
-                    {/* Tool Settings - Right Column (3/5 width) */}
-                    <div className="col-span-3 space-y-3">
+                    {/* Tool Settings - Right Column (4/5 width) */}
+                    <div className="col-span-4 space-y-3">
                       {/* Brush/Eraser Settings */}
                       {(drawingTool === 'brush' || drawingTool === 'eraser') && (
                         <>
@@ -2506,6 +2506,39 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                               />
                               <span className="text-white/50 text-xs">{boxStrokeColor}</span>
                             </div>
+                          </div>
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">Stroke Width: {boxStrokeWidth}px</label>
+                            <input
+                              type="range"
+                              min="1"
+                              max="20"
+                              value={boxStrokeWidth}
+                              onChange={(e) => setBoxStrokeWidth(parseInt(e.target.value))}
+                              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">Stroke Opacity: {boxStrokeOpacity}/10</label>
+                            <input
+                              type="range"
+                              min="1"
+                              max="10"
+                              value={boxStrokeOpacity}
+                              onChange={(e) => setBoxStrokeOpacity(parseInt(e.target.value))}
+                              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">Fill Opacity: {boxOpacity}/10</label>
+                            <input
+                              type="range"
+                              min="1"
+                              max="10"
+                              value={boxOpacity}
+                              onChange={(e) => setBoxOpacity(parseInt(e.target.value))}
+                              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                            />
                           </div>
                         </>
                       )}
@@ -3380,41 +3413,69 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     </div>
                   )}
 
-                  {/* Eraser Mode Settings */}
+                  {/* Eraser Mode and End Settings - Side by Side */}
                   {drawingTool === 'eraser' && (
-                    <div className="bg-white/10 rounded p-1 mb-4">
-                      <label className="block text-white/80 text-sm mb-2">Eraser-Modus</label>
-                      <div className="grid grid-cols-1 gap-2 w-full">
-                        <button
-                          onClick={() => setEraserMode('brush')}
-                          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-                            eraserMode === 'brush' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-                          }`}
-                        >
-                          <Brush size={14} />
-                          Brush
-                        </button>
-                        <button
-                          onClick={() => setEraserMode('line')}
-                          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-                            eraserMode === 'line' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-                          }`}
-                        >
-                          📏 Line
-                        </button>
+                    <div className="flex gap-2 mb-4">
+                      {/* Eraser Mode Settings */}
+                      <div className="bg-white/10 rounded p-2 flex-1 border border-white/20">
+                        <label className="block text-white/80 text-sm mb-2">Eraser-Modus</label>
+                        <div className="grid grid-cols-1 gap-2">
+                          <button
+                            onClick={() => setEraserMode('brush')}
+                            className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+                              eraserMode === 'brush' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                            }`}
+                          >
+                            <Brush size={14} />
+                            Brush
+                          </button>
+                          <button
+                            onClick={() => setEraserMode('line')}
+                            className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+                              eraserMode === 'line' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                            }`}
+                          >
+                            📏 Line
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Eraser End Settings */}
+                      <div className="bg-white/10 rounded p-2 flex-1 border border-white/20">
+                        <label className="block text-white/80 text-sm mb-2">Radiererenden</label>
+                        <div className="space-y-2">
+                          <button
+                            onClick={() => setBrushLineCap('round')}
+                            className={`w-full flex items-center justify-center p-2 rounded text-xs transition-colors ${
+                              brushLineCap === 'round'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white/10 text-white/80 hover:bg-white/20'
+                            }`}
+                          >
+                            ● Rund
+                          </button>
+                          <button
+                            onClick={() => setBrushLineCap('square')}
+                            className={`w-full flex items-center justify-center p-2 rounded text-xs transition-colors ${
+                              brushLineCap === 'square'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white/10 text-white/80 hover:bg-white/20'
+                            }`}
+                          >
+                            ■ Quadratisch
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
 
                   {/* Tool Settings */}
                   <div className="space-y-3">
-                    {/* Brush and Eraser Tool End Settings */}
-                    {(drawingTool === 'brush' || drawingTool === 'eraser') && (
+                    {/* Brush Tool End Settings (only for brush, not eraser) */}
+                    {drawingTool === 'brush' && (
                       <>
                         <div>
-                          <label className="block text-white/80 text-sm mb-1">
-                            {drawingTool === 'brush' ? 'Pinselende' : 'Radiererenden'}
-                          </label>
+                          <label className="block text-white/80 text-sm mb-1">Pinselende</label>
                           <div className="flex items-center justify-between bg-white/10 border border-white/20 rounded p-2">
                             <button
                               onClick={() => setBrushLineCap('round')}
@@ -3441,122 +3502,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       </>
                     )}
                     
-                    {/* Box Color Settings */}
-                    {drawingTool === 'box' && (
-                      <>
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">Box Stroke Color</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="color"
-                              value={boxStrokeColor}
-                              onChange={(e) => {
-                                setBoxStrokeColor(e.target.value);
-                                // Update selected box stroke color immediately
-                                if (selectedBox) {
-                                  setBoxes(prev => prev.map(box => 
-                                    box.id === selectedBox 
-                                      ? { ...box, strokeColor: e.target.value }
-                                      : box
-                                  ));
-                                }
-                              }}
-                              className="w-10 h-8 rounded border border-white/20 cursor-pointer"
-                            />
-                            <span className="text-white/60 text-sm">{boxStrokeColor}</span>
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">Box Stroke Opacity: {boxStrokeOpacity}/10</label>
-                          <input
-                            type="range"
-                            min="1"
-                            max="10"
-                            value={boxStrokeOpacity}
-                            onChange={(e) => {
-                              setBoxStrokeOpacity(parseInt(e.target.value));
-                              // Update selected box stroke opacity immediately
-                              if (selectedBox) {
-                                setBoxes(prev => prev.map(box =>
-                                  box.id === selectedBox
-                                    ? { ...box, strokeOpacity: parseInt(e.target.value) / 10 }
-                                    : box
-                                ));
-                              }
-                            }}
-                            className="w-full slider"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">Box Stroke Width: {boxStrokeWidth}px</label>
-                          <input
-                            type="range"
-                            min="1"
-                            max="20"
-                            value={boxStrokeWidth}
-                            onChange={(e) => {
-                              setBoxStrokeWidth(parseInt(e.target.value));
-                              // Update selected box stroke width immediately
-                              if (selectedBox) {
-                                setBoxes(prev => prev.map(box =>
-                                  box.id === selectedBox
-                                    ? { ...box, strokeWidth: parseInt(e.target.value) }
-                                    : box
-                                ));
-                              }
-                            }}
-                            className="w-full slider"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">Box Fill Color</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="color"
-                              value={boxFillColor}
-                              onChange={(e) => {
-                                setBoxFillColor(e.target.value);
-                                // Update selected box fill color immediately
-                                if (selectedBox) {
-                                  setBoxes(prev => prev.map(box => 
-                                    box.id === selectedBox 
-                                      ? { ...box, fillColor: e.target.value }
-                                      : box
-                                  ));
-                                }
-                              }}
-                              className="w-10 h-8 rounded border border-white/20 cursor-pointer"
-                            />
-                            <span className="text-white/60 text-sm">{boxFillColor}</span>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">Background Opacity: {boxOpacity}/10</label>
-                          <input
-                            type="range"
-                            min="1"
-                            max="10"
-                            value={boxOpacity}
-                            onChange={(e) => {
-                              setBoxOpacity(parseInt(e.target.value));
-                              // Update selected box opacity immediately
-                              if (selectedBox) {
-                                setBoxes(prev => prev.map(box => 
-                                  box.id === selectedBox 
-                                    ? { ...box, opacity: parseInt(e.target.value) / 10 }
-                                    : box
-                                ));
-                              }
-                            }}
-                            className="w-full slider"
-                          />
-                        </div>
-                      </>
-                    )}
 
                     {/* Line Tool End Settings */}
                     {drawingTool === 'line' && (
@@ -3867,7 +3812,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     <Star size={16} className="text-yellow-400" />
                     Icon
                   </h4>
-                  <div className="grid grid-cols-1 gap-1 mb-2">
+                  <div className="grid grid-cols-6 gap-1 mb-2">
                     <button
                       onClick={() => updateLocalConfig({ icon: null })}
                       className={`p-1.5 rounded border transition-colors ${
@@ -3919,7 +3864,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   {/* Color Palettes */}
                   <div className="mb-4">
                     <h5 className="text-white/80 text-sm mb-2">Predefined Palettes</h5>
-                    <div className="grid grid-cols-1 gap-2 w-full">
+                    <div className="grid grid-cols-3 gap-2 w-full">
                       {availablePalettes.slice(0, 12).map(palette => (
                         <button
                           key={palette.id}
