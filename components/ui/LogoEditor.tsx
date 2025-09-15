@@ -30,7 +30,7 @@ interface Point {
 
 interface Stroke {
   id: string;
-  tool: 'brush' | 'eraser' | 'box' | 'line' | 'eyedropper' | 'text' | 'icon';
+  tool: 'brush' | 'eraser' | 'box' | 'box-fill' | 'box-border' | 'line' | 'eyedropper' | 'text' | 'icon';
   points: Point[];
   color: string;
   width: number;
@@ -38,6 +38,9 @@ interface Stroke {
   lineCap?: 'round' | 'square'; // For line tool
   rect?: { x: number; y: number; width: number; height: number };
   rotation?: number; // Preserve rotation for placed boxes
+  // Box-specific properties for separate fill and stroke
+  strokeColor?: string;
+  strokeOpacity?: number;
   // Element-specific properties
   text?: string;
   fontSize?: number;
@@ -58,6 +61,7 @@ interface BoxShape {
   strokeColor: string;
   fillColor: string;
   strokeWidth: number;
+  strokeOpacity?: number; // 0-1 scale for stroke opacity
   rotation: number;
   selected: boolean;
   opacity: number; // 0-1 scale for box opacity
@@ -123,7 +127,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [eraserOpacity, setEraserOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
   const [eraserMode, setEraserMode] = useState<'brush' | 'line'>('brush'); // Eraser mode: brush or line
   const [boxOpacity, setBoxOpacity] = useState(5); // 1-10 scale, 5 = 50% opacity (was 10)
-  const [boxStrokeColor, setBoxStrokeColor] = useState('#000000');
+  const [boxStrokeOpacity, setBoxStrokeOpacity] = useState(10); // 1-10 scale for stroke opacity
+  const [boxStrokeWidth, setBoxStrokeWidth] = useState(2); // 1-20 scale for stroke width
+  const [boxStrokeColor, setBoxStrokeColor] = useState('#ffffff');
   const [boxFillColor, setBoxFillColor] = useState('#000000'); // Changed from red to black
   const [iconColor, setIconColor] = useState(config.palette?.colors[1] || '#000000');
   const [brandNameColor, setBrandNameColor] = useState(config.palette?.colors[1] || '#000000');
@@ -865,10 +871,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         height: 0,
         strokeColor: boxStrokeColor,
         fillColor: boxFillColor, // Use the selected fill color directly
-        strokeWidth: 0.5,
+        strokeWidth: boxStrokeWidth,
+        strokeOpacity: boxStrokeOpacity / 10, // Convert 1-10 scale to 0-1 scale
         rotation: 0,
         selected: false,
-        opacity: boxOpacity / 10, // Convert 1-10 scale to 0-1 scale
+        opacity: boxOpacity / 10, // Convert 1-10 scale to 0-1 scale (background opacity)
         permanent: false
       };
       setCurrentBox(newBox);
@@ -1104,25 +1111,62 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           .sort((a, b) => a.order - b.order) // Sort by order, lowest first
           .map(layer =>
           layer.visible && layer.strokes.map(stroke => {
-            if (stroke.tool === 'box' && stroke.rect) {
+            if ((stroke.tool === 'box' || stroke.tool === 'box-fill' || stroke.tool === 'box-border') && stroke.rect) {
               const centerX = stroke.rect.x + stroke.rect.width / 2;
               const centerY = stroke.rect.y + stroke.rect.height / 2;
               const rotation = stroke.rotation || 0;
 
-              return (
-                <rect
-                  key={stroke.id}
-                  x={stroke.rect.x}
-                  y={stroke.rect.y}
-                  width={stroke.rect.width}
-                  height={stroke.rect.height}
-                  fill={stroke.color}
-                  stroke={stroke.color}
-                  strokeWidth={stroke.width}
-                  opacity={stroke.opacity}
-                  transform={`rotate(${rotation} ${centerX} ${centerY})`}
-                />
-              );
+              if (stroke.tool === 'box-fill') {
+                // Fill only - no border
+                return (
+                  <rect
+                    key={stroke.id}
+                    x={stroke.rect.x}
+                    y={stroke.rect.y}
+                    width={stroke.rect.width}
+                    height={stroke.rect.height}
+                    fill={stroke.color}
+                    stroke="none"
+                    opacity={stroke.opacity}
+                    transform={`rotate(${rotation} ${centerX} ${centerY})`}
+                  />
+                );
+              } else if (stroke.tool === 'box-border') {
+                // Border only - no fill
+                return (
+                  <rect
+                    key={stroke.id}
+                    x={stroke.rect.x}
+                    y={stroke.rect.y}
+                    width={stroke.rect.width}
+                    height={stroke.rect.height}
+                    fill="none"
+                    stroke={stroke.color}
+                    strokeWidth={stroke.width}
+                    opacity={stroke.opacity}
+                    transform={`rotate(${rotation} ${centerX} ${centerY})`}
+                  />
+                );
+              } else {
+                // Original box behavior - check if it has separate stroke properties
+                const hasStrokeProps = stroke.strokeColor && stroke.strokeOpacity !== undefined;
+
+                return (
+                  <rect
+                    key={stroke.id}
+                    x={stroke.rect.x}
+                    y={stroke.rect.y}
+                    width={stroke.rect.width}
+                    height={stroke.rect.height}
+                    fill={stroke.color}
+                    fillOpacity={stroke.opacity}
+                    stroke={hasStrokeProps ? stroke.strokeColor : stroke.color}
+                    strokeWidth={stroke.width}
+                    strokeOpacity={hasStrokeProps ? stroke.strokeOpacity : stroke.opacity}
+                    transform={`rotate(${rotation} ${centerX} ${centerY})`}
+                  />
+                );
+              }
             } else if (stroke.tool === 'line' && stroke.points.length >= 2) {
               return (
                 <line
@@ -1261,9 +1305,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
               width={Math.abs(box.width)}
               height={Math.abs(box.height)}
               fill={box.fillColor === 'transparent' ? 'none' : box.fillColor}
+              fillOpacity={box.opacity}
               stroke={box.strokeColor}
-              strokeWidth={box.strokeWidth}
-              opacity={box.opacity}
+              strokeWidth={box.strokeWidth || 1}
+              strokeOpacity={box.strokeOpacity || 1}
               className={drawingTool === 'eraser' ? "cursor-crosshair" : "cursor-move"}
               onMouseDown={(e) => {
                 e.stopPropagation();
@@ -1434,9 +1479,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             width={Math.abs(currentBox.width)}
             height={Math.abs(currentBox.height)}
             fill={currentBox.fillColor === 'transparent' ? 'none' : currentBox.fillColor}
+            fillOpacity={currentBox.opacity}
             stroke={currentBox.strokeColor}
-            strokeWidth={currentBox.strokeWidth}
-            opacity={currentBox.opacity}
+            strokeWidth={currentBox.strokeWidth || 1}
+            strokeOpacity={currentBox.strokeOpacity || 1}
             strokeDasharray="5,5"
             style={{ pointerEvents: 'none' }}
           />
@@ -3322,7 +3368,51 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             <span className="text-white/60 text-sm">{boxStrokeColor}</span>
                           </div>
                         </div>
-                        
+
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">Box Stroke Opacity: {boxStrokeOpacity}/10</label>
+                          <input
+                            type="range"
+                            min="1"
+                            max="10"
+                            value={boxStrokeOpacity}
+                            onChange={(e) => {
+                              setBoxStrokeOpacity(parseInt(e.target.value));
+                              // Update selected box stroke opacity immediately
+                              if (selectedBox) {
+                                setBoxes(prev => prev.map(box =>
+                                  box.id === selectedBox
+                                    ? { ...box, strokeOpacity: parseInt(e.target.value) / 10 }
+                                    : box
+                                ));
+                              }
+                            }}
+                            className="w-full slider"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">Box Stroke Width: {boxStrokeWidth}px</label>
+                          <input
+                            type="range"
+                            min="1"
+                            max="20"
+                            value={boxStrokeWidth}
+                            onChange={(e) => {
+                              setBoxStrokeWidth(parseInt(e.target.value));
+                              // Update selected box stroke width immediately
+                              if (selectedBox) {
+                                setBoxes(prev => prev.map(box =>
+                                  box.id === selectedBox
+                                    ? { ...box, strokeWidth: parseInt(e.target.value) }
+                                    : box
+                                ));
+                              }
+                            }}
+                            className="w-full slider"
+                          />
+                        </div>
+
                         <div>
                           <label className="block text-white/80 text-sm mb-1">Box Fill Color</label>
                           <div className="flex items-center gap-2">
@@ -3347,7 +3437,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         </div>
                         
                         <div>
-                          <label className="block text-white/80 text-sm mb-1">Box Opacity: {boxOpacity}/10</label>
+                          <label className="block text-white/80 text-sm mb-1">Background Opacity: {boxOpacity}/10</label>
                           <input
                             type="range"
                             min="1"
@@ -3449,13 +3539,16 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                     color: boxToConvert.fillColor,
                                     width: boxToConvert.strokeWidth,
                                     opacity: boxToConvert.opacity,
-                                    rotation: boxToConvert.rotation, // Preserve rotation state
+                                    rotation: boxToConvert.rotation,
                                     rect: {
                                       x: boxToConvert.x,
                                       y: boxToConvert.y,
                                       width: boxToConvert.width,
                                       height: boxToConvert.height
-                                    }
+                                    },
+                                    // Add special properties for box rendering
+                                    strokeColor: boxToConvert.strokeColor,
+                                    strokeOpacity: boxToConvert.strokeOpacity || 1
                                   };
 
                                   // Add box stroke to background layer (layer-1)
