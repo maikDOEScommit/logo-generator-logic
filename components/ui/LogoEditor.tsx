@@ -2102,6 +2102,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     }));
   };
 
+
   return (
     <>
       {/* Permanent Fullscreen Button - Top Left */}
@@ -2336,161 +2337,213 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 {/* LEFT PANEL (70%) */}
                 <div className="flex-1 space-y-6 overflow-y-auto">
                 {/* Drawing Tools Section */}
-                <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
+                <div className="bg-white/5 rounded-xl p-4 border border-white/10 backdrop-blur-sm">
                   <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
                     <Brush size={16} className="text-blue-400" />
                     Drawing Tools
                   </h4>
 
-                  {/* Tool Selection */}
-                  <div className="grid grid-cols-1 gap-1 mb-3 w-full">
-                    <button
-                      onClick={() => setDrawingTool('brush')}
-                      className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-                        drawingTool === 'brush' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      <Brush size={14} />
-                    </button>
-                    <button
-                      onClick={() => setDrawingTool('eraser')}
-                      className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-                        drawingTool === 'eraser' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      <Eraser size={14} />
-                    </button>
-                    <button
-                      onClick={() => setDrawingTool('box')}
-                      className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-                        drawingTool === 'box' ? 'bg-purple-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      <Square size={14} />
-                    </button>
-                    <button
-                      onClick={() => setDrawingTool('line')}
-                      className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-                        drawingTool === 'line' ? 'bg-orange-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      📏
-                    </button>
-                    <button
-                      onClick={() => setDrawingTool('eyedropper')}
-                      className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-                        drawingTool === 'eyedropper' ? 'bg-teal-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      <Pipette size={14} />
-                    </button>
-                    <button
-                      onClick={() => setDrawingTool('move')}
-                      className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-                        drawingTool === 'move' ? 'bg-green-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      <Move size={14} />
-                    </button>
-                  </div>
+                  {/* Tool Selection Grid Layout */}
+                  <div className="grid grid-cols-5 gap-2">
+                    {/* Tool Icons - Left Column (1/5 width) */}
+                    <div className="col-span-2 grid grid-cols-2 gap-1">
+                      <button
+                        onClick={() => setDrawingTool('brush')}
+                        className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+                          drawingTool === 'brush' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                        }`}
+                      >
+                        <Brush size={14} />
+                      </button>
+                      <button
+                        onClick={() => setDrawingTool('eraser')}
+                        className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+                          drawingTool === 'eraser' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                        }`}
+                      >
+                        <Eraser size={14} />
+                      </button>
+                      <button
+                        onClick={() => setDrawingTool('box')}
+                        className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+                          drawingTool === 'box' ? 'bg-purple-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                        }`}
+                      >
+                        <Square size={14} />
+                      </button>
+                      <button
+                        onClick={() => setDrawingTool('line')}
+                        className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+                          drawingTool === 'line' ? 'bg-orange-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                        }`}
+                      >
+                        📏
+                      </button>
+                      <button
+                        onClick={() => setDrawingTool('eyedropper')}
+                        className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+                          drawingTool === 'eyedropper' ? 'bg-teal-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                        }`}
+                      >
+                        <Pipette size={14} />
+                      </button>
+                      <button
+                        onClick={() => setDrawingTool('move')}
+                        className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+                          drawingTool === 'move' ? 'bg-green-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                        }`}
+                      >
+                        <Move size={14} />
+                      </button>
+                    </div>
 
-                  {/* Advanced Eyedropper Section */}
-                  {drawingTool === 'eyedropper' && (
-                    <div className="bg-white/5 rounded-lg p-1 border border-white/10 backdrop-blur-sm mb-4 w-full">
-                      <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
-                        <Pipette size={16} className="text-teal-400" />
-                        Color Picker
-                      </h4>
+                    {/* Tool Settings - Right Column (3/5 width) */}
+                    <div className="col-span-3 space-y-3">
+                      {/* Brush/Eraser Settings */}
+                      {(drawingTool === 'brush' || drawingTool === 'eraser') && (
+                        <>
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">
+                              {drawingTool === 'brush' ? 'Brush Color' : 'Eraser Color'}
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={brushColor}
+                                onChange={(e) => setBrushColor(e.target.value)}
+                                className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                              />
+                              <span className="text-white/50 text-xs">{brushColor}</span>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">
+                              Size: {brushSize}px
+                            </label>
+                            <input
+                              type="range"
+                              min="1"
+                              max="50"
+                              value={brushSize}
+                              onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">
+                              Opacity: {drawingTool === 'brush' ? brushOpacity : eraserOpacity}/10
+                            </label>
+                            <input
+                              type="range"
+                              min="1"
+                              max="10"
+                              value={drawingTool === 'brush' ? brushOpacity : eraserOpacity}
+                              onChange={(e) => {
+                                if (drawingTool === 'brush') {
+                                  setBrushOpacity(parseInt(e.target.value));
+                                } else {
+                                  setEraserOpacity(parseInt(e.target.value));
+                                }
+                              }}
+                              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+                        </>
+                      )}
 
-                      <div className="space-y-3">
-                        {/* Instructions */}
-                        <div className="bg-teal-600/10 rounded-lg p-2 border border-teal-400/20">
-                          <p className="text-teal-300 text-xs">
-                            🎨 Klicke auf beliebige Elemente im Logo um deren Farbe zu sampeln
-                          </p>
-                        </div>
+                      {/* Line Settings */}
+                      {drawingTool === 'line' && (
+                        <>
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">Line Color</label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={lineColor}
+                                onChange={(e) => setLineColor(e.target.value)}
+                                className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                              />
+                              <span className="text-white/50 text-xs">{lineColor}</span>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">Width: {lineWidth}px</label>
+                            <input
+                              type="range"
+                              min="1"
+                              max="20"
+                              value={lineWidth}
+                              onChange={(e) => setLineWidth(parseInt(e.target.value))}
+                              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+                        </>
+                      )}
 
-                        {/* Sampled Color Display */}
-                        {sampledColor && (
-                          <div className="space-y-2">
-                            <div>
-                              <label className="block text-white/80 text-sm mb-2">Gesampelte Farbe</label>
-                              <div className="flex items-center gap-1">
-                                <div
-                                  className="w-12 h-12 rounded-lg border-2 border-white/20 shadow-lg"
-                                  style={{ backgroundColor: sampledColor }}
-                                ></div>
-                                <div className="flex-1 space-y-2">
-                                  <div className="bg-white/10 rounded px-2 py-1 border border-white/20">
-                                    <code className="text-white font-mono text-xs">{sampledColor}</code>
-                                  </div>
-                                  <div className="flex gap-1">
-                                    <button
-                                      onClick={() => navigator.clipboard.writeText(sampledColor)}
-                                      className="px-1.5 py-0.5 bg-gray-600 hover:bg-gray-500 text-white rounded text-[10px] transition-colors"
-                                    >
-                                      Copy
-                                    </button>
-                                    <button
-                                      onClick={() => setBrushColor(sampledColor)}
-                                      className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-colors"
-                                    >
-                                      → Brush
-                                    </button>
-                                  </div>
+                      {/* Box Settings */}
+                      {drawingTool === 'box' && (
+                        <>
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">Fill Color</label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={boxFillColor}
+                                onChange={(e) => setBoxFillColor(e.target.value)}
+                                className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                              />
+                              <span className="text-white/50 text-xs">{boxFillColor}</span>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">Stroke Color</label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={boxStrokeColor}
+                                onChange={(e) => setBoxStrokeColor(e.target.value)}
+                                className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                              />
+                              <span className="text-white/50 text-xs">{boxStrokeColor}</span>
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Eyedropper Settings */}
+                      {drawingTool === 'eyedropper' && sampledColor && (
+                        <>
+                          <div>
+                            <label className="block text-white/80 text-sm mb-2">Sampled Color</label>
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="w-8 h-8 rounded border border-white/20"
+                                style={{ backgroundColor: sampledColor }}
+                              />
+                              <div className="flex-1">
+                                <code className="text-white text-sm">{sampledColor}</code>
+                                <div className="flex gap-1 mt-1">
+                                  <button
+                                    onClick={() => navigator.clipboard.writeText(sampledColor)}
+                                    className="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-white rounded text-xs"
+                                  >
+                                    Copy
+                                  </button>
+                                  <button
+                                    onClick={() => setBrushColor(sampledColor)}
+                                    className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs"
+                                  >
+                                    Use
+                                  </button>
                                 </div>
                               </div>
                             </div>
-
-                            {/* Advanced Color Controls */}
-                            <div>
-                              <label className="block text-white/80 text-sm mb-2">Fine-tune Color</label>
-                              <input
-                                type="color"
-                                value={sampledColor}
-                                onChange={(e) => {
-                                  setSampledColor(e.target.value);
-                                  setBrushColor(e.target.value);
-                                }}
-                                className="w-full h-12 rounded-lg border border-white/20 cursor-pointer bg-transparent"
-                              />
-                            </div>
-
-                            {/* Apply to Elements */}
-                            <div>
-                              <label className="block text-white/80 text-sm mb-2">Apply to Tools</label>
-                              <div className="grid grid-cols-1 gap-2 w-full">
-                                <button
-                                  onClick={() => setBrushColor(sampledColor)}
-                                  className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded text-xs transition-colors"
-                                >
-                                  🖌️ Brush
-                                </button>
-                                <button
-                                  onClick={() => setLineColor(sampledColor)}
-                                  className="px-3 py-2 bg-orange-600/80 hover:bg-orange-600 text-white rounded text-xs transition-colors"
-                                >
-                                  📏 Line
-                                </button>
-                                <button
-                                  onClick={() => setBoxFillColor(sampledColor)}
-                                  className="px-3 py-2 bg-purple-600/80 hover:bg-purple-600 text-white rounded text-xs transition-colors"
-                                >
-                                  ⬜ Box Fill
-                                </button>
-                                <button
-                                  onClick={() => setBoxStrokeColor(sampledColor)}
-                                  className="px-3 py-2 bg-green-600/80 hover:bg-green-600 text-white rounded text-xs transition-colors"
-                                >
-                                  📦 Box Stroke
-                                </button>
-                              </div>
-                            </div>
                           </div>
-                        )}
-                      </div>
+                        </>
+                      )}
                     </div>
-                  )}
+                  </div>
+
 
                   {/* Background Color Selector - Show when background or original layer is selected */}
                   {(editLayers.find(l => l.id === activeLayer)?.type === 'background' || editLayers.find(l => l.id === activeLayer)?.type === 'original') && (
@@ -3355,56 +3408,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
                   {/* Tool Settings */}
                   <div className="space-y-3">
-                    {/* Brush and Eraser Color Settings */}
+                    {/* Brush and Eraser Tool End Settings */}
                     {(drawingTool === 'brush' || drawingTool === 'eraser') && (
                       <>
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">
-                            {drawingTool === 'brush' ? 'Brush Color' : 'Eraser Color'}
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="color"
-                              value={brushColor}
-                              onChange={(e) => setBrushColor(e.target.value)}
-                              className="w-10 h-8 rounded border border-white/20 cursor-pointer"
-                            />
-                            <span className="text-white/60 text-sm">{brushColor}</span>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">Brush/Eraser Size: {brushSize}px</label>
-                          <input
-                            type="range"
-                            min="2"
-                            max="50"
-                            value={brushSize}
-                            onChange={(e) => setBrushSize(parseInt(e.target.value))}
-                            className="w-full slider"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">
-                            {drawingTool === 'brush' ? 'Brush' : 'Eraser'} Opacity: {drawingTool === 'brush' ? brushOpacity : eraserOpacity}/10
-                          </label>
-                          <input
-                            type="range"
-                            min="1"
-                            max="10"
-                            value={drawingTool === 'brush' ? brushOpacity : eraserOpacity}
-                            onChange={(e) => {
-                              if (drawingTool === 'brush') {
-                                setBrushOpacity(parseInt(e.target.value));
-                              } else {
-                                setEraserOpacity(parseInt(e.target.value));
-                              }
-                            }}
-                            className="w-full slider"
-                          />
-                        </div>
-                        
                         <div>
                           <label className="block text-white/80 text-sm mb-1">
                             {drawingTool === 'brush' ? 'Pinselende' : 'Radiererenden'}
@@ -3413,8 +3419,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             <button
                               onClick={() => setBrushLineCap('round')}
                               className={`flex-1 px-3 py-2 rounded text-sm transition-colors ${
-                                brushLineCap === 'round' 
-                                  ? 'bg-blue-600 text-white' 
+                                brushLineCap === 'round'
+                                  ? 'bg-blue-600 text-white'
                                   : 'text-white/80 hover:text-white hover:bg-white/10'
                               }`}
                             >
@@ -3423,8 +3429,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             <button
                               onClick={() => setBrushLineCap('square')}
                               className={`flex-1 px-3 py-2 rounded text-sm transition-colors ${
-                                brushLineCap === 'square' 
-                                  ? 'bg-blue-600 text-white' 
+                                brushLineCap === 'square'
+                                  ? 'bg-blue-600 text-white'
                                   : 'text-white/80 hover:text-white hover:bg-white/10'
                               }`}
                             >
@@ -3552,42 +3558,17 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       </>
                     )}
 
-                    {/* Line Tool Color and Width Settings */}
+                    {/* Line Tool End Settings */}
                     {drawingTool === 'line' && (
                       <>
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">Line Color</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="color"
-                              value={lineColor}
-                              onChange={(e) => setLineColor(e.target.value)}
-                              className="w-10 h-8 rounded border border-white/20 cursor-pointer"
-                            />
-                            <span className="text-white/60 text-sm">{lineColor}</span>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">Line Width: {lineWidth}px</label>
-                          <input
-                            type="range"
-                            min="1"
-                            max="20"
-                            value={lineWidth}
-                            onChange={(e) => setLineWidth(parseInt(e.target.value))}
-                            className="w-full slider"
-                          />
-                        </div>
-                        
                         <div>
                           <label className="block text-white/80 text-sm mb-1">Linienende</label>
                           <div className="flex items-center justify-between bg-white/10 border border-white/20 rounded p-2">
                             <button
                               onClick={() => setLineCap('round')}
                               className={`flex-1 px-3 py-2 rounded text-sm transition-colors ${
-                                lineCap === 'round' 
-                                  ? 'bg-blue-600 text-white' 
+                                lineCap === 'round'
+                                  ? 'bg-blue-600 text-white'
                                   : 'text-white/80 hover:text-white hover:bg-white/10'
                               }`}
                             >
