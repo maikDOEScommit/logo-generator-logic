@@ -2212,10 +2212,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') && !isZoomed ? 'cursor-none' : drawingTool === 'eyedropper' ? 'cursor-crosshair' : drawingTool === 'move' ? 'cursor-move' : drawingTool === 'place' ? 'cursor-pointer' : 'cursor-crosshair'}`}
                   style={{
                     cursor: isZoomed && drawingTool === 'brush' ?
-                            `url("data:image/svg+xml,%3Csvg width='${Math.max(brushSize * 2, 16)}' height='${Math.max(brushSize * 2, 16)}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${Math.max(brushSize, 8)}' cy='${Math.max(brushSize, 8)}' r='${Math.max(brushSize/2, 4)}' fill='rgba(0,0,0,0.2)' stroke='white' stroke-width='2'/%3E%3Ccircle cx='${Math.max(brushSize, 8)}' cy='${Math.max(brushSize, 8)}' r='1' fill='white'/%3E%3C/svg%3E") ${Math.max(brushSize, 8)} ${Math.max(brushSize, 8)}, crosshair` :
+                            `url("data:image/svg+xml,%3Csvg width='${Math.max((brushSize * 2 + 4) * 1.75, 35)}' height='${Math.max((brushSize * 2 + 4) * 1.75, 35)}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${Math.max((brushSize + 2) * 1.75, 17.5)}' cy='${Math.max((brushSize + 2) * 1.75, 17.5)}' r='${Math.max((brushSize/2 + 1) * 1.75, 8.75)}' fill='rgba(0,0,0,0.2)' stroke='white' stroke-width='2'/%3E%3Ccircle cx='${Math.max((brushSize + 2) * 1.75, 17.5)}' cy='${Math.max((brushSize + 2) * 1.75, 17.5)}' r='1' fill='white'/%3E%3C/svg%3E") ${Math.max((brushSize + 2) * 1.75, 17.5)} ${Math.max((brushSize + 2) * 1.75, 17.5)}, crosshair` :
                             isZoomed && drawingTool === 'eraser' ?
-                            `url("data:image/svg+xml,%3Csvg width='${Math.max(brushSize * 2, 16)}' height='${Math.max(brushSize * 2, 16)}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${Math.max(brushSize, 8)}' cy='${Math.max(brushSize, 8)}' r='${Math.max(brushSize/2, 4)}' fill='rgba(255,255,255,0.3)' stroke='%23ff6b6b' stroke-width='2'/%3E%3Ccircle cx='${Math.max(brushSize, 8)}' cy='${Math.max(brushSize, 8)}' r='1' fill='white'/%3E%3C/svg%3E") ${Math.max(brushSize, 8)} ${Math.max(brushSize, 8)}, crosshair` :
-                            isZoomed && drawingTool === 'line' ? 'none' :
+                            `url("data:image/svg+xml,%3Csvg width='${Math.max((brushSize * 2 + 4) * 1.75, 35)}' height='${Math.max((brushSize * 2 + 4) * 1.75, 35)}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${Math.max((brushSize + 2) * 1.75, 17.5)}' cy='${Math.max((brushSize + 2) * 1.75, 17.5)}' r='${Math.max((brushSize/2 + 1) * 1.75, 8.75)}' fill='rgba(255,255,255,0.3)' stroke='%23ff6b6b' stroke-width='2'/%3E%3Ccircle cx='${Math.max((brushSize + 2) * 1.75, 17.5)}' cy='${Math.max((brushSize + 2) * 1.75, 17.5)}' r='1' fill='white'/%3E%3C/svg%3E") ${Math.max((brushSize + 2) * 1.75, 17.5)} ${Math.max((brushSize + 2) * 1.75, 17.5)}, crosshair` :
+                            isZoomed && drawingTool === 'line' ?
+                            `url("data:image/svg+xml,%3Csvg width='${Math.max((lineWidth * 2 + 4) * 1.75, 35)}' height='${Math.max((lineWidth * 2 + 4) * 1.75, 35)}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${Math.max((lineWidth + 2) * 1.75, 17.5)}' cy='${Math.max((lineWidth + 2) * 1.75, 17.5)}' r='${Math.max((lineWidth/2 + 1) * 1.75, 8.75)}' fill='rgba(255,165,0,0.2)' stroke='orange' stroke-width='2'/%3E%3Ccircle cx='${Math.max((lineWidth + 2) * 1.75, 17.5)}' cy='${Math.max((lineWidth + 2) * 1.75, 17.5)}' r='1' fill='white'/%3E%3C/svg%3E") ${Math.max((lineWidth + 2) * 1.75, 17.5)} ${Math.max((lineWidth + 2) * 1.75, 17.5)}, crosshair` :
                             isZoomed && drawingTool === 'eyedropper' ? `url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='16' cy='16' r='2' fill='white' stroke='black' stroke-width='1'/%3E%3C/svg%3E") 16 16, crosshair` :
                             isZoomed && drawingTool === 'move' ? 'move' : undefined
                   }}
@@ -2271,7 +2272,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 </div>
 
                 {/* Custom Cursor Overlay - nur zeigen wenn NICHT gezoomt */}
-                {cursorPosition && (drawingTool === 'brush' || drawingTool === 'eraser') && !isZoomed && (
+                {cursorPosition && (drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') && !isZoomed && (
                   <div
                     className="absolute pointer-events-none"
                     style={{
@@ -2284,12 +2285,14 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     <div
                       className={`border-2 border-white shadow-lg rounded-full ${
                         drawingTool === 'brush' ? 'bg-black/20' :
-                        drawingTool === 'eraser' ? 'bg-white/30' : 'bg-blue-500/30'
+                        drawingTool === 'eraser' ? 'bg-white/30' :
+                        drawingTool === 'line' ? 'bg-orange-500/20' : 'bg-blue-500/30'
                       }`}
                       style={{
-                        width: `${brushSize}px`,
-                        height: `${brushSize}px`,
-                        borderColor: drawingTool === 'eraser' ? '#ff6b6b' : '#000'
+                        width: `${(drawingTool === 'line' ? lineWidth : brushSize) * 1.75}px`,
+                        height: `${(drawingTool === 'line' ? lineWidth : brushSize) * 1.75}px`,
+                        borderColor: drawingTool === 'eraser' ? '#ff6b6b' :
+                                   drawingTool === 'line' ? 'orange' : '#000'
                       }}
                     />
                     {/* Center dot */}
