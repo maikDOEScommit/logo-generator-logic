@@ -2263,7 +2263,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             </div>
 
             {/* Editor Controls Side */}
-            <div className="w-[456px] p-6 overflow-y-auto bg-gradient-to-b from-gray-800/50 to-gray-900/80 backdrop-blur-sm">
+            <div className="w-[550px] p-6 overflow-y-auto bg-gradient-to-b from-gray-800/50 to-gray-900/80 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
                 <div>
                   <h3 className="text-white font-bold text-2xl mb-1">Edit Logo</h3>
@@ -2279,8 +2279,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
               </div>
 
               <div className="flex gap-4 h-full">
-                {/* Main Column (55%) */}
-                <div className="flex-[0.55] space-y-6 overflow-y-auto">
+                {/* LEFT PANEL (50%) */}
+                <div className="flex-1 space-y-6 overflow-y-auto">
                 {/* Drawing Tools Section */}
                 <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
                   <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
@@ -3717,8 +3717,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   </div>
                 </div>
 
-                {/* Layer Manager Column (20%) */}
-                <div className="flex-[0.2] space-y-4 overflow-y-auto">
+                {/* RIGHT PANEL (50%) */}
+                <div className="flex-1 space-y-4 overflow-y-auto">
+                  {/* Layer Manager */}
                   <LayerManager
                     editLayers={editLayers}
                     activeLayer={activeLayer}
@@ -3729,10 +3730,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     onDeleteLayer={deleteLayer}
                     onAddCustomLayer={addCustomLayer}
                   />
-                </div>
-
-                {/* Settings Column (25%) */}
-                <div className="flex-[0.25] space-y-4 overflow-y-auto">
                 {/* Text Section */}
                 <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
                   <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
