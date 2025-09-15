@@ -3285,16 +3285,16 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                           <div className="grid grid-cols-2 gap-2 w-full">
                             <button
                               onClick={() => {
-                                // Text + Icon (horizontal) - text-left arrangement
+                                // Text + Icon (horizontal) - brand centered, icon right
                                 if (logoElements.brand && logoElements.icon) {
                                   setLogoElements(prev => {
                                     const newState = {
                                       ...prev,
-                                      brand: prev.brand ? { ...prev.brand, x: 150, y: 190 } : undefined,
-                                      icon: prev.icon ? { ...prev.icon, x: 250, y: 200 } : undefined
+                                      brand: prev.brand ? { ...prev.brand, x: 200, y: 200 } : undefined,
+                                      icon: prev.icon ? { ...prev.icon, x: 280, y: 200 } : undefined
                                     };
                                     if (prev.slogan) {
-                                      newState.slogan = { ...prev.slogan, x: 150, y: 215 };
+                                      newState.slogan = { ...prev.slogan, x: 200, y: 225 };
                                     }
                                     return newState;
                                   });
@@ -3306,16 +3306,16 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             </button>
                             <button
                               onClick={() => {
-                                // Icon + Text (horizontal) - icon-left arrangement
+                                // Icon + Text (horizontal) - brand centered, icon left
                                 if (logoElements.brand && logoElements.icon) {
                                   setLogoElements(prev => {
                                     const newState = {
                                       ...prev,
-                                      icon: prev.icon ? { ...prev.icon, x: 150, y: 200 } : undefined,
-                                      brand: prev.brand ? { ...prev.brand, x: 250, y: 190 } : undefined
+                                      icon: prev.icon ? { ...prev.icon, x: 120, y: 200 } : undefined,
+                                      brand: prev.brand ? { ...prev.brand, x: 200, y: 200 } : undefined
                                     };
                                     if (prev.slogan) {
-                                      newState.slogan = { ...prev.slogan, x: 250, y: 215 };
+                                      newState.slogan = { ...prev.slogan, x: 200, y: 225 };
                                     }
                                     return newState;
                                   });
@@ -3327,16 +3327,16 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             </button>
                             <button
                               onClick={() => {
-                                // Icon + Text (vertical) - icon-top arrangement
+                                // Icon + Text (vertical) - brand centered, icon top
                                 if (logoElements.brand && logoElements.icon) {
                                   setLogoElements(prev => {
                                     const newState = {
                                       ...prev,
-                                      icon: prev.icon ? { ...prev.icon, x: 200, y: 160 } : undefined,
-                                      brand: prev.brand ? { ...prev.brand, x: 200, y: 210 } : undefined
+                                      icon: prev.icon ? { ...prev.icon, x: 200, y: 120 } : undefined,
+                                      brand: prev.brand ? { ...prev.brand, x: 200, y: 200 } : undefined
                                     };
                                     if (prev.slogan) {
-                                      newState.slogan = { ...prev.slogan, x: 200, y: 235 };
+                                      newState.slogan = { ...prev.slogan, x: 200, y: 280 };
                                     }
                                     return newState;
                                   });
@@ -3349,16 +3349,16 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             </button>
                             <button
                               onClick={() => {
-                                // Text + Icon (vertical) - text-top arrangement
+                                // Text + Icon (vertical) - brand centered, icon bottom
                                 if (logoElements.brand && logoElements.icon) {
                                   setLogoElements(prev => {
                                     const newState = {
                                       ...prev,
-                                      brand: prev.brand ? { ...prev.brand, x: 200, y: 160 } : undefined,
-                                      icon: prev.icon ? { ...prev.icon, x: 200, y: 220 } : undefined
+                                      brand: prev.brand ? { ...prev.brand, x: 200, y: 200 } : undefined,
+                                      icon: prev.icon ? { ...prev.icon, x: 200, y: 280 } : undefined
                                     };
                                     if (prev.slogan) {
-                                      newState.slogan = { ...prev.slogan, x: 200, y: 185 };
+                                      newState.slogan = { ...prev.slogan, x: 200, y: 120 };
                                     }
                                     return newState;
                                   });
@@ -3373,135 +3373,72 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         </div>
                       </div>
 
-                      {/* Place Here buttons */}
-                      <div className="space-y-2 mt-3">
-                        {logoElements.icon && !logoElements.icon.permanent && (
+                      {/* Place Here button */}
+                      <div className="mt-3">
+                        {((selectedElement === 'icon' && logoElements.icon && !logoElements.icon.permanent) ||
+                          (selectedElement === 'brand' && logoElements.brand && !logoElements.brand.permanent) ||
+                          (selectedElement === 'slogan' && logoElements.slogan && !logoElements.slogan.permanent)) && (
                           <button
                             onClick={() => {
-                              const iconElement = logoElements.icon;
-                              if (iconElement) {
-                                // Create a stroke representing the icon
-                                const iconStroke: Stroke = {
-                                  id: `icon-stroke-${Date.now()}`,
-                                  tool: 'icon',
-                                  points: [
-                                    { x: iconElement.x, y: iconElement.y }
-                                  ],
-                                  color: iconElement.color,
-                                  width: 1,
-                                  opacity: iconElement.opacity,
-                                  rotation: iconElement.rotation,
-                                  iconComponent: iconElement.icon,
-                                  iconSize: iconElement.size
-                                };
+                              const currentElement = logoElements[selectedElement];
+                              if (currentElement) {
+                                let elementStroke: Stroke;
 
-                                // Add icon stroke to background layer (layer-1)
+                                // Create different stroke types based on element type
+                                if (selectedElement === 'icon') {
+                                  const iconElement = currentElement as any;
+                                  elementStroke = {
+                                    id: `icon-stroke-${Date.now()}`,
+                                    tool: 'icon',
+                                    points: [
+                                      { x: iconElement.x, y: iconElement.y }
+                                    ],
+                                    color: iconElement.color,
+                                    width: 1,
+                                    opacity: iconElement.opacity,
+                                    rotation: iconElement.rotation,
+                                    iconComponent: iconElement.icon,
+                                    iconSize: iconElement.size
+                                  };
+                                } else {
+                                  const textElement = currentElement as any;
+                                  elementStroke = {
+                                    id: `${selectedElement}-stroke-${Date.now()}`,
+                                    tool: 'text',
+                                    points: [
+                                      { x: textElement.x, y: textElement.y }
+                                    ],
+                                    color: textElement.color,
+                                    width: 1,
+                                    opacity: textElement.opacity,
+                                    rotation: textElement.rotation,
+                                    text: textElement.text,
+                                    fontSize: textElement.fontSize,
+                                    fontFamily: textElement.fontFamily,
+                                    fontWeight: textElement.fontWeight,
+                                    textAlign: textElement.textAlign
+                                  };
+                                }
+
+                                // Add stroke to background layer (layer-1)
                                 setEditLayers(prev => prev.map(layer =>
                                   layer.id === 'layer-1'
-                                    ? { ...layer, strokes: [...layer.strokes, iconStroke] }
+                                    ? { ...layer, strokes: [...layer.strokes, elementStroke] }
                                     : layer
                                 ));
 
-                                // Remove icon from logoElements
+                                // Remove from logoElements
                                 setLogoElements(prev => ({
                                   ...prev,
-                                  icon: undefined
+                                  [selectedElement]: undefined
                                 }));
-                                setSelectedElement('icon');
-                                console.log('🎯 Icon placed as canvas stroke for tool interaction');
+
+                                console.log(`🎯 ${selectedElement} placed as canvas stroke for tool interaction`);
                               }
                             }}
                             className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition-colors"
                           >
-                            Place Icon Here!
-                          </button>
-                        )}
-                        {logoElements.brand && !logoElements.brand.permanent && (
-                          <button
-                            onClick={() => {
-                              const brandElement = logoElements.brand;
-                              if (brandElement) {
-                                // Create a stroke representing the brand text
-                                const brandStroke: Stroke = {
-                                  id: `brand-stroke-${Date.now()}`,
-                                  tool: 'text',
-                                  points: [
-                                    { x: brandElement.x, y: brandElement.y }
-                                  ],
-                                  color: brandElement.color,
-                                  width: 1,
-                                  opacity: brandElement.opacity,
-                                  rotation: brandElement.rotation,
-                                  text: brandElement.text,
-                                  fontSize: brandElement.fontSize,
-                                  fontFamily: brandElement.fontFamily,
-                                  fontWeight: brandElement.fontWeight,
-                                  textAlign: brandElement.textAlign
-                                };
-
-                                // Add brand stroke to background layer (layer-1)
-                                setEditLayers(prev => prev.map(layer =>
-                                  layer.id === 'layer-1'
-                                    ? { ...layer, strokes: [...layer.strokes, brandStroke] }
-                                    : layer
-                                ));
-
-                                // Remove brand from logoElements
-                                setLogoElements(prev => ({
-                                  ...prev,
-                                  brand: undefined
-                                }));
-                                setSelectedElement('icon');
-                                console.log('🎯 Brand placed as canvas stroke for tool interaction');
-                              }
-                            }}
-                            className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition-colors"
-                          >
-                            Place Brand Here!
-                          </button>
-                        )}
-                        {logoElements.slogan && !logoElements.slogan.permanent && (
-                          <button
-                            onClick={() => {
-                              const sloganElement = logoElements.slogan;
-                              if (sloganElement) {
-                                // Create a stroke representing the slogan text
-                                const sloganStroke: Stroke = {
-                                  id: `slogan-stroke-${Date.now()}`,
-                                  tool: 'text',
-                                  points: [
-                                    { x: sloganElement.x, y: sloganElement.y }
-                                  ],
-                                  color: sloganElement.color,
-                                  width: 1,
-                                  opacity: sloganElement.opacity,
-                                  rotation: sloganElement.rotation,
-                                  text: sloganElement.text,
-                                  fontSize: sloganElement.fontSize,
-                                  fontFamily: sloganElement.fontFamily,
-                                  fontWeight: sloganElement.fontWeight,
-                                  textAlign: sloganElement.textAlign
-                                };
-
-                                // Add slogan stroke to background layer (layer-1)
-                                setEditLayers(prev => prev.map(layer =>
-                                  layer.id === 'layer-1'
-                                    ? { ...layer, strokes: [...layer.strokes, sloganStroke] }
-                                    : layer
-                                ));
-
-                                // Remove slogan from logoElements
-                                setLogoElements(prev => ({
-                                  ...prev,
-                                  slogan: undefined
-                                }));
-                                setSelectedElement('icon');
-                                console.log('🎯 Slogan placed as canvas stroke for tool interaction');
-                              }
-                            }}
-                            className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition-colors"
-                          >
-                            Place Slogan Here!
+                            Place {selectedElement === 'icon' ? 'Icon' : selectedElement === 'brand' ? 'Brand' : 'Slogan'} Here!
                           </button>
                         )}
                       </div>
