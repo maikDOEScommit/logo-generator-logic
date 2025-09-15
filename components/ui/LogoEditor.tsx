@@ -2394,7 +2394,103 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     </button>
                   </div>
 
+                  {/* Advanced Eyedropper Section */}
+                  {drawingTool === 'eyedropper' && (
+                    <div className="bg-white/5 rounded-lg p-1 border border-white/10 backdrop-blur-sm mb-4 w-full">
+                      <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
+                        <Pipette size={16} className="text-teal-400" />
+                        Color Picker
+                      </h4>
 
+                      <div className="space-y-3">
+                        {/* Instructions */}
+                        <div className="bg-teal-600/10 rounded-lg p-2 border border-teal-400/20">
+                          <p className="text-teal-300 text-xs">
+                            🎨 Klicke auf beliebige Elemente im Logo um deren Farbe zu sampeln
+                          </p>
+                        </div>
+
+                        {/* Sampled Color Display */}
+                        {sampledColor && (
+                          <div className="space-y-2">
+                            <div>
+                              <label className="block text-white/80 text-sm mb-2">Gesampelte Farbe</label>
+                              <div className="flex items-center gap-1">
+                                <div
+                                  className="w-12 h-12 rounded-lg border-2 border-white/20 shadow-lg"
+                                  style={{ backgroundColor: sampledColor }}
+                                ></div>
+                                <div className="flex-1 space-y-2">
+                                  <div className="bg-white/10 rounded px-2 py-1 border border-white/20">
+                                    <code className="text-white font-mono text-xs">{sampledColor}</code>
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={() => navigator.clipboard.writeText(sampledColor)}
+                                      className="px-1.5 py-0.5 bg-gray-600 hover:bg-gray-500 text-white rounded text-[10px] transition-colors"
+                                    >
+                                      Copy
+                                    </button>
+                                    <button
+                                      onClick={() => setBrushColor(sampledColor)}
+                                      className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-colors"
+                                    >
+                                      → Brush
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Advanced Color Controls */}
+                            <div>
+                              <label className="block text-white/80 text-sm mb-2">Fine-tune Color</label>
+                              <input
+                                type="color"
+                                value={sampledColor}
+                                onChange={(e) => {
+                                  setSampledColor(e.target.value);
+                                  setBrushColor(e.target.value);
+                                }}
+                                className="w-full h-12 rounded-lg border border-white/20 cursor-pointer bg-transparent"
+                              />
+                            </div>
+
+                            {/* Apply to Elements */}
+                            <div>
+                              <label className="block text-white/80 text-sm mb-2">Apply to Tools</label>
+                              <div className="grid grid-cols-1 gap-2 w-full">
+                                <button
+                                  onClick={() => setBrushColor(sampledColor)}
+                                  className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded text-xs transition-colors"
+                                >
+                                  🖌️ Brush
+                                </button>
+                                <button
+                                  onClick={() => setLineColor(sampledColor)}
+                                  className="px-3 py-2 bg-orange-600/80 hover:bg-orange-600 text-white rounded text-xs transition-colors"
+                                >
+                                  📏 Line
+                                </button>
+                                <button
+                                  onClick={() => setBoxFillColor(sampledColor)}
+                                  className="px-3 py-2 bg-purple-600/80 hover:bg-purple-600 text-white rounded text-xs transition-colors"
+                                >
+                                  ⬜ Box Fill
+                                </button>
+                                <button
+                                  onClick={() => setBoxStrokeColor(sampledColor)}
+                                  className="px-3 py-2 bg-green-600/80 hover:bg-green-600 text-white rounded text-xs transition-colors"
+                                >
+                                  📦 Box Stroke
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Background Color Selector - Show when background or original layer is selected */}
                   {(editLayers.find(l => l.id === activeLayer)?.type === 'background' || editLayers.find(l => l.id === activeLayer)?.type === 'original') && (
@@ -3834,103 +3930,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   </div>
                 </div>
 
-                {/* Advanced Eyedropper Section */}
-                {drawingTool === 'eyedropper' && (
-                  <div className="bg-white/5 rounded-lg p-1 border border-white/10 backdrop-blur-sm mb-4 w-full">
-                    <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
-                      <Pipette size={16} className="text-teal-400" />
-                      Color Picker
-                    </h4>
-
-                    <div className="space-y-3">
-                      {/* Instructions */}
-                      <div className="bg-teal-600/10 rounded-lg p-2 border border-teal-400/20">
-                        <p className="text-teal-300 text-xs">
-                          🎨 Klicke auf beliebige Elemente im Logo um deren Farbe zu sampeln
-                        </p>
-                      </div>
-
-                      {/* Sampled Color Display */}
-                      {sampledColor && (
-                        <div className="space-y-2">
-                          <div>
-                            <label className="block text-white/80 text-sm mb-2">Gesampelte Farbe</label>
-                            <div className="flex items-center gap-1">
-                              <div
-                                className="w-12 h-12 rounded-lg border-2 border-white/20 shadow-lg"
-                                style={{ backgroundColor: sampledColor }}
-                              ></div>
-                              <div className="flex-1 space-y-2">
-                                <div className="bg-white/10 rounded px-2 py-1 border border-white/20">
-                                  <code className="text-white font-mono text-xs">{sampledColor}</code>
-                                </div>
-                                <div className="flex gap-1">
-                                  <button
-                                    onClick={() => navigator.clipboard.writeText(sampledColor)}
-                                    className="px-1.5 py-0.5 bg-gray-600 hover:bg-gray-500 text-white rounded text-[10px] transition-colors"
-                                  >
-                                    Copy
-                                  </button>
-                                  <button
-                                    onClick={() => setBrushColor(sampledColor)}
-                                    className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-colors"
-                                  >
-                                    → Brush
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Advanced Color Controls */}
-                          <div>
-                            <label className="block text-white/80 text-sm mb-2">Fine-tune Color</label>
-                            <input
-                              type="color"
-                              value={sampledColor}
-                              onChange={(e) => {
-                                setSampledColor(e.target.value);
-                                setBrushColor(e.target.value);
-                              }}
-                              className="w-full h-12 rounded-lg border border-white/20 cursor-pointer bg-transparent"
-                            />
-                          </div>
-
-                          {/* Apply to Elements */}
-                          <div>
-                            <label className="block text-white/80 text-sm mb-2">Apply to Tools</label>
-                            <div className="grid grid-cols-1 gap-2 w-full">
-                              <button
-                                onClick={() => setBrushColor(sampledColor)}
-                                className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded text-xs transition-colors"
-                              >
-                                🖌️ Brush
-                              </button>
-                              <button
-                                onClick={() => setLineColor(sampledColor)}
-                                className="px-3 py-2 bg-orange-600/80 hover:bg-orange-600 text-white rounded text-xs transition-colors"
-                              >
-                                📏 Line
-                              </button>
-                              <button
-                                onClick={() => setBoxFillColor(sampledColor)}
-                                className="px-3 py-2 bg-purple-600/80 hover:bg-purple-600 text-white rounded text-xs transition-colors"
-                              >
-                                ⬜ Box Fill
-                              </button>
-                              <button
-                                onClick={() => setBoxStrokeColor(sampledColor)}
-                                className="px-3 py-2 bg-green-600/80 hover:bg-green-600 text-white rounded text-xs transition-colors"
-                              >
-                                📦 Box Stroke
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
 
                 {/* Colors Section */}
                 <div>
