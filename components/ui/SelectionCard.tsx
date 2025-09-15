@@ -60,7 +60,7 @@ const SelectionCard = ({ children, isSelected, onClick, disabled = false, noAnim
   return (
     <div
       onClick={handleClick}
-      className={`relative p-4 rounded-lg min-h-24 flex items-center justify-center text-center transition-all duration-[800ms] ease-out group overflow-hidden ${
+      className={`relative p-4 rounded-lg min-h-18 flex items-center justify-center text-center transition-all duration-[800ms] ease-out group overflow-hidden ${
         disabled 
           ? 'bg-white/5 opacity-50 cursor-not-allowed' 
           : noAnimation

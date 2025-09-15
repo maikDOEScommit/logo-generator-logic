@@ -6,6 +6,7 @@ import SelectionCard from '@/components/ui/SelectionCard';
 import { layouts, fontCategories, personalities } from '@/lib/data';
 import { Circle, Check } from 'lucide-react';
 import { ColorOption } from '@/lib/colorLogic';
+import { iconSets, getIconSetById, IconSet } from '@/lib/iconSets';
 
 // Brand Personality Button Component with Border Animation
 const BrandPersonalityButton = ({ personality, isSelected, onClick }: { personality: any, isSelected: boolean, onClick: () => void }) => {
@@ -175,6 +176,8 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const { suggestedIcons, suggestedEnclosingShapes, suggestedPalettes } = suggestions;
   const [selectedLayoutType, setSelectedLayoutType] = useState<string | null>(null);
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
+  const [showIconSetSelection, setShowIconSetSelection] = useState<boolean>(false);
+  const [selectedIconSet, setSelectedIconSet] = useState<string>('lucide');
   const [colorMode, setColorMode] = useState<'grundton' | 'pastell' | 'neon' | 'dunkel'>('grundton');
   const [selectedColorCombo, setSelectedColorCombo] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -206,9 +209,16 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   // These are already the fixed 16 enclosing shapes defined in suggestionEngine.ts
   const enclosingShapes = suggestedEnclosingShapes;
   
-  // Use icons directly from suggestionEngine (Single Source of Truth)
-  // These are already the fixed 24 icons defined in suggestionEngine.ts
-  const regularIcons = suggestedIcons;
+  // Use icons from selected icon set or fall back to suggested icons
+  const getCurrentIconSet = (): IconData[] => {
+    if (selectedIconSet === 'lucide') {
+      return suggestedIcons;
+    }
+    const iconSet = getIconSetById(selectedIconSet);
+    return iconSet ? iconSet.icons : suggestedIcons;
+  };
+
+  const regularIcons = getCurrentIconSet();
 
   // Helper functions to generate dynamic colors
   const generatePastelColor = (baseColor: string): string => {
@@ -329,7 +339,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   return (
     <motion.div key="step3" className="space-y-12 animate-fade-in">
       {/* Icon Decision Section - Always visible first */}
-      {wantsIcon === null && (
+      {wantsIcon === null && !showIconSetSelection && (
         <div className="h-screen flex items-center justify-center -mt-36">
           <div className="w-full max-w-2xl text-center">
             <motion.div
@@ -340,9 +350,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             >
               <h2 className="text-xl font-bold mb-8 text-white">Do you want an icon for your logo?</h2>
               <div className="flex w-full justify-between gap-4 mb-6">
-                <button 
+                <button
                   onClick={() => {
-                    setWantsIcon(true);
+                    setShowIconSetSelection(true);
                   }}
                   className="flex-1 bg-black !text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-black/25 active:scale-95"
                 >
@@ -370,7 +380,64 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           </div>
         </div>
       )}
-      
+
+      {/* Icon Set Selection Section - Only shown when user clicks "Yes, show me icons" */}
+      {showIconSetSelection && !wantsIcon && (
+        <div className="min-h-screen flex items-center justify-center -mt-12">
+          <div className="w-full max-w-4xl">
+            <Section title="Choose an Icon Set" helpText="Select from 19 different icon libraries with unique styles">
+              <div className="col-span-full space-y-4">
+                <div className="flex justify-between items-center mb-6">
+                  <button
+                    onClick={() => {
+                      setShowIconSetSelection(false);
+                    }}
+                    className="text-white/60 hover:text-white text-sm flex items-center gap-2"
+                  >
+                    ← Back to decision
+                  </button>
+                  <div className="text-white/60 text-sm">
+                    19 icon sets available
+                  </div>
+                </div>
+
+                {/* Icon Set Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {iconSets.map((iconSet) => (
+                    <SelectionCard
+                      key={iconSet.id}
+                      isSelected={selectedIconSet === iconSet.id}
+                      onClick={() => {
+                        setSelectedIconSet(iconSet.id);
+                        setWantsIcon(true);
+                        setShowIconSetSelection(false);
+                      }}
+                    >
+                      <div className="p-4 text-center">
+                        <h3 className="font-bold text-white mb-2">{iconSet.name}</h3>
+                        <p className="text-white/60 text-xs mb-3 leading-relaxed">
+                          {iconSet.description}
+                        </p>
+                        <div className="flex justify-between items-center text-xs text-white/40">
+                          <span>{iconSet.iconCount} icons</span>
+                          <span>{iconSet.style}</span>
+                        </div>
+                        {/* Sample icons preview */}
+                        <div className="flex justify-center items-center gap-2 mt-3 opacity-70">
+                          {iconSet.icons.slice(0, 3).map((icon, idx) => (
+                            <icon.component key={idx} className="w-4 h-4" />
+                          ))}
+                        </div>
+                      </div>
+                    </SelectionCard>
+                  ))}
+                </div>
+              </div>
+            </Section>
+          </div>
+        </div>
+      )}
+
       {/* Icon Selection Section - Only shown when user wants icons */}
       {wantsIcon === true && (
         <div className="min-h-screen flex items-start justify-center py-8 pt-4">
@@ -378,17 +445,14 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
             <Section title="Choose a Symbol" helpText="Rule 2: Memorability - Simple symbols are remembered better">
               <div className="col-span-full space-y-4">
                 <div className="flex justify-between items-center">
-                  <button 
+                  <button
                     onClick={() => {
                       setWantsIcon(null);
-                      // Scroll back to top
-                      setTimeout(() => {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }, 100);
+                      setShowIconSetSelection(true);
                     }}
                     className="text-white/60 hover:text-white text-sm flex items-center gap-2"
                   >
-                    ← Back to decision
+                    ← Back to icon sets
                   </button>
                   <button 
                     onClick={() => {
