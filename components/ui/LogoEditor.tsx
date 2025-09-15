@@ -3175,109 +3175,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       <div className="mt-4 p-1 bg-black/20 rounded-lg">
                         <label className="block text-white/80 text-sm mb-3">Standard Layouts</label>
 
-                        {/* Smart Element Selection */}
-                        <div className="mb-3">
-                          <span className="text-white/60 text-xs mb-2 block">Select Element:</span>
-                          <button
-                            onClick={() => {
-                              // Smart selection: cycle through available elements
-                              const availableElements = [];
-                              if (logoElements.icon) availableElements.push('icon');
-                              if (logoElements.brand) availableElements.push('brand');
-                              if (logoElements.slogan) availableElements.push('slogan');
-
-                              if (availableElements.length > 0) {
-                                const currentIndex = availableElements.indexOf(selectedElement);
-                                const nextIndex = (currentIndex + 1) % availableElements.length;
-                                setSelectedElement(availableElements[nextIndex] as 'icon' | 'brand' | 'slogan');
-                              }
-                            }}
-                            className={`w-full px-3 py-2 rounded text-xs transition-colors ${
-                              selectedElement === 'icon' ? 'bg-blue-600 text-white' :
-                              selectedElement === 'brand' ? 'bg-green-600 text-white' :
-                              selectedElement === 'slogan' ? 'bg-purple-600 text-white' :
-                              'bg-white/10 text-white/80 hover:bg-white/20'
-                            }`}
-                          >
-                            {selectedElement === 'icon' ? '🎯 Icon Selected' :
-                             selectedElement === 'brand' ? '📝 Brand Selected' :
-                             selectedElement === 'slogan' ? '💬 Slogan Selected' :
-                             '👆 Select Element'}
-                          </button>
-                        </div>
-
-                        {/* Universal Layout Buttons for Selected Element */}
-                        <div className="mb-3">
-                          <span className="text-white/60 text-xs mb-2 block">
-                            Position {selectedElement === 'icon' ? 'Icon' : selectedElement === 'brand' ? 'Brand' : 'Slogan'}:
-                          </span>
-                          <div className="grid grid-cols-2 gap-2 w-full">
-                            <button
-                              onClick={() => {
-                                if (!logoElements[selectedElement]) return;
-                                setLogoElements(prev => ({
-                                  ...prev,
-                                  [selectedElement]: { ...prev[selectedElement], x: 120, y: 200 }
-                                }));
-                              }}
-                              className={`px-3 py-2 rounded text-xs transition-colors ${
-                                selectedElement === 'icon' ? 'bg-blue-600/80 hover:bg-blue-600' :
-                                selectedElement === 'brand' ? 'bg-green-600/80 hover:bg-green-600' :
-                                'bg-purple-600/80 hover:bg-purple-600'
-                              } text-white`}
-                            >
-                              ← Links
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (!logoElements[selectedElement]) return;
-                                setLogoElements(prev => ({
-                                  ...prev,
-                                  [selectedElement]: { ...prev[selectedElement], x: 280, y: 200 }
-                                }));
-                              }}
-                              className={`px-3 py-2 rounded text-xs transition-colors ${
-                                selectedElement === 'icon' ? 'bg-blue-600/80 hover:bg-blue-600' :
-                                selectedElement === 'brand' ? 'bg-green-600/80 hover:bg-green-600' :
-                                'bg-purple-600/80 hover:bg-purple-600'
-                              } text-white`}
-                            >
-                              Rechts →
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (!logoElements[selectedElement]) return;
-                                setLogoElements(prev => ({
-                                  ...prev,
-                                  [selectedElement]: { ...prev[selectedElement], x: 200, y: 120 }
-                                }));
-                              }}
-                              className={`px-3 py-2 rounded text-xs transition-colors ${
-                                selectedElement === 'icon' ? 'bg-blue-600/80 hover:bg-blue-600' :
-                                selectedElement === 'brand' ? 'bg-green-600/80 hover:bg-green-600' :
-                                'bg-purple-600/80 hover:bg-purple-600'
-                              } text-white`}
-                            >
-                              ↑ Oben
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (!logoElements[selectedElement]) return;
-                                setLogoElements(prev => ({
-                                  ...prev,
-                                  [selectedElement]: { ...prev[selectedElement], x: 200, y: 280 }
-                                }));
-                              }}
-                              className={`px-3 py-2 rounded text-xs transition-colors ${
-                                selectedElement === 'icon' ? 'bg-blue-600/80 hover:bg-blue-600' :
-                                selectedElement === 'brand' ? 'bg-green-600/80 hover:bg-green-600' :
-                                'bg-purple-600/80 hover:bg-purple-600'
-                              } text-white`}
-                            >
-                              ↓ Unten
-                            </button>
-                          </div>
-                        </div>
 
                         {/* Layout Buttons */}
                         <div className="mt-3">
@@ -3285,13 +3182,21 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                           <div className="grid grid-cols-2 gap-2 w-full">
                             <button
                               onClick={() => {
-                                // Text + Icon (horizontal) - brand centered, icon right
+                                // Text + Icon (horizontal) - brand centered, icon right with spacing
                                 if (logoElements.brand && logoElements.icon) {
                                   setLogoElements(prev => {
+                                    // Calculate spacing based on brand text length and font size
+                                    const brandText = prev.brand?.text || '';
+                                    const fontSize = prev.brand?.fontSize || 16;
+                                    const estimatedTextWidth = brandText.length * (fontSize * 0.6); // Rough estimation
+                                    const spacing = 50; // Minimum spacing between brand and icon
+
+                                    const iconX = Math.max(280, 200 + estimatedTextWidth / 2 + spacing);
+
                                     const newState = {
                                       ...prev,
                                       brand: prev.brand ? { ...prev.brand, x: 200, y: 200 } : undefined,
-                                      icon: prev.icon ? { ...prev.icon, x: 280, y: 200 } : undefined
+                                      icon: prev.icon ? { ...prev.icon, x: iconX, y: 200 } : undefined
                                     };
                                     if (prev.slogan) {
                                       newState.slogan = { ...prev.slogan, x: 200, y: 225 };
@@ -3306,12 +3211,20 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             </button>
                             <button
                               onClick={() => {
-                                // Icon + Text (horizontal) - brand centered, icon left
+                                // Icon + Text (horizontal) - brand centered, icon left with spacing
                                 if (logoElements.brand && logoElements.icon) {
                                   setLogoElements(prev => {
+                                    // Calculate spacing based on brand text length and font size
+                                    const brandText = prev.brand?.text || '';
+                                    const fontSize = prev.brand?.fontSize || 16;
+                                    const estimatedTextWidth = brandText.length * (fontSize * 0.6); // Rough estimation
+                                    const spacing = 50; // Minimum spacing between brand and icon
+
+                                    const iconX = Math.min(120, 200 - estimatedTextWidth / 2 - spacing);
+
                                     const newState = {
                                       ...prev,
-                                      icon: prev.icon ? { ...prev.icon, x: 120, y: 200 } : undefined,
+                                      icon: prev.icon ? { ...prev.icon, x: iconX, y: 200 } : undefined,
                                       brand: prev.brand ? { ...prev.brand, x: 200, y: 200 } : undefined
                                     };
                                     if (prev.slogan) {
@@ -3327,16 +3240,16 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             </button>
                             <button
                               onClick={() => {
-                                // Icon + Text (vertical) - brand centered, icon top
+                                // Icon + Text (vertical) - brand centered, icon top closer
                                 if (logoElements.brand && logoElements.icon) {
                                   setLogoElements(prev => {
                                     const newState = {
                                       ...prev,
-                                      icon: prev.icon ? { ...prev.icon, x: 200, y: 120 } : undefined,
+                                      icon: prev.icon ? { ...prev.icon, x: 200, y: 160 } : undefined,
                                       brand: prev.brand ? { ...prev.brand, x: 200, y: 200 } : undefined
                                     };
                                     if (prev.slogan) {
-                                      newState.slogan = { ...prev.slogan, x: 200, y: 280 };
+                                      newState.slogan = { ...prev.slogan, x: 200, y: 240 };
                                     }
                                     return newState;
                                   });
@@ -3349,16 +3262,16 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             </button>
                             <button
                               onClick={() => {
-                                // Text + Icon (vertical) - brand centered, icon bottom
+                                // Text + Icon (vertical) - brand centered, icon bottom closer
                                 if (logoElements.brand && logoElements.icon) {
                                   setLogoElements(prev => {
                                     const newState = {
                                       ...prev,
                                       brand: prev.brand ? { ...prev.brand, x: 200, y: 200 } : undefined,
-                                      icon: prev.icon ? { ...prev.icon, x: 200, y: 280 } : undefined
+                                      icon: prev.icon ? { ...prev.icon, x: 200, y: 240 } : undefined
                                     };
                                     if (prev.slogan) {
-                                      newState.slogan = { ...prev.slogan, x: 200, y: 120 };
+                                      newState.slogan = { ...prev.slogan, x: 200, y: 160 };
                                     }
                                     return newState;
                                   });
