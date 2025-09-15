@@ -428,8 +428,17 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
       // Handle resizing
       if (isResizing && resizingBox && resizeHandle && resizeStart) {
-        const deltaX = point.x - resizeStart.startX;
-        const deltaY = point.y - resizeStart.startY;
+        let deltaX = point.x - resizeStart.startX;
+        let deltaY = point.y - resizeStart.startY;
+
+        // Shift key constraint: only horizontal or vertical movement
+        if (e.shiftKey) {
+          if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            deltaY = 0; // Horizontal movement only
+          } else {
+            deltaX = 0; // Vertical movement only
+          }
+        }
         const originalBox = resizeStart.originalBox;
 
         let newBox = { ...originalBox };
@@ -1059,7 +1068,58 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
 
   const clearDrawing = () => {
-    setEditLayers(prev => prev.map(layer => ({ ...layer, strokes: [] })));
+    // Reset all layers to their initial state
+    setEditLayers([
+      { id: 'layer-0', name: 'Original Background', visible: true, type: 'original', strokes: [], backgroundColor: 'transparent', order: 0 },
+      { id: 'layer-1', name: 'Background Layer', visible: true, type: 'background', strokes: [], backgroundColor: 'transparent', order: 1 },
+      { id: 'layer-2', name: 'Logo Layer', visible: true, type: 'logo', strokes: [], elements: [], order: 2 }
+    ]);
+
+    // Reset all drawing states
+    setBoxes([]);
+    setSelectedBox(null);
+    setCurrentStroke(null);
+    setCurrentLine(null);
+    setCurrentBox(null);
+    setIsDrawing(false);
+
+    // Reset logo elements to their initial positions/properties
+    setLogoElements(prev => {
+      const resetElements = { ...prev };
+      if (resetElements.brand) {
+        resetElements.brand = {
+          ...resetElements.brand,
+          x: 200,
+          y: 190,
+          rotation: 0,
+          opacity: 1,
+          permanent: false
+        };
+      }
+      if (resetElements.slogan) {
+        resetElements.slogan = {
+          ...resetElements.slogan,
+          x: 200,
+          y: 215,
+          rotation: 0,
+          opacity: 1,
+          permanent: false
+        };
+      }
+      if (resetElements.icon) {
+        resetElements.icon = {
+          ...resetElements.icon,
+          x: 200,
+          y: 160,
+          rotation: 0,
+          opacity: 1,
+          permanent: false
+        };
+      }
+      return resetElements;
+    });
+
+    console.log('🧹 All layers and elements cleared and reset to initial state');
   };
 
   const undoLastStroke = () => {
@@ -2288,7 +2348,12 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     }}
                   >
                     <div
-                      className={`border-2 border-white shadow-lg rounded-full ${
+                      className={`border-2 border-white shadow-lg ${
+                        (drawingTool === 'brush' && brushLineCap === 'square') ||
+                        (drawingTool === 'eraser' && brushLineCap === 'square') ||
+                        (drawingTool === 'line' && lineCap === 'square')
+                          ? 'rounded-none' : 'rounded-full'
+                      } ${
                         drawingTool === 'brush' ? 'bg-white/30' :
                         drawingTool === 'eraser' ? 'bg-white/30' :
                         drawingTool === 'line' ? 'bg-orange-500/20' : 'bg-blue-500/30'
@@ -2344,8 +2409,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   </h4>
 
                   {/* Tool Selection Grid Layout */}
-                  <div className="grid grid-cols-5 gap-2">
-                    {/* Tool Icons - Left Column (1/5 width) */}
+                  <div className="grid grid-cols-4 gap-3">
+                    {/* Tool Icons - Left Column (1/4 width) */}
                     <div className="col-span-1 grid grid-cols-1 gap-1">
                       <button
                         onClick={() => setDrawingTool('brush')}
@@ -2397,8 +2462,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       </button>
                     </div>
 
-                    {/* Tool Settings - Right Column (4/5 width) */}
-                    <div className="col-span-4 space-y-3">
+                    {/* Tool Settings - Right Column (2/4 width) */}
+                    <div className="col-span-2 space-y-3">
                       {/* Brush/Eraser Settings */}
                       {(drawingTool === 'brush' || drawingTool === 'eraser') && (
                         <>
@@ -2878,7 +2943,211 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   {/* Move Tool Settings */}
                   {drawingTool === 'move' && (
                     <div className="bg-white/10 rounded p-1 mb-4">
-                      <label className="block text-white/80 text-sm mb-2">Element Position</label>
+                      <label className="block text-white/80 text-sm mb-2">Element Controls</label>
+
+                      {/* Element Control Sliders - Just like Brush Tool */}
+                      <div className="space-y-3 mb-4">
+                        {/* Rotation Slider */}
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">
+                            Rotation: {Math.round((logoElements[selectedElement as keyof typeof logoElements] as any)?.rotation || 0)}°
+                          </label>
+                          <input
+                            type="range"
+                            min="-180"
+                            max="180"
+                            value={(logoElements[selectedElement as keyof typeof logoElements] as any)?.rotation || 0}
+                            onChange={(e) => {
+                              const newRotation = parseInt(e.target.value);
+                              setLogoElements(prev => ({
+                                ...prev,
+                                [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                  ...(prev[selectedElement as keyof typeof prev] as any),
+                                  rotation: newRotation
+                                } : prev[selectedElement as keyof typeof prev]
+                              }));
+                            }}
+                            className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Opacity Slider */}
+                        <div>
+                          <label className="block text-white/80 text-sm mb-1">
+                            Opacity: {Math.round(((logoElements[selectedElement as keyof typeof logoElements] as any)?.opacity || 1) * 100)}%
+                          </label>
+                          <input
+                            type="range"
+                            min="0.1"
+                            max="1"
+                            step="0.1"
+                            value={(logoElements[selectedElement as keyof typeof logoElements] as any)?.opacity || 1}
+                            onChange={(e) => {
+                              const newOpacity = parseFloat(e.target.value);
+                              setLogoElements(prev => ({
+                                ...prev,
+                                [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                  ...(prev[selectedElement as keyof typeof prev] as any),
+                                  opacity: newOpacity
+                                } : prev[selectedElement as keyof typeof prev]
+                              }));
+                            }}
+                            className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Size Slider - Icon only */}
+                        {selectedElement === 'icon' && logoElements.icon && (
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">
+                              Size: {logoElements.icon.size}px
+                            </label>
+                            <input
+                              type="range"
+                              min="16"
+                              max="120"
+                              value={logoElements.icon.size}
+                              onChange={(e) => {
+                                const newSize = parseInt(e.target.value);
+                                setLogoElements(prev => ({
+                                  ...prev,
+                                  icon: prev.icon ? { ...prev.icon, size: newSize } : prev.icon
+                                }));
+                              }}
+                              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+                        )}
+
+                        {/* Font Size Slider - Text elements only */}
+                        {(selectedElement === 'brand' || selectedElement === 'slogan') && logoElements[selectedElement] && (
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">
+                              Font Size: {(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.fontSize}px
+                            </label>
+                            <input
+                              type="range"
+                              min="8"
+                              max="72"
+                              value={(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.fontSize || 16}
+                              onChange={(e) => {
+                                const newSize = parseInt(e.target.value);
+                                setLogoElements(prev => ({
+                                  ...prev,
+                                  [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                    ...(prev[selectedElement as keyof typeof prev] as TextElement),
+                                    fontSize: newSize
+                                  } : prev[selectedElement as keyof typeof prev]
+                                }));
+                              }}
+                              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+                        )}
+
+                        {/* Icon Color - Icon only */}
+                        {selectedElement === 'icon' && logoElements.icon && (
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">Icon Color</label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={logoElements.icon.color}
+                                onChange={(e) => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    icon: prev.icon ? { ...prev.icon, color: e.target.value } : prev.icon
+                                  }));
+                                }}
+                                className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                              />
+                              <span className="text-white/50 text-xs">{logoElements.icon.color}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Text Color - Text elements only */}
+                        {(selectedElement === 'brand' || selectedElement === 'slogan') && logoElements[selectedElement] && (
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">Text Color</label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.color || '#000000'}
+                                onChange={(e) => {
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                      ...(prev[selectedElement as keyof typeof prev] as TextElement),
+                                      color: e.target.value
+                                    } : prev[selectedElement as keyof typeof prev]
+                                  }));
+                                }}
+                                className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                              />
+                              <span className="text-white/50 text-xs">{(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.color}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Text Alignment - Text elements only */}
+                        {(selectedElement === 'brand' || selectedElement === 'slogan') && logoElements[selectedElement] && (
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">Text Alignment</label>
+                            <div className="flex items-center justify-between bg-white/10 border border-white/20 rounded p-2">
+                              <button
+                                onClick={() => setLogoElements(prev => ({
+                                  ...prev,
+                                  [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                    ...(prev[selectedElement as keyof typeof prev] as TextElement),
+                                    textAlign: 'left'
+                                  } : prev[selectedElement as keyof typeof prev]
+                                }))}
+                                className={`flex-1 px-2 py-1 rounded text-xs transition-colors ${
+                                  (logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.textAlign === 'left'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                                }`}
+                              >
+                                Links
+                              </button>
+                              <button
+                                onClick={() => setLogoElements(prev => ({
+                                  ...prev,
+                                  [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                    ...(prev[selectedElement as keyof typeof prev] as TextElement),
+                                    textAlign: 'center'
+                                  } : prev[selectedElement as keyof typeof prev]
+                                }))}
+                                className={`flex-1 px-2 py-1 rounded text-xs transition-colors ${
+                                  (logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.textAlign === 'center'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                                }`}
+                              >
+                                Mitte
+                              </button>
+                              <button
+                                onClick={() => setLogoElements(prev => ({
+                                  ...prev,
+                                  [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                    ...(prev[selectedElement as keyof typeof prev] as TextElement),
+                                    textAlign: 'right'
+                                  } : prev[selectedElement as keyof typeof prev]
+                                }))}
+                                className={`flex-1 px-2 py-1 rounded text-xs transition-colors ${
+                                  (logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.textAlign === 'right'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                                }`}
+                              >
+                                Rechts
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       <p className="text-white/60 text-xs mb-3">Klicke und ziehe Icon, Brand Name oder Slogan um sie zu verschieben</p>
 
                       <div className="space-y-2">
@@ -2906,41 +3175,35 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       <div className="mt-4 p-1 bg-black/20 rounded-lg">
                         <label className="block text-white/80 text-sm mb-3">Standard Layouts</label>
 
-                        {/* Element Selection */}
+                        {/* Smart Element Selection */}
                         <div className="mb-3">
                           <span className="text-white/60 text-xs mb-2 block">Select Element:</span>
-                          <div className="grid grid-cols-1 gap-2 w-full">
-                            {logoElements.icon && (
-                              <button
-                                onClick={() => setSelectedElement('icon')}
-                                className={`px-3 py-2 rounded text-xs transition-colors ${
-                                  selectedElement === 'icon' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-                                }`}
-                              >
-                                🎯 Icon
-                              </button>
-                            )}
-                            {logoElements.brand && (
-                              <button
-                                onClick={() => setSelectedElement('brand')}
-                                className={`px-3 py-2 rounded text-xs transition-colors ${
-                                  selectedElement === 'brand' ? 'bg-green-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-                                }`}
-                              >
-                                📝 Brand
-                              </button>
-                            )}
-                            {logoElements.slogan && (
-                              <button
-                                onClick={() => setSelectedElement('slogan')}
-                                className={`px-3 py-2 rounded text-xs transition-colors ${
-                                  selectedElement === 'slogan' ? 'bg-purple-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-                                }`}
-                              >
-                                💬 Slogan
-                              </button>
-                            )}
-                          </div>
+                          <button
+                            onClick={() => {
+                              // Smart selection: cycle through available elements
+                              const availableElements = [];
+                              if (logoElements.icon) availableElements.push('icon');
+                              if (logoElements.brand) availableElements.push('brand');
+                              if (logoElements.slogan) availableElements.push('slogan');
+
+                              if (availableElements.length > 0) {
+                                const currentIndex = availableElements.indexOf(selectedElement);
+                                const nextIndex = (currentIndex + 1) % availableElements.length;
+                                setSelectedElement(availableElements[nextIndex] as 'icon' | 'brand' | 'slogan');
+                              }
+                            }}
+                            className={`w-full px-3 py-2 rounded text-xs transition-colors ${
+                              selectedElement === 'icon' ? 'bg-blue-600 text-white' :
+                              selectedElement === 'brand' ? 'bg-green-600 text-white' :
+                              selectedElement === 'slogan' ? 'bg-purple-600 text-white' :
+                              'bg-white/10 text-white/80 hover:bg-white/20'
+                            }`}
+                          >
+                            {selectedElement === 'icon' ? '🎯 Icon Selected' :
+                             selectedElement === 'brand' ? '📝 Brand Selected' :
+                             selectedElement === 'slogan' ? '💬 Slogan Selected' :
+                             '👆 Select Element'}
+                          </button>
                         </div>
 
                         {/* Universal Layout Buttons for Selected Element */}
@@ -3012,6 +3275,99 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                               } text-white`}
                             >
                               ↓ Unten
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Layout Buttons */}
+                        <div className="mt-3">
+                          <span className="text-white/60 text-xs mb-2 block">Quick Layout:</span>
+                          <div className="grid grid-cols-2 gap-2 w-full">
+                            <button
+                              onClick={() => {
+                                // Text + Icon (horizontal) - text-left arrangement
+                                if (logoElements.brand && logoElements.icon) {
+                                  setLogoElements(prev => {
+                                    const newState = {
+                                      ...prev,
+                                      brand: prev.brand ? { ...prev.brand, x: 150, y: 190 } : undefined,
+                                      icon: prev.icon ? { ...prev.icon, x: 250, y: 200 } : undefined
+                                    };
+                                    if (prev.slogan) {
+                                      newState.slogan = { ...prev.slogan, x: 150, y: 215 };
+                                    }
+                                    return newState;
+                                  });
+                                }
+                              }}
+                              className="px-3 py-2 rounded text-xs transition-colors bg-gray-600/80 hover:bg-gray-600 text-white"
+                            >
+                              📝⭐ Text+Icon
+                            </button>
+                            <button
+                              onClick={() => {
+                                // Icon + Text (horizontal) - icon-left arrangement
+                                if (logoElements.brand && logoElements.icon) {
+                                  setLogoElements(prev => {
+                                    const newState = {
+                                      ...prev,
+                                      icon: prev.icon ? { ...prev.icon, x: 150, y: 200 } : undefined,
+                                      brand: prev.brand ? { ...prev.brand, x: 250, y: 190 } : undefined
+                                    };
+                                    if (prev.slogan) {
+                                      newState.slogan = { ...prev.slogan, x: 250, y: 215 };
+                                    }
+                                    return newState;
+                                  });
+                                }
+                              }}
+                              className="px-3 py-2 rounded text-xs transition-colors bg-gray-600/80 hover:bg-gray-600 text-white"
+                            >
+                              ⭐📝 Icon+Text
+                            </button>
+                            <button
+                              onClick={() => {
+                                // Icon + Text (vertical) - icon-top arrangement
+                                if (logoElements.brand && logoElements.icon) {
+                                  setLogoElements(prev => {
+                                    const newState = {
+                                      ...prev,
+                                      icon: prev.icon ? { ...prev.icon, x: 200, y: 160 } : undefined,
+                                      brand: prev.brand ? { ...prev.brand, x: 200, y: 210 } : undefined
+                                    };
+                                    if (prev.slogan) {
+                                      newState.slogan = { ...prev.slogan, x: 200, y: 235 };
+                                    }
+                                    return newState;
+                                  });
+                                }
+                              }}
+                              className="px-3 py-2 rounded text-xs transition-colors bg-gray-600/80 hover:bg-gray-600 text-white"
+                            >
+                              ⭐
+                              📝 Vertical 1
+                            </button>
+                            <button
+                              onClick={() => {
+                                // Text + Icon (vertical) - text-top arrangement
+                                if (logoElements.brand && logoElements.icon) {
+                                  setLogoElements(prev => {
+                                    const newState = {
+                                      ...prev,
+                                      brand: prev.brand ? { ...prev.brand, x: 200, y: 160 } : undefined,
+                                      icon: prev.icon ? { ...prev.icon, x: 200, y: 220 } : undefined
+                                    };
+                                    if (prev.slogan) {
+                                      newState.slogan = { ...prev.slogan, x: 200, y: 185 };
+                                    }
+                                    return newState;
+                                  });
+                                }
+                              }}
+                              className="px-3 py-2 rounded text-xs transition-colors bg-gray-600/80 hover:bg-gray-600 text-white"
+                            >
+                              📝
+                              ⭐ Vertical 2
                             </button>
                           </div>
                         </div>
@@ -3150,198 +3506,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         )}
                       </div>
 
-                      {/* Element Size and Alignment Controls */}
-                      {selectedElement && logoElements[selectedElement as keyof typeof logoElements] && (
-                        <div className="border-t border-white/20 pt-3 mt-3">
-                          <label className="block text-white/80 text-sm mb-3">Element Controls</label>
-
-                          {/* Size Controls */}
-                          {selectedElement === 'icon' && logoElements.icon && (
-                            <>
-                              <div>
-                                <label className="block text-white/80 text-sm mb-1">Icon Size: {logoElements.icon.size}px</label>
-                                <input
-                                  type="range"
-                                  min="16"
-                                  max="120"
-                                  value={logoElements.icon.size}
-                                  onChange={(e) => {
-                                    const newSize = parseInt(e.target.value);
-                                    setLogoElements(prev => ({
-                                      ...prev,
-                                      icon: prev.icon ? { ...prev.icon, size: newSize } : prev.icon
-                                    }));
-                                  }}
-                                  className="w-full slider"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="block text-white/80 text-sm mb-1">Icon Color</label>
-                                <div className="flex items-center gap-2">
-                                  <input
-                                    type="color"
-                                    value={logoElements.icon.color}
-                                    onChange={(e) => {
-                                      setLogoElements(prev => ({
-                                        ...prev,
-                                        icon: prev.icon ? { ...prev.icon, color: e.target.value } : prev.icon
-                                      }));
-                                    }}
-                                    className="w-10 h-8 rounded border border-white/20 cursor-pointer"
-                                  />
-                                  <span className="text-white/60 text-sm">{logoElements.icon.color}</span>
-                                </div>
-                              </div>
-                            </>
-                          )}
-
-                          {/* Text Controls */}
-                          {(selectedElement === 'brand' || selectedElement === 'slogan') && logoElements[selectedElement as keyof typeof logoElements] && (
-                            <>
-                              <div>
-                                <label className="block text-white/80 text-sm mb-1">Font Size: {(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.fontSize}px</label>
-                                <input
-                                  type="range"
-                                  min="8"
-                                  max="72"
-                                  value={(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.fontSize || 16}
-                                  onChange={(e) => {
-                                    const newSize = parseInt(e.target.value);
-                                    setLogoElements(prev => ({
-                                      ...prev,
-                                      [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                        ...(prev[selectedElement as keyof typeof prev] as TextElement),
-                                        fontSize: newSize
-                                      } : prev[selectedElement as keyof typeof prev]
-                                    }));
-                                  }}
-                                  className="w-full slider"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="block text-white/80 text-sm mb-1">Text Color</label>
-                                <div className="flex items-center gap-2">
-                                  <input
-                                    type="color"
-                                    value={(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.color || '#000000'}
-                                    onChange={(e) => {
-                                      setLogoElements(prev => ({
-                                        ...prev,
-                                        [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                          ...(prev[selectedElement as keyof typeof prev] as TextElement),
-                                          color: e.target.value
-                                        } : prev[selectedElement as keyof typeof prev]
-                                      }));
-                                    }}
-                                    className="w-10 h-8 rounded border border-white/20 cursor-pointer"
-                                  />
-                                  <span className="text-white/60 text-sm">{(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.color}</span>
-                                </div>
-                              </div>
-
-                              <div>
-                                <label className="block text-white/80 text-sm mb-1">Text Alignment</label>
-                                <div className="flex items-center justify-between bg-white/10 border border-white/20 rounded p-2">
-                                  <button
-                                    onClick={() => setLogoElements(prev => ({
-                                      ...prev,
-                                      [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                        ...(prev[selectedElement as keyof typeof prev] as TextElement),
-                                        textAlign: 'left'
-                                      } : prev[selectedElement as keyof typeof prev]
-                                    }))}
-                                    className={`flex-1 px-3 py-1 rounded text-xs transition-colors ${
-                                      (logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.textAlign === 'left'
-                                        ? 'bg-blue-600 text-white'
-                                        : 'text-white/80 hover:text-white hover:bg-white/10'
-                                    }`}
-                                  >
-                                    Links
-                                  </button>
-                                  <button
-                                    onClick={() => setLogoElements(prev => ({
-                                      ...prev,
-                                      [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                        ...(prev[selectedElement as keyof typeof prev] as TextElement),
-                                        textAlign: 'center'
-                                      } : prev[selectedElement as keyof typeof prev]
-                                    }))}
-                                    className={`flex-1 px-3 py-1 rounded text-xs transition-colors ${
-                                      (logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.textAlign === 'center'
-                                        ? 'bg-blue-600 text-white'
-                                        : 'text-white/80 hover:text-white hover:bg-white/10'
-                                    }`}
-                                  >
-                                    Mitte
-                                  </button>
-                                  <button
-                                    onClick={() => setLogoElements(prev => ({
-                                      ...prev,
-                                      [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                        ...(prev[selectedElement as keyof typeof prev] as TextElement),
-                                        textAlign: 'right'
-                                      } : prev[selectedElement as keyof typeof prev]
-                                    }))}
-                                    className={`flex-1 px-3 py-1 rounded text-xs transition-colors ${
-                                      (logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.textAlign === 'right'
-                                        ? 'bg-blue-600 text-white'
-                                        : 'text-white/80 hover:text-white hover:bg-white/10'
-                                    }`}
-                                  >
-                                    Rechts
-                                  </button>
-                                </div>
-                              </div>
-                            </>
-                          )}
-
-                          {/* Rotation and Opacity Controls for all elements */}
-                          <div>
-                            <label className="block text-white/80 text-sm mb-1">Rotation: {Math.round((logoElements[selectedElement as keyof typeof logoElements] as any)?.rotation || 0)}°</label>
-                            <input
-                              type="range"
-                              min="-180"
-                              max="180"
-                              value={(logoElements[selectedElement as keyof typeof logoElements] as any)?.rotation || 0}
-                              onChange={(e) => {
-                                const newRotation = parseInt(e.target.value);
-                                setLogoElements(prev => ({
-                                  ...prev,
-                                  [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                    ...(prev[selectedElement as keyof typeof prev] as any),
-                                    rotation: newRotation
-                                  } : prev[selectedElement as keyof typeof prev]
-                                }));
-                              }}
-                              className="w-full slider"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-white/80 text-sm mb-1">Opacity: {Math.round(((logoElements[selectedElement as keyof typeof logoElements] as any)?.opacity || 1) * 100)}%</label>
-                            <input
-                              type="range"
-                              min="0.1"
-                              max="1"
-                              step="0.1"
-                              value={(logoElements[selectedElement as keyof typeof logoElements] as any)?.opacity || 1}
-                              onChange={(e) => {
-                                const newOpacity = parseFloat(e.target.value);
-                                setLogoElements(prev => ({
-                                  ...prev,
-                                  [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                    ...(prev[selectedElement as keyof typeof prev] as any),
-                                    opacity: newOpacity
-                                  } : prev[selectedElement as keyof typeof prev]
-                                }));
-                              }}
-                              className="w-full slider"
-                            />
-                          </div>
-                        </div>
-                      )}
 
                       <button
                         onClick={() => {
@@ -3556,9 +3720,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         className="flex items-center justify-center gap-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-sm transition-colors flex-1"
                       >
                         <X size={14} />
-                        Clear
+                        Reset All
                       </button>
                     </div>
+
                   </div>
 
                 </div>
