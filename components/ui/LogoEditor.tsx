@@ -1645,7 +1645,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 }}
               />
             )}
-            <div className="flex flex-col items-center text-center max-w-full px-4">
+            <div className="flex flex-col items-center text-center max-w-full px-2">
               <span
                 className="logo-text-preview"
                 style={{
@@ -1687,7 +1687,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         const isTextFirst = logoConfig.layout?.arrangement === 'text-left';
         
         return (
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-center gap-2">
             {/* Text first (text-left) or Icon first (icon-left) */}
             {isTextFirst ? (
               <>
@@ -1777,7 +1777,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 }}
               />
             )}
-            <div className="flex flex-col items-center text-center w-full max-w-full px-4">
+            <div className="flex flex-col items-center text-center w-full px-2">
               <span
                 className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
                 style={{
@@ -2116,7 +2116,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       </div>
 
       {/* Menu Panel - slides up from bottom on hover */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-white/20 rounded-b-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-xl">
+      <div className="absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-white/20 rounded-b-lg p-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-xl">
         <div className="flex gap-1 justify-center">
           <button
             onClick={handleEdit}
@@ -2141,7 +2141,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
       {/* Fullscreen Editor Modal */}
       {showFullscreenEditor && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2">
           <div className={`bg-gray-900 w-full h-full flex ${
             isTrueFullscreen ? 'rounded-none max-w-none max-h-none' : 'rounded-lg max-w-6xl max-h-[90vh]'
           }`}>
@@ -2317,7 +2317,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             </div>
 
             {/* Editor Controls Side */}
-            <div className="w-[550px] p-6 overflow-y-auto bg-gradient-to-b from-gray-800/50 to-gray-900/80 backdrop-blur-sm">
+            <div className="w-[30vw] p-6 overflow-y-auto bg-gradient-to-b from-gray-800/50 to-gray-900/80 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
                 <div>
                   <h3 className="text-white font-bold text-2xl mb-1">Edit Logo</h3>
@@ -2333,76 +2333,64 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
               </div>
 
               <div className="flex gap-4 h-full">
-                {/* LEFT PANEL (50%) */}
+                {/* LEFT PANEL (70%) */}
                 <div className="flex-1 space-y-6 overflow-y-auto">
                 {/* Drawing Tools Section */}
                 <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
-                  <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-                    <Brush size={20} className="text-blue-400" />
+                  <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
+                    <Brush size={16} className="text-blue-400" />
                     Drawing Tools
                   </h4>
-                  
+
                   {/* Tool Selection */}
-                  <div className="grid grid-cols-4 gap-2 mb-4">
+                  <div className="grid grid-cols-1 gap-1 mb-3 w-full">
                     <button
                       onClick={() => setDrawingTool('brush')}
-                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                      className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
                         drawingTool === 'brush' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
                       }`}
                     >
-                      <Brush size={16} />
-                      Brush
+                      <Brush size={14} />
                     </button>
                     <button
                       onClick={() => setDrawingTool('eraser')}
-                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                      className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
                         drawingTool === 'eraser' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
                       }`}
                     >
-                      <Eraser size={16} />
-                      Eraser
+                      <Eraser size={14} />
                     </button>
                     <button
                       onClick={() => setDrawingTool('box')}
-                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                      className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
                         drawingTool === 'box' ? 'bg-purple-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
                       }`}
                     >
-                      <Square size={16} />
-                      Box
+                      <Square size={14} />
                     </button>
                     <button
                       onClick={() => setDrawingTool('line')}
-                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                      className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
                         drawingTool === 'line' ? 'bg-orange-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
                       }`}
                     >
-                      📏 Line
+                      📏
                     </button>
                     <button
                       onClick={() => setDrawingTool('eyedropper')}
-                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                      className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
                         drawingTool === 'eyedropper' ? 'bg-teal-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
                       }`}
                     >
-                      <Pipette size={16} />
+                      <Pipette size={14} />
                     </button>
                     <button
                       onClick={() => setDrawingTool('move')}
-                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                      className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
                         drawingTool === 'move' ? 'bg-green-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
                       }`}
                     >
-                      <Move size={16} />
-                      Move
-                    </button>
-                    <button
-                      onClick={() => setDrawingTool('place')}
-                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
-                        drawingTool === 'place' ? 'bg-indigo-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      📍 Place
+                      <Move size={14} />
                     </button>
                   </div>
 
@@ -2410,12 +2398,12 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
                   {/* Background Color Selector - Show when background or original layer is selected */}
                   {(editLayers.find(l => l.id === activeLayer)?.type === 'background' || editLayers.find(l => l.id === activeLayer)?.type === 'original') && (
-                    <div className="bg-white/5 rounded-xl mb-6 overflow-hidden border border-white/10">
-                      <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10">
+                    <div className="bg-white/5 rounded-xl mb-6 overflow-hidden border border-white/10 w-full">
+                      <div className="flex items-center gap-2 px-2 py-3 border-b border-white/10">
                         <Palette className="w-4 h-4 text-white" />
                         <span className="font-semibold text-white">Background Color</span>
                       </div>
-                      <div className="p-4">
+                      <div className="p-2">
                         {(() => {
                           const currentBg = editLayers.find(l => l.id === activeLayer)?.backgroundColor || '#ffffff';
                           const isGradient = currentBg.includes('linear-gradient');
@@ -2481,7 +2469,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                               {isGradient ? (
                                 <div className="space-y-4">
                                   {/* Gradient Direction */}
-                                  <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-1">
                                     <span className="text-white/70 text-sm w-20">Direction:</span>
                                     <input
                                       type="range"
@@ -2501,7 +2489,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                   </div>
 
                                   {/* 3-Color Toggle */}
-                                  <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-1">
                                     <span className="text-white/70 text-sm w-20">Colors:</span>
                                     <button
                                       onClick={() => {
@@ -2521,7 +2509,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                   </div>
 
                                   {/* Color Controls */}
-                                  <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-1">
                                     <span className="text-white/70 text-sm w-20">Color 1:</span>
                                     <input
                                       type="color"
@@ -2535,7 +2523,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                       className="flex-1 h-10 rounded border border-white/20 bg-transparent"
                                     />
                                   </div>
-                                  <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-1">
                                     <span className="text-white/70 text-sm w-20">Color 2:</span>
                                     <input
                                       type="color"
@@ -2550,7 +2538,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                     />
                                   </div>
                                   {use3Colors && (
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-1">
                                       <span className="text-white/70 text-sm w-20">Color 3:</span>
                                       <input
                                         type="color"
@@ -2567,7 +2555,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                   {/* Gradient Presets */}
                                   <div>
                                     <span className="text-white/70 text-sm block mb-2">Gradient Presets:</span>
-                                    <div className="grid grid-cols-3 gap-2">
+                                    <div className="grid grid-cols-1 gap-2 w-full">
                                       {[
                                         'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                         'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
@@ -2595,7 +2583,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                     onChange={(e) => updateLayerBackgroundColor(activeLayer, e.target.value)}
                                     className="w-full h-12 rounded-lg border border-white/20 bg-transparent"
                                   />
-                                  <div className="mt-3 grid grid-cols-6 gap-2">
+                                  <div className="mt-3 grid grid-cols-1 gap-2">
                                     {['#ffffff', '#f3f4f6', '#e5e7eb', '#d1d5db', '#9ca3af', '#6b7280', '#374151', '#111827', '#000000'].map(color => (
                                       <button
                                         key={color}
@@ -2625,11 +2613,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
                   {/* Place Tool Settings */}
                   {drawingTool === 'place' && (
-                    <div className="bg-white/10 rounded p-3 mb-4">
+                    <div className="bg-white/10 rounded p-1 mb-4">
                       <label className="block text-white/80 text-sm mb-2">Select Element to Place</label>
                       <p className="text-white/60 text-xs mb-3">Wähle ein Element aus und klicke dann im Logo, um es zu positionieren</p>
 
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-1 gap-2 w-full">
                         {logoElements.brand && (
                           <button
                             onClick={() => setSelectedElementToPlace('brand')}
@@ -2670,7 +2658,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         {boxes.length > 0 && (
                           <div className="col-span-2">
                             <label className="block text-white/80 text-xs mb-2">Available Boxes</label>
-                            <div className="grid grid-cols-2 gap-1">
+                            <div className="grid grid-cols-1 gap-1 w-full">
                               {boxes.map((box) => (
                                 <button
                                   key={box.id}
@@ -2707,7 +2695,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
                   {/* Move Tool Settings */}
                   {drawingTool === 'move' && (
-                    <div className="bg-white/10 rounded p-3 mb-4">
+                    <div className="bg-white/10 rounded p-1 mb-4">
                       <label className="block text-white/80 text-sm mb-2">Element Position</label>
                       <p className="text-white/60 text-xs mb-3">Klicke und ziehe Icon, Brand Name oder Slogan um sie zu verschieben</p>
 
@@ -2733,14 +2721,14 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       </div>
 
                       {/* Layout Positioning Buttons */}
-                      <div className="mt-4 p-3 bg-black/20 rounded-lg">
+                      <div className="mt-4 p-1 bg-black/20 rounded-lg">
                         <label className="block text-white/80 text-sm mb-3">Standard Layouts</label>
 
                         {/* Icon Layout Buttons */}
                         {logoElements.icon && !logoElements.icon.permanent && (
                           <div className="mb-3">
                             <span className="text-white/60 text-xs mb-2 block">Icon Position:</span>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 gap-2 w-full">
                               <button
                                 onClick={() => {
                                   setLogoElements(prev => ({
@@ -2793,7 +2781,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         {logoElements.brand && !logoElements.brand.permanent && (
                           <div className="mb-3">
                             <span className="text-white/60 text-xs mb-2 block">Brand Position:</span>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 gap-2 w-full">
                               <button
                                 onClick={() => {
                                   setLogoElements(prev => ({
@@ -2846,7 +2834,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         {logoElements.slogan && !logoElements.slogan.permanent && (
                           <div className="mb-3">
                             <span className="text-white/60 text-xs mb-2 block">Slogan Position:</span>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 gap-2 w-full">
                               <button
                                 onClick={() => {
                                   setLogoElements(prev => ({
@@ -3245,12 +3233,12 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
                   {/* Eraser Mode Settings */}
                   {drawingTool === 'eraser' && (
-                    <div className="bg-white/10 rounded p-3 mb-4">
+                    <div className="bg-white/10 rounded p-1 mb-4">
                       <label className="block text-white/80 text-sm mb-2">Eraser-Modus</label>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-1 gap-2 w-full">
                         <button
                           onClick={() => setEraserMode('brush')}
-                          className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
                             eraserMode === 'brush' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
                           }`}
                         >
@@ -3259,7 +3247,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         </button>
                         <button
                           onClick={() => setEraserMode('line')}
-                          className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
                             eraserMode === 'line' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
                           }`}
                         >
@@ -3602,8 +3590,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
                 </div>
 
-                {/* RIGHT PANEL (50%) */}
-                <div className="flex-1 space-y-4 overflow-y-auto">
+                {/* RIGHT PANEL - SIMPLE */}
+                <div className="w-full space-y-3 overflow-y-auto">
                   {/* Layer Manager */}
                   <LayerManager
                     editLayers={editLayers}
@@ -3616,22 +3604,22 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     onAddCustomLayer={addCustomLayer}
                   />
                 {/* Text Section */}
-                <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
-                  <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-                    <User size={20} className="text-purple-400" />
+                <div className="bg-white/5 rounded-lg p-2 border border-white/10 backdrop-blur-sm overflow-hidden">
+                  <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
+                    <User size={16} className="text-purple-400" />
                     Text
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div>
                       <label className="block text-white/80 text-sm mb-1">Brand Name</label>
                       <input
                         type="text"
                         value={localConfig.text}
                         onChange={(e) => updateLocalConfig({ text: e.target.value })}
-                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white"
+                        className="w-full px-2 py-1.5 bg-white/10 border border-white/20 rounded text-white text-sm box-border"
                         placeholder="Enter brand name"
                       />
-                      <div className="mt-2">
+                      <div className="mt-1.5">
                         <label className="block text-white/60 text-xs mb-1">Brand Name Color</label>
                         <div className="flex items-center gap-2">
                           <input
@@ -3641,7 +3629,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                               setBrandNameColor(e.target.value);
                               // Note: brandNameColor is managed separately from LogoConfig
                             }}
-                            className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                            className="w-6 h-5 rounded border border-white/20 cursor-pointer"
                           />
                           <span className="text-white/50 text-xs">{brandNameColor}</span>
                         </div>
@@ -3653,10 +3641,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         type="text"
                         value={localConfig.slogan}
                         onChange={(e) => updateLocalConfig({ slogan: e.target.value })}
-                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white"
+                        className="w-full px-2 py-1.5 bg-white/10 border border-white/20 rounded text-white text-sm box-border"
                         placeholder="Enter slogan"
                       />
-                      <div className="mt-2">
+                      <div className="mt-1.5">
                         <label className="block text-white/60 text-xs mb-1">Slogan Color</label>
                         <div className="flex items-center gap-2">
                           <input
@@ -3666,7 +3654,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                               setSloganColor(e.target.value);
                               // Note: sloganColor is managed separately from LogoConfig
                             }}
-                            className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                            className="w-6 h-5 rounded border border-white/20 cursor-pointer"
                           />
                           <span className="text-white/50 text-xs">{sloganColor}</span>
                         </div>
@@ -3692,7 +3680,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             onConfigUpdate({ font: newFont });
                           }
                         }}
-                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white text-sm mb-3"
+                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white text-sm mb-3 box-border"
                       >
                         {fontCategories.map(category => (
                           <optgroup key={category.name} label={category.name}>
@@ -3753,9 +3741,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                           const clampedWeight = Math.max(minWeight, Math.min(maxWeight, currentFontWeight));
 
                           return (
-                            <div className="bg-white/5 rounded-lg p-3">
-                              <div className="flex items-center gap-3 mb-2">
-                                <span className="text-xs text-white/60 min-w-[60px]">Weight:</span>
+                            <div className="bg-white/5 rounded-lg p-1 w-full">
+                              <div className="flex items-center gap-1 mb-2">
+                                <span className="text-xs text-white/60 ">Weight:</span>
                                 <input
                                   type="range"
                                   min={minWeight}
@@ -3776,7 +3764,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                   }}
                                   className="flex-1 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
                                 />
-                                <span className="text-sm text-white min-w-[80px] text-right">
+                                <span className="text-sm text-white  text-right">
                                   {getWeightName(clampedWeight)}
                                 </span>
                               </div>
@@ -3797,29 +3785,29 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 </div>
 
                 {/* Icon Section */}
-                <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
-                  <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-                    <Star size={20} className="text-yellow-400" />
+                <div className="bg-white/5 rounded-lg p-2 border border-white/10 backdrop-blur-sm overflow-hidden">
+                  <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
+                    <Star size={16} className="text-yellow-400" />
                     Icon
                   </h4>
-                  <div className="grid grid-cols-6 gap-2 mb-3">
+                  <div className="grid grid-cols-1 gap-1 mb-2">
                     <button
                       onClick={() => updateLocalConfig({ icon: null })}
-                      className={`p-2 rounded border transition-colors ${
+                      className={`p-1.5 rounded border transition-colors ${
                         !localConfig.icon ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
                       }`}
                     >
-                      <span className="text-white/60 text-xs">None</span>
+                      <span className="text-white/60 text-[10px]">None</span>
                     </button>
                     {availableIcons.slice(0, 17).map(icon => (
                       <button
                         key={icon.id}
                         onClick={() => updateLocalConfig({ icon })}
-                        className={`p-2 rounded border transition-colors ${
+                        className={`p-1.5 rounded border transition-colors ${
                           localConfig.icon?.id === icon.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
                         }`}
                       >
-                        <icon.component size={20} color="white" className="mx-auto" />
+                        <icon.component size={16} color="white" className="mx-auto" />
                       </button>
                     ))}
                   </div>
@@ -3848,38 +3836,38 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
                 {/* Advanced Eyedropper Section */}
                 {drawingTool === 'eyedropper' && (
-                  <div className="bg-white/5 rounded-xl p-4 border border-white/10 backdrop-blur-sm mb-6">
-                    <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-                      <Pipette size={20} className="text-teal-400" />
+                  <div className="bg-white/5 rounded-lg p-1 border border-white/10 backdrop-blur-sm mb-4 w-full">
+                    <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
+                      <Pipette size={16} className="text-teal-400" />
                       Color Picker
                     </h4>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {/* Instructions */}
-                      <div className="bg-teal-600/10 rounded-lg p-3 border border-teal-400/20">
-                        <p className="text-teal-300 text-sm">
+                      <div className="bg-teal-600/10 rounded-lg p-2 border border-teal-400/20">
+                        <p className="text-teal-300 text-xs">
                           🎨 Klicke auf beliebige Elemente im Logo um deren Farbe zu sampeln
                         </p>
                       </div>
 
                       {/* Sampled Color Display */}
                       {sampledColor && (
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           <div>
                             <label className="block text-white/80 text-sm mb-2">Gesampelte Farbe</label>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1">
                               <div
-                                className="w-16 h-16 rounded-lg border-2 border-white/20 shadow-lg"
+                                className="w-12 h-12 rounded-lg border-2 border-white/20 shadow-lg"
                                 style={{ backgroundColor: sampledColor }}
                               ></div>
                               <div className="flex-1 space-y-2">
-                                <div className="bg-white/10 rounded px-3 py-2 border border-white/20">
-                                  <code className="text-white font-mono text-sm">{sampledColor}</code>
+                                <div className="bg-white/10 rounded px-2 py-1 border border-white/20">
+                                  <code className="text-white font-mono text-xs">{sampledColor}</code>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex gap-1">
                                   <button
                                     onClick={() => navigator.clipboard.writeText(sampledColor)}
-                                    className="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-white rounded text-xs transition-colors"
+                                    className="px-1.5 py-0.5 bg-gray-600 hover:bg-gray-500 text-white rounded text-[10px] transition-colors"
                                   >
                                     Copy
                                   </button>
@@ -3911,7 +3899,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                           {/* Apply to Elements */}
                           <div>
                             <label className="block text-white/80 text-sm mb-2">Apply to Tools</label>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 gap-2 w-full">
                               <button
                                 onClick={() => setBrushColor(sampledColor)}
                                 className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded text-xs transition-colors"
@@ -3951,7 +3939,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   {/* Color Palettes */}
                   <div className="mb-4">
                     <h5 className="text-white/80 text-sm mb-2">Predefined Palettes</h5>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 gap-2 w-full">
                       {availablePalettes.slice(0, 12).map(palette => (
                         <button
                           key={palette.id}
@@ -3967,7 +3955,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             }
                             setForceRender(prev => prev + 1);
                           }}
-                          className={`p-2 rounded border transition-colors ${
+                          className={`p-1.5 rounded border transition-colors ${
                             localConfig.palette?.id === palette.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
                           }`}
                         >
@@ -3993,15 +3981,15 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   availablePalettes={availablePalettes}
                   onConfigUpdate={onConfigUpdate}
                 />
-              </div>
 
-              {/* Export Panel */}
-              <ExportPanel
-                onSave={handleSave}
-                onPurchase={handlePurchase}
-                showPurchaseButton={true}
-                showDownloadOptions={false}
-              />
+                {/* Export Panel */}
+                <ExportPanel
+                  onSave={handleSave}
+                  onPurchase={handlePurchase}
+                  showPurchaseButton={true}
+                  showDownloadOptions={false}
+                />
+              </div>
                 </div>
               </div>
             </div>

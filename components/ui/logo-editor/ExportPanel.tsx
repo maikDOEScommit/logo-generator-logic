@@ -22,22 +22,22 @@ export const ExportPanel = ({
   isProcessing = false
 }: ExportPanelProps) => {
   return (
-    <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
-      <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-        <Download size={20} className="text-green-400" />
+    <div className="bg-white/5 rounded-lg p-4 border border-white/10 backdrop-blur-sm">
+      <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
+        <Download size={16} className="text-green-400" />
         Export & Save
       </h4>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-1 gap-2">
           {/* Save Button */}
           <button
             onClick={onSave}
             disabled={isProcessing}
-            className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white py-3 px-4 rounded-lg font-medium transition-colors"
+            className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white py-2 px-3 rounded-lg font-medium text-sm transition-colors"
           >
-            <Save size={18} />
+            <Save size={16} />
             {isProcessing ? 'Saving...' : 'Save Changes'}
           </button>
 
@@ -46,9 +46,9 @@ export const ExportPanel = ({
             <button
               onClick={onPurchase}
               disabled={isProcessing}
-              className="flex items-center justify-center gap-2 w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white py-3 px-4 rounded-lg font-medium transition-colors"
+              className="flex items-center justify-center gap-2 w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white py-2 px-3 rounded-lg font-medium text-sm transition-colors"
             >
-              <ShoppingCart size={18} />
+              <ShoppingCart size={16} />
               Get High-Quality Files
             </button>
           )}
@@ -56,15 +56,15 @@ export const ExportPanel = ({
 
         {/* Download Options */}
         {showDownloadOptions && (
-          <div className="pt-4 border-t border-white/20">
-            <h5 className="text-white/80 text-sm mb-3">Quick Downloads</h5>
-            <div className="grid grid-cols-1 gap-2">
+          <div className="pt-3 border-t border-white/20">
+            <h5 className="text-white/80 text-xs mb-2">Quick Downloads</h5>
+            <div className="grid grid-cols-1 gap-1.5">
               {/* PNG Download */}
               {onDownloadPNG && (
                 <button
                   onClick={onDownloadPNG}
                   disabled={isProcessing}
-                  className="flex items-center justify-between w-full p-3 bg-white/10 hover:bg-white/20 disabled:bg-gray-600/50 text-white rounded-lg transition-colors"
+                  className="flex items-center justify-between w-full p-2 bg-white/10 hover:bg-white/20 disabled:bg-gray-600/50 text-white rounded-lg transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <FileImage size={16} />
@@ -79,7 +79,7 @@ export const ExportPanel = ({
                 <button
                   onClick={onDownloadSVG}
                   disabled={isProcessing}
-                  className="flex items-center justify-between w-full p-3 bg-white/10 hover:bg-white/20 disabled:bg-gray-600/50 text-white rounded-lg transition-colors"
+                  className="flex items-center justify-between w-full p-2 bg-white/10 hover:bg-white/20 disabled:bg-gray-600/50 text-white rounded-lg transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <FileImage size={16} />
@@ -94,7 +94,7 @@ export const ExportPanel = ({
                 <button
                   onClick={onDownloadJPG}
                   disabled={isProcessing}
-                  className="flex items-center justify-between w-full p-3 bg-white/10 hover:bg-white/20 disabled:bg-gray-600/50 text-white rounded-lg transition-colors"
+                  className="flex items-center justify-between w-full p-2 bg-white/10 hover:bg-white/20 disabled:bg-gray-600/50 text-white rounded-lg transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <FileImage size={16} />

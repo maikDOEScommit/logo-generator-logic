@@ -42,19 +42,19 @@ export const BackgroundSettingsPanel = ({
   ];
 
   return (
-    <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
-      <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-        <Palette size={20} className="text-pink-400" />
+    <div className="bg-white/5 rounded-lg p-4 border border-white/10 backdrop-blur-sm">
+      <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
+        <Palette size={16} className="text-pink-400" />
         Background
       </h4>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {/* Current Background Info */}
-        <div className="p-3 bg-white/10 rounded-lg border border-white/20">
-          <p className="text-white/80 text-sm mb-2">Current Background:</p>
+        <div className="p-2 bg-white/10 rounded-lg border border-white/20">
+          <p className="text-white/80 text-xs mb-1.5">Current Background:</p>
           <div className="flex items-center gap-2">
             <div
-              className="w-8 h-8 rounded border border-white/20"
+              className="w-6 h-6 rounded border border-white/20"
               style={{
                 background: variation?.backgroundColor ||
                            backgroundLayer?.backgroundColor ||
@@ -72,8 +72,8 @@ export const BackgroundSettingsPanel = ({
 
         {/* Solid Colors */}
         <div>
-          <label className="block text-white/80 text-sm mb-2">Solid Colors</label>
-          <div className="grid grid-cols-8 gap-2">
+          <label className="block text-white/80 text-xs mb-1.5">Solid Colors</label>
+          <div className="grid grid-cols-8 gap-1.5">
             {solidColors.map((color, index) => (
               <button
                 key={index}
@@ -83,7 +83,7 @@ export const BackgroundSettingsPanel = ({
                   }
                   onConfigUpdate({ backgroundColor: color });
                 }}
-                className="w-8 h-8 rounded border-2 border-white/20 hover:border-white/50 transition-colors"
+                className="w-6 h-6 rounded border-2 border-white/20 hover:border-white/50 transition-colors"
                 style={{ backgroundColor: color }}
                 title={color}
               />
@@ -93,7 +93,7 @@ export const BackgroundSettingsPanel = ({
 
         {/* Custom Color Picker */}
         <div>
-          <label className="block text-white/80 text-sm mb-2">Custom Color</label>
+          <label className="block text-white/80 text-xs mb-1.5">Custom Color</label>
           <div className="flex items-center gap-2">
             <input
               type="color"
@@ -103,7 +103,7 @@ export const BackgroundSettingsPanel = ({
                 }
                 onConfigUpdate({ backgroundColor: e.target.value });
               }}
-              className="w-12 h-8 rounded border border-white/20 cursor-pointer"
+              className="w-10 h-6 rounded border border-white/20 cursor-pointer"
               title="Pick custom background color"
             />
             <span className="text-white/60 text-xs">Pick any color</span>
@@ -112,8 +112,8 @@ export const BackgroundSettingsPanel = ({
 
         {/* Gradient Presets */}
         <div>
-          <label className="block text-white/80 text-sm mb-2">Gradient Backgrounds</label>
-          <div className="grid grid-cols-2 gap-2">
+          <label className="block text-white/80 text-xs mb-1.5">Gradient Backgrounds</label>
+          <div className="grid grid-cols-2 gap-1.5">
             {gradientPresets.map((gradient, index) => (
               <button
                 key={index}
@@ -123,12 +123,12 @@ export const BackgroundSettingsPanel = ({
                   }
                   onConfigUpdate({ backgroundColor: gradient.value });
                 }}
-                className="relative h-12 rounded border-2 border-white/20 hover:border-white/50 transition-colors overflow-hidden"
+                className="relative h-8 rounded border-2 border-white/20 hover:border-white/50 transition-colors overflow-hidden"
                 style={{ background: gradient.value }}
                 title={gradient.name}
               >
                 <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                  <span className="text-white text-xs font-medium">{gradient.name}</span>
+                  <span className="text-white text-[10px] font-medium">{gradient.name}</span>
                 </div>
               </button>
             ))}
@@ -137,8 +137,8 @@ export const BackgroundSettingsPanel = ({
 
         {/* Palette Integration */}
         <div>
-          <label className="block text-white/80 text-sm mb-2">From Color Palettes</label>
-          <div className="grid grid-cols-2 gap-2">
+          <label className="block text-white/80 text-xs mb-1.5">From Color Palettes</label>
+          <div className="grid grid-cols-2 gap-1.5">
             {availablePalettes.slice(0, 6).map((palette) => (
               <button
                 key={palette.id}

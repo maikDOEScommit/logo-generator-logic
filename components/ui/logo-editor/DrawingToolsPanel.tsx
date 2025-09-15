@@ -16,88 +16,77 @@ export const DrawingToolsPanel = ({
   canUndo
 }: DrawingToolsPanelProps) => {
   return (
-    <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
-      <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-        <Brush size={20} className="text-blue-400" />
+    <div className="bg-white/5 rounded-lg p-4 border border-white/10 backdrop-blur-sm w-full max-w-full">
+      <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
+        <Brush size={16} className="text-blue-400" />
         Drawing Tools
       </h4>
 
       {/* Tool Selection */}
-      <div className="grid grid-cols-4 gap-2 mb-4">
+      <div className="grid grid-cols-3 gap-1.5 mb-3">
         <button
           onClick={() => setDrawingTool('brush')}
-          className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
             drawingTool === 'brush' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
           }`}
         >
-          <Brush size={16} />
-          Brush
+          <Brush size={14} />
         </button>
         <button
           onClick={() => setDrawingTool('eraser')}
-          className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
             drawingTool === 'eraser' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
           }`}
         >
-          <Eraser size={16} />
-          Eraser
+          <Eraser size={14} />
         </button>
         <button
           onClick={() => setDrawingTool('box')}
-          className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
             drawingTool === 'box' ? 'bg-purple-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
           }`}
         >
-          <Square size={16} />
-          Box
+          <Square size={14} />
         </button>
         <button
           onClick={() => setDrawingTool('line')}
-          className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
             drawingTool === 'line' ? 'bg-orange-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
           }`}
         >
-          📏 Line
+          📏
         </button>
         <button
           onClick={() => setDrawingTool('eyedropper')}
-          className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
             drawingTool === 'eyedropper' ? 'bg-teal-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
           }`}
         >
-          <Pipette size={16} />
+          <Pipette size={14} />
         </button>
         <button
           onClick={() => setDrawingTool('move')}
-          className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
             drawingTool === 'move' ? 'bg-green-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
           }`}
         >
-          <Move size={16} />
-        </button>
-        <button
-          onClick={() => setDrawingTool('place')}
-          className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
-            drawingTool === 'place' ? 'bg-indigo-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-          }`}
-        >
-          📍 Place
+          <Move size={14} />
         </button>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         <button
           onClick={onUndoLastStroke}
           disabled={!canUndo}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-yellow-600/80 hover:bg-yellow-600 disabled:bg-gray-600/50 disabled:cursor-not-allowed text-white rounded text-sm transition-colors"
+          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 bg-yellow-600/80 hover:bg-yellow-600 disabled:bg-gray-600/50 disabled:cursor-not-allowed text-white rounded text-xs transition-colors"
         >
-          <RotateCcw size={16} />
+          <RotateCcw size={14} />
           Undo
         </button>
         <button
           onClick={onClearAllStrokes}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-600/80 hover:bg-red-600 text-white rounded text-sm transition-colors"
+          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 bg-red-600/80 hover:bg-red-600 text-white rounded text-xs transition-colors"
         >
           🗑️ Clear
         </button>

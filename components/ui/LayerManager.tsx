@@ -55,21 +55,21 @@ export const LayerManager = ({
   };
 
   return (
-    <div className="bg-white/5 rounded-xl mb-6 overflow-hidden border border-white/10">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+    <div className="bg-white/5 rounded-lg mb-4 overflow-hidden border border-white/10">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-white/10">
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-white" />
           <span className="font-semibold text-white">Layers</span>
         </div>
       </div>
 
-      <div className="p-3 space-y-2">
+      <div className="p-2 space-y-1.5">
         {editLayers
           .sort((a, b) => b.order - a.order)
           .map((layer) => (
           <div
             key={layer.id}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all ${
+            className={`flex items-center gap-2 px-2 py-1.5 rounded-lg border cursor-pointer transition-all ${
               activeLayer === layer.id
                 ? "bg-gray-700 border-blue-500"
                 : "bg-gray-700/50 border-transparent hover:bg-gray-700"
@@ -88,8 +88,8 @@ export const LayerManager = ({
                 <EyeOff className="w-4 h-4 text-gray-500" />
               )}
             </button>
-            <span className="flex-1 text-sm text-white">{layer.name}</span>
-            <div className="flex items-center gap-1">
+            <span className="flex-1 text-xs text-white">{layer.name}</span>
+            <div className="flex items-center gap-0.5">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
