@@ -52,7 +52,15 @@ export const TextSettingsPanel = ({
       </h4>
       <div className="space-y-3">
         <div>
-          <label className="block text-white/80 text-sm mb-1">Brand Name</label>
+          <div className="flex items-center gap-2 mb-1">
+            <label className="text-white/80 text-sm">Brand Name</label>
+            <input
+              type="color"
+              value={brandNameColor}
+              onChange={(e) => setBrandNameColor(e.target.value)}
+              className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+            />
+          </div>
           <input
             type="text"
             value={localConfig.text}
@@ -60,21 +68,17 @@ export const TextSettingsPanel = ({
             className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white"
             placeholder="Enter brand name"
           />
-          <div className="mt-2">
-            <label className="block text-white/60 text-xs mb-1">Brand Name Color</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={brandNameColor}
-                onChange={(e) => setBrandNameColor(e.target.value)}
-                className="w-8 h-6 rounded border border-white/20 cursor-pointer"
-              />
-              <span className="text-white/50 text-xs">{brandNameColor}</span>
-            </div>
-          </div>
         </div>
         <div>
-          <label className="block text-white/80 text-sm mb-1">Slogan</label>
+          <div className="flex items-center gap-2 mb-1">
+            <label className="text-white/80 text-sm">Slogan</label>
+            <input
+              type="color"
+              value={sloganColor}
+              onChange={(e) => setSloganColor(e.target.value)}
+              className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+            />
+          </div>
           <input
             type="text"
             value={localConfig.slogan}
@@ -82,18 +86,6 @@ export const TextSettingsPanel = ({
             className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded text-white"
             placeholder="Enter slogan"
           />
-          <div className="mt-2">
-            <label className="block text-white/60 text-xs mb-1">Slogan Color</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={sloganColor}
-                onChange={(e) => setSloganColor(e.target.value)}
-                className="w-8 h-6 rounded border border-white/20 cursor-pointer"
-              />
-              <span className="text-white/50 text-xs">{sloganColor}</span>
-            </div>
-          </div>
         </div>
         <div>
           <label className="block text-white/80 text-sm mb-1">Font Family</label>

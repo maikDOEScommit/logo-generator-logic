@@ -88,20 +88,20 @@ export const ToolSettings = ({
       {/* Brush and Eraser Settings */}
       {(drawingTool === 'brush' || drawingTool === 'eraser') && (
         <>
-          <div>
-            <label className="block text-white/80 text-sm mb-1">
-              {drawingTool === 'brush' ? 'Brush Color' : 'Eraser Color'}
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={brushColor}
-                onChange={(e) => onBrushColorChange(e.target.value)}
-                className="w-10 h-8 rounded border border-white/20 cursor-pointer"
-              />
-              <span className="text-white/60 text-sm">{brushColor}</span>
+          {drawingTool === 'brush' && (
+            <div>
+              <label className="block text-white/80 text-sm mb-1">Brush Color</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={brushColor}
+                  onChange={(e) => onBrushColorChange(e.target.value)}
+                  className="w-10 h-8 rounded border border-white/20 cursor-pointer"
+                />
+                <span className="text-white/60 text-sm">{brushColor}</span>
+              </div>
             </div>
-          </div>
+          )}
 
           <div>
             <label className="block text-white/80 text-sm mb-1">Brush/Eraser Size: {brushSize}px</label>
@@ -139,7 +139,7 @@ export const ToolSettings = ({
             <label className="block text-white/80 text-sm mb-1">
               {drawingTool === 'brush' ? 'Pinselende' : 'Radiererenden'}
             </label>
-            <div className="flex items-center justify-between bg-white/10 border border-white/20 rounded p-2">
+            <div className="flex items-center justify-between bg-white/10 border border-white/20 rounded p-2 w-[58.5%]">
               <button
                 onClick={() => onBrushLineCapChange('round')}
                 className={`flex-1 px-3 py-2 rounded text-sm transition-colors ${

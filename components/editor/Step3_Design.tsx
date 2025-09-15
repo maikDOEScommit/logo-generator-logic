@@ -471,9 +471,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 </div>
                 <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
                   {regularIcons.slice(0, visibleIconCount).map(icon => (
-                    <SelectionCard 
-                      key={icon.id} 
-                      isSelected={config.icon?.id === icon.id} 
+                    <SelectionCard
+                      key={icon.id}
+                      isSelected={config.icon?.id === icon.id}
                       onClick={() => {
                         updateConfig({ icon });
                         // Trigger background progression when icon is selected
@@ -489,7 +489,12 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                         }, 100);
                       }}
                     >
-                      <icon.component className="w-12 h-12 mx-auto" color={config.palette ? config.palette.colors[1] : 'white'} />
+                      <div className="flex flex-col items-center gap-2">
+                        <icon.component className="w-12 h-12 mx-auto" color={config.palette ? config.palette.colors[1] : 'white'} />
+                        <span className="text-xs text-white/60 text-center leading-tight px-1" style={{ fontSize: '10px' }}>
+                          {icon.name || icon.id}
+                        </span>
+                      </div>
                     </SelectionCard>
                   ))}
                 </div>
@@ -658,9 +663,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                     <h3 className="text-lg font-bold mb-3 text-white">Wähle die Form für die Umrandung:</h3>
                     <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
                       {enclosingShapes.map(shape => (
-                        <SelectionCard 
-                          key={shape.id} 
-                          isSelected={config.enclosingShape?.id === shape.id} 
+                        <SelectionCard
+                          key={shape.id}
+                          isSelected={config.enclosingShape?.id === shape.id}
                           onClick={() => {
                             const selectedLayout = layouts.find(l => l.id === selectedLayoutType);
                             updateConfig({ enclosingShape: shape, layout: selectedLayout });
@@ -675,7 +680,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                         >
                           <div className="flex flex-col items-center gap-2 p-2">
                             <shape.component size={24} color="white" />
-                            <span className="text-xs text-center">{shape.id}</span>
+                            <span className="text-xs text-center text-white/60" style={{ fontSize: '10px' }}>
+                              {shape.name || shape.id}
+                            </span>
                           </div>
                         </SelectionCard>
                       ))}

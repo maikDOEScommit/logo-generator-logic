@@ -115,11 +115,14 @@ export const IconPalettePanel = ({
                       <button
                         key={icon.id || index}
                         onClick={() => updateLocalConfig({ icon })}
-                        className={`p-2 rounded border transition-colors ${
+                        className={`p-2 rounded border transition-colors flex flex-col items-center gap-1 ${
                           localConfig.icon?.id === icon.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
                         }`}
                       >
                         <icon.component size={20} color="white" className="mx-auto" />
+                        <span className="text-white/60 text-center leading-tight" style={{ fontSize: '8px' }}>
+                          {icon.name || icon.id}
+                        </span>
                       </button>
                     ))}
                   </div>

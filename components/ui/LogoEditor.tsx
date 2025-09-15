@@ -68,6 +68,21 @@ interface BoxShape {
   permanent: boolean; // If true, box cannot be modified
 }
 
+interface LineShape {
+  id: string;
+  type: 'line';
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  color: string;
+  width: number;
+  lineCap: 'round' | 'square';
+  rotation: number;
+  selected: boolean;
+  permanent: boolean; // If true, line cannot be modified
+}
+
 interface EditLayer {
   id: string;
   name: string;
@@ -163,6 +178,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [boxes, setBoxes] = useState<BoxShape[]>([]);
   const [currentBox, setCurrentBox] = useState<BoxShape | null>(null);
   const [selectedBox, setSelectedBox] = useState<string | null>(null);
+
+  // Line tool states (similar to box)
+  const [lines, setLines] = useState<LineShape[]>([]);
+  const [selectedLine, setSelectedLine] = useState<string | null>(null);
   const [brushColor, setBrushColor] = useState('#000000');
   const [boxWidth, setBoxWidth] = useState(50);
   const [boxHeight, setBoxHeight] = useState(50);
@@ -197,13 +216,22 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     originalBox: BoxShape;
   } | null>(null);
 
+  // Line manipulation states (similar to box)
+  const [rotatingLine, setRotatingLine] = useState<string | null>(null);
+  const [movingLine, setMovingLine] = useState<string | null>(null);
+  const [lineMoveStart, setLineMoveStart] = useState<{
+    startX: number;
+    startY: number;
+    originalLine: LineShape;
+  } | null>(null);
+
 
   
   // Line tool state
   const [lineColor, setLineColor] = useState('#000000');
   const [lineWidth, setLineWidth] = useState(3);
   const [lineCap, setLineCap] = useState<'round' | 'square'>('round');
-  const [currentLine, setCurrentLine] = useState<{ start: Point; end: Point } | null>(null);
+  const [currentLine, setCurrentLine] = useState<LineShape | null>(null);
   const [currentStroke, setCurrentStroke] = useState<Stroke | null>(null);
   const [editLayers, setEditLayers] = useState<EditLayer[]>([
     { id: 'layer-0', name: 'Original Background', visible: true, type: 'original', strokes: [], backgroundColor: 'transparent', order: 0 },
@@ -892,7 +920,21 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       drawingRef.current.drawing = true;
       drawingRef.current.startPoint = point;
     } else if (drawingTool === 'line') {
-      setCurrentLine({ start: point, end: point });
+      const newLine: LineShape = {
+        id: `line-${Date.now()}`,
+        type: 'line',
+        x1: point.x,
+        y1: point.y,
+        x2: point.x,
+        y2: point.y,
+        color: lineColor,
+        width: lineWidth,
+        lineCap: lineCap,
+        rotation: 0,
+        selected: false,
+        permanent: false
+      };
+      setCurrentLine(newLine);
       setIsDrawing(true);
       drawingRef.current.drawing = true;
       drawingRef.current.startPoint = point;
@@ -963,7 +1005,8 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     } else if ((drawingTool === 'line' || (drawingTool === 'eraser' && eraserMode === 'line')) && currentLine) {
       setCurrentLine({
         ...currentLine,
-        end: point
+        x2: point.x,
+        y2: point.y
       });
     }
   };
@@ -1025,28 +1068,25 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           ? { ...layer, strokes: [...layer.strokes, currentStroke] }
           : layer
       ));
-    } else if ((drawingTool === 'line' || (drawingTool === 'eraser' && eraserMode === 'line')) && currentLine) {
-      // Create a line stroke from the current line
-      const lineStroke: Stroke = {
-        id: `line-${Date.now()}`,
-        tool: drawingTool === 'eraser' ? 'eraser' : 'line',
-        points: [currentLine.start, currentLine.end],
-        color: drawingTool === 'eraser' ? 
-          (variation?.backgroundColor?.includes('linear-gradient') 
-            ? '#FFFFFF' 
-            : (variation?.backgroundColor || localConfig.palette?.colors[0] || '#FFFFFF')) 
-          : lineColor,
-        width: drawingTool === 'eraser' ? brushSize : lineWidth,
-        opacity: drawingTool === 'eraser' ? (eraserOpacity / 10) : (brushOpacity / 10),
-        lineCap: drawingTool === 'eraser' ? brushLineCap : lineCap
+    } else if (drawingTool === 'line' && currentLine) {
+      // Finalize the line and add it to the lines array (similar to boxes)
+      const finalLine = {
+        ...currentLine,
+        selected: true // Select the newly created line for manipulation
       };
-      
-      setEditLayers(prev => prev.map(layer =>
-        layer.id === activeLayer
-          ? { ...layer, strokes: [...layer.strokes, lineStroke] }
-          : layer
-      ));
+
+      setLines(prev => [...prev, finalLine]);
+      setSelectedLine(finalLine.id);
       setCurrentLine(null);
+
+      // Enable drag and drop immediately after creation
+      setIsMoving(true);
+      setMovingLine(finalLine.id);
+      setLineMoveStart({
+        startX: point.x,
+        startY: point.y,
+        originalLine: finalLine
+      });
     }
     
     setCurrentStroke(null);
@@ -1565,18 +1605,109 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         {/* Render current line being drawn */}
         {currentLine && (
           <line
-            x1={currentLine.start.x}
-            y1={currentLine.start.y}
-            x2={currentLine.end.x}
-            y2={currentLine.end.y}
-            stroke={lineColor}
-            strokeWidth={lineWidth}
-            strokeLinecap={lineCap}
+            x1={currentLine.x1}
+            y1={currentLine.y1}
+            x2={currentLine.x2}
+            y2={currentLine.y2}
+            stroke={currentLine.color}
+            strokeWidth={currentLine.width}
+            strokeLinecap={currentLine.lineCap}
             opacity={0.7}
             style={{ pointerEvents: 'none' }}
             strokeDasharray="5,5"
           />
         )}
+
+        {/* Render permanent lines */}
+        {lines.map(line => (
+          <g key={line.id}>
+            <line
+              x1={line.x1}
+              y1={line.y1}
+              x2={line.x2}
+              y2={line.y2}
+              stroke={line.color}
+              strokeWidth={line.width}
+              strokeLinecap={line.lineCap}
+              transform={`rotate(${line.rotation} ${(line.x1 + line.x2) / 2} ${(line.y1 + line.y2) / 2})`}
+              style={{
+                cursor: 'pointer',
+                filter: line.selected ? 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.5))' : 'none'
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedLine(line.id);
+                setLines(prev => prev.map(l => ({ ...l, selected: l.id === line.id })));
+              }}
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+
+                // Convert line to stroke and make permanent on double-click
+                const lineStroke: Stroke = {
+                  id: `line-stroke-${Date.now()}`,
+                  tool: 'line',
+                  points: [
+                    { x: line.x1, y: line.y1 },
+                    { x: line.x2, y: line.y2 }
+                  ],
+                  color: line.color,
+                  width: line.width,
+                  opacity: 1,
+                  lineCap: line.lineCap
+                };
+
+                // Add to active layer
+                setEditLayers(prev => prev.map(layer =>
+                  layer.id === activeLayer
+                    ? { ...layer, strokes: [...layer.strokes, lineStroke] }
+                    : layer
+                ));
+
+                // Remove line from manipulable lines
+                setLines(prev => prev.filter(l => l.id !== line.id));
+                setSelectedLine(null);
+              }}
+            />
+
+            {/* Control points for selected line */}
+            {line.selected && (
+              <>
+                {/* Start point */}
+                <circle
+                  cx={line.x1}
+                  cy={line.y1}
+                  r="4"
+                  fill="#3B82F6"
+                  stroke="white"
+                  strokeWidth="1"
+                  style={{ cursor: 'pointer' }}
+                />
+                {/* End point */}
+                <circle
+                  cx={line.x2}
+                  cy={line.y2}
+                  r="4"
+                  fill="#3B82F6"
+                  stroke="white"
+                  strokeWidth="1"
+                  style={{ cursor: 'pointer' }}
+                />
+                {/* Center rotation handle */}
+                <circle
+                  cx={(line.x1 + line.x2) / 2}
+                  cy={(line.y1 + line.y2) / 2}
+                  r="6"
+                  fill="transparent"
+                  stroke="#3B82F6"
+                  strokeWidth="2"
+                  strokeDasharray="2,2"
+                  style={{ cursor: 'grab' }}
+                />
+              </>
+            )}
+          </g>
+        ))}
 
         {/* Render logo elements - controlled by Logo Layer visibility */}
         {logoElements.brand && editLayers.find(l => l.type === 'logo')?.visible && (
@@ -2383,7 +2514,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
             </div>
 
             {/* Editor Controls Side */}
-            <div className="w-[30vw] p-6 overflow-y-auto bg-gradient-to-b from-gray-800/50 to-gray-900/80 backdrop-blur-sm">
+            <div className="w-[27vw] p-6 overflow-y-auto bg-gradient-to-b from-gray-800/50 to-gray-900/80 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
                 <div>
                   <h3 className="text-white font-bold text-2xl mb-1">Edit Logo</h3>
@@ -3555,9 +3686,58 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       </div>
                     )}
 
-                    
+                    {/* Line Controls */}
+                    {selectedLine && (
+                      <div className="border-t border-white/20 pt-3">
+                        <label className="block text-white/80 text-sm mb-3">Line Controls</label>
+
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                // Convert selected line to stroke and add to drawing layer
+                                const lineToConvert = lines.find(line => line.id === selectedLine);
+                                if (lineToConvert) {
+                                  const lineStroke: Stroke = {
+                                    id: `line-stroke-${Date.now()}`,
+                                    tool: 'line',
+                                    points: [
+                                      { x: lineToConvert.x1, y: lineToConvert.y1 },
+                                      { x: lineToConvert.x2, y: lineToConvert.y2 }
+                                    ],
+                                    color: lineToConvert.color,
+                                    width: lineToConvert.width,
+                                    opacity: 1,
+                                    lineCap: lineToConvert.lineCap
+                                  };
+
+                                  // Add to active layer
+                                  setEditLayers(prev => prev.map(layer =>
+                                    layer.id === activeLayer
+                                      ? { ...layer, strokes: [...layer.strokes, lineStroke] }
+                                      : layer
+                                  ));
+
+                                  // Mark line as permanent and deselect
+                                  setLines(prev => prev.map(line =>
+                                    line.id === selectedLine
+                                      ? { ...line, permanent: true, selected: false }
+                                      : line
+                                  ));
+                                  setSelectedLine(null);
+                                }
+                              }}
+                              className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                            >
+                              Place here!
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Drawing Actions */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 mt-[0.3rem]">
                       <button
                         onClick={undoLastStroke}
                         className="flex items-center justify-center gap-1 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-sm transition-colors flex-1"
@@ -3761,9 +3941,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                 <span className="text-white/60">{clampedWeight}</span>
                                 <span>{getWeightName(maxWeight)}</span>
                               </div>
-                              <div className="text-xs text-white/40 mt-1">
-                                Available: {availableWeights.join(', ')}
-                              </div>
                             </div>
                           );
                         })()}
@@ -3777,6 +3954,20 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
                     <Star size={16} className="text-yellow-400" />
                     Icon
+                    <input
+                      type="color"
+                      value={iconColor}
+                      onChange={(e) => {
+                        const newIconColor = e.target.value;
+                        setIconColor(newIconColor);
+                        // Update localConfig to trigger re-render
+                        setLocalConfig(prev => ({
+                          ...prev,
+                          iconColor: newIconColor
+                        }));
+                      }}
+                      className="w-8 h-6 rounded border border-white/20 cursor-pointer ml-auto"
+                    />
                   </h4>
                   <div className="grid grid-cols-6 gap-1 mb-2">
                     <button
@@ -3798,27 +3989,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         <icon.component size={16} color="white" className="mx-auto" />
                       </button>
                     ))}
-                  </div>
-                  <div>
-                    <label className="block text-white/60 text-xs mb-1">Icon Color</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={iconColor}
-                        onChange={(e) => {
-                          const newIconColor = e.target.value;
-                          setIconColor(newIconColor);
-                          // Update localConfig to trigger re-render
-                          setLocalConfig(prev => ({
-                            ...prev,
-                            iconColor: newIconColor
-                          }));
-                          setForceRender(prev => prev + 1);
-                        }}
-                        className="w-8 h-6 rounded border border-white/20 cursor-pointer"
-                      />
-                      <span className="text-white/50 text-xs">{iconColor}</span>
-                    </div>
                   </div>
                 </div>
 
