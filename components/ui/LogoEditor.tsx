@@ -121,6 +121,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   
   // Drawing tool states
   const [drawingTool, setDrawingTool] = useState<'brush' | 'eraser' | 'box' | 'line' | 'eyedropper' | 'move' | 'place'>('brush');
+  const [selectedElement, setSelectedElement] = useState<'icon' | 'brand' | 'slogan'>('icon');
   const [brushSize, setBrushSize] = useState(10);
   const [brushOpacity, setBrushOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
   const [brushLineCap, setBrushLineCap] = useState<'round' | 'square'>('round'); // Line cap for brush
@@ -142,7 +143,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     slogan?: TextElement;
     icon?: IconElement;
   }>({});
-  const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [selectedElementToPlace, setSelectedElementToPlace] = useState<'brand' | 'slogan' | 'icon' | 'box' | null>(null);
   const [isMovingElement, setIsMovingElement] = useState(false);
   const [movingElement, setMovingElement] = useState<string | null>(null);
@@ -778,7 +778,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           return;
         }
 
-        setSelectedElement(clickedElement);
+        setSelectedElement(clickedElement as 'brand' | 'slogan' | 'icon');
         setIsMovingElement(true);
         setMovingElement(clickedElement);
         setElementMoveStart({
@@ -2389,7 +2389,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       </button>
                       <button
                         onClick={() => setDrawingTool('move')}
-                        className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+                        className={`flex items-center justify-center p-2 rounded text-xs transition-colors mb-4 ${
                           drawingTool === 'move' ? 'bg-green-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
                         }`}
                       >
@@ -2737,7 +2737,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                   {/* Gradient Presets */}
                                   <div>
                                     <span className="text-white/70 text-sm block mb-2">Gradient Presets:</span>
-                                    <div className="grid grid-cols-1 gap-2 w-full">
+                                    <div className="grid grid-cols-2 gap-2 w-full">
                                       {[
                                         'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                         'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
@@ -2765,7 +2765,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                     onChange={(e) => updateLayerBackgroundColor(activeLayer, e.target.value)}
                                     className="w-full h-12 rounded-lg border border-white/20 bg-transparent"
                                   />
-                                  <div className="mt-3 grid grid-cols-1 gap-2">
+                                  <div className="mt-3 grid grid-cols-3 gap-2">
                                     {['#ffffff', '#f3f4f6', '#e5e7eb', '#d1d5db', '#9ca3af', '#6b7280', '#374151', '#111827', '#000000'].map(color => (
                                       <button
                                         key={color}
@@ -2906,164 +2906,115 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                       <div className="mt-4 p-1 bg-black/20 rounded-lg">
                         <label className="block text-white/80 text-sm mb-3">Standard Layouts</label>
 
-                        {/* Icon Layout Buttons */}
-                        {logoElements.icon && !logoElements.icon.permanent && (
-                          <div className="mb-3">
-                            <span className="text-white/60 text-xs mb-2 block">Icon Position:</span>
-                            <div className="grid grid-cols-1 gap-2 w-full">
+                        {/* Element Selection */}
+                        <div className="mb-3">
+                          <span className="text-white/60 text-xs mb-2 block">Select Element:</span>
+                          <div className="grid grid-cols-1 gap-2 w-full">
+                            {logoElements.icon && (
                               <button
-                                onClick={() => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    icon: prev.icon ? { ...prev.icon, x: 120, y: 200 } : prev.icon
-                                  }));
-                                }}
-                                className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white text-xs rounded transition-colors"
+                                onClick={() => setSelectedElement('icon')}
+                                className={`px-3 py-2 rounded text-xs transition-colors ${
+                                  selectedElement === 'icon' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                                }`}
                               >
-                                ← Links
+                                🎯 Icon
                               </button>
+                            )}
+                            {logoElements.brand && (
                               <button
-                                onClick={() => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    icon: prev.icon ? { ...prev.icon, x: 280, y: 200 } : prev.icon
-                                  }));
-                                }}
-                                className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white text-xs rounded transition-colors"
+                                onClick={() => setSelectedElement('brand')}
+                                className={`px-3 py-2 rounded text-xs transition-colors ${
+                                  selectedElement === 'brand' ? 'bg-green-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                                }`}
                               >
-                                Rechts →
+                                📝 Brand
                               </button>
+                            )}
+                            {logoElements.slogan && (
                               <button
-                                onClick={() => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    icon: prev.icon ? { ...prev.icon, x: 200, y: 120 } : prev.icon
-                                  }));
-                                }}
-                                className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white text-xs rounded transition-colors"
+                                onClick={() => setSelectedElement('slogan')}
+                                className={`px-3 py-2 rounded text-xs transition-colors ${
+                                  selectedElement === 'slogan' ? 'bg-purple-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+                                }`}
                               >
-                                ↑ Oben
+                                💬 Slogan
                               </button>
-                              <button
-                                onClick={() => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    icon: prev.icon ? { ...prev.icon, x: 200, y: 280 } : prev.icon
-                                  }));
-                                }}
-                                className="px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white text-xs rounded transition-colors"
-                              >
-                                ↓ Unten
-                              </button>
-                            </div>
+                            )}
                           </div>
-                        )}
+                        </div>
 
-                        {/* Brand Layout Buttons */}
-                        {logoElements.brand && !logoElements.brand.permanent && (
-                          <div className="mb-3">
-                            <span className="text-white/60 text-xs mb-2 block">Brand Position:</span>
-                            <div className="grid grid-cols-1 gap-2 w-full">
-                              <button
-                                onClick={() => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    brand: prev.brand ? { ...prev.brand, x: 120, y: 200 } : prev.brand
-                                  }));
-                                }}
-                                className="px-3 py-2 bg-green-600/80 hover:bg-green-600 text-white text-xs rounded transition-colors"
-                              >
-                                ← Links
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    brand: prev.brand ? { ...prev.brand, x: 280, y: 200 } : prev.brand
-                                  }));
-                                }}
-                                className="px-3 py-2 bg-green-600/80 hover:bg-green-600 text-white text-xs rounded transition-colors"
-                              >
-                                Rechts →
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    brand: prev.brand ? { ...prev.brand, x: 200, y: 120 } : prev.brand
-                                  }));
-                                }}
-                                className="px-3 py-2 bg-green-600/80 hover:bg-green-600 text-white text-xs rounded transition-colors"
-                              >
-                                ↑ Oben
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    brand: prev.brand ? { ...prev.brand, x: 200, y: 280 } : prev.brand
-                                  }));
-                                }}
-                                className="px-3 py-2 bg-green-600/80 hover:bg-green-600 text-white text-xs rounded transition-colors"
-                              >
-                                ↓ Unten
-                              </button>
-                            </div>
+                        {/* Universal Layout Buttons for Selected Element */}
+                        <div className="mb-3">
+                          <span className="text-white/60 text-xs mb-2 block">
+                            Position {selectedElement === 'icon' ? 'Icon' : selectedElement === 'brand' ? 'Brand' : 'Slogan'}:
+                          </span>
+                          <div className="grid grid-cols-2 gap-2 w-full">
+                            <button
+                              onClick={() => {
+                                if (!logoElements[selectedElement]) return;
+                                setLogoElements(prev => ({
+                                  ...prev,
+                                  [selectedElement]: { ...prev[selectedElement], x: 120, y: 200 }
+                                }));
+                              }}
+                              className={`px-3 py-2 rounded text-xs transition-colors ${
+                                selectedElement === 'icon' ? 'bg-blue-600/80 hover:bg-blue-600' :
+                                selectedElement === 'brand' ? 'bg-green-600/80 hover:bg-green-600' :
+                                'bg-purple-600/80 hover:bg-purple-600'
+                              } text-white`}
+                            >
+                              ← Links
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (!logoElements[selectedElement]) return;
+                                setLogoElements(prev => ({
+                                  ...prev,
+                                  [selectedElement]: { ...prev[selectedElement], x: 280, y: 200 }
+                                }));
+                              }}
+                              className={`px-3 py-2 rounded text-xs transition-colors ${
+                                selectedElement === 'icon' ? 'bg-blue-600/80 hover:bg-blue-600' :
+                                selectedElement === 'brand' ? 'bg-green-600/80 hover:bg-green-600' :
+                                'bg-purple-600/80 hover:bg-purple-600'
+                              } text-white`}
+                            >
+                              Rechts →
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (!logoElements[selectedElement]) return;
+                                setLogoElements(prev => ({
+                                  ...prev,
+                                  [selectedElement]: { ...prev[selectedElement], x: 200, y: 120 }
+                                }));
+                              }}
+                              className={`px-3 py-2 rounded text-xs transition-colors ${
+                                selectedElement === 'icon' ? 'bg-blue-600/80 hover:bg-blue-600' :
+                                selectedElement === 'brand' ? 'bg-green-600/80 hover:bg-green-600' :
+                                'bg-purple-600/80 hover:bg-purple-600'
+                              } text-white`}
+                            >
+                              ↑ Oben
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (!logoElements[selectedElement]) return;
+                                setLogoElements(prev => ({
+                                  ...prev,
+                                  [selectedElement]: { ...prev[selectedElement], x: 200, y: 280 }
+                                }));
+                              }}
+                              className={`px-3 py-2 rounded text-xs transition-colors ${
+                                selectedElement === 'icon' ? 'bg-blue-600/80 hover:bg-blue-600' :
+                                selectedElement === 'brand' ? 'bg-green-600/80 hover:bg-green-600' :
+                                'bg-purple-600/80 hover:bg-purple-600'
+                              } text-white`}
+                            >
+                              ↓ Unten
+                            </button>
                           </div>
-                        )}
-
-                        {/* Slogan Layout Buttons */}
-                        {logoElements.slogan && !logoElements.slogan.permanent && (
-                          <div className="mb-3">
-                            <span className="text-white/60 text-xs mb-2 block">Slogan Position:</span>
-                            <div className="grid grid-cols-1 gap-2 w-full">
-                              <button
-                                onClick={() => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    slogan: prev.slogan ? { ...prev.slogan, x: 120, y: 200 } : prev.slogan
-                                  }));
-                                }}
-                                className="px-3 py-2 bg-purple-600/80 hover:bg-purple-600 text-white text-xs rounded transition-colors"
-                              >
-                                ← Links
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    slogan: prev.slogan ? { ...prev.slogan, x: 280, y: 200 } : prev.slogan
-                                  }));
-                                }}
-                                className="px-3 py-2 bg-purple-600/80 hover:bg-purple-600 text-white text-xs rounded transition-colors"
-                              >
-                                Rechts →
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    slogan: prev.slogan ? { ...prev.slogan, x: 200, y: 120 } : prev.slogan
-                                  }));
-                                }}
-                                className="px-3 py-2 bg-purple-600/80 hover:bg-purple-600 text-white text-xs rounded transition-colors"
-                              >
-                                ↑ Oben
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    slogan: prev.slogan ? { ...prev.slogan, x: 200, y: 280 } : prev.slogan
-                                  }));
-                                }}
-                                className="px-3 py-2 bg-purple-600/80 hover:bg-purple-600 text-white text-xs rounded transition-colors"
-                              >
-                                ↓ Unten
-                              </button>
-                            </div>
-                          </div>
-                        )}
+                        </div>
                       </div>
 
                       {/* Place Here buttons */}
@@ -3100,7 +3051,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                   ...prev,
                                   icon: undefined
                                 }));
-                                setSelectedElement(null);
+                                setSelectedElement('icon');
                                 console.log('🎯 Icon placed as canvas stroke for tool interaction');
                               }
                             }}
@@ -3144,7 +3095,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                   ...prev,
                                   brand: undefined
                                 }));
-                                setSelectedElement(null);
+                                setSelectedElement('icon');
                                 console.log('🎯 Brand placed as canvas stroke for tool interaction');
                               }
                             }}
@@ -3188,7 +3139,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                   ...prev,
                                   slogan: undefined
                                 }));
-                                setSelectedElement(null);
+                                setSelectedElement('icon');
                                 console.log('🎯 Slogan placed as canvas stroke for tool interaction');
                               }
                             }}
@@ -3404,7 +3355,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             brand: prev.brand ? { ...prev.brand, x: canvasWidth / 2, y: canvasHeight / 2, permanent: false, rotation: 0, textAlign: 'center', opacity: 1.0 } : prev.brand,
                             slogan: prev.slogan ? { ...prev.slogan, x: canvasWidth / 2, y: canvasHeight / 2 + 25, permanent: false, rotation: 0, textAlign: 'center', opacity: 1.0 } : prev.slogan
                           }));
-                          setSelectedElement(null);
+                          setSelectedElement('icon');
                         }}
                         className="w-full mt-3 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-colors"
                       >
@@ -3898,14 +3849,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 </div>
 
 
-                {/* Background Settings Panel */}
-                <BackgroundSettingsPanel
-                  editLayers={editLayers}
-                  updateLayerBackgroundColor={updateLayerBackgroundColor}
-                  variation={variation}
-                  availablePalettes={availablePalettes}
-                  onConfigUpdate={onConfigUpdate}
-                />
 
                 {/* Export Panel */}
                 <ExportPanel
