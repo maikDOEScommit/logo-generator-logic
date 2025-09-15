@@ -3,7 +3,7 @@ import { LogoConfig, IconData, PaletteData } from '@/lib/types';
 import { Edit, Save, ShoppingCart, Download, Check, X, Crown, Zap, User, FileImage, Star, Award, Globe, Briefcase, TrendingUp, Users, Brush, Square, Eraser, RotateCcw, Pipette, Move, Maximize, Expand, Layers, Eye, EyeOff, Plus, ArrowUp, ArrowDown, Trash2, Palette, Type } from 'lucide-react';
 import { fontCategories } from '@/lib/data';
 import { usePipetteTool } from './PipetteTool';
-import { DrawingToolsPanel, ToolSettingsPanel, TextSettingsPanel, IconPalettePanel, LayerManagementPanel, ZoomViewControls, BackgroundSettingsPanel, ExportPanel, PurchaseModal, SaveModal } from './logo-editor';
+import { DrawingToolsPanel, ToolSettingsPanel, TextSettingsPanel, IconPalettePanel, ZoomViewControls, BackgroundSettingsPanel, ExportPanel, PurchaseModal, SaveModal } from './logo-editor';
 import { LayerManager } from './LayerManager';
 
 interface LogoEditorProps {
@@ -3984,22 +3984,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
                 </div>
 
-                {/* Layer Management Panel */}
-                <LayerManagementPanel
-                  editLayers={editLayers}
-                  activeLayer={activeLayer}
-                  setActiveLayer={setActiveLayer}
-                  setEditLayers={setEditLayers}
-                  addCustomLayer={addCustomLayer}
-                  deleteLayer={deleteLayer}
-                  moveLayerUp={moveLayerUp}
-                  moveLayerDown={moveLayerDown}
-                  updateLayerBackgroundColor={updateLayerBackgroundColor}
-                  showLayerInput={showLayerInput}
-                  setShowLayerInput={setShowLayerInput}
-                  newLayerName={newLayerName}
-                  setNewLayerName={setNewLayerName}
-                />
 
                 {/* Background Settings Panel */}
                 <BackgroundSettingsPanel
