@@ -489,6 +489,9 @@ export default function LogoGeneratorPage() {
 
   return (
     <>
+      {/* Global 15% black overlay for entire page background */}
+      <div className="fixed inset-0 bg-black/15 pointer-events-none z-0" />
+
       <style jsx global>{`
         @keyframes gradient-pulse {
           0% { opacity: 0.7; }
