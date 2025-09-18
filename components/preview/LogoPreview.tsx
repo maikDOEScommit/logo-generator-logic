@@ -144,7 +144,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
     return (
       <div className="w-full h-full flex items-center justify-center">
         {logoConfig.layout?.arrangement === 'text-left' ? (
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center gap-2">
             <div className="flex flex-col items-center">
               <span className="text-center break-words" style={{
                 ...brandNameStyle,
@@ -163,13 +163,13 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
               )}
             </div>
             {logoConfig.icon && (
-              <logoConfig.icon.component size={32} color={iconColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.3rem' : '0' }} />
+              <logoConfig.icon.component size={38} color={iconColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.3rem' : '0' }} />
             )}
           </div>
         ) : logoConfig.layout?.arrangement === 'icon-left' ? (
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center gap-2">
             {logoConfig.icon && (
-              <logoConfig.icon.component size={32} color={iconColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.3rem' : '0' }} />
+              <logoConfig.icon.component size={38} color={iconColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.3rem' : '0' }} />
             )}
             <div className="flex flex-col items-center">
               <span className="text-center break-words" style={{
@@ -272,13 +272,13 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   )}
                 </div>
                 {logoConfig.icon && (
-                  <logoConfig.icon.component size={24} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.2rem' : '0' }} />
+                  <logoConfig.icon.component size={30} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.2rem' : '0' }} />
                 )}
               </div>
             ) : logoConfig.layout?.arrangement === 'icon-left' ? (
               <div className="flex items-center justify-center gap-2 text-center">
                 {logoConfig.icon && (
-                  <logoConfig.icon.component size={24} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.2rem' : '0' }} />
+                  <logoConfig.icon.component size={30} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.2rem' : '0' }} />
                 )}
                 <div className="flex flex-col items-center">
                   <span className="text-center break-words text-sm" style={{
@@ -364,7 +364,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
         const isTextFirst = logoConfig.layout?.arrangement === 'text-left';
         
         return (
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-center gap-2">
             {/* Text first (text-left) or Icon first (icon-left) */}
             {isTextFirst ? (
               <>
@@ -390,13 +390,13 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   )}
                 </div>
                 {logoConfig.icon && (
-                  <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.4rem' : '0' }} />
+                  <logoConfig.icon.component size={54} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.4rem' : '0' }} />
                 )}
               </>
             ) : (
               <>
                 {logoConfig.icon && (
-                  <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.4rem' : '0' }} />
+                  <logoConfig.icon.component size={54} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.4rem' : '0' }} />
                 )}
                 <div className="flex flex-col items-center text-center">
                   <span className="text-center break-words" style={{

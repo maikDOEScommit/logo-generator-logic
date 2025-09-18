@@ -393,8 +393,12 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
     const brandWidth = calculateElementWidth(localConfig.text || '', 24);
     const sloganWidth = calculateElementWidth(localConfig.slogan || '', 12);
-    const iconWidth = 24; // Icon size (halved)
-    const minSpacing = 15; // Minimum spacing between elements
+
+    // Icon size matches preview: 32px for horizontal, 28px for vertical layouts
+    const isHorizontalLayout = layoutArrangement === 'icon-left' || layoutArrangement === 'text-left';
+    const iconSize = isHorizontalLayout ? 32 : 28;
+    const iconWidth = iconSize;
+    const minSpacing = 12; // gap-3 from preview = 12px
 
     // Canvas bounds checking
     const canvasMargin = 30; // Margin from canvas edges
@@ -424,9 +428,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         iconY = HORIZONTAL_Y_POSITION;
         brandY = HORIZONTAL_Y_POSITION;
 
-        // Slogan centered below
+        // Slogan centered below with correct spacing (0.2rem = 3.2px)
         sloganX = canvasWidth / 2;
-        sloganY = HORIZONTAL_Y_POSITION + 40;
+        sloganY = HORIZONTAL_Y_POSITION + (hasSlogan ? 3.2 : 0);
         break;
 
       case 'text-left':
@@ -447,30 +451,36 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         brandY = HORIZONTAL_Y_POSITION_TEXT;
         iconY = HORIZONTAL_Y_POSITION_TEXT;
 
-        // Slogan centered below
+        // Slogan centered below with correct spacing (0.2rem = 3.2px)
         sloganX = canvasWidth / 2;
-        sloganY = HORIZONTAL_Y_POSITION_TEXT + 40;
+        sloganY = HORIZONTAL_Y_POSITION_TEXT + (hasSlogan ? 3.2 : 0);
         break;
 
       case 'text-top':
-        // 📝⭐ Vertical 2 (vertical: Text top, icon bottom)
+        // 📝⭐ Vertical 2 (text-top: Brand top, slogan below, icon bottom)
+        // Brand centered
         brandX = canvasWidth / 2;
-        brandY = canvasHeight / 2 - 30;
+        brandY = canvasHeight / 2 - 10;
+        // Slogan below brand (mt-1 = 4px)
         sloganX = canvasWidth / 2;
-        sloganY = canvasHeight / 2 - 10;
+        sloganY = brandY + (hasSlogan ? 4 : 0);
+        // Icon below text group (mb-2 = 8px gap)
         iconX = canvasWidth / 2;
-        iconY = canvasHeight / 2 + 20;
+        iconY = (hasSlogan ? sloganY : brandY) + 8;
         break;
 
       case 'icon-top':
       default:
-        // ⭐📝 Vertical 1 (vertical: Icon top, text below)
+        // ⭐📝 Vertical 1 (icon-top: Icon top, brand below, slogan bottom)
+        // Icon centered at top
         iconX = canvasWidth / 2;
-        iconY = canvasHeight / 2 - 30;
+        iconY = canvasHeight / 2 - 8;
+        // Brand below icon (mb-2 = 8px gap)
         brandX = canvasWidth / 2;
-        brandY = canvasHeight / 2;
+        brandY = iconY + 8;
+        // Slogan below brand (mt-1 = 4px)
         sloganX = canvasWidth / 2;
-        sloganY = canvasHeight / 2 + 25;
+        sloganY = brandY + (hasSlogan ? 4 : 0);
         break;
     }
 
@@ -521,7 +531,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       };
     }
 
-    // Initialize icon element
+    // Initialize icon element with correct size from layout
     if (localConfig.icon) {
       newElements.icon = {
         id: 'icon-element',
@@ -529,7 +539,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         icon: localConfig.icon.component,
         x: iconX,
         y: iconY,
-        size: 24,
+        size: iconSize,
         color: iconColor,
         selected: false,
         permanent: false,
