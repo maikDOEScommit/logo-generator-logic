@@ -664,7 +664,7 @@ export default function LogoGeneratorPage() {
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, delay: 0.3 }}
                       viewport={{ once: true }}
-                      className="flex items-start gap-4 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg"
+                      className="flex items-start gap-4 bg-transparent backdrop-blur-sm rounded-2xl p-6 border border-white"
                     >
                       <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
                         <img
@@ -674,10 +674,10 @@ export default function LogoGeneratorPage() {
                         />
                       </div>
                       <div className="flex-1">
-                        <p className="text-gray-700 italic mb-2">
+                        <p className="text-white italic mb-2">
                           "This platform transformed my startup's identity completely. The AI suggestions were spot-on and saved me weeks of design work."
                         </p>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-white/80">
                           <strong>Sarah Chen</strong> - Tech Entrepreneur
                         </div>
                       </div>
@@ -812,7 +812,7 @@ export default function LogoGeneratorPage() {
                     </div>
 
                     {/* Slider Navigation */}
-                    <div className="flex justify-center items-center gap-6 mt-8">
+                    <div className="flex justify-center items-center gap-6 mt-12">
                       <button
                         onClick={() => setCurrentShowcaseImage((prev) => prev === 0 ? 2 : prev - 1)}
                         className="w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors border border-white/20 backdrop-blur-sm"
@@ -827,7 +827,7 @@ export default function LogoGeneratorPage() {
                             onClick={() => setCurrentShowcaseImage(index)}
                             className={`w-4 h-4 rounded-full transition-all duration-300 ${
                               currentShowcaseImage === index
-                                ? 'bg-blue-600 scale-110'
+                                ? 'bg-black scale-110'
                                 : 'bg-gray-300 hover:bg-gray-400'
                             }`}
                           />
