@@ -848,3 +848,14 @@ export const getIndustryIconCounts = (): { [key: string]: number } => {
   });
   return counts;
 };
+
+// Find industry by icon ID
+export const getIndustryByIcon = (iconId: string): string | null => {
+  for (const industry of industrySpecificIcons) {
+    const iconExists = industry.icons.some(icon => icon.id === iconId);
+    if (iconExists) {
+      return industry.industry;
+    }
+  }
+  return null;
+};

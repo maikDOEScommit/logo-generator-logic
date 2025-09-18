@@ -360,6 +360,71 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     }
   }, [localConfig.font?.name]);
 
+  // Helper functions for Quick Layout application
+  const applyTextIconQuickLayout = () => {
+    setLogoElements(prev => {
+      if (!prev.brand || !prev.icon) return prev;
+
+      const brandText = prev.brand.text || '';
+      const brandFontSize = prev.brand.fontSize || 24;
+      const brandWidth = brandText.length * (brandFontSize * 0.6);
+      const iconWidth = 24;
+      const minSpacing = 25;
+      const canvasCenter = 200;
+
+      return {
+        ...prev,
+        brand: {
+          ...prev.brand,
+          x: canvasCenter,
+          y: canvasCenter
+        },
+        icon: {
+          ...prev.icon,
+          x: canvasCenter + brandWidth / 2 + iconWidth / 2 + minSpacing,
+          y: canvasCenter
+        },
+        slogan: prev.slogan ? {
+          ...prev.slogan,
+          x: canvasCenter,
+          y: canvasCenter + 25
+        } : undefined
+      };
+    });
+  };
+
+  const applyIconTextQuickLayout = () => {
+    setLogoElements(prev => {
+      if (!prev.brand || !prev.icon) return prev;
+
+      const brandText = prev.brand.text || '';
+      const brandFontSize = prev.brand.fontSize || 24;
+      const brandWidth = brandText.length * (brandFontSize * 0.6);
+      const iconWidth = 24;
+      const minSpacing = 25;
+      const canvasCenter = 200;
+
+      return {
+        ...prev,
+        icon: {
+          ...prev.icon,
+          x: canvasCenter - brandWidth / 2 - iconWidth / 2 - minSpacing,
+          y: canvasCenter
+        },
+        brand: {
+          ...prev.brand,
+          x: canvasCenter,
+          y: canvasCenter
+        },
+        slogan: prev.slogan ? {
+          ...prev.slogan,
+          x: canvasCenter,
+          y: canvasCenter + 25
+        } : undefined
+      };
+    });
+  };
+
   // Initialize logo elements based on current config and layout arrangement
   useEffect(() => {
     // SVG verwendet viewBox und prozentuale/relative Koordinaten
@@ -394,11 +459,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     const brandWidth = calculateElementWidth(localConfig.text || '', 24);
     const sloganWidth = calculateElementWidth(localConfig.slogan || '', 12);
 
-    // Icon size matches preview: 32px for horizontal, 28px for vertical layouts
+    // Icon size for editor: smaller than preview for better editing
     const isHorizontalLayout = layoutArrangement === 'icon-left' || layoutArrangement === 'text-left';
-    const iconSize = isHorizontalLayout ? 32 : 28;
+    const iconSize = isHorizontalLayout ? 24 : 20;
     const iconWidth = iconSize;
-    const minSpacing = 12; // gap-3 from preview = 12px
+    const minSpacing = 40; // Proper spacing between elements in editor
 
     // Canvas bounds checking
     const canvasMargin = 30; // Margin from canvas edges
@@ -428,9 +493,9 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         iconY = HORIZONTAL_Y_POSITION;
         brandY = HORIZONTAL_Y_POSITION;
 
-        // Slogan centered below with correct spacing (0.2rem = 3.2px)
+        // Slogan centered below with proper spacing for editor
         sloganX = canvasWidth / 2;
-        sloganY = HORIZONTAL_Y_POSITION + (hasSlogan ? 3.2 : 0);
+        sloganY = HORIZONTAL_Y_POSITION + (hasSlogan ? 30 : 0);
         break;
 
       case 'text-left':
@@ -451,22 +516,22 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         brandY = HORIZONTAL_Y_POSITION_TEXT;
         iconY = HORIZONTAL_Y_POSITION_TEXT;
 
-        // Slogan centered below with correct spacing (0.2rem = 3.2px)
+        // Slogan centered below with proper spacing for editor
         sloganX = canvasWidth / 2;
-        sloganY = HORIZONTAL_Y_POSITION_TEXT + (hasSlogan ? 3.2 : 0);
+        sloganY = HORIZONTAL_Y_POSITION_TEXT + (hasSlogan ? 30 : 0);
         break;
 
       case 'text-top':
         // 📝⭐ Vertical 2 (text-top: Brand top, slogan below, icon bottom)
         // Brand centered
         brandX = canvasWidth / 2;
-        brandY = canvasHeight / 2 - 10;
-        // Slogan below brand (mt-1 = 4px)
+        brandY = canvasHeight / 2 - 40;
+        // Slogan below brand with proper spacing
         sloganX = canvasWidth / 2;
-        sloganY = brandY + (hasSlogan ? 4 : 0);
-        // Icon below text group (mb-2 = 8px gap)
+        sloganY = brandY + (hasSlogan ? 25 : 0);
+        // Icon below text group with good gap
         iconX = canvasWidth / 2;
-        iconY = (hasSlogan ? sloganY : brandY) + 8;
+        iconY = (hasSlogan ? sloganY : brandY) + 40;
         break;
 
       case 'icon-top':
@@ -474,13 +539,13 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         // ⭐📝 Vertical 1 (icon-top: Icon top, brand below, slogan bottom)
         // Icon centered at top
         iconX = canvasWidth / 2;
-        iconY = canvasHeight / 2 - 8;
-        // Brand below icon (mb-2 = 8px gap)
+        iconY = canvasHeight / 2 - 40;
+        // Brand below icon with good gap
         brandX = canvasWidth / 2;
-        brandY = iconY + 8;
-        // Slogan below brand (mt-1 = 4px)
+        brandY = iconY + 40;
+        // Slogan below brand with proper spacing
         sloganX = canvasWidth / 2;
-        sloganY = brandY + (hasSlogan ? 4 : 0);
+        sloganY = brandY + (hasSlogan ? 25 : 0);
         break;
     }
 
@@ -549,6 +614,17 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     }
 
     setLogoElements(newElements);
+
+    // Auto-apply Quick Layout based on arrangement after elements are set
+    setTimeout(() => {
+      if (layoutArrangement === 'text-left' && newElements.brand && newElements.icon) {
+        // Apply "📝⭐ Text+Icon" Quick Layout for text-left
+        applyTextIconQuickLayout();
+      } else if (layoutArrangement === 'icon-left' && newElements.brand && newElements.icon) {
+        // Apply "⭐📝 Icon+Text" Quick Layout for icon-left
+        applyIconTextQuickLayout();
+      }
+    }, 100);
   }, [localConfig.text, localConfig.slogan, localConfig.icon, localConfig.layout?.arrangement, localConfig.font?.cssName, currentFontWeight, brandNameColor, sloganColor, iconColor]);
 
   // Global mouse events for rotation, resize, and move
@@ -3553,7 +3629,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                     const brandFontSize = prev.brand?.fontSize || 24;
                                     const brandWidth = brandText.length * (brandFontSize * 0.6);
                                     const iconWidth = 24;
-                                    const minSpacing = 8; // Reduced spacing for closer positioning
+                                    const minSpacing = 25; // Proper spacing to prevent overlap
                                     const canvasCenter = 200;
 
                                     const newState = {
@@ -3589,7 +3665,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                     const brandFontSize = prev.brand?.fontSize || 24;
                                     const brandWidth = brandText.length * (brandFontSize * 0.6);
                                     const iconWidth = 24;
-                                    const minSpacing = 8; // Reduced spacing for closer positioning
+                                    const minSpacing = 25; // Proper spacing to prevent overlap
                                     const canvasCenter = 200;
 
                                     const newState = {

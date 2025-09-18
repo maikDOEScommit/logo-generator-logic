@@ -1,6 +1,7 @@
 // lib/logoGeneration.ts
-import { LogoConfig } from './types';
+import { LogoConfig, IconData } from './types';
 import { colorGenerationRules, ColorGenerationRule } from './data';
+import { getIconsByIndustry } from './industryIcons';
 
 export type LogoVariation = {
   id: string;
@@ -10,6 +11,7 @@ export type LogoVariation = {
   backgroundColor: string;
   sloganColor: string;
   hasGradient: boolean;
+  icon?: IconData; // Add icon to variation
 };
 
 // Hilfsfunktion zur Helligkeitsanpassung von Farben für Gradients
@@ -30,11 +32,70 @@ function isGradient(color: string): boolean {
   return color.includes('linear-gradient');
 }
 
+// Helper function to get random icons from same category/industry
+function getRandomIconsForVariations(baseConfig: LogoConfig, variationsCount: number): IconData[] {
+  console.log('🔍🔍🔍 CRITICAL: getRandomIconsForVariations called with:', {
+    industry: baseConfig.industry,
+    userIcon: baseConfig.icon?.id,
+    variationsCount
+  });
+
+  const icons: IconData[] = [];
+
+  // Add user's chosen icon as first variation
+  if (baseConfig.icon) {
+    icons.push(baseConfig.icon);
+    console.log('🎯 Variation 1: User icon', baseConfig.icon.id);
+  }
+
+  // Get more icons from same category - try to get from industry first
+  let availableIcons: IconData[] = [];
+
+  // Try to find icons from the same industry first
+  if (baseConfig.industry) {
+    availableIcons = getIconsByIndustry(baseConfig.industry);
+    console.log(`🎲 Found ${availableIcons.length} icons for industry: ${baseConfig.industry}`);
+  }
+
+  // If not enough icons or no industry, we'll need to add fallback logic
+  // For now, use the industry icons and repeat if needed
+  if (availableIcons.length === 0 && baseConfig.icon) {
+    availableIcons = [baseConfig.icon];
+  }
+
+  // Fill remaining variations with RANDOM icons from available pool (excluding user's choice)
+  for (let i = 1; i < variationsCount; i++) {
+    if (availableIcons.length > 0) {
+      // Create a pool excluding the user's chosen icon to ensure variety
+      const excludeUserIcon = baseConfig.icon;
+      const filteredIcons = excludeUserIcon
+        ? availableIcons.filter(icon => icon.id !== excludeUserIcon.id)
+        : availableIcons;
+
+      // If we have other icons available, use them, otherwise fall back to full pool
+      const iconPool = filteredIcons.length > 0 ? filteredIcons : availableIcons;
+
+      // Pick a truly random icon from the available pool
+      const randomIndex = Math.floor(Math.random() * iconPool.length);
+      const selectedIcon = iconPool[randomIndex];
+      icons.push(selectedIcon);
+      console.log(`🎲 Variation ${i + 1}: Selected icon ${selectedIcon.id} (index ${randomIndex}/${iconPool.length}, excluded user icon: ${excludeUserIcon?.id || 'none'})`);
+    } else {
+      // Fallback to user's icon if no icons available
+      icons.push(baseConfig.icon || icons[0]);
+      console.log(`🎲 Variation ${i + 1}: Fallback to user icon (no available icons)`);
+    }
+  }
+
+  return icons;
+}
+
 // Generiert Logo-Variationen basierend auf den neuen Regeln
 export function generateLogoVariations(
-  baseConfig: LogoConfig, 
-  baseColor: string, 
-  colorRule: 'base-only' | 'add-white' | 'add-black' | null = null
+  baseConfig: LogoConfig,
+  baseColor: string,
+  colorRule: 'base-only' | 'add-white' | 'add-black' | null = null,
+  industry?: string
 ): LogoVariation[] {
   // Fallback auf reguläre Palette wenn keine Grundfarbe-Regel angewendet wird
   if (!colorRule || !baseColor) {
@@ -43,18 +104,26 @@ export function generateLogoVariations(
 
   const rule = colorGenerationRules.find(r => r.id === colorRule);
   if (!rule) {
-    return generateRegularPaletteVariations(baseConfig);
+    return generateRegularPaletteVariations(baseConfig, industry);
   }
 
-  return rule.variants.map((variant, index) => ({
-    id: `${rule.id}-variant-${index + 1}`,
-    name: variant.name,
-    brandNameColor: variant.brandNameColor(baseColor),
-    iconColor: variant.iconColor(baseColor),
-    backgroundColor: variant.backgroundColor(baseColor),
-    sloganColor: variant.sloganColor(baseColor),
-    hasGradient: isGradient(variant.brandNameColor(baseColor)) || isGradient(variant.iconColor(baseColor))
-  }));
+  // Get different icons for each variation
+  const variationIcons = getRandomIconsForVariations({ ...baseConfig, industry }, rule.variants.length);
+
+  return rule.variants.map((variant, index) => {
+    const variation = {
+      id: `${rule.id}-variant-${index + 1}`,
+      name: variant.name,
+      brandNameColor: variant.brandNameColor(baseColor),
+      iconColor: variant.iconColor(baseColor),
+      backgroundColor: variant.backgroundColor(baseColor),
+      sloganColor: variant.sloganColor(baseColor),
+      hasGradient: isGradient(variant.brandNameColor(baseColor)) || isGradient(variant.iconColor(baseColor)),
+      icon: variationIcons[index] // Add different icon for each variation
+    };
+    console.log(`🎨 Generated variation ${index + 1}:`, variation.id, 'icon:', variation.icon?.id);
+    return variation;
+  });
 }
 
 // Color utility functions for evaluation
@@ -109,10 +178,11 @@ function getColorName(color: string, paletteColors: string[]): string {
 }
 
 // Generate all possible combinations and evaluate them
-function generateRegularPaletteVariations(config: LogoConfig): LogoVariation[] {
+function generateRegularPaletteVariations(config: LogoConfig, industry?: string): LogoVariation[] {
   const palette = config.palette;
   if (!palette || !palette.colors) {
     // Fallback Farben wenn keine Palette vorhanden
+    const fallbackIcons = getRandomIconsForVariations({ ...config, industry }, 1);
     return [
       {
         id: 'regular-light',
@@ -121,7 +191,8 @@ function generateRegularPaletteVariations(config: LogoConfig): LogoVariation[] {
         iconColor: '#000000',
         backgroundColor: '#FFFFFF',
         sloganColor: '#000000',
-        hasGradient: false
+        hasGradient: false,
+        icon: fallbackIcons[0]
       }
     ];
   }
@@ -233,6 +304,9 @@ function generateRegularPaletteVariations(config: LogoConfig): LogoVariation[] {
     ...gradientBg.slice(0, 4)
   ].sort((a, b) => b.score - a.score);
 
+  // Get different icons for each variation
+  const variationIcons = getRandomIconsForVariations({ ...config, industry }, bestCombinations.length);
+
   // Convert to LogoVariation format with consistent naming
   return bestCombinations.map((combo, index) => {
     let displayName = '';
@@ -256,15 +330,18 @@ function generateRegularPaletteVariations(config: LogoConfig): LogoVariation[] {
         : `${getColorName(combo.background.value, colors)}: ${getColorName(combo.brandnameColor, colors)} + ${getColorName(combo.iconColor, colors)}`;
     }
 
-    return {
+    const variation = {
       id: combo.id,
       name: displayName,
       brandNameColor: combo.brandnameColor,
       iconColor: combo.iconColor,
       backgroundColor: combo.background.value,
       sloganColor: combo.brandnameColor, // Use same as brand name for consistency
-      hasGradient: combo.background.type === 'gradient'
+      hasGradient: combo.background.type === 'gradient',
+      icon: variationIcons[index] // Add different icon for each variation
     };
+    console.log(`🎨 Generated regular variation ${index + 1}:`, variation.id, 'icon:', variation.icon?.id);
+    return variation;
   });
 }
 

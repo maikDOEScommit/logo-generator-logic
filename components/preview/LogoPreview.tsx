@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { LogoConfig, PaletteData } from '@/lib/types';
 import { Download, Save, Edit3, Eye } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 import { useLogoStore } from '@/lib/state';
 import { fontCategories } from '@/lib/data';
 import { generateLogoVariations, determineColorRule, LogoVariation } from '@/lib/logoGeneration';
+import { getIconsByIndustry, getIndustryByIcon } from '@/lib/industryIcons';
 import LogoEditor from '@/components/ui/LogoEditor';
 import AdvancedLogoEditor from '@/components/editor/AdvancedLogoEditor';
 
@@ -27,11 +28,15 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
   const [currentFontIndex, setCurrentFontIndex] = useState<{[key: string]: number}>({});
   
   // Helper to get individual logo config or fallback to main config
-  const getLogoConfig = (logoId: string): LogoConfig => {
+  const getLogoConfig = (logoId: string, variation?: LogoVariation): LogoConfig => {
     const individualConfig = logoConfigs[logoId];
     if (individualConfig) {
       return individualConfig;
     }
+
+    // Use the icon from the variation if provided, otherwise use config.icon
+    const iconToUse = variation?.icon || config.icon;
+
     // Return a complete config with all required properties
     return {
       ...config,
@@ -39,7 +44,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
       slogan: config.slogan || '',
       font: config.font || null,
       fontWeight: config.fontWeight || 400,
-      icon: config.icon,
+      icon: iconToUse, // Use variation-specific icon
       layout: config.layout,
       palette: config.palette,
       enclosingShape: config.enclosingShape
@@ -47,10 +52,10 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
   };
   
   // Helper to update individual logo config
-  const updateLogoConfig = (logoId: string, newConfig: Partial<LogoConfig>) => {
+  const updateLogoConfig = (logoId: string, newConfig: Partial<LogoConfig>, variation?: LogoVariation) => {
     setLogoConfigs(prev => ({
       ...prev,
-      [logoId]: { ...getLogoConfig(logoId), ...newConfig }
+      [logoId]: { ...getLogoConfig(logoId, variation), ...newConfig }
     }));
   };
   
@@ -71,11 +76,26 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
   // If no fonts selected, use all fonts from the first category
   const fontsToDisplay = selectedCategoryFonts.length > 0 ? selectedCategoryFonts : fontCategories[0].fonts;
 
-  // Generate logo variations based on color rules
-  const logoVariations = useMemo(() => {
+  // Generate logo variations based on color rules (regenerate when config changes)
+  const [logoVariations, setLogoVariations] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Try to determine industry from icon if not set in config
+    let industryToUse = config.industry;
+    if (!industryToUse && config.icon) {
+      // Use the new function to find industry by icon ID
+      industryToUse = getIndustryByIcon(config.icon.id);
+      if (industryToUse) {
+        console.log('🔍 Derived industry from icon:', config.icon.id, '->', industryToUse);
+      } else {
+        console.log('⚠️ Could not determine industry for icon:', config.icon.id);
+      }
+    }
+
     const colorRule = determineColorRule(config.palette, config.baseColor, config.selectedColorOption);
-    return generateLogoVariations(config, config.baseColor || '#0A3D62', colorRule);
-  }, [config]);
+    const variations = generateLogoVariations(config, config.baseColor || '#0A3D62', colorRule, industryToUse);
+    setLogoVariations(variations);
+  }, [config.palette, config.baseColor, config.selectedColorOption, config.industry, config.icon, config.text]);
   
   // Helper function to calculate dynamic font size based on text length
   const getDynamicFontSize = (textLength: number, isCircleLayout: boolean = false) => {
@@ -98,6 +118,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
     return fontsToDisplay[fontIndex] || fontsToDisplay[0];
   };
 
+
   const switchFont = (variationId: string, direction: 'prev' | 'next') => {
     const currentIndex = currentFontIndex[variationId] || 0;
     let newIndex;
@@ -114,9 +135,48 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
     }));
   };
 
+  // DIRECT APPROACH: Get different icon for each variation based on variationIndex
+  const getIconComponent = (variation: LogoVariation, fallbackIcon: any, variationIndex: number) => {
+    // For first variation (index 0), ALWAYS use user's selected icon
+    if (variationIndex === 0) {
+      console.log('🎯 Variation 0: Using user icon:', fallbackIcon?.id);
+      return fallbackIcon?.component || null;
+    }
+
+    // For other variations, get icons from same industry and pick different ones
+    const industryToUse = config.industry || (config.icon ? getIndustryByIcon(config.icon.id) : null);
+    if (!industryToUse) {
+      console.log('⚠️ No industry found, using fallback icon for variation', variationIndex);
+      return fallbackIcon?.component || null;
+    }
+
+    const industryIcons = getIconsByIndustry(industryToUse);
+    if (industryIcons.length === 0) {
+      console.log('⚠️ No industry icons found, using fallback for variation', variationIndex);
+      return fallbackIcon?.component || null;
+    }
+
+    // Use variationIndex to deterministically pick different icon
+    const iconIndex = (variationIndex - 1) % industryIcons.length; // -1 because variation 0 uses user icon
+    const selectedIcon = industryIcons[iconIndex];
+
+    console.log(`🎲 Variation ${variationIndex}: Selected icon ${selectedIcon.id} (index ${iconIndex}/${industryIcons.length}) from industry ${industryToUse}`);
+    return selectedIcon.component;
+  };
+
   // Helper function to render logo variations with new color logic
-  const renderLogoVariation = (variation: LogoVariation, font: any, logoConfig: LogoConfig) => {
+  const renderLogoVariation = (variation: LogoVariation, font: any, logoConfig: LogoConfig, variationIndex: number) => {
     const dynamicFontSize = getDynamicFontSize(logoConfig.text.length, logoConfig.layout?.type === 'enclosed');
+
+    // Get the icon component for this variation
+    const IconComponent = getIconComponent(variation, logoConfig.icon, variationIndex);
+
+    console.log('🎨 renderLogoVariation:', {
+      variationIndex,
+      variationId: variation.id,
+      hasIcon: !!IconComponent,
+      baseIconId: logoConfig.icon?.id
+    });
     
     // Handle gradient colors
     const brandNameStyle: React.CSSProperties = {
@@ -162,14 +222,14 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                 </span>
               )}
             </div>
-            {logoConfig.icon && (
-              <logoConfig.icon.component size={38} color={iconColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.3rem' : '0' }} />
+            {IconComponent && (
+              <IconComponent size={38} color={iconColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.3rem' : '0' }} />
             )}
           </div>
         ) : logoConfig.layout?.arrangement === 'icon-left' ? (
           <div className="flex items-center justify-center gap-2">
-            {logoConfig.icon && (
-              <logoConfig.icon.component size={38} color={iconColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.3rem' : '0' }} />
+            {IconComponent && (
+              <IconComponent size={38} color={iconColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.3rem' : '0' }} />
             )}
             <div className="flex flex-col items-center">
               <span className="text-center break-words" style={{
@@ -201,15 +261,15 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                 </span>
               )}
             </div>
-            {logoConfig.icon && (
-              <logoConfig.icon.component size={28} color={iconColor} className="flex-shrink-0" />
+            {IconComponent && (
+              <IconComponent size={28} color={iconColor} className="flex-shrink-0" />
             )}
           </div>
         ) : (
           // icon-top
           <div className="flex flex-col items-center justify-center text-center">
-            {logoConfig.icon && (
-              <logoConfig.icon.component size={28} color={iconColor} className="flex-shrink-0 mb-2" />
+            {IconComponent && (
+              <IconComponent size={28} color={iconColor} className="flex-shrink-0 mb-2" />
             )}
             <div className="flex flex-col items-center">
               <span className="text-center break-words" style={brandNameStyle}>
@@ -228,9 +288,12 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
   };
 
   // Helper function to render logo content based on layout type
-  const renderLogoContent = (textColor: string, backgroundColor: string, font: any, logoConfig: LogoConfig) => {
+  const renderLogoContent = (textColor: string, backgroundColor: string, font: any, logoConfig: LogoConfig, variation?: LogoVariation, variationIndex: number = 0) => {
     const isCircleLayout = logoConfig.layout?.type === 'enclosed';
     const dynamicFontSize = getDynamicFontSize(logoConfig.text.length, isCircleLayout);
+
+    // Get the icon component for this variation
+    const IconComponent = variation ? getIconComponent(variation, logoConfig.icon, variationIndex) : logoConfig.icon?.component;
     
     if (isCircleLayout && logoConfig.enclosingShape) {
       // For circle layouts: show enclosing shape as background with content inside
@@ -271,14 +334,14 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                     </span>
                   )}
                 </div>
-                {logoConfig.icon && (
-                  <logoConfig.icon.component size={30} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.2rem' : '0' }} />
+                {IconComponent && (
+                  <IconComponent size={30} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.2rem' : '0' }} />
                 )}
               </div>
             ) : logoConfig.layout?.arrangement === 'icon-left' ? (
               <div className="flex items-center justify-center gap-2 text-center">
-                {logoConfig.icon && (
-                  <logoConfig.icon.component size={30} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.2rem' : '0' }} />
+                {IconComponent && (
+                  <IconComponent size={30} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.2rem' : '0' }} />
                 )}
                 <div className="flex flex-col items-center">
                   <span className="text-center break-words text-sm" style={{
@@ -322,15 +385,15 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                     </span>
                   )}
                 </div>
-                {logoConfig.icon && (
-                  <logoConfig.icon.component size={24} color={textColor} />
+                {IconComponent && (
+                  <IconComponent size={24} color={textColor} />
                 )}
               </div>
             ) : (
               // Default: icon-top
               <div className="flex flex-col items-center justify-center text-center">
-                {logoConfig.icon && (
-                  <logoConfig.icon.component size={24} color={textColor} className="mb-1" />
+                {IconComponent && (
+                  <IconComponent size={24} color={textColor} className="mb-1" />
                 )}
                 <div className="flex flex-col items-center">
                   <span className="text-center break-words text-sm" style={{ 
@@ -389,14 +452,14 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                     </span>
                   )}
                 </div>
-                {logoConfig.icon && (
-                  <logoConfig.icon.component size={54} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.4rem' : '0' }} />
+                {IconComponent && (
+                  <IconComponent size={54} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.4rem' : '0' }} />
                 )}
               </>
             ) : (
               <>
-                {logoConfig.icon && (
-                  <logoConfig.icon.component size={54} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.4rem' : '0' }} />
+                {IconComponent && (
+                  <IconComponent size={54} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.4rem' : '0' }} />
                 )}
                 <div className="flex flex-col items-center text-center">
                   <span className="text-center break-words" style={{
@@ -449,8 +512,8 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   </span>
                 )}
               </div>
-              {logoConfig.icon && (
-                <logoConfig.icon.component size={48} color={textColor} />
+              {IconComponent && (
+                <IconComponent size={48} color={textColor} />
               )}
             </div>
           );
@@ -458,8 +521,8 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
           // Icon oben, Text unten - "Icon + Text (vertikal)"
           return (
             <div className="flex flex-col items-center">
-              {logoConfig.icon && (
-                <logoConfig.icon.component size={48} color={textColor} className="mb-2" />
+              {IconComponent && (
+                <IconComponent size={48} color={textColor} className="mb-2" />
               )}
               <div className="flex flex-col items-center text-center w-full px-4">
                 <span className="text-center break-words" style={{ 
@@ -523,7 +586,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
               const logoConfigKey = `${currentFont.name}-${variation.id}`;
 
               return (
-                <div key={variation.id} className="flex flex-col">
+                <div key={`${variation.id}-${variationIndex}`} className="flex flex-col">
                   <h5 className="font-medium mb-2 text-white text-sm h-10 flex items-center">{variation.name}</h5>
                   <div
                     className="border border-white/20 rounded-lg group relative w-full flex-1"
@@ -534,7 +597,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                     }}
                   >
                     <div
-                      key={`${currentFont.name}-${variation.id}-${getLogoConfig(logoConfigKey).fontWeight || 400}-${getLogoConfig(logoConfigKey).text || 'default'}`}
+                      key={`${currentFont.name}-${variation.id}-${getLogoConfig(logoConfigKey, variation).fontWeight || 400}-${getLogoConfig(logoConfigKey, variation).text || 'default'}-icon-${variation.icon?.id || 'noicon'}-${variationIndex}`}
                       id={`logo-${currentFont.name.replace(/\s+/g, '-')}-${variation.id}-${variationIndex}`}
                       className="text-4xl text-center p-6 rounded flex items-center justify-center gap-2 w-full min-h-[140px]"
                       style={{
@@ -546,17 +609,17 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                       }}
                     >
                       <div className="flex items-center justify-center w-full" style={{ overflow: 'visible' }}>
-                        {renderLogoVariation(variation, currentFont, getLogoConfig(logoConfigKey))}
+                        {renderLogoVariation(variation, currentFont, getLogoConfig(logoConfigKey, variation), variationIndex)}
                       </div>
                     </div>
                     <LogoEditor
                       config={{
-                        ...getLogoConfig(logoConfigKey),
+                        ...getLogoConfig(logoConfigKey, variation),
                         font: currentFont,
                         fontWeight: currentFont.generationWeights[0] || 400,
                       }}
                       variation={variation}
-                      onConfigUpdate={(newConfig) => updateLogoConfig(logoConfigKey, newConfig)}
+                      onConfigUpdate={(newConfig) => updateLogoConfig(logoConfigKey, newConfig, variation)}
                       availableIcons={availableIcons}
                       availablePalettes={availablePalettes}
                     />
@@ -633,7 +696,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
           const logoConfigKey = `${currentFont.name}-${variation.id}`;
 
           return (
-            <div key={variation.id} className="flex flex-col">
+            <div key={`${variation.id}-${variationIndex}`} className="flex flex-col">
               <h5 className="font-medium mb-2 text-white text-sm h-10 flex items-center">{variation.name}</h5>
               <div
                 className="border border-white/20 rounded-lg group relative w-full flex-1"
@@ -644,7 +707,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                 }}
               >
                 <div
-                  key={`${currentFont.name}-${variation.id}-${getLogoConfig(logoConfigKey).fontWeight || 400}-${getLogoConfig(logoConfigKey).text || 'default'}`}
+                  key={`${currentFont.name}-${variation.id}-${getLogoConfig(logoConfigKey, variation).fontWeight || 400}-${getLogoConfig(logoConfigKey, variation).text || 'default'}-icon-${variation.icon?.id || 'noicon'}-${variationIndex}`}
                   id={`logo-${currentFont.name.replace(/\s+/g, '-')}-${variation.id}-${variationIndex}`}
                   className="text-4xl text-center p-6 rounded flex items-center justify-center gap-2 w-full min-h-[140px]"
                   style={{
@@ -656,12 +719,12 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                   }}
                 >
                   <div className="flex items-center justify-center w-full" style={{ overflow: 'visible' }}>
-                    {renderLogoVariation(variation, currentFont, getLogoConfig(logoConfigKey))}
+                    {renderLogoVariation(variation, currentFont, getLogoConfig(logoConfigKey, variation), variationIndex)}
                   </div>
                 </div>
                 <LogoEditor
                   config={{
-                    ...getLogoConfig(logoConfigKey),
+                    ...getLogoConfig(logoConfigKey, variation),
                     font: currentFont,
                     fontWeight: currentFont.generationWeights[0] || 400,
                   }}

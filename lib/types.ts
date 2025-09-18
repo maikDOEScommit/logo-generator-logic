@@ -59,6 +59,7 @@ export interface LogoConfig {
   selectedColorOption?: string; // Referenz auf colorOptions.id (base-only, add-white, add-black, add-black-white)
   baseColor?: string; // Die ursprünglich gewählte Grundfarbe
   fontWeight?: number; // Font-Weight für den Brand-Namen (100-900)
+  industry?: string; // Industry/category for the logo
 }
 
 // === FARB-GENERATIONS-TYPEN ===
