@@ -11,8 +11,8 @@ interface Props {
 
 const Step1_Industry = ({ industry, setIndustry, onNext }: Props) => (
   <motion.div key="step1" className="space-y-8 animate-fade-in">
-    <h1 className="text-4xl font-bold">Tell us about your <span className="text-black custom-brand-underline">brand</span>!</h1>
-    <Section title="What industry are you in?">
+    <h1 className="text-4xl font-bold">I. Tell us about your <span className="text-black custom-brand-underline">brand</span>!</h1>
+    <Section title="1. What industry are you in?">
       {Object.entries(industries).map(([key, value]) => (
         <SelectionCard key={key} isSelected={industry === key} onClick={() => setIndustry(key)}>
           <p className="font-bold">{value.name}</p>

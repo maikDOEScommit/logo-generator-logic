@@ -48,12 +48,12 @@ export const TextSettingsPanel = ({
     <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
       <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
         <User size={20} className="text-purple-400" />
-        Text
+        IV. Text
       </h4>
       <div className="space-y-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <label className="text-white/80 text-sm">Brand Name</label>
+            <label className="text-white/80 text-sm">1. Brand Name</label>
             <input
               type="color"
               value={brandNameColor}
@@ -71,7 +71,7 @@ export const TextSettingsPanel = ({
         </div>
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <label className="text-white/80 text-sm">Slogan</label>
+            <label className="text-white/80 text-sm">2. Slogan</label>
             <input
               type="color"
               value={sloganColor}
@@ -107,7 +107,7 @@ export const TextSettingsPanel = ({
             <option value="Georgia">Georgia</option>
           </select>
 
-          <label className="block text-white/80 text-sm mb-1">Font Weight</label>
+          <label className="block text-white/80 text-sm mb-1">3. Font Weight</label>
           <div className="space-y-2">
             {getAvailableWeights().map(weight => (
               <button

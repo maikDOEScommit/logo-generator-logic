@@ -30,7 +30,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
     <motion.div key="step2" className="animate-fade-in mt-4">
       {/* Brand Name Input */}
       <div className="text-left">
-        <label htmlFor="text" className="block text-xl font-bold mb-2 text-white">What&apos;s your brand called?</label>
+        <label htmlFor="text" className="block text-xl font-bold mb-2 text-white">II. What&apos;s your brand called?</label>
         <input
           type="text"
           id="text"
@@ -98,7 +98,7 @@ const Step2_Branding = ({ config, updateConfig, selectedPersonalities, onToggleP
             transition={{ duration: 2.1, ease: "easeOut", type: "spring", stiffness: 50, delay: 0.8 }}
             className="text-center mt-8"
           >
-            <label htmlFor="slogan" className="block text-xl font-bold mb-2 text-white">Need a slogan?</label>
+            <label htmlFor="slogan" className="block text-xl font-bold mb-2 text-white">1. Need a slogan?</label>
             <input
               type="text"
               id="slogan"

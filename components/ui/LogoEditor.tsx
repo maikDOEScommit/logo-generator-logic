@@ -30,7 +30,7 @@ interface Point {
 
 interface Stroke {
   id: string;
-  tool: 'brush' | 'eraser' | 'box' | 'box-fill' | 'box-border' | 'line' | 'eyedropper' | 'text' | 'icon';
+  tool: 'brush' | 'eraser' | 'box' | 'box-fill' | 'box-border' | 'box-eraser' | 'line' | 'eyedropper' | 'text' | 'icon';
   points: Point[];
   color: string;
   width: number;
@@ -135,7 +135,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
   const [localConfig, setLocalConfig] = useState<LogoConfig>(config);
   
   // Drawing tool states
-  const [drawingTool, setDrawingTool] = useState<'brush' | 'eraser' | 'box' | 'line' | 'eyedropper' | 'move' | 'place'>('brush');
+  const [drawingTool, setDrawingTool] = useState<'brush' | 'eraser' | 'box' | 'box-eraser' | 'line' | 'eyedropper' | 'move' | 'place'>('brush');
   const [selectedElement, setSelectedElement] = useState<'icon' | 'brand' | 'slogan'>('icon');
   const [brushSize, setBrushSize] = useState(10);
   const [brushOpacity, setBrushOpacity] = useState(10); // 1-10 scale, 10 = 100% opacity
@@ -947,6 +947,26 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       setIsDrawing(true);
       drawingRef.current.drawing = true;
       drawingRef.current.startPoint = point;
+    } else if (drawingTool === 'box-eraser') {
+      // Create a box-eraser stroke in the current layer
+      const newStroke: Stroke = {
+        id: `box-eraser-${Date.now()}`,
+        tool: 'box-eraser',
+        points: [point],
+        color: 'transparent', // Eraser has no color
+        width: 1,
+        opacity: 1,
+        rect: {
+          x: point.x,
+          y: point.y,
+          width: 0,
+          height: 0
+        }
+      };
+      setCurrentStroke(newStroke);
+      setIsDrawing(true);
+      drawingRef.current.drawing = true;
+      drawingRef.current.startPoint = point;
     } else if (drawingTool === 'line') {
       const newLine: LineShape = {
         id: `line-${Date.now()}`,
@@ -1014,7 +1034,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       const startPoint = drawingRef.current.startPoint;
       const width = point.x - startPoint.x;
       const height = point.y - startPoint.y;
-      
+
       // Normalize coordinates to handle drawing in all directions
       const normalizedBox = {
         x: Math.min(startPoint.x, point.x),
@@ -1022,13 +1042,30 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         width: Math.abs(width),
         height: Math.abs(height)
       };
-      
+
       setCurrentBox({
         ...currentBox,
         x: normalizedBox.x,
         y: normalizedBox.y,
         width: normalizedBox.width,
         height: normalizedBox.height
+      });
+    } else if (drawingTool === 'box-eraser' && currentStroke && drawingRef.current.startPoint) {
+      const startPoint = drawingRef.current.startPoint;
+      const width = point.x - startPoint.x;
+      const height = point.y - startPoint.y;
+
+      // Normalize coordinates to handle drawing in all directions
+      const normalizedRect = {
+        x: Math.min(startPoint.x, point.x),
+        y: Math.min(startPoint.y, point.y),
+        width: Math.abs(width),
+        height: Math.abs(height)
+      };
+
+      setCurrentStroke({
+        ...currentStroke,
+        rect: normalizedRect
       });
     } else if ((drawingTool === 'line' || (drawingTool === 'eraser' && eraserMode === 'line')) && currentLine) {
       setCurrentLine({
@@ -1076,11 +1113,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         ...currentBox,
         selected: true // Select the newly created box for drag and drop
       };
-      
+
       setBoxes(prev => [...prev, finalBox]);
       setSelectedBox(finalBox.id);
       setCurrentBox(null);
-      
+
       // Enable drag and drop immediately after creation
       setIsMoving(true);
       setMovingBox(finalBox.id);
@@ -1089,6 +1126,20 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         startY: point.y,
         originalBox: finalBox
       });
+    } else if (drawingTool === 'box-eraser' && currentStroke) {
+      // Finalize the box-eraser and add it to strokes as an eraser action
+      const finalStroke = {
+        ...currentStroke
+      };
+
+      // Add the eraser stroke to the current layer
+      setEditLayers(prev => prev.map(layer =>
+        layer.id === activeLayer
+          ? { ...layer, strokes: [...layer.strokes, finalStroke] }
+          : layer
+      ));
+
+      setCurrentStroke(null);
     } else if (currentStroke) {
       // Add brush/eraser stroke to current layer
       setEditLayers(prev => prev.map(layer =>
@@ -1239,7 +1290,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           .sort((a, b) => a.order - b.order) // Sort by order, lowest first
           .map(layer =>
           layer.visible && layer.strokes.map(stroke => {
-            if ((stroke.tool === 'box' || stroke.tool === 'box-fill' || stroke.tool === 'box-border') && stroke.rect) {
+            if ((stroke.tool === 'box' || stroke.tool === 'box-fill' || stroke.tool === 'box-border' || stroke.tool === 'box-eraser') && stroke.rect) {
               const centerX = stroke.rect.x + stroke.rect.width / 2;
               const centerY = stroke.rect.y + stroke.rect.height / 2;
               const rotation = stroke.rotation || 0;
@@ -1274,6 +1325,23 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     opacity={stroke.opacity}
                     transform={`rotate(${rotation} ${centerX} ${centerY})`}
                   />
+                );
+              } else if (stroke.tool === 'box-eraser') {
+                // Box eraser - acts as a mask to erase content
+                return (
+                  <defs key={`${stroke.id}-defs`}>
+                    <mask id={`eraser-mask-${stroke.id}`}>
+                      <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                      <rect
+                        x={stroke.rect.x}
+                        y={stroke.rect.y}
+                        width={stroke.rect.width}
+                        height={stroke.rect.height}
+                        fill="black"
+                        transform={`rotate(${rotation} ${centerX} ${centerY})`}
+                      />
+                    </mask>
+                  </defs>
                 );
               } else {
                 // Original box behavior - check if it has separate stroke properties
@@ -1616,8 +1684,23 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
           />
         )}
         
+        {/* Render current box-eraser being drawn (live preview) */}
+        {currentStroke && currentStroke.tool === 'box-eraser' && currentStroke.rect && (
+          <rect
+            x={currentStroke.rect.x}
+            y={currentStroke.rect.y}
+            width={Math.abs(currentStroke.rect.width)}
+            height={Math.abs(currentStroke.rect.height)}
+            fill="rgba(255, 0, 0, 0.3)"
+            stroke="red"
+            strokeWidth={2}
+            strokeDasharray="5,5"
+            style={{ pointerEvents: 'none' }}
+          />
+        )}
+
         {/* Render current stroke being drawn */}
-        {currentStroke && (
+        {currentStroke && currentStroke.tool !== 'box-eraser' && (
           <path
             d={pointsToPath(currentStroke.points)}
             fill="none"
@@ -2429,7 +2512,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 {/* Drawing Canvas Overlay */}
                 <div
                   ref={canvasRef}
-                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') ? 'cursor-none' : drawingTool === 'eyedropper' ? 'cursor-crosshair' : drawingTool === 'move' ? 'cursor-move' : drawingTool === 'place' ? 'cursor-pointer' : 'cursor-crosshair'}`}
+                  className={`absolute inset-0 rounded-lg ${(drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') ? 'cursor-none' : drawingTool === 'eyedropper' ? 'cursor-crosshair' : drawingTool === 'move' ? 'cursor-move' : drawingTool === 'place' ? 'cursor-pointer' : (drawingTool === 'box' || drawingTool === 'box-eraser') ? 'cursor-crosshair' : 'cursor-crosshair'}`}
                   style={{
                     cursor: (drawingTool === 'brush' || drawingTool === 'eraser' || drawingTool === 'line') && !isZoomed ? 'none' :
                             isZoomed && drawingTool === 'brush' ?
@@ -2487,6 +2570,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   {drawingTool === 'brush' ? `🖌️ Brush ${brushSize}px` :
                    drawingTool === 'eraser' ? `🧽 Eraser ${brushSize}px` :
                    drawingTool === 'box' ? `⬜ Box` :
+                   drawingTool === 'box-eraser' ? `🧽⬜ Box Eraser` :
                    drawingTool === 'line' ? `📏 Line ${lineWidth}px` :
                    drawingTool === 'eyedropper' ? `🎨 Pipette` :
                    drawingTool === 'move' ? `↔️ Move Elements` :
@@ -2564,7 +2648,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10 backdrop-blur-sm">
                   <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
                     <Brush size={16} className="text-blue-400" />
-                    Drawing Tools
+                    I. Drawing Tools
                   </h4>
 
                   {/* Tool Selection Grid Layout */}
@@ -2672,6 +2756,211 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                               className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
                             />
                           </div>
+                        </>
+                      )}
+
+                      {/* Move Tool Element Controls */}
+                      {drawingTool === 'move' && (
+                        <>
+                          {/* Rotation Slider */}
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">
+                              Rotation: {Math.round((logoElements[selectedElement as keyof typeof logoElements] as any)?.rotation || 0)}°
+                            </label>
+                            <input
+                              type="range"
+                              min="-180"
+                              max="180"
+                              value={(logoElements[selectedElement as keyof typeof logoElements] as any)?.rotation || 0}
+                              onChange={(e) => {
+                                const newRotation = parseInt(e.target.value);
+                                setLogoElements(prev => ({
+                                  ...prev,
+                                  [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                    ...(prev[selectedElement as keyof typeof prev] as any),
+                                    rotation: newRotation
+                                  } : prev[selectedElement as keyof typeof prev]
+                                }));
+                              }}
+                              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+
+                          {/* Opacity Slider */}
+                          <div>
+                            <label className="block text-white/80 text-sm mb-1">
+                              Opacity: {Math.round(((logoElements[selectedElement as keyof typeof logoElements] as any)?.opacity || 1) * 100)}%
+                            </label>
+                            <input
+                              type="range"
+                              min="0.1"
+                              max="1"
+                              step="0.1"
+                              value={(logoElements[selectedElement as keyof typeof logoElements] as any)?.opacity || 1}
+                              onChange={(e) => {
+                                const newOpacity = parseFloat(e.target.value);
+                                setLogoElements(prev => ({
+                                  ...prev,
+                                  [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                    ...(prev[selectedElement as keyof typeof prev] as any),
+                                    opacity: newOpacity
+                                  } : prev[selectedElement as keyof typeof prev]
+                                }));
+                              }}
+                              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+
+                          {/* Size Slider - Icon only */}
+                          {selectedElement === 'icon' && logoElements.icon && (
+                            <div>
+                              <label className="block text-white/80 text-sm mb-1">
+                                Size: {logoElements.icon.size}px
+                              </label>
+                              <input
+                                type="range"
+                                min="16"
+                                max="120"
+                                value={logoElements.icon.size}
+                                onChange={(e) => {
+                                  const newSize = parseInt(e.target.value);
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    icon: prev.icon ? { ...prev.icon, size: newSize } : prev.icon
+                                  }));
+                                }}
+                                className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
+                          )}
+
+                          {/* Font Size Slider - Text elements only */}
+                          {(selectedElement === 'brand' || selectedElement === 'slogan') && logoElements[selectedElement] && (
+                            <div>
+                              <label className="block text-white/80 text-sm mb-1">
+                                Font Size: {(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.fontSize}px
+                              </label>
+                              <input
+                                type="range"
+                                min="8"
+                                max="72"
+                                value={(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.fontSize || 16}
+                                onChange={(e) => {
+                                  const newSize = parseInt(e.target.value);
+                                  setLogoElements(prev => ({
+                                    ...prev,
+                                    [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                      ...(prev[selectedElement as keyof typeof prev] as TextElement),
+                                      fontSize: newSize
+                                    } : prev[selectedElement as keyof typeof prev]
+                                  }));
+                                }}
+                                className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
+                          )}
+
+                          {/* Icon Color - Icon only */}
+                          {selectedElement === 'icon' && logoElements.icon && (
+                            <div>
+                              <label className="block text-white/80 text-sm mb-1">Icon Color</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="color"
+                                  value={logoElements.icon.color}
+                                  onChange={(e) => {
+                                    setLogoElements(prev => ({
+                                      ...prev,
+                                      icon: prev.icon ? { ...prev.icon, color: e.target.value } : prev.icon
+                                    }));
+                                  }}
+                                  className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                                />
+                                <span className="text-white/50 text-xs">{logoElements.icon.color}</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Text Color - Text elements only */}
+                          {(selectedElement === 'brand' || selectedElement === 'slogan') && logoElements[selectedElement] && (
+                            <div>
+                              <label className="block text-white/80 text-sm mb-1">Text Color</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="color"
+                                  value={(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.color || '#000000'}
+                                  onChange={(e) => {
+                                    setLogoElements(prev => ({
+                                      ...prev,
+                                      [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                        ...(prev[selectedElement as keyof typeof prev] as TextElement),
+                                        color: e.target.value
+                                      } : prev[selectedElement as keyof typeof prev]
+                                    }));
+                                  }}
+                                  className="w-8 h-6 rounded border border-white/20 cursor-pointer"
+                                />
+                                <span className="text-white/50 text-xs">{(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.color}</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Text Alignment - Text elements only */}
+                          {(selectedElement === 'brand' || selectedElement === 'slogan') && logoElements[selectedElement] && (
+                            <div>
+                              <label className="block text-white/80 text-sm mb-1">Text Alignment</label>
+                              <div className="flex items-center justify-between bg-white/10 border border-white/20 rounded p-2">
+                                <button
+                                  onClick={() => setLogoElements(prev => ({
+                                    ...prev,
+                                    [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                      ...(prev[selectedElement as keyof typeof prev] as TextElement),
+                                      textAlign: 'left'
+                                    } : prev[selectedElement as keyof typeof prev]
+                                  }))}
+                                  className={`flex-1 px-2 py-1 rounded text-xs transition-colors ${
+                                    (logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.textAlign === 'left'
+                                      ? 'bg-blue-600 text-white'
+                                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                                  }`}
+                                >
+                                  Links
+                                </button>
+                                <button
+                                  onClick={() => setLogoElements(prev => ({
+                                    ...prev,
+                                    [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                      ...(prev[selectedElement as keyof typeof prev] as TextElement),
+                                      textAlign: 'center'
+                                    } : prev[selectedElement as keyof typeof prev]
+                                  }))}
+                                  className={`flex-1 px-2 py-1 rounded text-xs transition-colors ${
+                                    (logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.textAlign === 'center'
+                                      ? 'bg-blue-600 text-white'
+                                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                                  }`}
+                                >
+                                  Mitte
+                                </button>
+                                <button
+                                  onClick={() => setLogoElements(prev => ({
+                                    ...prev,
+                                    [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
+                                      ...(prev[selectedElement as keyof typeof prev] as TextElement),
+                                      textAlign: 'right'
+                                    } : prev[selectedElement as keyof typeof prev]
+                                  }))}
+                                  className={`flex-1 px-2 py-1 rounded text-xs transition-colors ${
+                                    (logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.textAlign === 'right'
+                                      ? 'bg-blue-600 text-white'
+                                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                                  }`}
+                                >
+                                  Rechts
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </>
                       )}
 
@@ -2802,12 +3091,12 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   </div>
 
 
-                  {/* Background Color Selector - Show when background or original layer is selected */}
-                  {(editLayers.find(l => l.id === activeLayer)?.type === 'background' || editLayers.find(l => l.id === activeLayer)?.type === 'original') && (
+                  {/* DISABLED - Background Color Selector moved to right panel */}
+                  {false && (editLayers.find(l => l.id === activeLayer)?.type === 'background' || editLayers.find(l => l.id === activeLayer)?.type === 'original') && (
                     <div className="bg-white/5 rounded-xl mb-6 overflow-hidden border border-white/10 w-full">
                       <div className="flex items-center gap-2 px-2 py-3 border-b border-white/10">
                         <Palette className="w-4 h-4 text-white" />
-                        <span className="font-semibold text-white">Background Color</span>
+                        <span className="font-semibold text-white">III. Background Color</span>
                       </div>
                       <div className="p-2">
                         {(() => {
@@ -2989,7 +3278,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                                     onChange={(e) => updateLayerBackgroundColor(activeLayer, e.target.value)}
                                     className="w-full h-12 rounded-lg border border-white/20 bg-transparent"
                                   />
-                                  <div className="mt-3 grid grid-cols-3 gap-2">
+                                  <div className="mt-3 grid grid-cols-5 gap-2">
                                     {['#ffffff', '#f3f4f6', '#e5e7eb', '#d1d5db', '#9ca3af', '#6b7280', '#374151', '#111827', '#000000'].map(color => (
                                       <button
                                         key={color}
@@ -3020,7 +3309,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                   {/* Place Tool Settings */}
                   {drawingTool === 'place' && (
                     <div className="bg-white/10 rounded p-1 mb-4">
-                      <label className="block text-white/80 text-sm mb-2">Select Element to Place</label>
+                      <label className="block text-white/80 text-sm mb-2">1. Select Element to Place</label>
                       <p className="text-white/60 text-xs mb-3">Wähle ein Element aus und klicke dann im Logo, um es zu positionieren</p>
 
                       <div className="grid grid-cols-1 gap-2 w-full">
@@ -3099,215 +3388,10 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     </div>
                   )}
 
-                  {/* Move Tool Settings */}
+                  {/* Move Tool Position Controls - only show position info below */}
                   {drawingTool === 'move' && (
-                    <div className="bg-white/10 rounded p-1 mb-4">
-                      <div className="w-[60%]">
-                        <label className="block text-white/80 text-sm mb-2">Element Controls</label>
-
-                        {/* Element Control Sliders - Just like Brush Tool */}
-                        <div className="space-y-3 mb-4">
-                        {/* Rotation Slider */}
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">
-                            Rotation: {Math.round((logoElements[selectedElement as keyof typeof logoElements] as any)?.rotation || 0)}°
-                          </label>
-                          <input
-                            type="range"
-                            min="-180"
-                            max="180"
-                            value={(logoElements[selectedElement as keyof typeof logoElements] as any)?.rotation || 0}
-                            onChange={(e) => {
-                              const newRotation = parseInt(e.target.value);
-                              setLogoElements(prev => ({
-                                ...prev,
-                                [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                  ...(prev[selectedElement as keyof typeof prev] as any),
-                                  rotation: newRotation
-                                } : prev[selectedElement as keyof typeof prev]
-                              }));
-                            }}
-                            className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                          />
-                        </div>
-
-                        {/* Opacity Slider */}
-                        <div>
-                          <label className="block text-white/80 text-sm mb-1">
-                            Opacity: {Math.round(((logoElements[selectedElement as keyof typeof logoElements] as any)?.opacity || 1) * 100)}%
-                          </label>
-                          <input
-                            type="range"
-                            min="0.1"
-                            max="1"
-                            step="0.1"
-                            value={(logoElements[selectedElement as keyof typeof logoElements] as any)?.opacity || 1}
-                            onChange={(e) => {
-                              const newOpacity = parseFloat(e.target.value);
-                              setLogoElements(prev => ({
-                                ...prev,
-                                [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                  ...(prev[selectedElement as keyof typeof prev] as any),
-                                  opacity: newOpacity
-                                } : prev[selectedElement as keyof typeof prev]
-                              }));
-                            }}
-                            className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                          />
-                        </div>
-
-                        {/* Size Slider - Icon only */}
-                        {selectedElement === 'icon' && logoElements.icon && (
-                          <div>
-                            <label className="block text-white/80 text-sm mb-1">
-                              Size: {logoElements.icon.size}px
-                            </label>
-                            <input
-                              type="range"
-                              min="16"
-                              max="120"
-                              value={logoElements.icon.size}
-                              onChange={(e) => {
-                                const newSize = parseInt(e.target.value);
-                                setLogoElements(prev => ({
-                                  ...prev,
-                                  icon: prev.icon ? { ...prev.icon, size: newSize } : prev.icon
-                                }));
-                              }}
-                              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                            />
-                          </div>
-                        )}
-
-                        {/* Font Size Slider - Text elements only */}
-                        {(selectedElement === 'brand' || selectedElement === 'slogan') && logoElements[selectedElement] && (
-                          <div>
-                            <label className="block text-white/80 text-sm mb-1">
-                              Font Size: {(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.fontSize}px
-                            </label>
-                            <input
-                              type="range"
-                              min="8"
-                              max="72"
-                              value={(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.fontSize || 16}
-                              onChange={(e) => {
-                                const newSize = parseInt(e.target.value);
-                                setLogoElements(prev => ({
-                                  ...prev,
-                                  [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                    ...(prev[selectedElement as keyof typeof prev] as TextElement),
-                                    fontSize: newSize
-                                  } : prev[selectedElement as keyof typeof prev]
-                                }));
-                              }}
-                              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                            />
-                          </div>
-                        )}
-
-                        {/* Icon Color - Icon only */}
-                        {selectedElement === 'icon' && logoElements.icon && (
-                          <div>
-                            <label className="block text-white/80 text-sm mb-1">Icon Color</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="color"
-                                value={logoElements.icon.color}
-                                onChange={(e) => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    icon: prev.icon ? { ...prev.icon, color: e.target.value } : prev.icon
-                                  }));
-                                }}
-                                className="w-8 h-6 rounded border border-white/20 cursor-pointer"
-                              />
-                              <span className="text-white/50 text-xs">{logoElements.icon.color}</span>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Text Color - Text elements only */}
-                        {(selectedElement === 'brand' || selectedElement === 'slogan') && logoElements[selectedElement] && (
-                          <div>
-                            <label className="block text-white/80 text-sm mb-1">Text Color</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="color"
-                                value={(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.color || '#000000'}
-                                onChange={(e) => {
-                                  setLogoElements(prev => ({
-                                    ...prev,
-                                    [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                      ...(prev[selectedElement as keyof typeof prev] as TextElement),
-                                      color: e.target.value
-                                    } : prev[selectedElement as keyof typeof prev]
-                                  }));
-                                }}
-                                className="w-8 h-6 rounded border border-white/20 cursor-pointer"
-                              />
-                              <span className="text-white/50 text-xs">{(logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.color}</span>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Text Alignment - Text elements only */}
-                        {(selectedElement === 'brand' || selectedElement === 'slogan') && logoElements[selectedElement] && (
-                          <div>
-                            <label className="block text-white/80 text-sm mb-1">Text Alignment</label>
-                            <div className="flex items-center justify-between bg-white/10 border border-white/20 rounded p-2">
-                              <button
-                                onClick={() => setLogoElements(prev => ({
-                                  ...prev,
-                                  [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                    ...(prev[selectedElement as keyof typeof prev] as TextElement),
-                                    textAlign: 'left'
-                                  } : prev[selectedElement as keyof typeof prev]
-                                }))}
-                                className={`flex-1 px-2 py-1 rounded text-xs transition-colors ${
-                                  (logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.textAlign === 'left'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                                }`}
-                              >
-                                Links
-                              </button>
-                              <button
-                                onClick={() => setLogoElements(prev => ({
-                                  ...prev,
-                                  [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                    ...(prev[selectedElement as keyof typeof prev] as TextElement),
-                                    textAlign: 'center'
-                                  } : prev[selectedElement as keyof typeof prev]
-                                }))}
-                                className={`flex-1 px-2 py-1 rounded text-xs transition-colors ${
-                                  (logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.textAlign === 'center'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                                }`}
-                              >
-                                Mitte
-                              </button>
-                              <button
-                                onClick={() => setLogoElements(prev => ({
-                                  ...prev,
-                                  [selectedElement]: prev[selectedElement as keyof typeof prev] ? {
-                                    ...(prev[selectedElement as keyof typeof prev] as TextElement),
-                                    textAlign: 'right'
-                                  } : prev[selectedElement as keyof typeof prev]
-                                }))}
-                                className={`flex-1 px-2 py-1 rounded text-xs transition-colors ${
-                                  (logoElements[selectedElement as keyof typeof logoElements] as TextElement)?.textAlign === 'right'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                                }`}
-                              >
-                                Rechts
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                        </div>
-                      </div>
+                    <div className="bg-white/10 rounded p-3 mb-4">
+                      <label className="block text-white/80 text-sm mb-2">Position Controls</label>
 
                       <p className="text-white/60 text-xs mb-3">Klicke und ziehe Icon, Brand Name oder Slogan um sie zu verschieben</p>
 
@@ -3801,15 +3885,241 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                     onDeleteLayer={deleteLayer}
                     onAddCustomLayer={addCustomLayer}
                   />
+
+                  {/* Background Color Selector - Show when background or original layer is selected */}
+                  {(editLayers.find(l => l.id === activeLayer)?.type === 'background' || editLayers.find(l => l.id === activeLayer)?.type === 'original') && (
+                    <div className="bg-white/5 rounded-xl mb-6 overflow-hidden border border-white/10 w-full">
+                      <div className="flex items-center gap-2 px-2 py-3 border-b border-white/10">
+                        <Palette className="w-4 h-4 text-white" />
+                        <span className="font-semibold text-white">III. Background Color</span>
+                      </div>
+                      <div className="p-2">
+                        {(() => {
+                          const currentBg = editLayers.find(l => l.id === activeLayer)?.backgroundColor || '#ffffff';
+                          const isGradient = currentBg.includes('linear-gradient');
+
+                          // Extract colors and direction from gradient if present
+                          let gradientColor1 = '#ff6b6b';
+                          let gradientColor2 = '#4ecdc4';
+                          let gradientColor3 = '#a855f7';
+                          let gradientDirection = 135;
+                          let use3Colors = false;
+                          let solidColor = '#ffffff';
+
+                          if (isGradient) {
+                            // Parse gradient string for direction and colors
+                            const directionMatch = currentBg.match(/(\d+)deg/);
+                            if (directionMatch) gradientDirection = parseInt(directionMatch[1]);
+
+                            const colorMatches = currentBg.match(/#[a-fA-F0-9]{6}/g);
+                            if (colorMatches && colorMatches.length >= 2) {
+                              gradientColor1 = colorMatches[0];
+                              gradientColor2 = colorMatches[1];
+                              if (colorMatches.length >= 3) {
+                                gradientColor3 = colorMatches[2];
+                                use3Colors = true;
+                              }
+                            }
+                          } else {
+                            solidColor = currentBg === 'transparent' ? '#ffffff' : currentBg;
+                          }
+
+                          return (
+                            <div>
+                              {/* Background Type Selector */}
+                              <div className="flex gap-2 mb-4">
+                                <button
+                                  onClick={() => updateLayerBackgroundColor(activeLayer, solidColor)}
+                                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                                    !isGradient
+                                      ? 'bg-blue-600 text-white'
+                                      : 'bg-white/10 text-white/60 hover:bg-white/20'
+                                  }`}
+                                >
+                                  Solid Color
+                                </button>
+                                <button
+                                  onClick={() => updateLayerBackgroundColor(activeLayer, `linear-gradient(${gradientDirection}deg, ${gradientColor1} 0%, ${gradientColor2} 100%)`)}
+                                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                                    isGradient
+                                      ? 'bg-blue-600 text-white'
+                                      : 'bg-white/10 text-white/60 hover:bg-white/20'
+                                  }`}
+                                >
+                                  Gradient
+                                </button>
+                              </div>
+
+                              {/* Gradient Controls */}
+                              {isGradient && (
+                                <div className="space-y-4 mb-4">
+                                  {/* Direction Slider */}
+                                  <div>
+                                    <label className="block text-white/80 text-xs mb-2">Direction: {gradientDirection}°</label>
+                                    <input
+                                      type="range"
+                                      min="0"
+                                      max="360"
+                                      value={gradientDirection}
+                                      onChange={(e) => {
+                                        const newDirection = parseInt(e.target.value);
+                                        setGradientDirection(newDirection);
+                                        const gradientStr = use3Colors
+                                          ? `linear-gradient(${newDirection}deg, ${gradientColor1} 0%, ${gradientColor2} 50%, ${gradientColor3} 100%)`
+                                          : `linear-gradient(${newDirection}deg, ${gradientColor1} 0%, ${gradientColor2} 100%)`;
+                                        updateLayerBackgroundColor(activeLayer, gradientStr);
+                                      }}
+                                      className="flex-1 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                                    />
+                                  </div>
+
+                                  {/* 3 Color Toggle */}
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => {
+                                        const newUse3Colors = !use3Colors;
+                                        setUse3Colors(newUse3Colors);
+                                        const gradientStr = use3Colors
+                                          ? `linear-gradient(${gradientDirection}deg, ${gradientColor1} 0%, ${gradientColor2} 100%)`
+                                          : `linear-gradient(${gradientDirection}deg, ${gradientColor1} 0%, ${gradientColor2} 50%, ${gradientColor3} 100%)`;
+                                        updateLayerBackgroundColor(activeLayer, gradientStr);
+                                      }}
+                                      className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                                        use3Colors
+                                          ? 'bg-blue-600 text-white'
+                                          : 'bg-white/10 text-white/60 hover:bg-white/20'
+                                      }`}
+                                    >
+                                      3 Colors
+                                    </button>
+                                    <span className="text-white/60 text-xs">Add third color</span>
+                                  </div>
+
+                                  {/* Color Controls */}
+                                  <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-white/60 text-xs w-12">Start:</span>
+                                      <input
+                                        type="color"
+                                        value={gradientColor1}
+                                        onChange={(e) => {
+                                          setGradientColor1(e.target.value);
+                                          const gradientStr = use3Colors
+                                            ? `linear-gradient(${gradientDirection}deg, ${e.target.value} 0%, ${gradientColor2} 50%, ${gradientColor3} 100%)`
+                                            : `linear-gradient(${gradientDirection}deg, ${e.target.value} 0%, ${gradientColor2} 100%)`;
+                                          updateLayerBackgroundColor(activeLayer, gradientStr);
+                                        }}
+                                        className="flex-1 h-10 rounded border border-white/20 bg-transparent"
+                                      />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-white/60 text-xs w-12">{use3Colors ? 'Mid:' : 'End:'}</span>
+                                      <input
+                                        type="color"
+                                        value={gradientColor2}
+                                        onChange={(e) => {
+                                          setGradientColor2(e.target.value);
+                                          const gradientStr = use3Colors
+                                            ? `linear-gradient(${gradientDirection}deg, ${gradientColor1} 0%, ${e.target.value} 50%, ${gradientColor3} 100%)`
+                                            : `linear-gradient(${gradientDirection}deg, ${gradientColor1} 0%, ${e.target.value} 100%)`;
+                                          updateLayerBackgroundColor(activeLayer, gradientStr);
+                                        }}
+                                        className="flex-1 h-10 rounded border border-white/20 bg-transparent"
+                                      />
+                                    </div>
+                                    {use3Colors && (
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-white/60 text-xs w-12">End:</span>
+                                        <input
+                                          type="color"
+                                          value={gradientColor3}
+                                          onChange={(e) => {
+                                            const gradientStr = `linear-gradient(${gradientDirection}deg, ${gradientColor1} 0%, ${gradientColor2} 50%, ${e.target.value} 100%)`;
+                                            updateLayerBackgroundColor(activeLayer, gradientStr);
+                                          }}
+                                          className="flex-1 h-10 rounded border border-white/20 bg-transparent"
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Gradient Presets */}
+                                  <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                                      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                                      'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                                      'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                                      'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'
+                                    ].map((gradient, i) => (
+                                      <button
+                                        key={i}
+                                        onClick={() => updateLayerBackgroundColor(activeLayer, gradient)}
+                                        className="w-full h-8 rounded border border-white/20 hover:border-white/40 transition-colors"
+                                        style={{ backgroundImage: gradient }}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Solid Color Controls */}
+                              {!isGradient && (
+                                <div>
+                                  <input
+                                    type="color"
+                                    value={solidColor}
+                                    onChange={(e) => updateLayerBackgroundColor(activeLayer, e.target.value)}
+                                    className="w-full h-12 rounded-lg border border-white/20 bg-transparent"
+                                  />
+                                  <div className="mt-3 grid grid-cols-5 gap-2">
+                                    {['#ffffff', '#f3f4f6', '#e5e7eb', '#d1d5db', '#9ca3af', '#6b7280', '#374151', '#111827', '#000000'].map(color => (
+                                      <button
+                                        key={color}
+                                        onClick={() => updateLayerBackgroundColor(activeLayer, color)}
+                                        className="w-8 h-8 rounded border-2 border-white/20 hover:border-white/40 transition-colors"
+                                        style={{ backgroundColor: color }}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Transparent Option */}
+                              <button
+                                onClick={() => updateLayerBackgroundColor(activeLayer, 'transparent')}
+                                className="w-full mt-3 px-3 py-2 bg-white/10 hover:bg-white/20 text-white/70 rounded text-sm transition-colors border border-white/20"
+                              >
+                                Transparent Background
+                              </button>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  )}
+
                 {/* Text Section */}
                 <div className="bg-white/5 rounded-lg p-2 border border-white/10 backdrop-blur-sm overflow-hidden">
                   <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
                     <User size={16} className="text-purple-400" />
-                    Text
+                    IV. Text
                   </h4>
                   <div className="space-y-2">
                     <div>
-                      <label className="block text-white/80 text-sm mb-1">Brand Name</label>
+                      <div className="flex items-center gap-2 mb-1">
+                        <label className="text-white/80 text-sm">Brand Name</label>
+                        <input
+                          type="color"
+                          value={brandNameColor}
+                          onChange={(e) => {
+                            setBrandNameColor(e.target.value);
+                            // Note: brandNameColor is managed separately from LogoConfig
+                          }}
+                          className="w-6 h-5 rounded border border-white/20 cursor-pointer"
+                        />
+                      </div>
                       <input
                         type="text"
                         value={localConfig.text}
@@ -3817,24 +4127,20 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         className="w-full px-2 py-1.5 bg-white/10 border border-white/20 rounded text-white text-sm box-border"
                         placeholder="Enter brand name"
                       />
-                      <div className="mt-1.5">
-                        <label className="block text-white/60 text-xs mb-1">Brand Name Color</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="color"
-                            value={brandNameColor}
-                            onChange={(e) => {
-                              setBrandNameColor(e.target.value);
-                              // Note: brandNameColor is managed separately from LogoConfig
-                            }}
-                            className="w-6 h-5 rounded border border-white/20 cursor-pointer"
-                          />
-                          <span className="text-white/50 text-xs">{brandNameColor}</span>
-                        </div>
-                      </div>
                     </div>
                     <div>
-                      <label className="block text-white/80 text-sm mb-1">Slogan</label>
+                      <div className="flex items-center gap-2 mb-1">
+                        <label className="text-white/80 text-sm">Slogan</label>
+                        <input
+                          type="color"
+                          value={sloganColor}
+                          onChange={(e) => {
+                            setSloganColor(e.target.value);
+                            // Note: sloganColor is managed separately from LogoConfig
+                          }}
+                          className="w-6 h-5 rounded border border-white/20 cursor-pointer"
+                        />
+                      </div>
                       <input
                         type="text"
                         value={localConfig.slogan}
@@ -3842,21 +4148,6 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                         className="w-full px-2 py-1.5 bg-white/10 border border-white/20 rounded text-white text-sm box-border"
                         placeholder="Enter slogan"
                       />
-                      <div className="mt-1.5">
-                        <label className="block text-white/60 text-xs mb-1">Slogan Color</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="color"
-                            value={sloganColor}
-                            onChange={(e) => {
-                              setSloganColor(e.target.value);
-                              // Note: sloganColor is managed separately from LogoConfig
-                            }}
-                            className="w-6 h-5 rounded border border-white/20 cursor-pointer"
-                          />
-                          <span className="text-white/50 text-xs">{sloganColor}</span>
-                        </div>
-                      </div>
                     </div>
                     <div>
                       <label className="block text-white/80 text-sm mb-1">Font Family</label>
@@ -3983,7 +4274,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                 <div className="bg-white/5 rounded-lg p-2 border border-white/10 backdrop-blur-sm overflow-hidden">
                   <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
                     <Star size={16} className="text-yellow-400" />
-                    Icon
+                    V. Icon
                     <input
                       type="color"
                       value={iconColor}
@@ -4097,11 +4388,11 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
 
                 {/* Colors Section */}
                 <div>
-                  <h4 className="text-white font-semibold mb-3">Colors</h4>
+                  <h4 className="text-white font-semibold mb-3">VI. Colors</h4>
                   
                   {/* Color Palettes */}
                   <div className="mb-4">
-                    <h5 className="text-white/80 text-sm mb-2">Predefined Palettes</h5>
+                    <h5 className="text-white/80 text-sm mb-2">1. Predefined Palettes</h5>
                     <div className="grid grid-cols-3 gap-2 w-full">
                       {availablePalettes.slice(0, 12).map(palette => (
                         <button

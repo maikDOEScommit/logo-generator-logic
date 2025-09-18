@@ -34,6 +34,7 @@ export default function LogoGeneratorPage() {
   const [hideStartedText, setHideStartedText] = useState(false); // Control hiding "Let's get started" text
   const [selectedFontCategory, setSelectedFontCategory] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [hideNewSection, setHideNewSection] = useState(false); // Control hiding the new section above footer
 
   // Monitor theme changes
   useEffect(() => {
@@ -555,7 +556,10 @@ export default function LogoGeneratorPage() {
                   We turn your ideas into a logo that speaks your brand&apos;s language.
                 </p>
                 <button
-                  onClick={() => handleSectionNext(0)}
+                  onClick={() => {
+                    setHideNewSection(true);
+                    handleSectionNext(0);
+                  }}
                   className="bg-black !text-white font-bold px-8 py-4 rounded-lg shadow-xl shadow-black/30 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl hover:shadow-black/40 hover:rotate-1 active:scale-95 relative overflow-hidden group"
                 >
                   <span className="relative z-10">
@@ -1234,6 +1238,182 @@ export default function LogoGeneratorPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* New Modern Two-Column Section with Organic Curve */}
+      {!hideNewSection && (
+        <motion.section
+          initial={{ opacity: 1, height: 'auto' }}
+          animate={{
+            opacity: hideNewSection ? 0 : 1,
+            height: hideNewSection ? 0 : 'auto'
+          }}
+          transition={{ duration: 0.5 }}
+          className="relative py-20 px-4 md:px-8 lg:px-12 overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
+          }}
+        >
+          {/* Organic Curve Background */}
+          <div className="absolute inset-0 overflow-hidden">
+            <svg
+              className="absolute inset-0 w-full h-full"
+              viewBox="0 0 1200 800"
+              preserveAspectRatio="xMidYMid slice"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M0,0 L1200,0 L1200,400 Q900,300 600,400 Q300,500 0,400 Z"
+                fill="url(#curveGradient)"
+              />
+              <defs>
+                <linearGradient id="curveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#e0f2fe" />
+                  <stop offset="50%" stopColor="#bae6fd" />
+                  <stop offset="100%" stopColor="#0ea5e9" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+              {/* Left Column */}
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+                className="space-y-8"
+              >
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+                  Transform Your
+                  <span className="block text-blue-600">Brand Vision</span>
+                  Into Reality
+                </h2>
+
+                <p className="text-xl text-gray-700 leading-relaxed">
+                  Join thousands of entrepreneurs who've elevated their brand with our AI-powered design platform. Create stunning logos that capture your unique identity in minutes.
+                </p>
+
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <span>Start Creating Now</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </motion.button>
+
+                {/* Customer Quote */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  viewport={{ once: true }}
+                  className="flex items-start gap-4 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg"
+                >
+                  <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
+                    <img
+                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23e0f2fe'/%3E%3Ctext x='50' y='60' text-anchor='middle' font-size='40' fill='%23075985'%3ES%3C/text%3E%3C/svg%3E"
+                      alt="Customer"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-gray-700 italic mb-2">
+                      "This platform transformed my startup's identity completely. The AI suggestions were spot-on and saved me weeks of design work."
+                    </p>
+                    <div className="text-sm text-gray-600">
+                      <strong>Sarah Chen</strong> - Tech Entrepreneur
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+
+              {/* Right Column - Product Images */}
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="relative"
+              >
+                <div className="relative">
+                  {/* Main Product Image */}
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                    className="relative z-20 bg-white rounded-3xl shadow-2xl p-8 transform rotate-2"
+                  >
+                    <div className="aspect-square bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
+                      <svg className="w-24 h-24 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                      </svg>
+                    </div>
+                  </motion.div>
+
+                  {/* Secondary Product Image */}
+                  <motion.div
+                    animate={{ y: [0, 10, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, delay: 1 }}
+                    className="absolute top-16 -right-8 z-10 bg-white rounded-2xl shadow-xl p-6 transform -rotate-3"
+                  >
+                    <div className="w-32 h-32 bg-gradient-to-br from-green-100 to-teal-100 rounded-xl flex items-center justify-center">
+                      <svg className="w-16 h-16 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                    </div>
+                  </motion.div>
+
+                  {/* Third Product Image */}
+                  <motion.div
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ duration: 5, repeat: Infinity, delay: 2 }}
+                    className="absolute -bottom-4 -left-8 z-30 bg-white rounded-2xl shadow-xl p-4 transform rotate-1"
+                  >
+                    <div className="w-28 h-28 bg-gradient-to-br from-pink-100 to-rose-100 rounded-xl flex items-center justify-center">
+                      <svg className="w-14 h-14 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                      </svg>
+                    </div>
+                  </motion.div>
+
+                  {/* Decorative Leaves */}
+                  <motion.div
+                    animate={{ rotate: [0, 5, 0] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                    className="absolute top-0 right-0 text-green-400 opacity-60"
+                  >
+                    <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/>
+                    </svg>
+                  </motion.div>
+
+                  <motion.div
+                    animate={{ rotate: [0, -3, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, delay: 1 }}
+                    className="absolute bottom-8 left-4 text-green-300 opacity-50"
+                  >
+                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/>
+                    </svg>
+                  </motion.div>
+                </div>
+
+                {/* Slider Navigation Dots */}
+                <div className="flex justify-center gap-2 mt-8">
+                  <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                  <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
+                  <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </motion.section>
+      )}
 
       <Footer />
       <LoadingScreen isVisible={showLoadingScreen} />

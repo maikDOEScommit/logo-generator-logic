@@ -348,7 +348,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.4 }}
             >
-              <h2 className="text-xl font-bold mb-8 text-white">Do you want an icon for your logo?</h2>
+              <h2 className="text-xl font-bold mb-8 text-white">III. Do you want an icon for your logo?</h2>
               <div className="flex w-full justify-between gap-4 mb-6">
                 <button
                   onClick={() => {
@@ -385,7 +385,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
       {showIconSetSelection && !wantsIcon && (
         <div className="min-h-screen flex items-center justify-center -mt-12">
           <div className="w-full max-w-4xl">
-            <Section title="Choose an Icon Set" helpText="Select from 19 different icon libraries with unique styles">
+            <Section title="1. Choose an Icon Set" helpText="Select from 19 different icon libraries with unique styles">
               <div className="col-span-full space-y-4">
                 <div className="flex justify-between items-center mb-6">
                   <button
@@ -442,7 +442,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
       {wantsIcon === true && (
         <div className="min-h-screen flex items-start justify-center py-8 pt-4">
           <div className="w-full max-w-2xl">
-            <Section title="Choose a Symbol" helpText="Rule 2: Memorability - Simple symbols are remembered better">
+            <Section title="2. Choose a Symbol" helpText="Rule 2: Memorability - Simple symbols are remembered better">
               <div className="col-span-full space-y-4">
                 <div className="flex justify-between items-center">
                   <button
@@ -559,7 +559,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.4 }}
               >
-                <h2 className="text-xl font-bold mb-8 text-black">Choose your Typography Style</h2>
+                <h2 className="text-xl font-bold mb-8 text-black">3. Choose your Typography Style</h2>
                 <div className="space-y-4 mb-6 relative">
                   {fontCategories.map((category) => (
                     <div key={category.name} className="flex items-center gap-8 relative">
@@ -628,7 +628,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 {/* 10% black overlay */}
                 <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
                 <div className="relative z-10">
-                  <h2 className="text-xl font-bold mb-8 text-white">Choose a Layout</h2>
+                  <h2 className="text-xl font-bold mb-8 text-white">4. Choose a Layout</h2>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   {layouts.map(layout => (
                     <LayoutSelectionCard 
@@ -660,7 +660,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                 {/* Show enclosing shapes when any circle layout is selected */}
                 {selectedLayoutType && layouts.find(l => l.id === selectedLayoutType)?.type === 'enclosed' && (
                   <div className="mt-6 mb-6">
-                    <h3 className="text-lg font-bold mb-3 text-white">Wähle die Form für die Umrandung:</h3>
+                    <h3 className="text-lg font-bold mb-3 text-white">e) Wähle die Form für die Umrandung:</h3>
                     <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
                       {enclosingShapes.map(shape => (
                         <SelectionCard
@@ -698,13 +698,13 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
 
           <div data-section="color" className="min-h-screen flex items-center justify-center py-20">
             <div className="w-full max-w-2xl">
-              <Section title="Choose a Color Palette" helpText="Rule 9: Smart Color Choice - Colors convey emotions and brand values">
+              <Section title="5. Choose a Color Palette" helpText="Rule 9: Smart Color Choice - Colors convey emotions and brand values">
         {/* Brand Personality Selection */}
         <div className="col-span-full mb-6 relative">
           {/* 10% black overlay - only in dark mode */}
           <div className={`absolute inset-0 rounded-lg ${isDarkMode ? 'bg-black/10' : 'bg-transparent'}`}></div>
           <div className={`relative z-10 p-4 rounded-lg ${isDarkMode ? 'bg-white/5 border border-white/10' : 'bg-transparent border-transparent'}`}>
-            <label className={`block text-lg font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-black'}`}>Brand Personality (max. 2)</label>
+            <label className={`block text-lg font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-black'}`}>a) Brand Personality (max. 2)</label>
             <div className="space-y-3 mb-3">
               {/* First row: 3 shortest buttons */}
               <div className="grid grid-cols-3 gap-3">
@@ -752,7 +752,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           {/* 10% black overlay */}
           <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
           <div className="relative z-10 p-4">
-            <h3 className="text-xl font-bold text-white mb-4">Choose from color palettes</h3>
+            <h3 className="text-xl font-bold text-white mb-4">b) Choose from color palettes</h3>
             <div className="grid grid-cols-4 gap-4">
               {suggestedPalettes.filter(palette => !palette.tags?.includes('intense')).map(palette => (
                 <SelectionCard 
@@ -792,7 +792,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
           <div className={`absolute inset-0 rounded-lg ${isDarkMode ? 'bg-black/10' : 'bg-transparent'}`}></div>
           <div className="relative z-10 p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-black'}`}>Choose Basic Color</h3>
+              <h3 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-black'}`}>c) Choose Basic Color</h3>
               <div className="flex gap-2">
                 {(['grundton', 'pastell', 'neon', 'dunkel'] as const).map((mode) => (
                   <button
@@ -873,7 +873,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
               {/* 10% black overlay */}
               <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
               <div className="relative z-10 p-4">
-                <h3 className="text-xl font-bold text-white mb-4">Zusatzfarbe wählen (optional)</h3>
+                <h3 className="text-xl font-bold text-white mb-4">d) Zusatzfarbe wählen (optional)</h3>
                 <div className="flex justify-around items-stretch gap-4 mb-4">
                   <button
                     onClick={() => handleColorOptionChange('base-only')}

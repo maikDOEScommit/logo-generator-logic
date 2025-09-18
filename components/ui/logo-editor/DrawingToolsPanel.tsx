@@ -1,8 +1,8 @@
 import { Brush, Square, Eraser, Pipette, Move, RotateCcw } from 'lucide-react';
 
 interface DrawingToolsPanelProps {
-  drawingTool: 'brush' | 'eraser' | 'box' | 'line' | 'eyedropper' | 'move' | 'place';
-  setDrawingTool: (tool: 'brush' | 'eraser' | 'box' | 'line' | 'eyedropper' | 'move' | 'place') => void;
+  drawingTool: 'brush' | 'eraser' | 'box' | 'box-eraser' | 'line' | 'eyedropper' | 'move' | 'place';
+  setDrawingTool: (tool: 'brush' | 'eraser' | 'box' | 'box-eraser' | 'line' | 'eyedropper' | 'move' | 'place') => void;
   onClearAllStrokes: () => void;
   onUndoLastStroke: () => void;
   canUndo: boolean;
@@ -23,55 +23,72 @@ export const DrawingToolsPanel = ({
       </h4>
 
       {/* Tool Selection */}
-      <div className="grid grid-cols-3 gap-1.5 mb-3">
-        <button
-          onClick={() => setDrawingTool('brush')}
-          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-            drawingTool === 'brush' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-          }`}
-        >
-          <Brush size={14} />
-        </button>
-        <button
-          onClick={() => setDrawingTool('eraser')}
-          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-            drawingTool === 'eraser' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-          }`}
-        >
-          <Eraser size={14} />
-        </button>
-        <button
-          onClick={() => setDrawingTool('box')}
-          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-            drawingTool === 'box' ? 'bg-purple-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-          }`}
-        >
-          <Square size={14} />
-        </button>
-        <button
-          onClick={() => setDrawingTool('line')}
-          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-            drawingTool === 'line' ? 'bg-orange-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-          }`}
-        >
-          📏
-        </button>
-        <button
-          onClick={() => setDrawingTool('eyedropper')}
-          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-            drawingTool === 'eyedropper' ? 'bg-teal-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-          }`}
-        >
-          <Pipette size={14} />
-        </button>
-        <button
-          onClick={() => setDrawingTool('move')}
-          className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
-            drawingTool === 'move' ? 'bg-green-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
-          }`}
-        >
-          <Move size={14} />
-        </button>
+      <div className="space-y-1.5 mb-3">
+        {/* First row: Drawing tools */}
+        <div className="grid grid-cols-4 gap-1.5">
+          <button
+            onClick={() => setDrawingTool('brush')}
+            className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+              drawingTool === 'brush' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+            }`}
+          >
+            <Brush size={14} />
+          </button>
+          <button
+            onClick={() => setDrawingTool('eraser')}
+            className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+              drawingTool === 'eraser' ? 'bg-red-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+            }`}
+          >
+            <Eraser size={14} />
+          </button>
+          <button
+            onClick={() => setDrawingTool('box')}
+            className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+              drawingTool === 'box' ? 'bg-purple-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+            }`}
+          >
+            <Square size={14} />
+          </button>
+          <button
+            onClick={() => setDrawingTool('box-eraser')}
+            className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+              drawingTool === 'box-eraser' ? 'bg-red-700 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+            }`}
+          >
+            <div className="relative">
+              <Square size={14} />
+              <Eraser size={8} className="absolute -top-1 -right-1" />
+            </div>
+          </button>
+        </div>
+        {/* Second row: Other tools */}
+        <div className="grid grid-cols-3 gap-1.5">
+          <button
+            onClick={() => setDrawingTool('line')}
+            className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+              drawingTool === 'line' ? 'bg-orange-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+            }`}
+          >
+            📏
+          </button>
+          <button
+            onClick={() => setDrawingTool('eyedropper')}
+            className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+              drawingTool === 'eyedropper' ? 'bg-teal-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+            }`}
+          >
+            <Pipette size={14} />
+          </button>
+          <button
+            onClick={() => setDrawingTool('move')}
+            className={`flex items-center justify-center p-2 rounded text-xs transition-colors ${
+              drawingTool === 'move' ? 'bg-green-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'
+            }`}
+          >
+            <Move size={14} />
+          </button>
+        </div>
       </div>
 
       {/* Action Buttons */}

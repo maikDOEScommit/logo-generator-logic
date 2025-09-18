@@ -49,7 +49,7 @@ export const IconPalettePanel = ({
       <div className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
         <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
           <Star size={20} className="text-yellow-400" />
-          Icon
+          V. Icon
         </h4>
 
         {!selectedCategory ? (
@@ -174,7 +174,7 @@ export const IconPalettePanel = ({
         <div className="bg-white/5 rounded-xl p-4 border border-white/10 backdrop-blur-sm mb-6">
           <h4 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
             <Pipette size={20} className="text-teal-400" />
-            Color Picker
+            VI.a Color Picker
           </h4>
 
           <div className="space-y-4">
@@ -286,7 +286,7 @@ export const IconPalettePanel = ({
 
             {/* Color Palettes */}
             <div className="mb-4">
-              <h5 className="text-white/80 text-sm mb-2">Predefined Palettes</h5>
+              <h5 className="text-white/80 text-sm mb-2">1. Predefined Palettes</h5>
               <div className="grid grid-cols-3 gap-2">
                 {availablePalettes.slice(0, 12).map(palette => (
                   <button

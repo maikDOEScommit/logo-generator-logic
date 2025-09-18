@@ -72,6 +72,7 @@ export class PipetteTool {
 
   public async sampleColor(point: Point, e: React.MouseEvent): Promise<void> {
     console.log('🎨 Pipette sampling at point:', point);
+    console.log('🎨 Current logoElements:', this.logoElements);
 
     try {
       let sampledColor: string | null = null;
@@ -82,11 +83,15 @@ export class PipetteTool {
       // Check if point hits brand text element
       if (this.logoElements.brand) {
         const brand = this.logoElements.brand;
-        const textWidth = brand.text.length * (brand.fontSize * 0.6); // Approximate text width
+        const textWidth = brand.text.length * (brand.fontSize * 0.7); // More generous text width approximation
         const textHeight = brand.fontSize;
+        const padding = 10; // Extra padding for easier clicking
 
-        if (point.x >= brand.x - textWidth/2 && point.x <= brand.x + textWidth/2 &&
-            point.y >= brand.y - textHeight/2 && point.y <= brand.y + textHeight/2) {
+        console.log(`🔍 Brand element: x=${brand.x}, y=${brand.y}, text="${brand.text}", fontSize=${brand.fontSize}`);
+        console.log(`🔍 Brand bounds: left=${brand.x - textWidth/2 - padding}, right=${brand.x + textWidth/2 + padding}, top=${brand.y - textHeight/2 - padding}, bottom=${brand.y + textHeight/2 + padding}`);
+
+        if (point.x >= brand.x - textWidth/2 - padding && point.x <= brand.x + textWidth/2 + padding &&
+            point.y >= brand.y - textHeight/2 - padding && point.y <= brand.y + textHeight/2 + padding) {
           sampledColor = brand.color;
           console.log('✅ Sampled brand text color:', sampledColor);
         }
@@ -95,11 +100,15 @@ export class PipetteTool {
       // Check if point hits slogan text element
       if (!sampledColor && this.logoElements.slogan) {
         const slogan = this.logoElements.slogan;
-        const textWidth = slogan.text.length * (slogan.fontSize * 0.6);
+        const textWidth = slogan.text.length * (slogan.fontSize * 0.7);
         const textHeight = slogan.fontSize;
+        const padding = 10; // Extra padding for easier clicking
 
-        if (point.x >= slogan.x - textWidth/2 && point.x <= slogan.x + textWidth/2 &&
-            point.y >= slogan.y - textHeight/2 && point.y <= slogan.y + textHeight/2) {
+        console.log(`🔍 Slogan element: x=${slogan.x}, y=${slogan.y}, text="${slogan.text}", fontSize=${slogan.fontSize}`);
+        console.log(`🔍 Slogan bounds: left=${slogan.x - textWidth/2 - padding}, right=${slogan.x + textWidth/2 + padding}, top=${slogan.y - textHeight/2 - padding}, bottom=${slogan.y + textHeight/2 + padding}`);
+
+        if (point.x >= slogan.x - textWidth/2 - padding && point.x <= slogan.x + textWidth/2 + padding &&
+            point.y >= slogan.y - textHeight/2 - padding && point.y <= slogan.y + textHeight/2 + padding) {
           sampledColor = slogan.color;
           console.log('✅ Sampled slogan text color:', sampledColor);
         }
@@ -108,12 +117,16 @@ export class PipetteTool {
       // Check if point hits icon element
       if (!sampledColor && this.logoElements.icon) {
         const icon = this.logoElements.icon;
+        const padding = 10; // Extra padding for easier clicking
         const iconBounds = {
-          left: icon.x - icon.size/2,
-          right: icon.x + icon.size/2,
-          top: icon.y - icon.size/2,
-          bottom: icon.y + icon.size/2
+          left: icon.x - icon.size/2 - padding,
+          right: icon.x + icon.size/2 + padding,
+          top: icon.y - icon.size/2 - padding,
+          bottom: icon.y + icon.size/2 + padding
         };
+
+        console.log(`🔍 Icon element: x=${icon.x}, y=${icon.y}, size=${icon.size}`);
+        console.log(`🔍 Icon bounds: left=${iconBounds.left}, right=${iconBounds.right}, top=${iconBounds.top}, bottom=${iconBounds.bottom}`);
 
         if (point.x >= iconBounds.left && point.x <= iconBounds.right &&
             point.y >= iconBounds.top && point.y <= iconBounds.bottom) {

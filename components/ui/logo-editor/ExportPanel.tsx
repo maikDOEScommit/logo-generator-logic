@@ -25,7 +25,7 @@ export const ExportPanel = ({
     <div className="bg-white/5 rounded-lg p-4 border border-white/10 backdrop-blur-sm">
       <h4 className="text-white font-semibold text-base mb-3 flex items-center gap-2">
         <Download size={16} className="text-green-400" />
-        Export & Save
+        VII. Export & Save
       </h4>
 
       <div className="space-y-3">

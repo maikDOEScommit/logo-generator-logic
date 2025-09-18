@@ -1,5 +1,5 @@
 interface ToolSettingsPanelProps {
-  drawingTool: 'brush' | 'eraser' | 'box' | 'line' | 'eyedropper' | 'move' | 'place';
+  drawingTool: 'brush' | 'eraser' | 'box' | 'box-eraser' | 'line' | 'eyedropper' | 'move' | 'place';
   brushColor: string;
   setBrushColor: (color: string) => void;
   brushSize: number;
@@ -63,12 +63,10 @@ export const ToolSettingsPanel = ({
       </h4>
 
       {/* Tool-specific settings */}
-      {(drawingTool === 'brush' || drawingTool === 'eraser') && (
+      {drawingTool === 'brush' && (
         <div className="space-y-3">
           <div>
-            <label className="block text-white/80 text-sm mb-1">
-              {drawingTool === 'brush' ? 'Brush Color' : 'Eraser Color'}
-            </label>
+            <label className="block text-white/80 text-sm mb-1">Brush Color</label>
             <div className="flex items-center gap-2">
               <input
                 type="color"
@@ -96,20 +94,46 @@ export const ToolSettingsPanel = ({
 
           <div>
             <label className="block text-white/80 text-sm mb-1">
-              Opacity: {drawingTool === 'brush' ? brushOpacity : eraserOpacity}/10
+              Opacity: {brushOpacity}/10
             </label>
             <input
               type="range"
               min="1"
               max="10"
-              value={drawingTool === 'brush' ? brushOpacity : eraserOpacity}
-              onChange={(e) => {
-                if (drawingTool === 'brush') {
-                  setBrushOpacity(parseInt(e.target.value));
-                } else {
-                  setEraserOpacity(parseInt(e.target.value));
-                }
-              }}
+              value={brushOpacity}
+              onChange={(e) => setBrushOpacity(parseInt(e.target.value))}
+              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+        </div>
+      )}
+
+      {drawingTool === 'eraser' && (
+        <div className="space-y-3">
+          <div>
+            <label className="block text-white/80 text-sm mb-1">
+              Size: {brushSize}px
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="50"
+              value={brushSize}
+              onChange={(e) => setBrushSize(parseInt(e.target.value))}
+              className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+
+          <div>
+            <label className="block text-white/80 text-sm mb-1">
+              Opacity: {eraserOpacity}/10
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              value={eraserOpacity}
+              onChange={(e) => setEraserOpacity(parseInt(e.target.value))}
               className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
             />
           </div>
@@ -171,6 +195,15 @@ export const ToolSettingsPanel = ({
               />
               <span className="text-white/50 text-xs">{boxStrokeColor}</span>
             </div>
+          </div>
+        </div>
+      )}
+
+      {drawingTool === 'box-eraser' && (
+        <div className="space-y-3">
+          <div>
+            <label className="block text-white/80 text-sm mb-1">Eraser Mode</label>
+            <p className="text-white/60 text-xs mb-2">Draw boxes to erase content underneath</p>
           </div>
         </div>
       )}

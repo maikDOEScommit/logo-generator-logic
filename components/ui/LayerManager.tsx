@@ -59,7 +59,7 @@ export const LayerManager = ({
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/10">
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-white" />
-          <span className="font-semibold text-white">Layers</span>
+          <span className="font-semibold text-white">II. Layers</span>
         </div>
       </div>
 
