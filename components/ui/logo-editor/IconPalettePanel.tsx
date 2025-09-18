@@ -41,8 +41,8 @@ export const IconPalettePanel = ({
   hslToHex,
   hexToHsl
 }: IconPalettePanelProps) => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [expandedRows, setExpandedRows] = useState<{[key: string]: number}>({});
+  const [selectedCategory, setSelectedCategory] = useState<string | null>('lucide');
+  const [expandedRows, setExpandedRows] = useState<{[key: string]: number}>({ 'lucide': 8 });
   return (
     <>
       {/* Icon Section */}
@@ -52,100 +52,79 @@ export const IconPalettePanel = ({
           V. Icon
         </h4>
 
-        {!selectedCategory ? (
-          /* Icon Categories Display */
-          <div className="space-y-3">
+        {/* Icon Grid - Always show directly */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => updateLocalConfig({ icon: null })}
-              className={`w-full p-3 rounded border transition-colors ${
-                !localConfig.icon ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+              className={`px-3 py-2 rounded border transition-colors text-sm ${
+                !localConfig.icon ? 'border-blue-500 bg-blue-500/20 text-white' : 'border-white/20 hover:border-white/40 text-white/60'
               }`}
             >
-              <span className="text-white/60 text-sm">❌ No Icon</span>
+              ❌ No Icon
             </button>
 
-            <div className="grid grid-cols-2 gap-2">
-              {iconSets.map(iconSet => (
-                <button
-                  key={iconSet.id}
-                  onClick={() => {
-                    setSelectedCategory(iconSet.id);
-                    setExpandedRows({ [iconSet.id]: 4 });
-                  }}
-                  className="p-3 rounded border border-white/20 hover:border-white/40 text-left transition-colors group"
-                >
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-white text-sm font-medium">{iconSet.name}</span>
-                    <ChevronDown size={16} className="text-white/60" />
-                  </div>
-                  <p className="text-white/50 text-xs leading-relaxed">{iconSet.description}</p>
-                  <div className="flex justify-between items-center text-xs text-white/40 mt-2">
-                    <span>{iconSet.iconCount} icons</span>
-                    <span>{iconSet.style}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          /* Selected Category Icons Display */
-          <div className="space-y-3">
-            <div className="flex items-center justify-between mb-4">
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className="text-white/60 hover:text-white text-sm flex items-center gap-2"
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedCategory || 'lucide'}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setExpandedRows({ [e.target.value]: 8 });
+                }}
+                className="bg-white/10 border border-white/20 text-white text-sm rounded px-2 py-1"
               >
-                ← Back to Categories
-              </button>
-              <span className="text-white/60 text-sm">
-                {iconSets.find(set => set.id === selectedCategory)?.name}
-              </span>
+                {iconSets.map(iconSet => (
+                  <option key={iconSet.id} value={iconSet.id} className="bg-gray-800">
+                    {iconSet.name} ({iconSet.iconCount})
+                  </option>
+                ))}
+              </select>
             </div>
-
-            {(() => {
-              const currentSet = iconSets.find(set => set.id === selectedCategory);
-              const currentRows = expandedRows[selectedCategory] || 4;
-              const iconsToShow = currentSet?.icons.slice(0, currentRows * 6) || [];
-              const hasMore = (currentSet?.icons.length || 0) > currentRows * 6;
-
-              return (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-6 gap-2">
-                    {iconsToShow.map((icon, index) => (
-                      <button
-                        key={icon.id || index}
-                        onClick={() => updateLocalConfig({ icon })}
-                        className={`p-2 rounded border transition-colors flex flex-col items-center gap-1 ${
-                          localConfig.icon?.id === icon.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
-                        }`}
-                      >
-                        <icon.component size={20} color="white" className="mx-auto" />
-                        <span className="text-white/60 text-center leading-tight" style={{ fontSize: '8px' }}>
-                          {icon.name || icon.id}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-
-                  {hasMore && (
-                    <button
-                      onClick={() => {
-                        setExpandedRows(prev => ({
-                          ...prev,
-                          [selectedCategory]: currentRows + 4
-                        }));
-                      }}
-                      className="w-full p-2 rounded border border-white/20 hover:border-white/40 text-white/60 hover:text-white text-sm transition-colors flex items-center justify-center gap-2"
-                    >
-                      <ChevronDown size={16} />
-                      Show More Icons
-                    </button>
-                  )}
-                </div>
-              );
-            })()}
           </div>
-        )}
+
+          {(() => {
+            const currentSet = iconSets.find(set => set.id === selectedCategory);
+            const currentRows = expandedRows[selectedCategory || 'lucide'] || 8;
+            const iconsToShow = currentSet?.icons.slice(0, currentRows * 6) || [];
+            const hasMore = (currentSet?.icons.length || 0) > currentRows * 6;
+
+            return (
+              <div className="space-y-3">
+                <div className="grid grid-cols-6 gap-2">
+                  {iconsToShow.map((icon, index) => (
+                    <button
+                      key={icon.id || index}
+                      onClick={() => updateLocalConfig({ icon })}
+                      className={`p-2 rounded border transition-colors flex flex-col items-center gap-1 ${
+                        localConfig.icon?.id === icon.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 hover:border-white/40'
+                      }`}
+                    >
+                      <icon.component size={20} color="white" className="mx-auto" />
+                      <span className="text-white/60 text-center leading-tight" style={{ fontSize: '8px' }}>
+                        {icon.name || icon.id}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {hasMore && (
+                  <button
+                    onClick={() => {
+                      setExpandedRows(prev => ({
+                        ...prev,
+                        [selectedCategory || 'lucide']: currentRows + 4
+                      }));
+                    }}
+                    className="w-full p-2 rounded border border-white/20 hover:border-white/40 text-white/60 hover:text-white text-sm transition-colors flex items-center justify-center gap-2"
+                  >
+                    <ChevronDown size={16} />
+                    Show More Icons
+                  </button>
+                )}
+              </div>
+            );
+          })()}
+        </div>
 
         <div className="mt-4">
           <label className="block text-white/60 text-xs mb-1">Icon Color</label>

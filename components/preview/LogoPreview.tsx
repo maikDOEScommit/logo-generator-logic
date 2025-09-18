@@ -88,8 +88,13 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
   };
 
   // Helper functions for font switching
-  const getCurrentFont = (variationId: string) => {
-    const fontIndex = currentFontIndex[variationId] || 0;
+  const getCurrentFont = (variationId: string, variationIndex?: number) => {
+    // Get the current font index for this variation
+    const fontIndex = currentFontIndex[variationId] !== undefined
+      ? currentFontIndex[variationId]
+      : variationIndex !== undefined
+        ? variationIndex % fontsToDisplay.length
+        : 0;
     return fontsToDisplay[fontIndex] || fontsToDisplay[0];
   };
 
@@ -514,7 +519,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
           {/* Show variations with font switchers */}
           <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-4">
             {logoVariations.map((variation, variationIndex) => {
-              const currentFont = getCurrentFont(variation.id);
+              const currentFont = getCurrentFont(variation.id, variationIndex);
               const logoConfigKey = `${currentFont.name}-${variation.id}`;
 
               return (
@@ -569,7 +574,9 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                     <div className="text-center min-w-[120px]">
                       <div className="text-white text-xs font-medium">{currentFont.name}</div>
                       <div className="text-white/60 text-xs">
-                        {(currentFontIndex[variation.id] || 0) + 1} / {fontsToDisplay.length}
+                        {(currentFontIndex[variation.id] !== undefined
+                          ? currentFontIndex[variation.id]
+                          : variationIndex % fontsToDisplay.length) + 1} / {fontsToDisplay.length}
                       </div>
                     </div>
                     <button
@@ -622,7 +629,7 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
       {/* Show variations with font switchers */}
       <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-4">
         {logoVariations.map((variation, variationIndex) => {
-          const currentFont = getCurrentFont(variation.id);
+          const currentFont = getCurrentFont(variation.id, variationIndex);
           const logoConfigKey = `${currentFont.name}-${variation.id}`;
 
           return (
@@ -677,7 +684,9 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
                 <div className="text-center min-w-[120px]">
                   <div className="text-white text-xs font-medium">{currentFont.name}</div>
                   <div className="text-white/60 text-xs">
-                    {(currentFontIndex[variation.id] || 0) + 1} / {fontsToDisplay.length}
+                    {(currentFontIndex[variation.id] !== undefined
+                      ? currentFontIndex[variation.id]
+                      : variationIndex % fontsToDisplay.length) + 1} / {fontsToDisplay.length}
                   </div>
                 </div>
                 <button

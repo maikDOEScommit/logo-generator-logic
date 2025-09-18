@@ -34,6 +34,7 @@ export default function LogoGeneratorPage() {
   const [selectedFontCategory, setSelectedFontCategory] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [hideNewSection, setHideNewSection] = useState(false); // Control hiding the new section above footer
+  const [currentShowcaseImage, setCurrentShowcaseImage] = useState(0); // Control showcase image pagination
 
   // Monitor theme changes
   useEffect(() => {
@@ -692,44 +693,101 @@ export default function LogoGeneratorPage() {
                     className="relative"
                   >
                     <div className="relative">
-                      {/* Main Product Image */}
-                      <motion.div
-                        animate={{ y: [0, -10, 0] }}
-                        transition={{ duration: 4, repeat: Infinity }}
-                        className="relative z-20 bg-white rounded-3xl shadow-2xl p-8 transform rotate-2"
-                      >
-                        <div className="aspect-square bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
-                          <svg className="w-24 h-24 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                          </svg>
-                        </div>
-                      </motion.div>
+                      {/* Showcase Images */}
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={currentShowcaseImage}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.5 }}
+                          className="relative"
+                        >
+                          {currentShowcaseImage === 0 && (
+                            <>
+                              {/* Main Product Image */}
+                              <motion.div
+                                animate={{ y: [0, -10, 0] }}
+                                transition={{ duration: 4, repeat: Infinity }}
+                                className="relative z-20 bg-white rounded-3xl shadow-2xl p-8 transform rotate-2"
+                              >
+                                <div className="aspect-square bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
+                                  <svg className="w-24 h-24 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                                  </svg>
+                                </div>
+                              </motion.div>
+                              <motion.div
+                                animate={{ y: [0, 10, 0] }}
+                                transition={{ duration: 3, repeat: Infinity, delay: 1 }}
+                                className="absolute top-16 -right-8 z-10 bg-white rounded-2xl shadow-xl p-6 transform -rotate-3"
+                              >
+                                <div className="w-32 h-32 bg-gradient-to-br from-green-100 to-teal-100 rounded-xl flex items-center justify-center">
+                                  <svg className="w-16 h-16 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                  </svg>
+                                </div>
+                              </motion.div>
+                            </>
+                          )}
 
-                      {/* Secondary Product Image */}
-                      <motion.div
-                        animate={{ y: [0, 10, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, delay: 1 }}
-                        className="absolute top-16 -right-8 z-10 bg-white rounded-2xl shadow-xl p-6 transform -rotate-3"
-                      >
-                        <div className="w-32 h-32 bg-gradient-to-br from-green-100 to-teal-100 rounded-xl flex items-center justify-center">
-                          <svg className="w-16 h-16 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                          </svg>
-                        </div>
-                      </motion.div>
+                          {currentShowcaseImage === 1 && (
+                            <>
+                              {/* Second Set of Images */}
+                              <motion.div
+                                animate={{ y: [0, -10, 0] }}
+                                transition={{ duration: 4, repeat: Infinity }}
+                                className="relative z-20 bg-white rounded-3xl shadow-2xl p-8 transform -rotate-1"
+                              >
+                                <div className="aspect-square bg-gradient-to-br from-emerald-100 to-cyan-100 rounded-2xl flex items-center justify-center">
+                                  <svg className="w-24 h-24 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                  </svg>
+                                </div>
+                              </motion.div>
+                              <motion.div
+                                animate={{ y: [0, -5, 0] }}
+                                transition={{ duration: 5, repeat: Infinity, delay: 2 }}
+                                className="absolute -bottom-4 -left-8 z-30 bg-white rounded-2xl shadow-xl p-4 transform rotate-2"
+                              >
+                                <div className="w-28 h-28 bg-gradient-to-br from-orange-100 to-red-100 rounded-xl flex items-center justify-center">
+                                  <svg className="w-14 h-14 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                  </svg>
+                                </div>
+                              </motion.div>
+                            </>
+                          )}
 
-                      {/* Third Product Image */}
-                      <motion.div
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 5, repeat: Infinity, delay: 2 }}
-                        className="absolute -bottom-4 -left-8 z-30 bg-white rounded-2xl shadow-xl p-4 transform rotate-1"
-                      >
-                        <div className="w-28 h-28 bg-gradient-to-br from-pink-100 to-rose-100 rounded-xl flex items-center justify-center">
-                          <svg className="w-14 h-14 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                          </svg>
-                        </div>
-                      </motion.div>
+                          {currentShowcaseImage === 2 && (
+                            <>
+                              {/* Third Set of Images */}
+                              <motion.div
+                                animate={{ y: [0, -10, 0] }}
+                                transition={{ duration: 4, repeat: Infinity }}
+                                className="relative z-20 bg-white rounded-3xl shadow-2xl p-8 transform rotate-3"
+                              >
+                                <div className="aspect-square bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center">
+                                  <svg className="w-24 h-24 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                  </svg>
+                                </div>
+                              </motion.div>
+                              <motion.div
+                                animate={{ y: [0, 8, 0] }}
+                                transition={{ duration: 3.5, repeat: Infinity, delay: 0.5 }}
+                                className="absolute top-12 -right-6 z-10 bg-white rounded-2xl shadow-xl p-5 transform -rotate-2"
+                              >
+                                <div className="w-24 h-24 bg-gradient-to-br from-yellow-100 to-amber-100 rounded-xl flex items-center justify-center">
+                                  <svg className="w-12 h-12 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                  </svg>
+                                </div>
+                              </motion.div>
+                            </>
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
 
                       {/* Decorative Leaves */}
                       <motion.div
@@ -753,11 +811,35 @@ export default function LogoGeneratorPage() {
                       </motion.div>
                     </div>
 
-                    {/* Slider Navigation Dots */}
-                    <div className="flex justify-center gap-2 mt-8">
-                      <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-                      <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
-                      <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
+                    {/* Slider Navigation */}
+                    <div className="flex justify-center items-center gap-6 mt-8">
+                      <button
+                        onClick={() => setCurrentShowcaseImage((prev) => prev === 0 ? 2 : prev - 1)}
+                        className="w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors border border-white/20 backdrop-blur-sm"
+                      >
+                        <span className="text-gray-700 text-3xl font-bold">‹</span>
+                      </button>
+
+                      <div className="flex justify-center gap-3">
+                        {[0, 1, 2].map((index) => (
+                          <button
+                            key={index}
+                            onClick={() => setCurrentShowcaseImage(index)}
+                            className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                              currentShowcaseImage === index
+                                ? 'bg-blue-600 scale-110'
+                                : 'bg-gray-300 hover:bg-gray-400'
+                            }`}
+                          />
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={() => setCurrentShowcaseImage((prev) => prev === 2 ? 0 : prev + 1)}
+                        className="w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors border border-white/20 backdrop-blur-sm"
+                      >
+                        <span className="text-gray-700 text-3xl font-bold">›</span>
+                      </button>
                     </div>
                   </motion.div>
                 </div>
@@ -861,17 +943,6 @@ export default function LogoGeneratorPage() {
                     >
                       <Undo2 size={16}/> Change Icon
                     </button>
-                    <button
-                      onClick={() => {
-                        // Scroll back to typography/layout selection
-                        document.getElementById('section-3')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        // Reset layout/font to allow re-selection
-                        updateConfig({ layout: null, font: null });
-                      }}
-                      className={`flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-lg hover:bg-emerald-500/30 transition-colors border border-emerald-300/30 ${!isDarkMode ? '!text-white/90' : ''}`}
-                    >
-                      <Redo2 size={16}/> Change Layout
-                    </button>
                   </div>
                 </div>
 
@@ -931,8 +1002,26 @@ export default function LogoGeneratorPage() {
                         {fontCategories.map((category) => (
                           <button
                             key={category.name}
-                            onClick={() => setSelectedFontCategory(category.name)}
-                            className={`typography-style-button w-full p-4 rounded-lg border text-left transition-all duration-300 transform hover:scale-[1.02] ${isDarkMode ? 'text-black/80' : 'text-white/80'}`}
+                            onClick={() => {
+                              setSelectedFontCategory(category.name);
+                              // Find a font from this category and update config
+                              const categoryFonts = category.fonts;
+                              if (categoryFonts && categoryFonts.length > 0) {
+                                const selectedFont = {
+                                  name: categoryFonts[0].name,
+                                  cssName: categoryFonts[0].cssName,
+                                  isVariable: false,
+                                  generationWeights: [400, 700] as [number, number],
+                                  editorWeights: [400, 500, 600, 700]
+                                };
+                                updateConfig({ font: selectedFont });
+                              }
+                            }}
+                            className={`typography-style-button w-full p-4 rounded-lg border text-left transition-all duration-300 transform hover:scale-[1.02] ${
+                              selectedFontCategory === category.name
+                                ? isDarkMode ? 'border-white/40 bg-black/20 text-black' : 'border-white/40 bg-white/20 text-white'
+                                : isDarkMode ? 'text-black/80' : 'text-white/80'
+                            }`}
                           >
                             <div className="font-semibold text-sm mb-2">{category.name}</div>
                             <div className={`text-xs leading-relaxed ${isDarkMode ? 'text-black/60' : 'text-white/60'}`}>
@@ -1523,44 +1612,101 @@ export default function LogoGeneratorPage() {
                 className="relative"
               >
                 <div className="relative">
-                  {/* Main Product Image */}
-                  <motion.div
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ duration: 4, repeat: Infinity }}
-                    className="relative z-20 bg-white rounded-3xl shadow-2xl p-8 transform rotate-2"
-                  >
-                    <div className="aspect-square bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
-                      <svg className="w-24 h-24 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                      </svg>
-                    </div>
-                  </motion.div>
+                  {/* Showcase Images */}
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentShowcaseImage}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.5 }}
+                      className="relative"
+                    >
+                      {currentShowcaseImage === 0 && (
+                        <>
+                          {/* Main Product Image */}
+                          <motion.div
+                            animate={{ y: [0, -10, 0] }}
+                            transition={{ duration: 4, repeat: Infinity }}
+                            className="relative z-20 bg-white rounded-3xl shadow-2xl p-8 transform rotate-2"
+                          >
+                            <div className="aspect-square bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
+                              <svg className="w-24 h-24 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                              </svg>
+                            </div>
+                          </motion.div>
+                          <motion.div
+                            animate={{ y: [0, 10, 0] }}
+                            transition={{ duration: 3, repeat: Infinity, delay: 1 }}
+                            className="absolute top-16 -right-8 z-10 bg-white rounded-2xl shadow-xl p-6 transform -rotate-3"
+                          >
+                            <div className="w-32 h-32 bg-gradient-to-br from-green-100 to-teal-100 rounded-xl flex items-center justify-center">
+                              <svg className="w-16 h-16 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                              </svg>
+                            </div>
+                          </motion.div>
+                        </>
+                      )}
 
-                  {/* Secondary Product Image */}
-                  <motion.div
-                    animate={{ y: [0, 10, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: 1 }}
-                    className="absolute top-16 -right-8 z-10 bg-white rounded-2xl shadow-xl p-6 transform -rotate-3"
-                  >
-                    <div className="w-32 h-32 bg-gradient-to-br from-green-100 to-teal-100 rounded-xl flex items-center justify-center">
-                      <svg className="w-16 h-16 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                      </svg>
-                    </div>
-                  </motion.div>
+                      {currentShowcaseImage === 1 && (
+                        <>
+                          {/* Second Set of Images */}
+                          <motion.div
+                            animate={{ y: [0, -10, 0] }}
+                            transition={{ duration: 4, repeat: Infinity }}
+                            className="relative z-20 bg-white rounded-3xl shadow-2xl p-8 transform -rotate-1"
+                          >
+                            <div className="aspect-square bg-gradient-to-br from-emerald-100 to-cyan-100 rounded-2xl flex items-center justify-center">
+                              <svg className="w-24 h-24 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                              </svg>
+                            </div>
+                          </motion.div>
+                          <motion.div
+                            animate={{ y: [0, -5, 0] }}
+                            transition={{ duration: 5, repeat: Infinity, delay: 2 }}
+                            className="absolute -bottom-4 -left-8 z-30 bg-white rounded-2xl shadow-xl p-4 transform rotate-2"
+                          >
+                            <div className="w-28 h-28 bg-gradient-to-br from-orange-100 to-red-100 rounded-xl flex items-center justify-center">
+                              <svg className="w-14 h-14 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                              </svg>
+                            </div>
+                          </motion.div>
+                        </>
+                      )}
 
-                  {/* Third Product Image */}
-                  <motion.div
-                    animate={{ y: [0, -5, 0] }}
-                    transition={{ duration: 5, repeat: Infinity, delay: 2 }}
-                    className="absolute -bottom-4 -left-8 z-30 bg-white rounded-2xl shadow-xl p-4 transform rotate-1"
-                  >
-                    <div className="w-28 h-28 bg-gradient-to-br from-pink-100 to-rose-100 rounded-xl flex items-center justify-center">
-                      <svg className="w-14 h-14 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                      </svg>
-                    </div>
-                  </motion.div>
+                      {currentShowcaseImage === 2 && (
+                        <>
+                          {/* Third Set of Images */}
+                          <motion.div
+                            animate={{ y: [0, -10, 0] }}
+                            transition={{ duration: 4, repeat: Infinity }}
+                            className="relative z-20 bg-white rounded-3xl shadow-2xl p-8 transform rotate-3"
+                          >
+                            <div className="aspect-square bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center">
+                              <svg className="w-24 h-24 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                              </svg>
+                            </div>
+                          </motion.div>
+                          <motion.div
+                            animate={{ y: [0, 8, 0] }}
+                            transition={{ duration: 3.5, repeat: Infinity, delay: 0.5 }}
+                            className="absolute top-12 -right-6 z-10 bg-white rounded-2xl shadow-xl p-5 transform -rotate-2"
+                          >
+                            <div className="w-24 h-24 bg-gradient-to-br from-yellow-100 to-amber-100 rounded-xl flex items-center justify-center">
+                              <svg className="w-12 h-12 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                              </svg>
+                            </div>
+                          </motion.div>
+                        </>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
 
                   {/* Decorative Leaves */}
                   <motion.div
@@ -1584,11 +1730,35 @@ export default function LogoGeneratorPage() {
                   </motion.div>
                 </div>
 
-                {/* Slider Navigation Dots */}
-                <div className="flex justify-center gap-2 mt-8">
-                  <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-                  <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
-                  <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
+                {/* Slider Navigation */}
+                <div className="flex justify-center items-center gap-6 mt-8">
+                  <button
+                    onClick={() => setCurrentShowcaseImage((prev) => prev === 0 ? 2 : prev - 1)}
+                    className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors border border-white/20 backdrop-blur-sm"
+                  >
+                    <span className="text-gray-600 text-2xl font-bold">‹</span>
+                  </button>
+
+                  <div className="flex justify-center gap-3">
+                    {[0, 1, 2].map((index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentShowcaseImage(index)}
+                        className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                          currentShowcaseImage === index
+                            ? 'bg-blue-600 scale-110'
+                            : 'bg-gray-300 hover:bg-gray-400'
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentShowcaseImage((prev) => prev === 2 ? 0 : prev + 1)}
+                    className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors border border-white/20 backdrop-blur-sm"
+                  >
+                    <span className="text-gray-600 text-2xl font-bold">›</span>
+                  </button>
                 </div>
               </motion.div>
             </div>

@@ -177,7 +177,6 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   const { suggestedIcons, suggestedEnclosingShapes, suggestedPalettes } = suggestions;
   const [selectedLayoutType, setSelectedLayoutType] = useState<string | null>(null);
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
-  const [showIconSetSelection, setShowIconSetSelection] = useState<boolean>(false);
   const [colorMode, setColorMode] = useState<'grundton' | 'pastell' | 'neon' | 'dunkel'>('grundton');
   const [selectedColorCombo, setSelectedColorCombo] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -331,8 +330,8 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
 
   return (
     <motion.div key="step3" className="space-y-12 animate-fade-in">
-      {/* Icon Decision Section - Always visible first */}
-      {wantsIcon === null && !showIconSetSelection && (
+      {/* Icon Decision Section - Show when no decision made */}
+      {wantsIcon === null && (
         <div className="h-screen flex items-center justify-center -mt-36">
           <div className="w-full max-w-2xl text-center">
             <motion.div
@@ -345,13 +344,13 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
               <div className="flex w-full justify-between gap-4 mb-6">
                 <button
                   onClick={() => {
-                    setShowIconSetSelection(true);
+                    setWantsIcon(true);
                   }}
                   className="flex-1 bg-black !text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-black/25 active:scale-95"
                 >
                   Yes, show me icons
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     setWantsIcon(false);
                     updateConfig({ icon: null });
@@ -374,56 +373,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
         </div>
       )}
 
-      {/* Industry-Specific Icon Selection Section - Only shown when user clicks "Yes, show me icons" */}
-      {showIconSetSelection && !wantsIcon && industry && (
-        <div className="min-h-screen flex items-center justify-center -mt-12">
-          <div className="w-full max-w-4xl">
-            <Section title="1. Choose a Symbol" helpText={`Icons curated for ${industry} industry`}>
-              <div className="col-span-full space-y-4">
-                <div className="flex justify-between items-center mb-6">
-                  <button
-                    onClick={() => {
-                      setShowIconSetSelection(false);
-                    }}
-                    className="text-white/60 hover:text-white text-sm flex items-center gap-2"
-                  >
-                    ← Back to decision
-                  </button>
-                  <div className="text-white/60 text-sm">
-                    {getIconsByIndustry(industry).length} icons available for {industry}
-                  </div>
-                </div>
-
-                {/* Industry-Specific Icon Grid */}
-                <div className="grid grid-cols-6 gap-3 max-h-96 overflow-y-auto">
-                  {getIconsByIndustry(industry).map((icon) => (
-                    <SelectionCard
-                      key={icon.id}
-                      isSelected={config.icon?.id === icon.id}
-                      onClick={() => {
-                        updateConfig({ icon });
-                        setWantsIcon(true);
-                        setShowIconSetSelection(false);
-                      }}
-                    >
-                      <div className="p-3 text-center">
-                        <icon.component className="w-6 h-6 mx-auto mb-2 text-white" />
-                        <p className="text-white/60 text-xs truncate">
-                          {icon.id.replace(/^[a-z]+-/, '').replace(/([A-Z])/g, ' $1').trim()}
-                        </p>
-                      </div>
-                    </SelectionCard>
-                  ))}
-                </div>
-              </div>
-            </Section>
-          </div>
-        </div>
-      )}
-
-      {/* Icon Selection Section - Only shown when user wants icons */}
+      {/* Icon Selection Grid - Show at same position when user wants icons */}
       {wantsIcon === true && (
-        <div className="min-h-screen flex items-start justify-center py-8 pt-4">
+        <div className="h-screen flex items-center justify-center -mt-20">
           <div className="w-full max-w-2xl">
             <Section title="2. Choose a Symbol" helpText="Rule 2: Memorability - Simple symbols are remembered better">
               <div className="col-span-full space-y-4">
@@ -431,11 +383,10 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                   <button
                     onClick={() => {
                       setWantsIcon(null);
-                      setShowIconSetSelection(true);
                     }}
                     className="text-white/60 hover:text-white text-sm flex items-center gap-2"
                   >
-                    ← Back to icon sets
+                    ← Back to decision
                   </button>
                   <button 
                     onClick={() => {
@@ -475,7 +426,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                       <div className="flex flex-col items-center gap-2">
                         <icon.component className="w-12 h-12 mx-auto" color={config.palette ? config.palette.colors[1] : 'white'} />
                         <span className="text-xs text-white/60 text-center leading-tight px-1" style={{ fontSize: '10px' }}>
-                          {icon.name || icon.id}
+                          {icon.id.replace(/^[a-z]+-/, '').replace(/([A-Z])/g, ' $1').trim()}
                         </span>
                       </div>
                     </SelectionCard>
@@ -666,7 +617,7 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                           <div className="flex flex-col items-center gap-2 p-2">
                             <shape.component size={24} color="white" />
                             <span className="text-xs text-center text-white/60" style={{ fontSize: '10px' }}>
-                              {shape.name || shape.id}
+                              {shape.id.replace(/^[a-z]+-/, '').replace(/([A-Z])/g, ' $1').trim()}
                             </span>
                           </div>
                         </SelectionCard>
