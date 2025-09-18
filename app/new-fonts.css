@@ -1,0 +1,646 @@
+/* === BOLD CATEGORY === */
+@font-face {
+  font-family: "Alfa Slab One";
+  src: url("/assets/fonts/bold/subsets/AlfaSlabOne-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Anton";
+  src: url("/assets/fonts/bold/subsets/Anton-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Archivo Black";
+  src: url("/assets/fonts/bold/subsets/ArchivoBlack-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Black Ops One";
+  src: url("/assets/fonts/bold/subsets/BlackOpsOne-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Bungee";
+  src: url("/assets/fonts/bold/subsets/Bungee-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Chango";
+  src: url("/assets/fonts/bold/subsets/Chango-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Contrail One";
+  src: url("/assets/fonts/bold/subsets/ContrailOne-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "New Amsterdam";
+  src: url("/assets/fonts/bold/subsets/NewAmsterdam-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Peralta";
+  src: url("/assets/fonts/bold/subsets/Peralta-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Plaster";
+  src: url("/assets/fonts/bold/subsets/Plaster-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Rubik Mono One";
+  src: url("/assets/fonts/bold/subsets/RubikMonoOne-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Yeseva One";
+  src: url("/assets/fonts/bold/subsets/YesevaOne-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+/* === ELEGANT CATEGORY === */
+@font-face {
+  font-family: "Caveat";
+  src: url("/assets/fonts/elegant/subsets/Caveat-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Dancing Script";
+  src: url("/assets/fonts/elegant/subsets/DancingScript-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Grechen Fuemen";
+  src: url("/assets/fonts/elegant/subsets/GrechenFuemen-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Kaushan Script";
+  src: url("/assets/fonts/elegant/subsets/KaushanScript-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Lobster Two";
+  src: url("/assets/fonts/elegant/subsets/LobsterTwo-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Lobster Two";
+  src: url("/assets/fonts/elegant/subsets/LobsterTwo-Bold-Subset.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Lobster Two";
+  src: url("/assets/fonts/elegant/subsets/LobsterTwo-BoldItalic-Subset.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: block;
+}
+@font-face {
+  font-family: "Merienda";
+  src: url("/assets/fonts/elegant/subsets/Merienda-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Over the Rainbow";
+  src: url("/assets/fonts/elegant/subsets/OvertheRainbow-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Sacramento";
+  src: url("/assets/fonts/elegant/subsets/Sacramento-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Sansita Swashed";
+  src: url("/assets/fonts/elegant/subsets/SansitaSwashed-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Story Script";
+  src: url("/assets/fonts/elegant/subsets/StoryScript-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Style Script";
+  src: url("/assets/fonts/elegant/subsets/StyleScript-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "The Girl Next Door";
+  src: url("/assets/fonts/elegant/subsets/TheGirlNextDoor-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+/* === MODERN CATEGORY === */
+@font-face {
+  font-family: "Bebas Neue";
+  src: url("/assets/fonts/modern/subsets/BebasNeue-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Bentham";
+  src: url("/assets/fonts/modern/subsets/Bentham-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Coiny";
+  src: url("/assets/fonts/modern/subsets/Coiny-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Comfortaa";
+  src: url("/assets/fonts/modern/subsets/Comfortaa-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Fuzzy Bubbles";
+  src: url("/assets/fonts/modern/subsets/FuzzyBubbles-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Fuzzy Bubbles";
+  src: url("/assets/fonts/modern/subsets/FuzzyBubbles-Bold-Subset.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Genos";
+  src: url("/assets/fonts/modern/subsets/Genos-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Genos";
+  src: url("/assets/fonts/modern/subsets/Genos-Italic-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: block;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: url("/assets/fonts/modern/subsets/Montserrat-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: url("/assets/fonts/modern/subsets/Montserrat-Italic-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: block;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/assets/fonts/modern/subsets/PlusJakartaSans-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/assets/fonts/modern/subsets/PlusJakartaSans-Italic-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: block;
+}
+@font-face {
+  font-family: "Quicksand";
+  src: url("/assets/fonts/modern/subsets/Quicksand-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Stick No Bills";
+  src: url("/assets/fonts/modern/subsets/StickNoBills-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "SUSE";
+  src: url("/assets/fonts/modern/subsets/SUSE-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Unbounded";
+  src: url("/assets/fonts/modern/subsets/Unbounded-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+
+/* === PLAYFUL CATEGORY === */
+@font-face {
+  font-family: "Chicle";
+  src: url("/assets/fonts/playful/subsets/Chicle-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Emilys Candy";
+  src: url("/assets/fonts/playful/subsets/EmilysCandy-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Fontdiner Swanky";
+  src: url("/assets/fonts/playful/subsets/FontdinerSwanky-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Gloria Hallelujah";
+  src: url("/assets/fonts/playful/subsets/GloriaHallelujah-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Pacifico";
+  src: url("/assets/fonts/playful/subsets/Pacifico-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Passion One";
+  src: url("/assets/fonts/playful/subsets/PassionOne-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Passion One";
+  src: url("/assets/fonts/playful/subsets/PassionOne-Bold-Subset.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Permanent Marker";
+  src: url("/assets/fonts/playful/subsets/PermanentMarker-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Princess Sofia";
+  src: url("/assets/fonts/playful/subsets/PrincessSofia-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Redressed";
+  src: url("/assets/fonts/playful/subsets/Redressed-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Rock Salt";
+  src: url("/assets/fonts/playful/subsets/RockSalt-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Sedgwick Ave";
+  src: url("/assets/fonts/playful/subsets/SedgwickAve-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Truculenta";
+  src: url("/assets/fonts/playful/subsets/Truculenta-VariableFont_opsz,wdth,wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+
+/* === TECH CATEGORY === */
+@font-face {
+  font-family: "Atomic Age";
+  src: url("/assets/fonts/tech/subsets/AtomicAge-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Audiowide";
+  src: url("/assets/fonts/tech/subsets/Audiowide-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Bruno Ace";
+  src: url("/assets/fonts/tech/subsets/BrunoAce-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Bruno Ace SC";
+  src: url("/assets/fonts/tech/subsets/BrunoAceSC-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Michroma";
+  src: url("/assets/fonts/tech/subsets/Michroma-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Orbitron";
+  src: url("/assets/fonts/tech/subsets/Orbitron-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Prosto One";
+  src: url("/assets/fonts/tech/subsets/ProstoOne-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Revalia";
+  src: url("/assets/fonts/tech/subsets/Revalia-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Righteous";
+  src: url("/assets/fonts/tech/subsets/Righteous-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Syncopate";
+  src: url("/assets/fonts/tech/subsets/Syncopate-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Syncopate";
+  src: url("/assets/fonts/tech/subsets/Syncopate-Bold-Subset.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Tektur";
+  src: url("/assets/fonts/tech/subsets/Tektur-VariableFont_wdth,wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Zen Dots";
+  src: url("/assets/fonts/tech/subsets/ZenDots-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+/* === TIMELESS CATEGORY === */
+@font-face {
+  font-family: "Aboreto";
+  src: url("/assets/fonts/timeless/subsets/Aboreto-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Amatic SC";
+  src: url("/assets/fonts/timeless/subsets/AmaticSC-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Amatic SC";
+  src: url("/assets/fonts/timeless/subsets/AmaticSC-Bold-Subset.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Annie Use Your Telescope";
+  src: url("/assets/fonts/timeless/subsets/AnnieUseYourTelescope-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Baskervville SC";
+  src: url("/assets/fonts/timeless/subsets/BaskervvilleSC-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Cinzel";
+  src: url("/assets/fonts/timeless/subsets/Cinzel-VariableFont_wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Ephesis";
+  src: url("/assets/fonts/timeless/subsets/Ephesis-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Geo";
+  src: url("/assets/fonts/timeless/subsets/Geo-Regular-Subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Girassol";
+  src: url("/assets/fonts/timeless/subsets/Girassol-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Limelight";
+  src: url("/assets/fonts/timeless/subsets/Limelight-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Megrim";
+  src: url("/assets/fonts/timeless/subsets/Megrim-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Merriweather";
+  src: url("/assets/fonts/timeless/subsets/Merriweather-VariableFont_opsz,wdth,wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Merriweather";
+  src: url("/assets/fonts/timeless/subsets/Merriweather-Italic-VariableFont_opsz,wdth,wght-Subset.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: block;
+}
+@font-face {
+  font-family: "Quintessential";
+  src: url("/assets/fonts/timeless/subsets/Quintessential-Regular-Subset.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}

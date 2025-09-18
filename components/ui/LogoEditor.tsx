@@ -386,19 +386,99 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     let iconX = canvasWidth / 2;
     let iconY = canvasHeight / 2 - 50;
 
-    // Im Editor immer mittig zentrieren, unabhängig vom ursprünglichen Layout
-    // Kompakte, zentrierte Anordnung für bessere Bearbeitung
-    iconX = canvasWidth / 2;
-    iconY = canvasHeight / 2 - 40;  // Icon oben
-    brandX = canvasWidth / 2;
-    brandY = canvasHeight / 2;      // Brand in der Mitte
-    sloganX = canvasWidth / 2;
-    sloganY = canvasHeight / 2 + 25; // Slogan unten
+    // Calculate dynamic spacing based on text lengths to prevent overlaps
+    const calculateElementWidth = (text: string, fontSize: number) => {
+      return text ? text.length * (fontSize * 0.6) : 0; // Rough estimation
+    };
 
-    console.log('🎯 Logo elements positioned centrally:', {
-      icon: { x: iconX, y: iconY },
-      brand: { x: brandX, y: brandY },
-      slogan: { x: sloganX, y: sloganY }
+    const brandWidth = calculateElementWidth(localConfig.text || '', 24);
+    const sloganWidth = calculateElementWidth(localConfig.slogan || '', 12);
+    const iconWidth = 24; // Icon size (halved)
+    const minSpacing = 15; // Minimum spacing between elements
+
+    // Canvas bounds checking
+    const canvasMargin = 30; // Margin from canvas edges
+    const effectiveCanvasWidth = canvasWidth - (2 * canvasMargin);
+
+    // Position elements based on actual layout arrangement with dynamic spacing
+    // For horizontal layouts: Brand and Icon MUST ALWAYS be on the same Y-level
+    // Slogan is positioned below them, centered
+    const hasSlogan = Boolean(localConfig.slogan);
+
+    switch (layoutArrangement) {
+      case 'icon-left':
+        // FORCE HORIZONTAL: Icon left, Brand right - ALWAYS SAME Y-LEVEL
+        const totalWidthIconLeft = iconWidth + brandWidth + minSpacing;
+        const HORIZONTAL_Y_POSITION = canvasHeight / 2; // FIXED Y FOR BOTH
+
+        if (totalWidthIconLeft > effectiveCanvasWidth) {
+          iconX = canvasWidth / 2 - (totalWidthIconLeft / 2) + (iconWidth / 2);
+          brandX = canvasWidth / 2 + (totalWidthIconLeft / 2) - (brandWidth / 2);
+        } else {
+          const groupCenter = canvasWidth / 2;
+          iconX = groupCenter - (totalWidthIconLeft / 2) + (iconWidth / 2);
+          brandX = groupCenter + (totalWidthIconLeft / 2) - (brandWidth / 2);
+        }
+
+        // FORCE: Icon and Brand on IDENTICAL Y position
+        iconY = HORIZONTAL_Y_POSITION;
+        brandY = HORIZONTAL_Y_POSITION;
+
+        // Slogan centered below
+        sloganX = canvasWidth / 2;
+        sloganY = HORIZONTAL_Y_POSITION + 40;
+        break;
+
+      case 'text-left':
+        // FORCE HORIZONTAL: Brand left, Icon right - ALWAYS SAME Y-LEVEL
+        const totalWidthTextLeft = brandWidth + iconWidth + minSpacing;
+        const HORIZONTAL_Y_POSITION_TEXT = canvasHeight / 2; // FIXED Y FOR BOTH
+
+        if (totalWidthTextLeft > effectiveCanvasWidth) {
+          brandX = canvasWidth / 2 - (totalWidthTextLeft / 2) + (brandWidth / 2);
+          iconX = canvasWidth / 2 + (totalWidthTextLeft / 2) - (iconWidth / 2);
+        } else {
+          const groupCenter = canvasWidth / 2;
+          brandX = groupCenter - (totalWidthTextLeft / 2) + (brandWidth / 2);
+          iconX = groupCenter + (totalWidthTextLeft / 2) - (iconWidth / 2);
+        }
+
+        // FORCE: Brand and Icon on IDENTICAL Y position
+        brandY = HORIZONTAL_Y_POSITION_TEXT;
+        iconY = HORIZONTAL_Y_POSITION_TEXT;
+
+        // Slogan centered below
+        sloganX = canvasWidth / 2;
+        sloganY = HORIZONTAL_Y_POSITION_TEXT + 40;
+        break;
+
+      case 'text-top':
+        // 📝⭐ Vertical 2 (vertical: Text top, icon bottom)
+        brandX = canvasWidth / 2;
+        brandY = canvasHeight / 2 - 30;
+        sloganX = canvasWidth / 2;
+        sloganY = canvasHeight / 2 - 10;
+        iconX = canvasWidth / 2;
+        iconY = canvasHeight / 2 + 20;
+        break;
+
+      case 'icon-top':
+      default:
+        // ⭐📝 Vertical 1 (vertical: Icon top, text below)
+        iconX = canvasWidth / 2;
+        iconY = canvasHeight / 2 - 30;
+        brandX = canvasWidth / 2;
+        brandY = canvasHeight / 2;
+        sloganX = canvasWidth / 2;
+        sloganY = canvasHeight / 2 + 25;
+        break;
+    }
+
+    console.log('🎯 Logo elements positioned for layout:', layoutArrangement, {
+      icon: { x: iconX, y: iconY, width: iconWidth },
+      brand: { x: brandX, y: brandY, width: brandWidth },
+      slogan: { x: sloganX, y: sloganY, width: sloganWidth },
+      spacing: minSpacing
     });
 
     // Initialize brand name element
@@ -429,7 +509,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         text: localConfig.slogan,
         x: sloganX,
         y: sloganY,
-        fontSize: 14,
+        fontSize: 12,
         fontFamily: localConfig.font?.cssName || 'Inter, sans-serif',
         fontWeight: 300,
         color: sloganColor,
@@ -449,7 +529,7 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
         icon: localConfig.icon.component,
         x: iconX,
         y: iconY,
-        size: 48,
+        size: 24,
         color: iconColor,
         selected: false,
         permanent: false,
@@ -1907,20 +1987,31 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
     );
   };
 
-  // Helper function to calculate dynamic font size based on text length
-  const getDynamicFontSize = (textLength: number, isCircleLayout: boolean = false) => {
-    const baseSize = isCircleLayout ? 1.5 : 2.25; // rem units
-    if (textLength <= 8) return `${baseSize}rem`;
-    if (textLength <= 12) return `${baseSize * 0.85}rem`;
-    if (textLength <= 16) return `${baseSize * 0.7}rem`;
-    if (textLength <= 20) return `${baseSize * 0.6}rem`;
-    return `${baseSize * 0.5}rem`;
+  // Helper function to calculate dynamic font size based on text length and layout
+  const getDynamicFontSize = (textLength: number, isCircleLayout: boolean = false, isHorizontalLayout: boolean = false) => {
+    let baseSize;
+    if (isCircleLayout) {
+      baseSize = 1.5;
+    } else if (isHorizontalLayout) {
+      baseSize = 1.8; // Smaller for horizontal layouts to fit better
+    } else {
+      baseSize = 2.25;
+    }
+
+    // More aggressive scaling for longer texts
+    if (textLength <= 6) return `${baseSize}rem`;
+    if (textLength <= 10) return `${baseSize * 0.8}rem`;
+    if (textLength <= 14) return `${baseSize * 0.65}rem`;
+    if (textLength <= 18) return `${baseSize * 0.55}rem`;
+    if (textLength <= 22) return `${baseSize * 0.45}rem`;
+    return `${baseSize * 0.35}rem`;
   };
 
   // Helper function to render logo content based on layout type
   const renderLogoContent = (textColor: string, backgroundColor: string, font: any, logoConfig: LogoConfig, sloganColorParam?: string) => {
     const isCircleLayout = logoConfig.layout?.id === 'circle-enclosed';
-    const dynamicFontSize = getDynamicFontSize(logoConfig.text.length, isCircleLayout);
+    const isHorizontalLayout = logoConfig.layout?.arrangement === 'icon-left' || logoConfig.layout?.arrangement === 'text-left';
+    const dynamicFontSize = getDynamicFontSize(logoConfig.text.length, isCircleLayout, isHorizontalLayout);
     
     
     if (isCircleLayout && logoConfig.enclosingShape) {
@@ -1985,84 +2076,102 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
       const isHorizontalLayout = logoConfig.layout?.arrangement === 'icon-left' || logoConfig.layout?.arrangement === 'text-left';
       
       if (isHorizontalLayout) {
-        // Horizontal layout: different arrangements
+        // ABSOLUTE POSITIONING: Brand ALWAYS in exact center, Slogan positioned absolutely below
         const isTextFirst = logoConfig.layout?.arrangement === 'text-left';
-        
+
         return (
-          <div className="flex items-center justify-center gap-2">
-            {/* Text first (text-left) or Icon first (icon-left) */}
-            {isTextFirst ? (
-              <>
-                <div className="flex flex-col items-center text-center justify-center">
+          <div className="w-full h-full relative">
+            {/* BRAND + ICON: ABSOLUTELY CENTERED - never moves regardless of slogan */}
+            <div
+              className="absolute flex items-center justify-center gap-4"
+              style={{
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {isTextFirst ? (
+                /* TEXT-LEFT: Brand first, then Icon */
+                <>
                   <span
-                    className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis"
+                    className="logo-text-preview"
                     style={{
                       fontSize: dynamicFontSize,
                       fontFamily: font.cssName,
                       fontWeight: logoConfig.fontWeight || 400,
                       color: textColor,
-                        }}
+                      lineHeight: '1',
+                      display: 'inline-block',
+                      verticalAlign: 'middle'
+                    }}
                   >
                     {logoConfig.text || 'Your Logo'}
                   </span>
-                  {logoConfig.slogan && (
-                    <span
-                      className="text-base font-normal opacity-80 mt-1 truncate"
+                  {logoConfig.icon && (
+                    <logoConfig.icon.component
+                      size={48}
+                      color={iconColor}
                       style={{
-                        fontWeight: 300,
-                        color: sloganColorParam || textColor,
-                          }}
-                    >
-                      {logoConfig.slogan}
-                    </span>
+                        display: 'inline-block',
+                        verticalAlign: 'middle'
+                      }}
+                    />
                   )}
-                </div>
-                {logoConfig.icon && (
-                  <logoConfig.icon.component
-                    size={48}
-                    color={iconColor}
-                    className="flex-shrink-0"
-                    style={{
-                        }}
-                  />
-                )}
-              </>
-            ) : (
-              <>
-                {logoConfig.icon && (
-                  <logoConfig.icon.component
-                    size={48}
-                    color={iconColor}
-                    className="flex-shrink-0"
-                    style={{
-                        }}
-                  />
-                )}
-                <div className="flex flex-col items-center text-center justify-center">
+                </>
+              ) : (
+                /* ICON-LEFT: Icon first, then Brand */
+                <>
+                  {logoConfig.icon && (
+                    <logoConfig.icon.component
+                      size={48}
+                      color={iconColor}
+                      style={{
+                        display: 'inline-block',
+                        verticalAlign: 'middle'
+                      }}
+                    />
+                  )}
                   <span
-                    className="logo-text-preview whitespace-nowrap overflow-hidden text-ellipsis"
+                    className="logo-text-preview"
                     style={{
                       fontSize: dynamicFontSize,
                       fontFamily: font.cssName,
                       fontWeight: logoConfig.fontWeight || 400,
                       color: textColor,
-                        }}
+                      lineHeight: '1',
+                      display: 'inline-block',
+                      verticalAlign: 'middle'
+                    }}
                   >
                     {logoConfig.text || 'Your Logo'}
                   </span>
-                  {logoConfig.slogan && (
-                    <span
-                      className="text-base font-normal opacity-80 mt-1 truncate"
-                      style={{
-                        fontWeight: 300,
-                        color: sloganColorParam || textColor,
-                          }}
-                    >
-                      {logoConfig.slogan}
-                    </span>
-                  )}
-                </div>
-              </>
+                </>
+              )}
+            </div>
+
+            {/* SLOGAN: ABSOLUTELY positioned below center, never affects brand position */}
+            {logoConfig.slogan && (
+              <div
+                className="absolute"
+                style={{
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, calc(-50% + 40px))',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <span
+                  className="text-sm font-normal opacity-80 text-center"
+                  style={{
+                    fontWeight: 300,
+                    color: sloganColorParam || textColor,
+                    lineHeight: '1.2'
+                  }}
+                >
+                  {logoConfig.slogan}
+                </span>
+              </div>
             )}
           </div>
         );
@@ -3427,24 +3536,31 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                           <div className="grid grid-cols-2 gap-2 w-full">
                             <button
                               onClick={() => {
-                                // Text + Icon (horizontal) - brand centered, icon right with spacing
+                                // 📝⭐ Text+Icon (horizontal: Brand center, icon right)
                                 if (logoElements.brand && logoElements.icon) {
                                   setLogoElements(prev => {
-                                    // Calculate spacing based on brand text length and font size
                                     const brandText = prev.brand?.text || '';
-                                    const fontSize = prev.brand?.fontSize || 16;
-                                    const estimatedTextWidth = brandText.length * (fontSize * 0.6); // Rough estimation
-                                    const spacing = 50; // Minimum spacing between brand and icon
-
-                                    const iconX = Math.max(280, 200 + estimatedTextWidth / 2 + spacing);
+                                    const brandFontSize = prev.brand?.fontSize || 24;
+                                    const brandWidth = brandText.length * (brandFontSize * 0.6);
+                                    const iconWidth = 24;
+                                    const minSpacing = 8; // Reduced spacing for closer positioning
+                                    const canvasCenter = 200;
 
                                     const newState = {
                                       ...prev,
-                                      brand: prev.brand ? { ...prev.brand, x: 200, y: 200 } : undefined,
-                                      icon: prev.icon ? { ...prev.icon, x: iconX, y: 200 } : undefined
+                                      brand: prev.brand ? {
+                                        ...prev.brand,
+                                        x: canvasCenter, // Brand stays centered
+                                        y: canvasCenter
+                                      } : undefined,
+                                      icon: prev.icon ? {
+                                        ...prev.icon,
+                                        x: canvasCenter + brandWidth / 2 + iconWidth / 2 + minSpacing, // Icon to the right
+                                        y: canvasCenter
+                                      } : undefined
                                     };
                                     if (prev.slogan) {
-                                      newState.slogan = { ...prev.slogan, x: 200, y: 225 };
+                                      newState.slogan = { ...prev.slogan, x: canvasCenter, y: canvasCenter + 25 };
                                     }
                                     return newState;
                                   });
@@ -3456,24 +3572,31 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             </button>
                             <button
                               onClick={() => {
-                                // Icon + Text (horizontal) - brand centered, icon left with spacing
+                                // ⭐📝 Icon+Text (horizontal: Icon left, brand center)
                                 if (logoElements.brand && logoElements.icon) {
                                   setLogoElements(prev => {
-                                    // Calculate spacing based on brand text length and font size
                                     const brandText = prev.brand?.text || '';
-                                    const fontSize = prev.brand?.fontSize || 16;
-                                    const estimatedTextWidth = brandText.length * (fontSize * 0.6); // Rough estimation
-                                    const spacing = 50; // Minimum spacing between brand and icon
-
-                                    const iconX = Math.min(120, 200 - estimatedTextWidth / 2 - spacing);
+                                    const brandFontSize = prev.brand?.fontSize || 24;
+                                    const brandWidth = brandText.length * (brandFontSize * 0.6);
+                                    const iconWidth = 24;
+                                    const minSpacing = 8; // Reduced spacing for closer positioning
+                                    const canvasCenter = 200;
 
                                     const newState = {
                                       ...prev,
-                                      icon: prev.icon ? { ...prev.icon, x: iconX, y: 200 } : undefined,
-                                      brand: prev.brand ? { ...prev.brand, x: 200, y: 200 } : undefined
+                                      icon: prev.icon ? {
+                                        ...prev.icon,
+                                        x: canvasCenter - brandWidth / 2 - iconWidth / 2 - minSpacing, // Icon to the left
+                                        y: canvasCenter
+                                      } : undefined,
+                                      brand: prev.brand ? {
+                                        ...prev.brand,
+                                        x: canvasCenter, // Brand stays centered
+                                        y: canvasCenter
+                                      } : undefined
                                     };
                                     if (prev.slogan) {
-                                      newState.slogan = { ...prev.slogan, x: 200, y: 225 };
+                                      newState.slogan = { ...prev.slogan, x: canvasCenter, y: canvasCenter + 25 };
                                     }
                                     return newState;
                                   });
@@ -3485,16 +3608,18 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             </button>
                             <button
                               onClick={() => {
-                                // Icon + Text (vertical) - brand centered, icon top closer
+                                // ⭐📝 Vertical 1 (vertical: Icon top, text below)
                                 if (logoElements.brand && logoElements.icon) {
                                   setLogoElements(prev => {
+                                    const canvasCenter = 200;
+
                                     const newState = {
                                       ...prev,
-                                      icon: prev.icon ? { ...prev.icon, x: 200, y: 160 } : undefined,
-                                      brand: prev.brand ? { ...prev.brand, x: 200, y: 200 } : undefined
+                                      icon: prev.icon ? { ...prev.icon, x: canvasCenter, y: canvasCenter - 30 } : undefined,
+                                      brand: prev.brand ? { ...prev.brand, x: canvasCenter, y: canvasCenter } : undefined
                                     };
                                     if (prev.slogan) {
-                                      newState.slogan = { ...prev.slogan, x: 200, y: 240 };
+                                      newState.slogan = { ...prev.slogan, x: canvasCenter, y: canvasCenter + 25 };
                                     }
                                     return newState;
                                   });
@@ -3507,16 +3632,18 @@ const LogoEditor = ({ config, onConfigUpdate, availableIcons, availablePalettes,
                             </button>
                             <button
                               onClick={() => {
-                                // Text + Icon (vertical) - brand centered, icon bottom closer
+                                // 📝⭐ Vertical 2 (vertical: Text top, icon bottom)
                                 if (logoElements.brand && logoElements.icon) {
                                   setLogoElements(prev => {
+                                    const canvasCenter = 200;
+
                                     const newState = {
                                       ...prev,
-                                      brand: prev.brand ? { ...prev.brand, x: 200, y: 200 } : undefined,
-                                      icon: prev.icon ? { ...prev.icon, x: 200, y: 240 } : undefined
+                                      brand: prev.brand ? { ...prev.brand, x: canvasCenter, y: canvasCenter - 30 } : undefined,
+                                      icon: prev.icon ? { ...prev.icon, x: canvasCenter, y: canvasCenter + 20 } : undefined
                                     };
                                     if (prev.slogan) {
-                                      newState.slogan = { ...prev.slogan, x: 200, y: 160 };
+                                      newState.slogan = { ...prev.slogan, x: canvasCenter, y: canvasCenter - 10 };
                                     }
                                     return newState;
                                   });

@@ -141,30 +141,44 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
         {logoConfig.layout?.arrangement === 'text-left' ? (
           <div className="flex items-center justify-center gap-3">
             <div className="flex flex-col items-center">
-              <span className="text-center break-words" style={brandNameStyle}>
+              <span className="text-center break-words" style={{
+                ...brandNameStyle,
+                lineHeight: 1.2
+              }}>
                 {logoConfig.text}
               </span>
               {logoConfig.slogan && (
-                <span className="opacity-80 mt-1 text-center break-words" style={sloganStyle}>
+                <span className="opacity-80 text-center break-words" style={{
+                  ...sloganStyle,
+                  marginTop: '0.2rem',
+                  lineHeight: 1.2
+                }}>
                   {logoConfig.slogan}
                 </span>
               )}
             </div>
             {logoConfig.icon && (
-              <logoConfig.icon.component size={32} color={iconColor} className="flex-shrink-0" />
+              <logoConfig.icon.component size={32} color={iconColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.3rem' : '0' }} />
             )}
           </div>
         ) : logoConfig.layout?.arrangement === 'icon-left' ? (
           <div className="flex items-center justify-center gap-3">
             {logoConfig.icon && (
-              <logoConfig.icon.component size={32} color={iconColor} className="flex-shrink-0" />
+              <logoConfig.icon.component size={32} color={iconColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.3rem' : '0' }} />
             )}
             <div className="flex flex-col items-center">
-              <span className="text-center break-words" style={brandNameStyle}>
+              <span className="text-center break-words" style={{
+                ...brandNameStyle,
+                lineHeight: 1.2
+              }}>
                 {logoConfig.text}
               </span>
               {logoConfig.slogan && (
-                <span className="opacity-80 mt-1 text-center break-words" style={sloganStyle}>
+                <span className="opacity-80 text-center break-words" style={{
+                  ...sloganStyle,
+                  marginTop: '0.2rem',
+                  lineHeight: 1.2
+                }}>
                   {logoConfig.slogan}
                 </span>
               )}
@@ -232,45 +246,51 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
             {logoConfig.layout?.arrangement === 'text-left' ? (
               <div className="flex items-center justify-center gap-2 text-center">
                 <div className="flex flex-col items-center">
-                  <span className="text-center break-words text-sm" style={{ 
+                  <span className="text-center break-words text-sm" style={{
                     fontSize: `${parseFloat(dynamicFontSize) * 0.8}rem`,
                     fontFamily: font.cssName,
                     fontWeight: logoConfig.fontWeight || font.generationWeights[0],
-                    color: textColor
+                    color: textColor,
+                    lineHeight: 1.2
                   }}>
                     {logoConfig.text}
                   </span>
                   {logoConfig.slogan && (
-                    <span className="text-xs font-normal opacity-80 mt-1 text-center break-words" style={{ 
+                    <span className="text-xs font-normal opacity-80 text-center break-words" style={{
                       fontWeight: 300,
-                      color: textColor
+                      color: textColor,
+                      marginTop: '0.1rem',
+                      lineHeight: 1.2
                     }}>
                       {logoConfig.slogan}
                     </span>
                   )}
                 </div>
                 {logoConfig.icon && (
-                  <logoConfig.icon.component size={24} color={textColor} className="flex-shrink-0" />
+                  <logoConfig.icon.component size={24} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.2rem' : '0' }} />
                 )}
               </div>
             ) : logoConfig.layout?.arrangement === 'icon-left' ? (
               <div className="flex items-center justify-center gap-2 text-center">
                 {logoConfig.icon && (
-                  <logoConfig.icon.component size={24} color={textColor} className="flex-shrink-0" />
+                  <logoConfig.icon.component size={24} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.2rem' : '0' }} />
                 )}
                 <div className="flex flex-col items-center">
-                  <span className="text-center break-words text-sm" style={{ 
+                  <span className="text-center break-words text-sm" style={{
                     fontSize: `${parseFloat(dynamicFontSize) * 0.8}rem`,
                     fontFamily: font.cssName,
                     fontWeight: logoConfig.fontWeight || font.generationWeights[0],
-                    color: textColor
+                    color: textColor,
+                    lineHeight: 1.2
                   }}>
                     {logoConfig.text}
                   </span>
                   {logoConfig.slogan && (
-                    <span className="text-xs font-normal opacity-80 mt-1 text-center break-words" style={{ 
+                    <span className="text-xs font-normal opacity-80 text-center break-words" style={{
                       fontWeight: 300,
-                      color: textColor
+                      color: textColor,
+                      marginTop: '0.1rem',
+                      lineHeight: 1.2
                     }}>
                       {logoConfig.slogan}
                     </span>
@@ -343,46 +363,52 @@ const LogoPreview = ({ config, selectedFontCategory, availableIcons = [], availa
             {/* Text first (text-left) or Icon first (icon-left) */}
             {isTextFirst ? (
               <>
-                <div className="flex flex-col items-center text-center justify-center">
-                  <span className="text-center break-words" style={{ 
+                <div className="flex flex-col items-center text-center">
+                  <span className="text-center break-words" style={{
                     fontSize: dynamicFontSize,
                     fontFamily: font.cssName,
                     fontWeight: config.fontWeight || font.generationWeights[0],
-                    color: textColor
+                    color: textColor,
+                    lineHeight: 1.2
                   }}>
                     {logoConfig.text}
                   </span>
                   {logoConfig.slogan && (
-                    <span className="text-base font-normal opacity-80 mt-1 text-center break-words" style={{ 
+                    <span className="text-base font-normal opacity-80 text-center break-words" style={{
                       fontWeight: 300,
-                      color: textColor
+                      color: textColor,
+                      marginTop: '0.2rem',
+                      lineHeight: 1.2
                     }}>
                       {logoConfig.slogan}
                     </span>
                   )}
                 </div>
                 {logoConfig.icon && (
-                  <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" />
+                  <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.4rem' : '0' }} />
                 )}
               </>
             ) : (
               <>
                 {logoConfig.icon && (
-                  <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" />
+                  <logoConfig.icon.component size={48} color={textColor} className="flex-shrink-0" style={{ alignSelf: logoConfig.slogan ? 'flex-start' : 'center', marginTop: logoConfig.slogan ? '0.4rem' : '0' }} />
                 )}
-                <div className="flex flex-col items-center text-center justify-center">
-                  <span className="text-center break-words" style={{ 
+                <div className="flex flex-col items-center text-center">
+                  <span className="text-center break-words" style={{
                     fontSize: dynamicFontSize,
                     fontFamily: font.cssName,
                     fontWeight: config.fontWeight || font.generationWeights[0],
-                    color: textColor
+                    color: textColor,
+                    lineHeight: 1.2
                   }}>
                     {logoConfig.text}
                   </span>
                   {logoConfig.slogan && (
-                    <span className="text-base font-normal opacity-80 mt-1 text-center break-words" style={{ 
+                    <span className="text-base font-normal opacity-80 text-center break-words" style={{
                       fontWeight: 300,
-                      color: textColor
+                      color: textColor,
+                      marginTop: '0.2rem',
+                      lineHeight: 1.2
                     }}>
                       {logoConfig.slogan}
                     </span>

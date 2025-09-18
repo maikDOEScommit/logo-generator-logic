@@ -1,4 +1,4 @@
-import './fonts.css';
+import './new-fonts.css';
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";

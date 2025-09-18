@@ -6,7 +6,7 @@ import SelectionCard from '@/components/ui/SelectionCard';
 import { layouts, fontCategories, personalities } from '@/lib/data';
 import { Circle, Check } from 'lucide-react';
 import { ColorOption } from '@/lib/colorLogic';
-import { iconSets, getIconSetById, IconSet } from '@/lib/iconSets';
+import { getIconsByIndustry, getIndustryIconCounts } from '@/lib/industryIcons';
 
 // Brand Personality Button Component with Border Animation
 const BrandPersonalityButton = ({ personality, isSelected, onClick }: { personality: any, isSelected: boolean, onClick: () => void }) => {
@@ -167,17 +167,17 @@ interface Props {
   selectedFontCategory: string | null;
   setSelectedFontCategory: (category: string | null) => void;
   selectedPersonalities: string[];
+  industry: string | null;
   onTogglePersonality: (id: string) => void;
   onLogoCreate?: () => void;
   onDesignProgress?: (progressKey: string) => void;
 }
 
-const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory, setSelectedFontCategory, selectedPersonalities, onTogglePersonality, onLogoCreate, onDesignProgress }: Props) => {
+const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory, setSelectedFontCategory, selectedPersonalities, industry, onTogglePersonality, onLogoCreate, onDesignProgress }: Props) => {
   const { suggestedIcons, suggestedEnclosingShapes, suggestedPalettes } = suggestions;
   const [selectedLayoutType, setSelectedLayoutType] = useState<string | null>(null);
   const [wantsIcon, setWantsIcon] = useState<boolean | null>(null);
   const [showIconSetSelection, setShowIconSetSelection] = useState<boolean>(false);
-  const [selectedIconSet, setSelectedIconSet] = useState<string>('lucide');
   const [colorMode, setColorMode] = useState<'grundton' | 'pastell' | 'neon' | 'dunkel'>('grundton');
   const [selectedColorCombo, setSelectedColorCombo] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -209,16 +209,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
   // These are already the fixed 16 enclosing shapes defined in suggestionEngine.ts
   const enclosingShapes = suggestedEnclosingShapes;
   
-  // Use icons from selected icon set or fall back to suggested icons
-  const getCurrentIconSet = (): IconData[] => {
-    if (selectedIconSet === 'lucide') {
-      return suggestedIcons;
-    }
-    const iconSet = getIconSetById(selectedIconSet);
-    return iconSet ? iconSet.icons : suggestedIcons;
-  };
 
-  const regularIcons = getCurrentIconSet();
+  // Use industry-specific icons directly
+  const regularIcons = industry ? getIconsByIndustry(industry) : suggestedIcons;
 
   // Helper functions to generate dynamic colors
   const generatePastelColor = (baseColor: string): string => {
@@ -381,11 +374,11 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
         </div>
       )}
 
-      {/* Icon Set Selection Section - Only shown when user clicks "Yes, show me icons" */}
-      {showIconSetSelection && !wantsIcon && (
+      {/* Industry-Specific Icon Selection Section - Only shown when user clicks "Yes, show me icons" */}
+      {showIconSetSelection && !wantsIcon && industry && (
         <div className="min-h-screen flex items-center justify-center -mt-12">
           <div className="w-full max-w-4xl">
-            <Section title="1. Choose an Icon Set" helpText="Select from 19 different icon libraries with unique styles">
+            <Section title="1. Choose a Symbol" helpText={`Icons curated for ${industry} industry`}>
               <div className="col-span-full space-y-4">
                 <div className="flex justify-between items-center mb-6">
                   <button
@@ -397,37 +390,27 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                     ← Back to decision
                   </button>
                   <div className="text-white/60 text-sm">
-                    19 icon sets available
+                    {getIconsByIndustry(industry).length} icons available for {industry}
                   </div>
                 </div>
 
-                {/* Icon Set Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {iconSets.map((iconSet) => (
+                {/* Industry-Specific Icon Grid */}
+                <div className="grid grid-cols-6 gap-3 max-h-96 overflow-y-auto">
+                  {getIconsByIndustry(industry).map((icon) => (
                     <SelectionCard
-                      key={iconSet.id}
-                      isSelected={selectedIconSet === iconSet.id}
+                      key={icon.id}
+                      isSelected={config.icon?.id === icon.id}
                       onClick={() => {
-                        setSelectedIconSet(iconSet.id);
+                        updateConfig({ icon });
                         setWantsIcon(true);
                         setShowIconSetSelection(false);
                       }}
                     >
-                      <div className="p-4 text-center">
-                        <h3 className="font-bold text-white mb-2">{iconSet.name}</h3>
-                        <p className="text-white/60 text-xs mb-3 leading-relaxed">
-                          {iconSet.description}
+                      <div className="p-3 text-center">
+                        <icon.component className="w-6 h-6 mx-auto mb-2 text-white" />
+                        <p className="text-white/60 text-xs truncate">
+                          {icon.id.replace(/^[a-z]+-/, '').replace(/([A-Z])/g, ' $1').trim()}
                         </p>
-                        <div className="flex justify-between items-center text-xs text-white/40">
-                          <span>{iconSet.iconCount} icons</span>
-                          <span>{iconSet.style}</span>
-                        </div>
-                        {/* Sample icons preview */}
-                        <div className="flex justify-center items-center gap-2 mt-3 opacity-70">
-                          {iconSet.icons.slice(0, 3).map((icon, idx) => (
-                            <icon.component key={idx} className="w-4 h-4" />
-                          ))}
-                        </div>
                       </div>
                     </SelectionCard>
                   ))}
@@ -598,7 +581,9 @@ const Step3_Design = ({ config, updateConfig, suggestions, selectedFontCategory,
                             {category.name === 'Modern' && 'Clean, minimalist fonts perfect for tech companies and contemporary brands. Highly readable across all devices.'}
                             {category.name === 'Elegant' && 'Sophisticated script fonts that convey luxury and refinement. Ideal for premium brands and creative agencies.'}
                             {category.name === 'Bold' && 'Strong, impactful fonts that demand attention. Perfect for sports brands, events, and dynamic companies.'}
-                            {category.name === 'Heritage' && 'Classic serif fonts with timeless appeal. Excellent for traditional businesses, education, and established brands.'}
+                            {category.name === 'Timeless' && 'Classic, enduring fonts with timeless appeal. Excellent for traditional businesses, education, and established brands.'}
+                            {category.name === 'Playful' && 'Fun, creative fonts that bring energy and personality. Perfect for entertainment, children\'s brands, and creative ventures.'}
+                            {category.name === 'Tech' && 'Futuristic, digital fonts designed for the modern age. Ideal for startups, gaming, and technology companies.'}
                           </div>
                           <div className="text-xs text-white/50 space-y-1">
                             {category.fonts.slice(0, 3).map(font => (

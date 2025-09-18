@@ -1,6 +1,7 @@
 // lib/suggestionEngine.ts
 import { fontCategories, colorPalettes, layouts, FontCategory, ColorPalette, FontInfo } from './data';
 import { IconData, FontData, PaletteData } from './types';
+import { getIconsByIndustry } from './industryIcons';
 import { 
   // BASIC SHAPES & SYMBOLS (9)
   Circle, Square, Triangle, Diamond, Hexagon, Pentagon, Star, Heart, Plus,
@@ -318,7 +319,7 @@ export function getInitialSuggestions(industry: string, keywords: string[]): Sug
 
   // Regel 3: Natur- & Gesundheits-Branchen
   if (['health', 'wellness', 'food'].includes(industry) || keywords.includes('natur')) {
-    suggestedFontCategory = fontCategories.find(c => c.name === 'Heritage')!;
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Timeless')!;
     suggestedPalette = colorPalettes.find(p => p.name.includes('Natürlich'))!;
   }
 
@@ -330,7 +331,7 @@ export function getInitialSuggestions(industry: string, keywords: string[]): Sug
 
   // Regel 5: Bildung & Beratung (Vertrauenswürdig)
   if (['education', 'consulting'].includes(industry) || keywords.includes('vertrauen')) {
-    suggestedFontCategory = fontCategories.find(c => c.name === 'Heritage')!;
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Timeless')!;
     suggestedPalette = colorPalettes.find(p => p.name.includes('Seriös'))!;
   }
 
@@ -348,7 +349,7 @@ export function getInitialSuggestions(industry: string, keywords: string[]): Sug
 
   // Regel 8: Legal & Law (Professional & Trustworthy)
   if (['legal', 'law'].includes(industry) || keywords.includes('professional')) {
-    suggestedFontCategory = fontCategories.find(c => c.name === 'Heritage')!;
+    suggestedFontCategory = fontCategories.find(c => c.name === 'Timeless')!;
     suggestedPalette = colorPalettes.find(p => p.name.includes('Seriös'))!;
   }
 
@@ -378,12 +379,23 @@ export function getInitialSuggestions(industry: string, keywords: string[]): Sug
     'tree', 'flower', 'building', 'handshake', 'phone'
   ];
   
-  // Return ALL 120 icons in their defined order
-  const suggestedIcons = availableIcons;
+  // Return industry-specific icons instead of all 120 icons
+  const suggestedIcons = getIconsByIndustry(industry);
 
-  // SAFETY CHECK: Ensure we have all 120 icons
-  if (suggestedIcons.length !== 120) {
-    console.error(`ERROR: Expected 120 icons but got ${suggestedIcons.length}.`);
+  // SAFETY CHECK: Ensure we have icons for this industry
+  if (suggestedIcons.length === 0) {
+    console.warn(`WARNING: No icons found for industry: ${industry}. Falling back to basic shapes.`);
+    // Fallback to basic shapes if no industry-specific icons are found
+    return {
+      suggestedIcons: availableIcons.slice(0, 9), // First 9 basic shapes
+      suggestedEnclosingShapes: availableIcons.filter(icon =>
+        fixed17EnclosingShapeIds.includes(icon.id)
+      ).sort((a, b) =>
+        fixed17EnclosingShapeIds.indexOf(a.id) - fixed17EnclosingShapeIds.indexOf(b.id)
+      ),
+      suggestedFonts: suggestedFonts.slice(0, 8),
+      suggestedPalettes: suggestionPalettes
+    };
   }
 
   // Convert font categories to FontData format
