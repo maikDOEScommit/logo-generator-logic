@@ -277,7 +277,7 @@ export const suggestionPalettes: PaletteData[] = [
   ...colorPalettes.map((palette, index) => ({
     id: `palette-${index}`,
     name: palette.name,
-    colors: [palette.colors[0], palette.colors[1], palette.colors[3]] as [string, string, string],
+    colors: [palette.colors[0], palette.colors[1], palette.colors[2]] as [string, string, string],
     tags: palette.name.includes('Seriös') ? ['corporate', 'trust'] :
           palette.name.includes('Modern') ? ['tech', 'modern'] :
           palette.name.includes('Natürlich') ? ['nature', 'eco'] :
@@ -452,7 +452,7 @@ export function getSuggestions(industry: string | null, selectedPersonalities: s
   const convertedPalettes = colorPalettes.map(palette => ({
     id: palette.name.toLowerCase().replace(/\s+/g, '-'),
     name: palette.name,
-    colors: [palette.colors[3], palette.colors[0], palette.colors[2]] as [string, string, string], // [background, primary, text]
+    colors: [palette.colors[0], palette.colors[1], palette.colors[2]] as [string, string, string], // [background, primary, text]
     tags: []
   }));
 

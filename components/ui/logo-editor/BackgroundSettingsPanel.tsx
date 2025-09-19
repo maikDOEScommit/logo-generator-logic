@@ -152,7 +152,7 @@ export const BackgroundSettingsPanel = ({
                 className="p-2 rounded border border-white/20 hover:border-white/40 transition-colors"
               >
                 <div className="flex gap-1 h-4 mb-1">
-                  {palette.colors.slice(0, 4).map((color: string, i: number) => (
+                  {palette.colors.slice(0, 3).map((color: string, i: number) => (
                     <div key={i} className="flex-1 rounded-sm" style={{ backgroundColor: color }}></div>
                   ))}
                 </div>

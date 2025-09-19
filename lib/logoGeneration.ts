@@ -1,6 +1,6 @@
 // lib/logoGeneration.ts
 import { LogoConfig, IconData } from './types';
-import { colorGenerationRules, ColorGenerationRule } from './data';
+import { colorGenerationRules, ColorGenerationRule, baseColorPalettes } from './data';
 import { getIconsByIndustry } from './industryIcons';
 
 export type LogoVariation = {
@@ -110,7 +110,8 @@ export function generateLogoVariations(
   // Get different icons for each variation
   const variationIcons = getRandomIconsForVariations({ ...baseConfig, industry }, rule.variants.length);
 
-  return rule.variants.map((variant, index) => {
+  // Generiere die regulären Variationen
+  const regularVariations = rule.variants.map((variant, index) => {
     const variation = {
       id: `${rule.id}-variant-${index + 1}`,
       name: variant.name,
@@ -124,6 +125,15 @@ export function generateLogoVariations(
     console.log(`🎨 Generated variation ${index + 1}:`, variation.id, 'icon:', variation.icon?.id);
     return variation;
   });
+
+  // Wenn eine Grundfarbe gewählt wurde, generiere zusätzlich 12 erweiterte Farbpaletten-Variationen
+  if (baseConfig.baseColor) {
+    const extendedVariations = generateExtendedPaletteVariationsForLogo(baseConfig, baseColor, colorRule, industry);
+    console.log(`🎨 Generated ${extendedVariations.length} extended palette variations`);
+    return [...regularVariations, ...extendedVariations];
+  }
+
+  return regularVariations;
 }
 
 // Color utility functions for evaluation
@@ -364,4 +374,204 @@ export function determineColorRule(selectedPalette: any, selectedBaseColor?: str
   }
 
   return null;
+}
+
+// Color manipulation functions
+function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: number } {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0;
+  let s = 0;
+  const l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0; // achromatic
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+
+  return { h: h * 360, s: s * 100, l: l * 100 };
+}
+
+function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
+  h /= 360;
+  s /= 100;
+  l /= 100;
+
+  const hue2rgb = (p: number, q: number, t: number) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    return p;
+  };
+
+  let r, g, b;
+
+  if (s === 0) {
+    r = g = b = l; // achromatic
+  } else {
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+
+  return {
+    r: Math.round(r * 255),
+    g: Math.round(g * 255),
+    b: Math.round(b * 255)
+  };
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+function rotateHue(hex: string, degrees: number): string {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return hex;
+
+  const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+  hsl.h = (hsl.h + degrees) % 360;
+  if (hsl.h < 0) hsl.h += 360;
+
+  const newRgb = hslToRgb(hsl.h, hsl.s, hsl.l);
+  return rgbToHex(newRgb.r, newRgb.g, newRgb.b);
+}
+
+function getHueDifference(baseColor: string, targetColor: string): number {
+  const baseRgb = hexToRgb(baseColor);
+  const targetRgb = hexToRgb(targetColor);
+
+  if (!baseRgb || !targetRgb) return 0;
+
+  const baseHsl = rgbToHsl(baseRgb.r, baseRgb.g, baseRgb.b);
+  const targetHsl = rgbToHsl(targetRgb.r, targetRgb.g, targetRgb.b);
+
+  let diff = targetHsl.h - baseHsl.h;
+
+  // Normalisiere auf den kleinsten Winkel (-180 bis +180)
+  if (diff > 180) diff -= 360;
+  if (diff < -180) diff += 360;
+
+  return diff;
+}
+
+// Generiert 12 zusätzliche Logo-Variationen basierend auf den erweiterten Farbpaletten
+function generateExtendedPaletteVariationsForLogo(
+  baseConfig: LogoConfig,
+  selectedBaseColor: string,
+  colorRule: 'base-only' | 'add-white' | 'add-black',
+  industry?: string
+): LogoVariation[] {
+  const variations: LogoVariation[] = [];
+
+  // Die erweiterten Farbpaletten (ab Index 21 aus baseColorPalettes)
+  const extendedPalettes = baseColorPalettes.slice(21);
+
+  // Get different icons for each extended variation
+  const variationIcons = getRandomIconsForVariations({ ...baseConfig, industry }, extendedPalettes.length);
+
+  extendedPalettes.forEach((extendedPalette, paletteIndex) => {
+    // Berechne die Hue-Differenz zwischen der Referenzfarbe der erweiterten Palette und der gewählten Grundfarbe
+    const referenceColor = extendedPalette.color; // Dies ist die main.hOffset der erweiterten Palette
+    const hueDifference = getHueDifference(referenceColor, selectedBaseColor);
+
+    // Erstelle harmonische Farben basierend auf der gewählten Grundfarbe
+    const harmonicColors = generateHarmonicColorsForLogo(selectedBaseColor, extendedPalette.name);
+
+    const variation: LogoVariation = {
+      id: `extended-${extendedPalette.name.toLowerCase().replace(/\s+/g, '-')}-${paletteIndex}`,
+      name: `${extendedPalette.name} (Erweitert)`,
+      brandNameColor: selectedBaseColor,
+      iconColor: harmonicColors.accent,
+      backgroundColor: harmonicColors.background,
+      sloganColor: selectedBaseColor, // Verwende baseColor für Slogan um max 3 Farben zu halten
+      hasGradient: false,
+      icon: variationIcons[paletteIndex] // Different icon for each variation
+    };
+
+    variations.push(variation);
+    console.log(`🎨 Generated extended variation ${paletteIndex + 1}:`, variation.id, 'icon:', variation.icon?.id);
+  });
+
+  return variations;
+}
+
+// Generiert harmonische Farben basierend auf einer Grundfarbe für erweiterte Paletten (Logo-Format)
+// Gibt nur 2 Farben zurück: background und accent (max 3 Farben total mit baseColor)
+function generateHarmonicColorsForLogo(baseColor: string, paletteName: string): {
+  background: string;
+  accent: string;
+} {
+  // Verschiedene harmonische Beziehungen basierend auf dem Palettennamen
+  let accentHueShift = 0;
+  let backgroundHueShift = 0;
+  let backgroundLightness = 0;
+
+  // Bestimme die harmonischen Verschiebungen basierend auf dem Palettentyp
+  switch (true) {
+    case paletteName.includes('Kontrast'):
+      accentHueShift = 180; // Komplementärfarbe
+      backgroundHueShift = 0;
+      backgroundLightness = 90;
+      break;
+    case paletteName.includes('Analog'):
+      accentHueShift = 30; // Benachbarte Farbe
+      backgroundHueShift = -30;
+      backgroundLightness = 85;
+      break;
+    case paletteName.includes('Komplementär'):
+      accentHueShift = 180; // Komplementärfarbe
+      backgroundHueShift = 0;
+      backgroundLightness = 92;
+      break;
+    case paletteName.includes('Monochromatisch'):
+      accentHueShift = 0; // Gleicher Hue, verschiedene Helligkeit
+      backgroundHueShift = 0;
+      backgroundLightness = 88;
+      break;
+    default:
+      // Standard harmonische Beziehung
+      accentHueShift = 120; // Triadisch
+      backgroundHueShift = 0;
+      backgroundLightness = 87;
+  }
+
+  return {
+    background: adjustColorForBackgroundLogo(baseColor, backgroundHueShift, backgroundLightness),
+    accent: rotateHue(baseColor, accentHueShift)
+  };
+}
+
+// Passt eine Farbe für die Verwendung als Hintergrund an (Logo-Format)
+function adjustColorForBackgroundLogo(color: string, hueShift: number, targetLightness: number): string {
+  const rgb = hexToRgb(color);
+  if (!rgb) return '#FFFFFF';
+
+  const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+
+  // Passe Hue und Lightness an
+  hsl.h = (hsl.h + hueShift) % 360;
+  if (hsl.h < 0) hsl.h += 360;
+  hsl.l = targetLightness;
+  hsl.s = Math.min(hsl.s, 30); // Reduziere Sättigung für Hintergründe
+
+  const newRgb = hslToRgb(hsl.h, hsl.s, hsl.l);
+  return rgbToHex(newRgb.r, newRgb.g, newRgb.b);
 }

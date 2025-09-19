@@ -44,18 +44,113 @@ function createSilverGradient(): string {
 // 1. FARBPALETTEN
 export type ColorPalette = {
   name: string;
-  colors: [string, string, string, string]; // [Haupt, Neben, Akzent, Neutral]
+  colors: [string, string, string]; // [Hauptfarbe/Background, Textfarbe, Akzentfarbe] - Max 3 Farben
 };
 
 export const colorPalettes: ColorPalette[] = [
-  { name: "Seriös & Vertrauensvoll", colors: ["#0A3D62", "#CEDEEB", "#AAB8C2", "#FFFFFF"] },
-  { name: "Modern & Technisch", colors: ["#00D2D3", "#2C3A47", "#FF9F43", "#F5F8FA"] },
-  { name: "Natürlich & Nachhaltig", colors: ["#587448", "#E5D9B8", "#C86B52", "#FDFBF5"] },
-  { name: "Elegant & Luxuriös", colors: ["#1E2022", "#D4AF37", "#800020", "#FFFFF0"] },
-  { name: "Dynamisch & Energiegeladen", colors: ["#D92027", "#FFD93D", "#000000", "#FFFFFF"] },
-  { name: "Freundlich & Sanft", colors: ["#FAD3E7", "#BEE3F8", "#B2F5EA", "#FFFFFF"] },
-  { name: "Ocean & Sunset", colors: ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFF8E1"] },
-  { name: "Cosmic & Deep", colors: ["#667EEA", "#764BA2", "#F093FB", "#F8F9FA"] },
+  // Originale 8 reguläre Farbpaletten - reduziert auf 3 Farben
+  { name: "Seriös & Vertrauensvoll", colors: ["#FFFFFF", "#0A3D62", "#CEDEEB"] },
+  { name: "Modern & Technisch", colors: ["#F5F8FA", "#2C3A47", "#00D2D3"] },
+  { name: "Natürlich & Nachhaltig", colors: ["#FDFBF5", "#587448", "#E5D9B8"] },
+  { name: "Elegant & Luxuriös", colors: ["#FFFFF0", "#1E2022", "#D4AF37"] },
+  { name: "Dynamisch & Energiegeladen", colors: ["#FFFFFF", "#000000", "#D92027"] },
+  { name: "Freundlich & Sanft", colors: ["#FFFFFF", "#FAD3E7", "#BEE3F8"] },
+  { name: "Ocean & Sunset", colors: ["#FFF8E1", "#FF6B6B", "#4ECDC4"] },
+  { name: "Cosmic & Deep", colors: ["#F8F9FA", "#667EEA", "#764BA2"] },
+
+  // Erste 40 Farbpaletten aus colors-new.json - reduziert auf 3 Farben
+  { name: "Sanft Monochromatisch", colors: ["#f6f7f8", "#336699", "#5799db"] },
+  { name: "Kräftig Monochromatisch", colors: ["#e7f2fe", "#2e3138", "#5ea6ed"] },
+  { name: "Gedeckt Monochromatisch", colors: ["#f5f3f0", "#2d4053", "#598cc0"] },
+  { name: "Ruhig Analog", colors: ["#f1f2f4", "#3380cc", "#6161d1"] },
+  { name: "Warm Analog", colors: ["#352e27", "#4d99e5", "#5eede1"] },
+  { name: "Frisch Analog", colors: ["#ffffff", "#1f66ad", "#5336e2"] },
+  { name: "Klassisch Komplementär", colors: ["#e8f2fc", "#1f1f1f", "#e5994d"] },
+  { name: "Geteilt Komplementär", colors: ["#f6f4f4", "#1173d4", "#bf4040"] },
+  { name: "Sanft Komplementär", colors: ["#e0e6eb", "#4d5e80", "#e0b385"] },
+  { name: "Doppel-Komplementär", colors: ["#fafafa", "#1259a1", "#5252e0"] },
+  { name: "Lebhafte Triade", colors: ["#fafafa", "#1980e6", "#c32273"] },
+  { name: "Dunkle Triade", colors: ["#22222a", "#7db3e8", "#a6e06c"] },
+  { name: "Pastell-Triade", colors: ["#faf7f4", "#6699cc", "#cc6699"] },
+  { name: "Gedeckte Triade", colors: ["#455454", "#cbd9e6", "#c982a6"] },
+  { name: "Neutral mit Akzent", colors: ["#f5f5f5", "#1a1a1a", "#258cf4"] },
+  { name: "Natur & Erde", colors: ["#f4f0eb", "#593960", "#404abf"] },
+  { name: "Königlich", colors: ["#221b32", "#e46767", "#c9cccf"] },
+  { name: "Art Deco", colors: ["#e8e7ef", "#1a1a1a", "#a36629"] },
+  { name: "Edelstein", colors: ["#e3e6e8", "#1f4733", "#dddd3c"] },
+  { name: "Mitternachtsgold", colors: ["#d3d9de", "#2d3953", "#dbaf57"] },
+  { name: "70er Jahre Vibe", colors: ["#e7ebe0", "#366354", "#30e8ab"] },
+  { name: "Pastell 50er", colors: ["#edf7f2", "#dfd49f", "#dbf5d6"] },
+  { name: "Verwaschene Nostalgie", colors: ["#bfccd9", "#c27070", "#998866"] },
+  { name: "Senf & Petrol", colors: ["#f4f3f0", "#0044cc", "#7d3636"] },
+  { name: "Cyberpunk", colors: ["#111117", "#ff8000", "#33ff99"] },
+  { name: "Synthwave", colors: ["#18122b", "#fa3869", "#8c25f4"] },
+  { name: "Digital Glitch", colors: ["#262626", "#ff0080", "#fafafa"] },
+  { name: "Plasma-Anzeige", colors: ["#1b141f", "#55a6f6", "#2beead"] },
+  { name: "Meeresbrise", colors: ["#f4f2eb", "#cd98ae", "#67dae4"] },
+  { name: "Blütenpracht", colors: ["#fbf9fa", "#adcceb", "#a6d9bf"] },
+  { name: "Waldlichtung", colors: ["#eaeee8", "#3e7450", "#e8c9de"] },
+  { name: "Sonnenaufgang", colors: ["#3d475c", "#f2d08c", "#ec9f79"] },
+  { name: "Modern & Minimal", colors: ["#f9fafa", "#171a1c", "#4799eb"] },
+  { name: "Warm & Einladend", colors: ["#fbf7f4", "#294756", "#3c57dd"] },
+  { name: "Technisch & Präzise", colors: ["#e9e9e2", "#252b37", "#f5993d"] },
+  { name: "Dramatisch & Selbstbewusst", colors: ["#ffffff", "#141414", "#00aaff"] },
+  { name: "Natürlich & Beruhigend", colors: ["#f4f6f4", "#402633", "#b3acd2"] },
+  { name: "Kreativ & Verspielt", colors: ["#fffbe5", "#b8a12e", "#55c1f6"] },
+  { name: "Premium & Dezent", colors: ["#dcdce5", "#38332e", "#a37d75"] },
+  { name: "Optimistisch & Hell", colors: ["#f4fafb", "#3d5cf5", "#d9d926"] },
+];
+
+// BASE COLOR PALETTES (Grundfarben für Logo-Generation)
+export type BaseColorPalette = {
+  name: string;
+  color: string;
+  description?: string;
+};
+
+export const baseColorPalettes: BaseColorPalette[] = [
+  // Primärfarben
+  { name: "Rot", color: "#E74C3C", description: "Kraftvoll und energiegeladen" },
+  { name: "Blau", color: "#3498DB", description: "Vertrauenswürdig und professionell" },
+  { name: "Gelb", color: "#F1C40F", description: "Optimistisch und aufmerksamkeitsstark" },
+
+  // Sekundärfarben
+  { name: "Grün", color: "#27AE60", description: "Natürlich und harmonisch" },
+  { name: "Orange", color: "#E67E22", description: "Warm und einladend" },
+  { name: "Violett", color: "#9B59B6", description: "Kreativ und luxuriös" },
+
+  // Erweiterte Farbpalette
+  { name: "Türkis", color: "#1ABC9C", description: "Frisch und modern" },
+  { name: "Marineblau", color: "#2C3E50", description: "Elegant und seriös" },
+  { name: "Rosa", color: "#E91E63", description: "Verspielt und feminin" },
+  { name: "Lime", color: "#8BC34A", description: "Lebendig und natürlich" },
+  { name: "Bernstein", color: "#FF9800", description: "Warm und freundlich" },
+  { name: "Cyan", color: "#00BCD4", description: "Klar und technisch" },
+  { name: "Indigo", color: "#3F51B5", description: "Tiefgreifend und weise" },
+  { name: "Teal", color: "#009688", description: "Beruhigend und ausgewogen" },
+  { name: "Koralle", color: "#FF5722", description: "Lebendig und warm" },
+
+  // Neutrale Farben
+  { name: "Grau", color: "#95A5A6", description: "Neutral und vielseitig" },
+  { name: "Dunkelgrau", color: "#34495E", description: "Stabil und zuverlässig" },
+  { name: "Hellgrau", color: "#BDC3C7", description: "Subtil und zurückhaltend" },
+  { name: "Schwarz", color: "#2C3E50", description: "Kraftvoll und elegant" },
+  { name: "Weiß", color: "#ECF0F1", description: "Rein und minimalistisch" },
+  { name: "Beige", color: "#D4C5B9", description: "Warm und einladend" },
+
+  // Grundfarben-Paletten (41-52) aus colors-new.json
+  { name: "Dunkel auf Hell", color: "#265926", description: "Klassischer Kontrast" },
+  { name: "Hell auf Dunkel", color: "#c2f0c2", description: "Moderner Kontrast" },
+  { name: "Komplementärer Kontrast", color: "#1fad1f", description: "Dynamischer Gegensatz" },
+  { name: "Elegantes Analog", color: "#bddbbd", description: "Harmonische Eleganz" },
+  { name: "Monochromatisch Tech", color: "#99f53d", description: "Technische Präzision" },
+  { name: "Monochromatisch Natur", color: "#4d6732", description: "Natürliche Ruhe" },
+  { name: "Sanft & Modern", color: "#527a52", description: "Zeitgemäße Sanftheit" },
+  { name: "Frisch & Lebhaft", color: "#53c68c", description: "Lebendige Frische" },
+  { name: "Luxuriös & Kräftig", color: "#e8d67d", description: "Kraftvolle Eleganz" },
+  { name: "Minimalistisch & Klar", color: "#14b814", description: "Klare Einfachheit" },
+  { name: "Subtiles Analog", color: "#367d36", description: "Dezente Harmonie" },
+  { name: "Umgekehrter Kontrast", color: "#bef4be", description: "Überraschender Kontrast" },
 ];
 
 // 2. SCHRIFTARTEN

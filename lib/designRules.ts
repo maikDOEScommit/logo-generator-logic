@@ -270,7 +270,7 @@ export const DESIGN_RULES: DesignRule[] = [
     validator: (config) => {
       if (!config.palette) return false;
       // Mehr als 4 Farben gelten als Überladung
-      return config.palette.colors.length <= 4;
+      return config.palette.colors.length <= 3;
     },
     scorer: (config) => {
       if (!config.palette) return 0;
